@@ -1,0 +1,256 @@
+/* Elimina margen del body y del header */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+}
+
+/* Header */
+.encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #000000;
+    padding: 10px 30px;
+    color: white;
+    margin: 0;
+    /* sin margen */
+}
+
+/* Logo */
+.logo-img {
+    height: 95px;
+    width: auto;
+}
+
+/* Menú */
+.menu ul {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.menu ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.menu ul li a:hover {
+    color: red;
+}
+
+/* Main con márgenes */
+main {
+    margin: 40px auto;
+    max-width: 1200px;
+    padding: 0 20px;
+}
+
+
+/* ---------- estilos de historia de gimnasio ---------------- */
+.carrusel-videos-historia {
+    max-width: auto;
+    margin: auto;
+    text-align: center;
+    overflow: hidden;
+  }
+  
+  .video-slider {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .video-slide video {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 12px;
+    opacity: 0.4;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .video-slide.central video {
+    opacity: 1;
+    transform: scale(1.02);
+    cursor: default;
+  }
+  
+  .puntos-indicadores {
+    margin-top: 10px;
+  }
+  
+  .punto {
+    height: 12px;
+    width: 12px;
+    margin: 0 5px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  .punto.activo {
+    background-color: red;
+  }
+  
+
+/* ------------------------ planes ----------------------- */
+.carrusel-planes {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem 0;
+  }
+  
+  .contenedor-carrusel {
+    width: 40%;
+    overflow: hidden;
+  }
+  
+  .carrusel-interno {
+    display: flex;
+    transition: transform 0.5s ease;
+  }
+  
+  .plan {
+    min-width: 100%; /* Cada plan ocupa el 100% del ancho del contenedor */
+    transition: transform 0.5s ease;
+    opacity: 1; /* Todos los planes son completamente visibles por ahora */
+  }
+  
+  .flecha {
+    background: #000;
+    color: white;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    z-index: 3;
+  }
+  
+  .flecha:hover {
+    background: #ff0000;
+  }
+
+
+/*-------------- nuestras maquinas ------------- */
+
+#maquinas {
+    padding: 20px;
+}
+
+#maquinas h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.contenedor-carrusel-maquinas {
+    overflow-x: scroll;
+    white-space: nowrap;
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ccc;
+}
+
+.carrusel-interno-maquinas {
+    display: inline-block;
+}
+
+.maquina {
+    display: inline-block;
+    width: 200px;
+    margin-right: 15px;
+    text-align: center;
+    border: 2px solid #ccc;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.maquina img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.maquina p {
+    margin-top: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Estilo para el scroll */
+.contenedor-carrusel-maquinas::-webkit-scrollbar {
+    height: 8px;
+}
+
+.contenedor-carrusel-maquinas::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+
+.contenedor-carrusel-maquinas::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+/*-------------Productos-------------------------*/
+
+.productos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.producto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  padding: 5px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  height: 70%;
+  min-height: 280px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.producto img {
+  width: 100%;
+  max-height: 160px; /* controla la altura máxima */
+  object-fit: contain; /* hace que no se recorte y se ajuste bien */
+  margin-bottom: 10px;
+}
+
+
+.filtros {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.filtro-btn {
+  margin: 0 10px;
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.filtro-btn.activo {
+  background-color: #000;
+}
