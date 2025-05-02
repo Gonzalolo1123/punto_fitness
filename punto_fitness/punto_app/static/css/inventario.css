@@ -26,19 +26,37 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #ccc;
-    text-align: left;
-  }
-  th {
-    background-color: #e10600;
-    color: white;
-  }
-  tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  .content {
-    padding: 20px;
-  }
+}
+th, td {
+  padding: 12px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+th {
+  background-color: #e10600;
+  color: white;
+}
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+.content {
+  padding: 20px;
+}
+.filtro-btn {
+  margin: 10px 0px;
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.formulario {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+}
+.form-fila {
+  display: grid;
+  grid-template-columns: 50% 50%;
+}

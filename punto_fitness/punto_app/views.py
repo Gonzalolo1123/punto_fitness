@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
@@ -9,6 +9,11 @@ from django.contrib.auth.hashers import make_password
 import json
 from .models import Cliente
 from django.contrib.auth.hashers import check_password
+# Funcionamiento CRUD
+from django.views.decorators.csrf import csrf_exempt
+from .models import Producto
+from django.db.models import Sum, Min
+
 # Create your views here.
 def principal(request):
     cliente_nombre = request.session.get('cliente_nombre')
@@ -105,8 +110,64 @@ def usuarios(request):
     return render(request, 'punto_app/usuarios.html')
 
 def inventario(request):
-    return render(request, 'punto_app/inventario.html')
+    productos = Producto.objects.values('nombre', 'precio', 'categoria','stock_minimo'
+    ).annotate(
+        stock_actual=Sum('stock_actual'),
+        id=Min('id'))
 
+    return render(request, 'punto_app/inventario.html', {'productos': productos})
+@csrf_exempt
+def admin_producto_crear(request):
+    try:
+        data = json.loads(request.body)
+        producto = Producto.objects.create(
+            nombre=data['nombre'],
+            descripcion=data['descripcion'],
+            precio=data['precio'],
+            stock_actual=1,
+            stock_minimo=data['stock_minimo'],
+            compra_id=1,
+            categoria_id=1,
+            establecimiento_id=1
+        )
+        return JsonResponse({
+            'id': producto.id,
+            'nombre': producto.nombre,
+            'stock': producto.stock_actual,
+            'stock_minimo': producto.stock_minimo,
+            'precio': producto.precio
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_producto_actualizar(request, producto_id):
+    try:
+        producto = get_object_or_404(Producto, pk=producto_id)
+        data = json.loads(request.body)
+        
+        producto.nombre = data.get('nombre', producto.nombre)
+        producto.descripcion = data.get('descripcion', producto.descripcion)
+        producto.precio = data.get('precio', producto.precio)
+        producto.stock_minimo = data.get('stock_minimo', producto.stock_minimo)
+        producto.save()
+        
+        return JsonResponse({
+            'id': producto.id,
+            'nombre': producto.nombre,
+            'stock_minimo': producto.stock_minimo,
+            'precio': producto.precio
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+@csrf_exempt   
+def admin_producto_borrar(request, producto_id):
+    try:
+        producto = get_object_or_404(Producto, pk=producto_id)
+        producto.delete()
+        return JsonResponse({'message': 'Producto eliminado correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 def planes(request):
     return render(request, 'punto_app/planes.html')
 
