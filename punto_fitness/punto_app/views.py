@@ -11,7 +11,13 @@ from .models import Cliente
 from django.contrib.auth.hashers import check_password
 # Create your views here.
 def principal(request):
-    return render(request, 'punto_app/principal.html')
+    cliente_nombre = request.session.get('cliente_nombre')
+    cliente_correo = request.session.get('cliente_correo')
+    cliente_telefono= request.session.get('cliente_telefono')
+    if not cliente_nombre:
+        return render(request, 'punto_app/principal.html')
+
+    return render(request, 'punto_app/principal.html', {'cliente_nombre': cliente_nombre,'cliente_correo':cliente_correo,'cliente_telefono':cliente_telefono})
 
 def register_view(request):
     if request.method == "POST":
@@ -73,14 +79,22 @@ def login_view(request):
 
         # Verificar si la contraseña es correcta
         if check_password(contrasena, cliente.contrasena):  # Asegúrate de que la contraseña se verifica de forma segura
-            # Si la contraseña es correcta, puedes iniciar sesión
-            # Si estás usando sesiones en Django, puedes crear tu propio sistema de sesión o algo similar.
+            # Guardar datos en la sesión
+            request.session['cliente_id'] = cliente.id
+            request.session['cliente_nombre'] = cliente.nombre
+            request.session['cliente_correo'] = cliente.email
+            request.session['cliente_telefono'] = cliente.telefono
             return JsonResponse({"success": True, "message": "Inicio de sesión exitoso"})
         else:
             # Si la contraseña es incorrecta
             return JsonResponse({"success": False, "detail": "Credenciales incorrectas"}, status=400)
 
     return JsonResponse({"success": False, "detail": "Método no permitido"}, status=405)
+
+
+def logout_cliente(request):
+    request.session.flush()  # Elimina todos los datos de la sesión
+    return redirect('/')     # 
 def pagina_admin(request):
     return render(request, 'punto_app/admin_dashboard.html')
 

@@ -8,10 +8,11 @@
   <title>Punto Fitness</title>
   <link rel="stylesheet" href="{% static 'css/index.css' %}">
   <link rel="stylesheet" href="{% static 'css/signIn-Up.css' %}">
+  <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
 </head>
 
 <body>
-  
+
   <!-- Menú Superior -->
   <header class="encabezado">
     <div class="logo">
@@ -23,35 +24,42 @@
         <li><a href="#historia">Historia</a></li>
         <li><a href="#trabajadores">Trabajadores</a></li>
         <li><a href="#maquinas">Máquinas</a></li>
-        <li><a href="#" id="usuarioBtn">Usuario</a></li>
+        <li>
+          {% if cliente_nombre %}
+          <a href="#" id="cuentaBtn">Hola, {{ cliente_nombre }}</a>
+          {% else %}
+          <a href="#" id="usuarioBtn">Usuario</a>
+          {% endif %}
+        </li>
       </ul>
     </nav>
   </header>
   <main>
     <!-- Historia del Gimnasio (Carrusel de Videos) -->
     <section id="historia">
-  <h2>Nuestra Historia</h2>
-  <p>Desde nuestros humildes comienzos, Punto Fitness ha crecido para convertirse en un referente de entrenamiento personalizado...</p>
+      <h2>Nuestra Historia</h2>
+      <p>Desde nuestros humildes comienzos, Punto Fitness ha crecido para convertirse en un referente de entrenamiento
+        personalizado...</p>
 
-  <div class="carrusel-videos-historia">
-    <div class="video-slider">
-      <div class="video-slide" id="video0">
-        <video src="{% static 'videos/gym1.mp4' %}" muted onclick="cambiarSlide(0)"></video>
+      <div class="carrusel-videos-historia">
+        <div class="video-slider">
+          <div class="video-slide" id="video0">
+            <video src="{% static 'videos/gym1.mp4' %}" muted onclick="cambiarSlide(0)"></video>
+          </div>
+          <div class="video-slide central" id="video1">
+            <video src="{% static 'videos/gym2.mp4' %}" controls onclick="cambiarSlide(1)"></video>
+          </div>
+          <div class="video-slide" id="video2">
+            <video src="{% static 'videos/gym3.mp4' %}" muted onclick="cambiarSlide(2)"></video>
+          </div>
+        </div>
+        <div class="puntos-indicadores">
+          <span class="punto" onclick="cambiarSlide(0)"></span>
+          <span class="punto activo" onclick="cambiarSlide(1)"></span>
+          <span class="punto" onclick="cambiarSlide(2)"></span>
+        </div>
       </div>
-      <div class="video-slide central" id="video1">
-        <video src="{% static 'videos/gym2.mp4' %}" controls onclick="cambiarSlide(1)"></video>
-      </div>
-      <div class="video-slide" id="video2">
-        <video src="{% static 'videos/gym3.mp4' %}" muted onclick="cambiarSlide(2)"></video>
-      </div>
-    </div>
-    <div class="puntos-indicadores">
-      <span class="punto" onclick="cambiarSlide(0)"></span>
-      <span class="punto activo" onclick="cambiarSlide(1)"></span>
-      <span class="punto" onclick="cambiarSlide(2)"></span>
-    </div>
-  </div>
-</section>
+    </section>
 
     <!-- Planes (Carrusel) -->
     <section id="planes">
@@ -120,14 +128,14 @@
     <!-- Productos en Venta (Grid) -->
     <section id="productos">
       <h2>Productos</h2>
-    
+
       <!-- Botones de filtro -->
       <div class="filtros">
         <button class="filtro-btn activo" data-categoria="todos">Todos</button>
         <button class="filtro-btn" data-categoria="barras">Barras de Cereal</button>
         <button class="filtro-btn" data-categoria="bebidas">Bebidas</button>
       </div>
-    
+
       <!-- Contenedor de productos -->
       <div class="productos">
         <div class="producto barras">
@@ -198,66 +206,80 @@
     <p>Contacto: +56 9 1234 5678 | contacto@puntofitness.cl</p>
   </footer>
 
-  
-    <!-- Modal de Login/Registro -->
-    <div id="authModal" class="modal hidden">
-      <div class="modal-content">
-        <span class="close" id="closeModal">&times;</span>
-        <section>
-          <div class="container" id="container">
-            <div class="form-container sign-up-container">
-              <form id="signUpForm" method="POST" >
-                {% csrf_token %}
-                <h1>Crear Cuenta</h1>
-                <label>
-                  <input type="text" id="nombre" placeholder="Nombre" required />
-                </label>
-                <label>
-                  <input type="text" id="apellido" placeholder="Apellido" required />
-                </label>
-                <label>
-                  <input type="email" id="correo" placeholder="Correo" required />
-                </label>
-                <label>
-                  <input type="tel" id="telefono" placeholder="Número de teléfono" required />
-                </label>
-                <label>
-                  <input type="password" id="contrasena" placeholder="Contraseña" required />
-                </label>
-                <button type="submit" style="margin-top: 9px" >Crear Cuenta</button>
-              </form>
-            </div>
-            <div class="form-container sign-in-container">
-              <form id="signInForm">
+
+  <!-- Modal de Login/Registro -->
+  <div id="authModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <section>
+        <div class="container" id="container">
+          <div class="form-container sign-up-container">
+            <form id="signUpForm" method="POST">
+              {% csrf_token %}
+              <h1>Crear Cuenta</h1>
+              <label>
+                <input type="text" id="nombre" placeholder="Nombre" required />
+              </label>
+              <label>
+                <input type="text" id="apellido" placeholder="Apellido" required />
+              </label>
+              <label>
+                <input type="email" id="correo" placeholder="Correo" required />
+              </label>
+              <label>
+                <input type="tel" id="telefono" placeholder="Número de teléfono" required />
+              </label>
+              <label>
+                <input type="password" id="contrasena" placeholder="Contraseña" required />
+              </label>
+              <button type="submit" style="margin-top: 9px">Crear Cuenta</button>
+            </form>
+          </div>
+          <div class="form-container sign-in-container">
+            <form id="signInForm">
+              <h1>Iniciar Sesión</h1>
+              <label>
+                <input type="email" id="correoi" placeholder="Correo" required />
+              </label>
+              <label>
+                <input type="password" id="contrasenai" placeholder="Contraseña" required />
+              </label>
+              <a href="#">¿Olvidaste tu contraseña?</a>
+              <button>Iniciar Sesión</button>
+            </form>
+          </div>
+          <div class="overlay-container">
+            <div class="overlay">
+              <div class="overlay-panel overlay-left">
                 <h1>Iniciar Sesión</h1>
-                <label>
-                  <input type="email" id="correoi" placeholder="Correo" required />
-                </label>
-                <label>
-                  <input type="password" id="contrasenai" placeholder="Contraseña" required />
-                </label>
-                <a href="#">¿Olvidaste tu contraseña?</a>
-                <button>Iniciar Sesión</button>
-              </form>
-            </div>
-            <div class="overlay-container">
-              <div class="overlay">
-                <div class="overlay-panel overlay-left">
-                  <h1>Iniciar Sesión</h1>
-                  <p>Inicia sesión aquí si ya tienes una cuenta.</p>
-                  <button class="ghost mt-5" id="signIn">Iniciar Sesión</button>
-                </div>
-                <div class="overlay-panel overlay-right">
-                  <h1>Crear cuenta!</h1>
-                  <p>Regístrate si aún no tienes una cuenta...</p>
-                  <button class="ghost" id="signUp">Crear Cuenta</button>
-                </div>
+                <p>Inicia sesión aquí si ya tienes una cuenta.</p>
+                <button class="ghost mt-5" id="signIn">Iniciar Sesión</button>
+              </div>
+              <div class="overlay-panel overlay-right">
+                <h1>Crear cuenta!</h1>
+                <p>Regístrate si aún no tienes una cuenta...</p>
+                <button class="ghost" id="signUp">Crear Cuenta</button>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
+    </div>
+  </div>
+  <!-- Modal de Cuenta de Usuario -->
+  <div id="userModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" id="closeUserModal">&times;</span>
+      <div class="form-container">
+        <h1>Mi Cuenta</h1>
+        <p><strong>Nombre:</strong> {{cliente_nombre}}</p>
+        <p><strong>Correo:</strong> {{cliente_correo}}</p>
+        <p><strong>Teléfono:</strong> {{cliente_telefono}}</p>
+          <a href="{% url 'logout' %}" id="cerrarSesionBtn">Cerrar Sesión</a>
       </div>
     </div>
+  </div>
+  <script src="{% static 'js/cuenta.js' %}"></script>
   <script src="{% static 'js/signIn-Up.js' %}"></script>
   <script src="{% static 'js/index.js' %}"></script>
 </body>
