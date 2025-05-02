@@ -1,0 +1,62 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+  }
+  header {
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+  }
+  .logo {
+    font-weight: bold;
+    font-size: 1.5em;
+    color: #e10600;
+  }
+  nav a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+  }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+  padding: 12px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+th {
+  background-color: #e10600;
+  color: white;
+}
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+.content {
+  padding: 20px;
+}
+.filtro-btn {
+  margin: 10px 0px;
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.formulario {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+}
+.form-fila {
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
