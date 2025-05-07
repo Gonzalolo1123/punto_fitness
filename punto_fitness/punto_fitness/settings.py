@@ -79,9 +79,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'punto_fitness',
         'USER': 'postgres',
-        'PASSWORD': 'compuvi',
+        'PASSWORD': 'hola1234',
         'HOST': 'localhost',
-        'PORT': '5433',
+        'PORT': '5432',
     }
 }
 
