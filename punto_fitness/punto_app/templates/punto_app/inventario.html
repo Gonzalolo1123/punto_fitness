@@ -20,6 +20,8 @@
 
   <div class="content">
     <h2>Inventario</h2>
+
+    <!-- Productos -->
     <table>
       <thead>
         <tr>
@@ -38,13 +40,13 @@
           <td>{{ producto.stock_minimo }}</td>
           <td>{{ producto.precio }}</td>
           <td>
-            <button class="filtro-btn" name="btn-editar" data-id="{{ producto.id }}">Actualizar</button>
-            <button class="filtro-btn" name="btn-eliminar" data-id="{{ producto.id }}">Eliminar</button>
+            <button class="filtro-btn" name="btn-editar-producto" data-id="{{ producto.id }}">Actualizar</button>
+            <button class="filtro-btn" name="btn-eliminar-producto" data-id="{{ producto.id }}">Eliminar</button>
           </td>
         </tr>
         
         <!-- Formulario de edición (aparece al querer actualizar un producto) -->
-        <tr id="form-editar-{{ producto.id }}" class="form-edicion" style="display: none;">
+        <tr id="form-editar-producto-{{ producto.id }}" class="form-edicion-producto" style="display: none;">
           <td colspan="5">
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-producto" data-id="{{ producto.id }}">
@@ -65,7 +67,7 @@
                 <input type="number" name="stock_minimo" value="{{ producto.stock_minimo }}" required>
               </div>
               <button class="filtro-btn" type="submit">Guardar</button>
-              <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicion('{{ producto.id }}')">Cancelar</button>
+              <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicionProducto('{{ producto.id }}')">Cancelar</button>
             </form>
           </td>
         </tr>
@@ -99,7 +101,70 @@
         <button class="filtro-btn" type="submit">Agregar Producto</button>
       </form>
     </div>
+
+    <!-- Categorías de productos-->
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre de la Categoría</th>
+          <th>Descripción</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for categoria in categorias %}
+        <tr data-id="{{ categoria.id }}">
+          <td>{{ categoria.nombre }}</td>
+          <td>{{ categoria.descripcion }}</td>
+          <td>
+            <button class="filtro-btn" name="btn-editar-categoria" data-id="{{ categoria.id }}">Actualizar</button>
+            <button class="filtro-btn" name="btn-eliminar-categoria" data-id="{{ categoria.id }}">Eliminar</button>
+          </td>
+        </tr>
+        
+        <!-- Formulario de edición (aparece al querer actualizar una categoria) -->
+        <tr id="form-editar-categoria-{{ categoria.id }}" class="form-edicion-categoria" style="display: none;">
+          <td colspan="5">
+            <h3>Actualizar datos</h3>
+            <form class="formulario" name="form-editar-categoria" data-id="{{ categoria.id }}">
+              <div class="form-fila">
+                <label>Nombre:</label>
+                <input type="text" name="nombre" value="{{ categoria.nombre }}" required>
+              </div>
+              <div class="form-fila">
+                <label>Descripción:</label>
+                <input type="text" name="descripcion" value="{{ categoria.descripcion }}" required>
+              </div>
+              <button class="filtro-btn" type="submit">Guardar</button>
+              <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicionCategoria('{{ categoria.id }}')">Cancelar</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">No hay categorias en el inventario.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <!-- Formulario para agregar nuevas categorias -->
+    <div class="form-container">
+      <h3>Agregar Nueva Categoría</h3>
+      <form class="formulario" id="form-crear-categoria">
+        <div class="form-fila">
+          <label for="nombre">Nombre:</label>
+          <input type="text" id="nombre" name="nombre" maxlength="30" required>
+        </div>
+        <div class="form-fila">
+          <label for="descripcion">Descripción:</label>
+          <input type="text" id="descripcion" name="descripcion" maxlength="50" required>
+        </div>
+        <button class="filtro-btn" type="submit">Agregar categoría</button>
+      </form>
+    </div>
+
   </div>
-<script src="../../static/js/inventario.js"></script>
+<script src="../../static/js/inventario_productos.js"></script>
+<script src="../../static/js/inventario_categorias.js"></script>
 </body>
 </html>

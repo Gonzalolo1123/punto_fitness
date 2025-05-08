@@ -9,10 +9,17 @@ urlpatterns = [
     path('admin-dashboard/', views.pagina_admin, name='pagina_admin'),
     path('registro/', views.register_view, name='registro'),
     path('usuarios/', views.usuarios, name='usuarios'),
+    
     path('inventario/', views.inventario, name='inventario'),
-    path('productos/crear/', views.admin_producto_crear, name='admin_producto_crear'),
-    path('productos/actualizar/<int:producto_id>/', views.admin_producto_actualizar, name='admin_producto_actualizar'),
-    path('productos/borrar/<int:producto_id>/', views.admin_producto_borrar, name='admin_producto_borrar'),
+
+    path('inventario/crear_producto/', views.admin_producto_crear, name='admin_producto_crear'),
+    path('inventario/actualizar_producto/<int:producto_id>/', views.admin_producto_actualizar, name='admin_producto_actualizar'),
+    path('inventario/borrar_producto/<int:producto_id>/', views.admin_producto_borrar, name='admin_producto_borrar'),
+
+    path('inventario/crear_categoria/', views.admin_categoria_crear, name='admin_categoria_crear'),
+    path('inventario/actualizar_categoria/<int:categoria_id>/', views.admin_categoria_actualizar, name='admin_categoria_actualizar'),
+    path('inventario/borrar_categoria/<int:categoria_id>/', views.admin_categoria_borrar, name='admin_categoria_borrar'),
+
     path('planes/', views.planes, name='planes'),
     path('estadisticas/', views.estadisticas, name='estadisticas'),
     path('principal/', views.principal, name='principal'),

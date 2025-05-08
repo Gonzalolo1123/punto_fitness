@@ -11,7 +11,7 @@ from .models import Cliente
 from django.contrib.auth.hashers import check_password
 # Funcionamiento CRUD
 from django.views.decorators.csrf import csrf_exempt
-from .models import Producto
+from .models import Producto, CategoriaProducto
 from django.db.models import Sum, Min
 
 # Create your views here.
@@ -114,8 +114,9 @@ def inventario(request):
     ).annotate(
         stock_actual=Sum('stock_actual'),
         id=Min('id'))
+    categorias = CategoriaProducto.objects.values('nombre', 'descripcion')
+    return render(request, 'punto_app/inventario.html', {'productos': productos, 'categorias': categorias})
 
-    return render(request, 'punto_app/inventario.html', {'productos': productos})
 @csrf_exempt
 def admin_producto_crear(request):
     try:
@@ -160,6 +161,7 @@ def admin_producto_actualizar(request, producto_id):
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+    
 @csrf_exempt   
 def admin_producto_borrar(request, producto_id):
     try:
@@ -168,6 +170,48 @@ def admin_producto_borrar(request, producto_id):
         return JsonResponse({'message': 'Producto eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_categoria_crear(request):
+    try:
+        data = json.loads(request.body)
+        categoria = CategoriaProducto.objects.create(
+            nombre=data['nombre'],
+            descripcion=data['descripcion'],
+        )
+        return JsonResponse({
+            'id': categoria.id,
+            'nombre': categoria.nombre
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_categoria_actualizar(request, categoria_id):
+    try:
+        categoria = get_object_or_404(Producto, pk=categoria_id)
+        data = json.loads(request.body)
+        
+        categoria.nombre = data.get('nombre', categoria.nombre)
+        categoria.descripcion = data.get('descripcion', categoria.descripcion)
+        categoria.save()
+        
+        return JsonResponse({
+            'id': categoria.id,
+            'descripcion': categoria.descripcion,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+@csrf_exempt   
+def admin_categoria_borrar(request, categoria_id):
+    try:
+        categoria = get_object_or_404(CategoriaProducto, pk=categoria_id)
+        categoria.delete()
+        return JsonResponse({'message': 'Categoría eliminada correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
 def planes(request):
     return render(request, 'punto_app/planes.html')
 

@@ -1,20 +1,24 @@
-const BASE_URL = '/productos/';
+const BASE_URL = '/inventario/';
+
+////////////////////
+//// PRODUCTOS /////
+////////////////////
 
 document.addEventListener('DOMContentLoaded', function() {
   inicializarEventListeners();
 });
 
 // Función para mostrar formulario de edición
-function mostrarFormularioEdicion(productoId) {
-  document.querySelectorAll('.form-edicion').forEach(form => {
+function mostrarFormularioEdicionProducto(productoId) {
+  document.querySelectorAll('.form-edicion-producto').forEach(form => {
     form.style.display = 'none';
   });
-  document.getElementById(`form-editar-${productoId}`).style.display = 'table-row';
+  document.getElementById(`form-editar-producto-${productoId}`).style.display = 'table-row';
 }
 
 // Función para ocultar formulario de edición
-function ocultarFormularioEdicion(productoId) {
-  document.getElementById(`form-editar-${productoId}`).style.display = 'none';
+function ocultarFormularioEdicionProducto(productoId) {
+  document.getElementById(`form-editar-producto-${productoId}`).style.display = 'none';
 }
 
 // Función para actualizar vista de datos de producto
@@ -30,7 +34,7 @@ function actualizarVista(producto) {
 
 // Función para crear producto
 function crearProducto(formData) {
-  return fetch(`${BASE_URL}crear/`, {
+  return fetch(`${BASE_URL}crear_producto/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -42,7 +46,7 @@ function crearProducto(formData) {
 
 // Función para actualizar producto
 function actualizarProducto(id, data) {
-  return fetch(`${BASE_URL}actualizar/${id}/`, {
+  return fetch(`${BASE_URL}actualizar_producto/${id}/`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -54,7 +58,7 @@ function actualizarProducto(id, data) {
 
 // Función para eliminar producto
 function eliminarProducto(id) {
-  return fetch(`${BASE_URL}borrar/${id}/`, {
+  return fetch(`${BASE_URL}borrar_producto/${id}/`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -107,7 +111,7 @@ function inicializarEventListeners() {
         .then(data => {
           if (data.error) throw new Error(data.error);
           actualizarVista(data);
-          ocultarFormularioEdicion(productoId);
+          ocultarFormularioEdicionProducto(productoId);
           alert('Producto actualizado correctamente');
           window.location.reload();
         })
@@ -119,14 +123,14 @@ function inicializarEventListeners() {
   });
 
   // Boton editar
-  document.querySelectorAll('[name="btn-editar"]').forEach(btn => {
+  document.querySelectorAll('[name="btn-editar-producto"]').forEach(btn => {
     btn.addEventListener('click', function() {
-      mostrarFormularioEdicion(this.getAttribute('data-id'));
+      mostrarFormularioEdicionProducto(this.getAttribute('data-id'));
     });
   });
 
   // Boton eliminar
-  document.querySelectorAll('[name="btn-eliminar"]').forEach(btn => {
+  document.querySelectorAll('[name="btn-eliminar-producto"]').forEach(btn => {
     btn.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
       if (confirm('¿Eliminar este producto?')) {
@@ -134,7 +138,7 @@ function inicializarEventListeners() {
           .then(data => {
             if (data.error) throw new Error(data.error);
             document.querySelector(`tr[data-id="${id}"]`).remove();
-            document.querySelector(`#form-editar-${id}`)?.remove();
+            document.querySelector(`#form-editar-producto-${id}`)?.remove();
             window.location.reload();
           })
           .catch(console.error);
@@ -145,7 +149,8 @@ function inicializarEventListeners() {
   // Boton cancelar
   document.querySelectorAll('.btn-cancelar').forEach(btn => {
     btn.addEventListener('click', function() {
-      ocultarFormularioEdicion(this.getAttribute('data-id'));
+      ocultarFormularioEdicionProducto(this.getAttribute('data-id'));
     });
   });
 }
+
