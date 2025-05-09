@@ -50,21 +50,22 @@
           <td colspan="5">
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-producto" data-id="{{ producto.id }}">
+              {% csrf_token %}
               <div class="form-fila">
-                <label>Nombre:</label>
-                <input type="text" name="nombre" value="{{ producto.nombre }}" required>
+                <label for="producto-nombre">Nombre:</label>
+                <input type="text" name="producto-nombre" value="{{ producto.nombre }}" required>
               </div>
               <div class="form-fila">
-                <label>Descripción:</label>
-                <input type="text" name="descripcion" value="{{ producto.descripcion }}" required>
+                <label for="producto-descripcion">Descripción:</label>
+                <input type="text" name="producto-descripcion" value="{{ producto.descripcion }}" required>
               </div>
               <div class="form-fila">
-                <label>Precio:</label>
-                <input type="number" name="precio" value="{{ producto.precio }}" required>
+                <label for="producto-precio">Precio:</label>
+                <input type="number" name="producto-precio" value="{{ producto.precio }}" required>
               </div>
               <div class="form-fila">
-                <label>Stock Mínimo:</label>
-                <input type="number" name="stock_minimo" value="{{ producto.stock_minimo }}" required>
+                <label for="producto-stock-minimo">Stock Mínimo:</label>
+                <input type="number" name="producto-stock-minimo" value="{{ producto.stock_minimo }}" required>
               </div>
               <button class="filtro-btn" type="submit">Guardar</button>
               <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicionProducto('{{ producto.id }}')">Cancelar</button>
@@ -82,21 +83,35 @@
     <div class="form-container">
       <h3>Agregar Nuevo Producto</h3>
       <form class="formulario" id="form-crear-producto">
+        {% csrf_token %}
         <div class="form-fila">
-          <label for="nombre">Nombre:</label>
-          <input type="text" id="nombre" name="nombre" maxlength="30" required>
+          <label for="producto-nombre">Nombre:</label>
+          <input type="text" id="producto-nombre" name="producto-nombre" maxlength="30" required>
         </div>
         <div class="form-fila">
-          <label for="descripcion">Descripción:</label>
-          <input type="text" id="descripcion" name="descripcion" maxlength="50" required>
+          <label for="producto-descripcion">Descripción:</label>
+          <input type="text" id="producto-descripcion" name="producto-descripcion" maxlength="50" required>
         </div>
         <div class="form-fila">
-          <label for="precio">Precio:</label>
-          <input type="number" id="precio" name="precio" min="0" required>
+          <label for="producto-precio">Precio:</label>
+          <input type="number" id="producto-precio" name="producto-precio" min="0" required>
         </div>
         <div class="form-fila">
-          <label for="stock_minimo">Stock Mínimo:</label>
-          <input type="number" id="stock_minimo" name="stock_minimo" min="0" required>
+          <label for="producto-stock-actual">Stock Actual:</label>
+          <input type="number" id="producto-stock-actual" name="producto-stock-actual" min="0" required>
+        </div>
+        <div class="form-fila">
+          <label for="producto-stock-minimo">Stock Mínimo:</label>
+          <input type="number" id="producto-stock-minimo" name="producto-stock-minimo" min="0" required>
+        </div>
+        <div class="form-fila">
+          <label for="producto-categoria">Categoría:</label>
+          <select id="producto-categoria" name="producto-categoria" required>
+            <option value="">Seleccione</option>
+            {% for categoria in categorias %}
+            <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+            {% endfor %}
+          </select>
         </div>
         <button class="filtro-btn" type="submit">Agregar Producto</button>
       </form>
@@ -127,13 +142,14 @@
           <td colspan="5">
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-categoria" data-id="{{ categoria.id }}">
+              {% csrf_token %}
               <div class="form-fila">
-                <label>Nombre:</label>
-                <input type="text" name="nombre" value="{{ categoria.nombre }}" required>
+                <label for="categoria-nombre">Nombre:</label>
+                <input type="text" name="categoria-nombre" value="{{ categoria.nombre }}" required>
               </div>
               <div class="form-fila">
-                <label>Descripción:</label>
-                <input type="text" name="descripcion" value="{{ categoria.descripcion }}" required>
+                <label for="categoria-descripcion">Descripción:</label>
+                <input type="text" name="categoria-descripcion" value="{{ categoria.descripcion }}" required>
               </div>
               <button class="filtro-btn" type="submit">Guardar</button>
               <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicionCategoria('{{ categoria.id }}')">Cancelar</button>
@@ -151,20 +167,20 @@
     <div class="form-container">
       <h3>Agregar Nueva Categoría</h3>
       <form class="formulario" id="form-crear-categoria">
+        {% csrf_token %}
         <div class="form-fila">
-          <label for="nombre">Nombre:</label>
-          <input type="text" id="nombre" name="nombre" maxlength="30" required>
+          <label for="categoria-nombre">Nombre:</label>
+          <input type="text" id="categoria-nombre" name="categoria-nombre" maxlength="30" required>
         </div>
         <div class="form-fila">
-          <label for="descripcion">Descripción:</label>
-          <input type="text" id="descripcion" name="descripcion" maxlength="50" required>
+          <label for="categoria-descripcion">Descripción:</label>
+          <input type="text" id="categoria-descripcion" name="categoria-descripcion" maxlength="50" required>
         </div>
         <button class="filtro-btn" type="submit">Agregar categoría</button>
       </form>
     </div>
 
   </div>
-<script src="../../static/js/inventario_productos.js"></script>
-<script src="../../static/js/inventario_categorias.js"></script>
+<script src="../../static/js/inventario.js"></script>
 </body>
 </html>

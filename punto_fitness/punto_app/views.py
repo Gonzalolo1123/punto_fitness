@@ -110,11 +110,20 @@ def usuarios(request):
     return render(request, 'punto_app/usuarios.html')
 
 def inventario(request):
-    productos = Producto.objects.values('nombre', 'precio', 'categoria','stock_minimo'
-    ).annotate(
-        stock_actual=Sum('stock_actual'),
-        id=Min('id'))
-    categorias = CategoriaProducto.objects.values('nombre', 'descripcion')
+    productos = Producto.objects.values('id').annotate(
+        nombre=Min('nombre'),
+        precio=Min('precio'),
+        categoria=Min('categoria'),
+        stock_minimo=Min('stock_minimo'),
+        stock_actual=Sum('stock_actual')
+    )
+
+    #productos = Producto.objects.values('id', 'nombre', 'precio', 'categoria','stock_minimo'
+    #).annotate(
+    #    stock_actual=Sum('stock_actual'),
+    #    id=Min('id'))
+    categorias = CategoriaProducto.objects.values('id', 'nombre', 'descripcion')
+
     return render(request, 'punto_app/inventario.html', {'productos': productos, 'categorias': categorias})
 
 @csrf_exempt
@@ -125,10 +134,10 @@ def admin_producto_crear(request):
             nombre=data['nombre'],
             descripcion=data['descripcion'],
             precio=data['precio'],
-            stock_actual=1,
+            stock_actual=data['stock_actual'],
             stock_minimo=data['stock_minimo'],
             compra_id=1,
-            categoria_id=1,
+            categoria_id=data['categoria_id'],
             establecimiento_id=1
         )
         return JsonResponse({
@@ -189,7 +198,7 @@ def admin_categoria_crear(request):
 @csrf_exempt
 def admin_categoria_actualizar(request, categoria_id):
     try:
-        categoria = get_object_or_404(Producto, pk=categoria_id)
+        categoria = get_object_or_404(CategoriaProducto, pk=categoria_id)
         data = json.loads(request.body)
         
         categoria.nombre = data.get('nombre', categoria.nombre)
