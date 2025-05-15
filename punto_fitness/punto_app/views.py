@@ -13,6 +13,7 @@ from django.contrib.auth.hashers import check_password
 from django.views.decorators.csrf import csrf_exempt
 from .models import Producto
 from django.db.models import Sum, Min
+from django.db import IntegrityError
 
 # Create your views here.
 def principal(request):
@@ -37,15 +38,9 @@ def register_view(request):
             telefono = data.get('telefono')
             estado = data.get('estado', 'Activo')
 
-            if not all([nombre, apellido, correo, contrasena]):
-                return JsonResponse({'error': 'Faltan campos'}, status=400)
+            if User.objects.filter(email=correo).exists() or Cliente.objects.filter(email=correo).exists():
+                return JsonResponse({'error': 'El correo ya está registrado. Por favor, use otro correo.'}, status=400)
 
-            if User.objects.filter(username=nombre).exists():
-                return JsonResponse({'error': 'Nombre de usuario ya existe'}, status=400)
-
-            if User.objects.filter(email=correo).exists():
-                return JsonResponse({'error': 'Correo ya registrado'}, status=400)
-            
             # Encriptar la contraseña
             contrasena_encriptada = make_password(contrasena)
             # Crear el cliente en la tabla 'cliente' en PostgreSQL
@@ -57,14 +52,17 @@ def register_view(request):
                 telefono=telefono,  # Teléfono
                 estado=estado  # Estado
             )
-            
+
             return JsonResponse({'message': 'Usuario y cliente creados correctamente'}, status=201)
 
+        except IntegrityError:
+            return JsonResponse({'error': 'Correo ya registrado'}, status=400)
         except json.JSONDecodeError:
             return JsonResponse({'error': 'JSON inválido'}, status=400)
 
     else:
         return JsonResponse({'error': 'Método no permitido'}, status=405)
+
 def login_view(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -173,3 +171,24 @@ def planes(request):
 
 def estadisticas(request):
     return render(request, 'punto_app/estadisticas.html')
+
+@csrf_exempt
+def verificar_correo(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            correo = data.get('correo')
+
+            if not correo:
+                return JsonResponse({'error': 'Correo no proporcionado'}, status=400)
+
+            # Verificar si el correo ya está registrado
+            if Cliente.objects.filter(email=correo).exists():
+                return JsonResponse({'existe': True, 'message': 'El correo ya está registrado'}, status=200)
+            else:
+                return JsonResponse({'existe': False, 'message': 'El correo está disponible'}, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON inválido'}, status=400)
+
+    return JsonResponse({'error': 'Método no permitido'}, status=405)

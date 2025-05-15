@@ -56,10 +56,10 @@ class Administrador(models.Model):
 
 
 class Cliente(models.Model):
-    nombre = models.CharField(max_length=30)
-    apellido = models.CharField(max_length=30)
-    email = models.EmailField(max_length=30)
-    contrasena = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100)
+    apellido = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    contrasena = models.CharField(max_length=255)
     telefono = models.IntegerField()
     fecha_registro = models.DateField(auto_now_add=True)  # Usamos auto_now_add para agregar la fecha automáticamente
     estado = models.CharField(max_length=30, default='Activo')

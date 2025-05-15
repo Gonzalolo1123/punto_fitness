@@ -17,4 +17,5 @@ urlpatterns = [
     path('estadisticas/', views.estadisticas, name='estadisticas'),
     path('principal/', views.principal, name='principal'),
     path('logout/', views.logout_cliente, name='logout'),
+    path("verificar-correo/", views.verificar_correo, name="verificar_correo"),
 ]

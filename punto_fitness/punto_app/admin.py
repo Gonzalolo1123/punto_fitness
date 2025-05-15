@@ -3,8 +3,13 @@ from .models import Cliente, Producto, Membresia
 
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'apellido', 'email', 'telefono', 'fecha_registro', 'estado')
+    list_display = ('nombre', 'apellido', 'email', 'telefono', 'estado', 'get_fecha_registro')
     list_filter = ('estado',)
+
+    def get_fecha_registro(self, obj):
+        return obj.fecha_registro
+    get_fecha_registro.admin_order_field = 'fecha_registro'
+    get_fecha_registro.short_description = 'Fecha de Registro'
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):

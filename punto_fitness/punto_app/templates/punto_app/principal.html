@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="{% static 'css/index.css' %}">
   <link rel="stylesheet" href="{% static 'css/signIn-Up.css' %}">
   <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
+  <link rel="stylesheet" href="{% static 'css/alert.css' %}?v=2">
 </head>
 
 <body>
@@ -227,10 +228,19 @@
                 <input type="email" id="correo" placeholder="Correo" required />
               </label>
               <label>
-                <input type="tel" id="telefono" placeholder="Número de teléfono" required />
+                <input type="tel" id="telefono" placeholder="Número de teléfono" pattern="[0-9]{9}" required />
               </label>
               <label>
                 <input type="password" id="contrasena" placeholder="Contraseña" required />
+                <div class="password-strength-wrapper">
+                  <div id="password-strength-bar">
+                    <div id="password-strength-fill"></div>
+                  </div>
+                  <span id="password-strength-text"></span>
+                </div>
+              </label>
+              <label>
+                <input type="password" id="Confirmcontrasena" placeholder="Repite Contraseña" required />
               </label>
               <button type="submit" style="margin-top: 9px">Crear Cuenta</button>
             </form>
