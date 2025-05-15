@@ -243,3 +243,33 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Elementos de los formularios
+  const signInContainer = document.querySelector('.sign-in-container');
+  const signUpContainer = document.querySelector('.sign-up-container');
+  const forgotContainer = document.querySelector('.forgot-password-container');
+  const forgotLink = document.querySelector('#signInForm a[href="#"]');
+  const volverLogin = document.getElementById("volverLogin");
+  const authModal = document.getElementById("authModal");
+
+  // Mostrar formulario de recuperación
+  if (forgotLink && forgotContainer && signInContainer) {
+    forgotLink.addEventListener("click", function(e) {
+      e.preventDefault();
+      signInContainer.style.display = "none";
+      forgotContainer.style.display = "block";
+      if (authModal) authModal.classList.add("center-forgot");
+    });
+  }
+
+  // Volver al login
+  if (volverLogin && forgotContainer && signInContainer && signUpContainer) {
+    volverLogin.addEventListener("click", function(e) {
+      e.preventDefault();
+      forgotContainer.style.display = "none";
+      signInContainer.style.display = "block";
+
+    });
+  }
+});
