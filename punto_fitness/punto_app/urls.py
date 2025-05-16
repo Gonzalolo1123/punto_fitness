@@ -19,6 +19,12 @@ urlpatterns = [
     path('inventario/crear_categoria/', views.admin_categoria_crear, name='admin_categoria_crear'),
     path('inventario/actualizar_categoria/<int:categoria_id>/', views.admin_categoria_actualizar, name='admin_categoria_actualizar'),
     path('inventario/borrar_categoria/<int:categoria_id>/', views.admin_categoria_borrar, name='admin_categoria_borrar'),
+    
+    path('maquinas/', views.maquinas, name='maquinas'),
+
+    path('maquinas/crear_maquina/', views.admin_maquina_crear, name='admin_maquina_crear'),
+    path('maquinas/actualizar_maquina/<int:maquina_id>/', views.admin_maquina_actualizar, name='admin_maquina_actualizar'),
+    path('maquinas/borrar_maquina/<int:maquina_id>/', views.admin_maquina_borrar, name='admin_maquina_borrar'),
 
     path('planes/', views.planes, name='planes'),
     path('estadisticas/', views.estadisticas, name='estadisticas'),

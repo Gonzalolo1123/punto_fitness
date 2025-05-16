@@ -179,3 +179,12 @@ class ClienteMembresia(models.Model):
 
     class Meta:
         db_table = 'cliente_membresia'
+
+
+class Maquina(models.Model):
+    nombre = models.CharField(max_length=30)
+    descripcion = models.CharField(max_length=50)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'maquina'

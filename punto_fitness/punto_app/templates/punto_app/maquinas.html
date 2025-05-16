@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventario - Punto Fitness</title>
+  <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
+</head>
+<body>
+
+  <header>
+    <div class="logo">Punto Fitness</div>
+    <nav>
+      <a href="{% url 'pagina_admin' %}">Estadísticas</a>
+      <a href="#">Usuarios</a>
+      <a href="{% url 'inventario' %}">Inventario</a>
+    </nav>
+  </header>
+
+  <div class="content">
+    <h2>Máquinas</h2>
+
+    <!-- Máquinas del gimnasio -->
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre de la máquina</th>
+          <th>Descripción</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for maquina in maquinas %}
+        <tr data-id="{{ maquina.id }}">
+          <td>{{ maquina.nombre }}</td>
+          <td>{{ maquina.descripcion }}</td>
+          <td>
+            <button class="filtro-btn" name="btn-editar-maquina" data-id="{{ maquina.id }}">Actualizar</button>
+            <button class="filtro-btn" name="btn-eliminar-maquina" data-id="{{ maquina.id }}">Eliminar</button>
+          </td>
+        </tr>
+        
+        <!-- Formulario de edición (aparece al querer actualizar una maquina) -->
+        <tr id="form-editar-maquina-{{ maquina.id }}" class="form-edicion-maquina" style="display: none;">
+          <td colspan="5">
+            <h3>Actualizar datos</h3>
+            <form class="formulario" name="form-editar-maquina" data-id="{{ maquina.id }}">
+              {% csrf_token %}
+              <div class="form-fila">
+                <label for="maquina-nombre">Nombre:</label>
+                <input type="text" name="maquina-nombre" value="{{ maquina.nombre }}" required>
+              </div>
+              <div class="form-fila">
+                <label for="maquina-descripcion">Descripción:</label>
+                <input type="text" name="maquina-descripcion" value="{{ maquina.descripcion }}" required>
+              </div>
+              <button class="filtro-btn" type="submit">Guardar</button>
+              <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicion('{{ maquina.id }}')">Cancelar</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">No hay maquinas en el inventario.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <!-- Formulario para agregar nuevas maquinas -->
+    <div class="form-container">
+      <h3>Agregar Nueva Máquina</h3>
+      <form class="formulario" id="form-crear-maquina">
+        {% csrf_token %}
+        <div class="form-fila">
+          <label for="maquina-nombre">Nombre:</label>
+          <input type="text" id="maquina-nombre" name="maquina-nombre" maxlength="30" required>
+        </div>
+        <div class="form-fila">
+          <label for="maquina-descripcion">Descripción:</label>
+          <input type="text" id="maquina-descripcion" name="maquina-descripcion" maxlength="50" required>
+        </div>
+        <button class="filtro-btn" type="submit">Agregar máquina</button>
+      </form>
+    </div>
+
+  </div>
+<script src="../../static/js/maquinas.js"></script>
+</body>
+</html>

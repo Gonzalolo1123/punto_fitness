@@ -11,7 +11,7 @@ from .models import Cliente
 from django.contrib.auth.hashers import check_password
 # Funcionamiento CRUD
 from django.views.decorators.csrf import csrf_exempt
-from .models import Producto, CategoriaProducto
+from .models import Producto, CategoriaProducto, Maquina
 from django.db.models import Sum, Min
 
 # Create your views here.
@@ -187,6 +187,7 @@ def admin_categoria_crear(request):
         categoria = CategoriaProducto.objects.create(
             nombre=data['nombre'],
             descripcion=data['descripcion'],
+            establecimiento_id=1
         )
         return JsonResponse({
             'id': categoria.id,
@@ -218,6 +219,54 @@ def admin_categoria_borrar(request, categoria_id):
         categoria = get_object_or_404(CategoriaProducto, pk=categoria_id)
         categoria.delete()
         return JsonResponse({'message': 'Categoría eliminada correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+def maquinas(request):
+    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion')
+    return render(request, 'punto_app/maquinas.html', {'maquinas': maquinas})
+
+@csrf_exempt
+def admin_maquina_crear(request):
+    try:
+        data = json.loads(request.body)
+        maquina = Maquina.objects.create(
+            nombre=data['nombre'],
+            descripcion=data['descripcion'],
+            establecimiento_id=1
+        )
+        return JsonResponse({
+            'id': maquina.id,
+            'nombre': maquina.nombre,
+            'descripcion': maquina.descripcion
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_maquina_actualizar(request, maquina_id):
+    try:
+        maquina = get_object_or_404(Maquina, pk=maquina_id)
+        data = json.loads(request.body)
+        
+        maquina.nombre = data.get('nombre', maquina.nombre)
+        maquina.descripcion = data.get('descripcion', maquina.descripcion)
+        maquina.save()
+        
+        return JsonResponse({
+            'id': maquina.id,
+            'nombre': maquina.nombre,
+            'descripcion': maquina.descripcion,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+@csrf_exempt   
+def admin_maquina_borrar(request, maquina_id):
+    try:
+        maquina = get_object_or_404(Maquina, pk=maquina_id)
+        maquina.delete()
+        return JsonResponse({'message': 'Máquina eliminada correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
     
