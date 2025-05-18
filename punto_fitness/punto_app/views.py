@@ -186,8 +186,7 @@ def admin_categoria_crear(request):
         data = json.loads(request.body)
         categoria = CategoriaProducto.objects.create(
             nombre=data['nombre'],
-            descripcion=data['descripcion'],
-            establecimiento_id=1
+            descripcion=data['descripcion']
         )
         return JsonResponse({
             'id': categoria.id,

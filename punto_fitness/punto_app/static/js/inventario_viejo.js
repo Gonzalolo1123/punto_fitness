@@ -252,59 +252,59 @@ function inicializarEventListenersCategorias() {
   }
 }
 
-  // Formularios de actualización de datos
-  document.querySelectorAll('[name="form-editar-categoria"]').forEach(form => {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const categoriaId = this.dataset.id;
-      const formData = {
-        nombre: this.querySelector('[name="categoria-nombre"]').value,
-        descripcion: this.querySelector('[name="categoria-descripcion"]').value,
-      };
-      
-      actualizarCategoria(categoriaId, formData)
+// Formularios de actualización de datos
+document.querySelectorAll('[name="form-editar-categoria"]').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const categoriaId = this.dataset.id;
+    const formData = {
+      nombre: this.querySelector('[name="categoria-nombre"]').value,
+      descripcion: this.querySelector('[name="categoria-descripcion"]').value,
+    };
+    
+    actualizarCategoria(categoriaId, formData)
+      .then(data => {
+        if (data.error) throw new Error(data.error);
+        actualizarVista(data);
+        ocultarFormularioEdicionCategoria(categoriaId);
+        alert('categoria actualizado correctamente');
+        window.location.reload();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar: ' + error.message);
+      });
+  });
+});
+
+// Boton editar
+document.querySelectorAll('[name="btn-editar-categoria"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    mostrarFormularioEdicionCategoria(this.getAttribute('data-id'));
+  });
+});
+
+// Boton eliminar
+document.querySelectorAll('[name="btn-eliminar-categoria"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const id = this.getAttribute('data-id');
+    if (confirm('¿Eliminar esta categoria?')) {
+      eliminarCategoria(id)
         .then(data => {
           if (data.error) throw new Error(data.error);
-          actualizarVista(data);
-          ocultarFormularioEdicionCategoria(categoriaId);
-          alert('categoria actualizado correctamente');
+          document.querySelector(`tr[data-id="${id}"]`).remove();
+          document.querySelector(`#form-editar-categoria-${id}`)?.remove();
           window.location.reload();
         })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error al actualizar: ' + error.message);
-        });
-    });
+        .catch(console.error);
+    }
   });
+});
 
-  // Boton editar
-  document.querySelectorAll('[name="btn-editar-categoria"]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      mostrarFormularioEdicionCategoria(this.getAttribute('data-id'));
-    });
+// Boton cancelar
+document.querySelectorAll('.btn-cancelar').forEach(btn => {
+  btn.addEventListener('click', function() {
+    ocultarFormularioEdicionCategoria(this.getAttribute('data-id'));
   });
-
-  // Boton eliminar
-  document.querySelectorAll('[name="btn-eliminar-categoria"]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const id = this.getAttribute('data-id');
-      if (confirm('¿Eliminar esta categoria?')) {
-        eliminarCategoria(id)
-          .then(data => {
-            if (data.error) throw new Error(data.error);
-            document.querySelector(`tr[data-id="${id}"]`).remove();
-            document.querySelector(`#form-editar-categoria-${id}`)?.remove();
-            window.location.reload();
-          })
-          .catch(console.error);
-      }
-    });
-  });
-
-  // Boton cancelar
-  document.querySelectorAll('.btn-cancelar').forEach(btn => {
-    btn.addEventListener('click', function() {
-      ocultarFormularioEdicionCategoria(this.getAttribute('data-id'));
-    });
-  });
+});
 
