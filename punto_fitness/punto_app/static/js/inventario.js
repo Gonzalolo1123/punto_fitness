@@ -24,12 +24,7 @@ function mostrarFormularioEdicion(id, id_tipo) {
 
 // Función para ocultar formulario de edición
 function ocultarFormularioEdicion(id, id_tipo) {
-  if (id_tipo == 'cancelar') {
-    document.getElementById(`form-editar-producto-${id}`).style.display = 'none';
-    document.getElementById(`form-editar-categoria-${id}`).style.display = 'none';
-  } else {
-    document.getElementById(`form-editar-${id_tipo}-${id}`).style.display = 'none';
-  }
+  document.getElementById(`form-editar-${id_tipo}-${id}`).style.display = 'none';
 }
 
 // Función para actualizar vista de datos (INCOMPLETO)
@@ -293,8 +288,7 @@ document.querySelectorAll('[name="btn-eliminar-categoria"]').forEach(btn => {
 // Boton cancelar
 document.querySelectorAll('.btn-cancelar').forEach(btn => {
   btn.addEventListener('click', function() {
-    id_tipo='cancelar';
-    ocultarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
+    ocultarFormularioEdicion(this.getAttribute('data-id'));
   });
 });
 

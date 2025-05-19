@@ -68,7 +68,7 @@
                 <input type="number" name="producto-stock-minimo" value="{{ producto.stock_minimo }}" required>
               </div>
               <button class="filtro-btn" type="submit">Guardar</button>
-              <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicionProducto('{{ producto.id }}')">Cancelar</button>
+              <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicion('{{ producto.id }}', 'producto')">Cancelar</button>
             </form>
           </td>
         </tr>
@@ -152,7 +152,7 @@
                 <input type="text" name="categoria-descripcion" value="{{ categoria.descripcion }}" required>
               </div>
               <button class="filtro-btn" type="submit">Guardar</button>
-              <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicionCategoria('{{ categoria.id }}')">Cancelar</button>
+              <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicion('{{ categoria.id }}', 'categoria')">Cancelar</button>
             </form>
           </td>
         </tr>

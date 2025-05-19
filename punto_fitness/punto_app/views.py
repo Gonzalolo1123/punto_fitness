@@ -184,6 +184,13 @@ def admin_producto_borrar(request, producto_id):
 def admin_categoria_crear(request):
     try:
         data = json.loads(request.body)
+
+        if CategoriaProducto.objects.filter(nombre__iexact=data['nombre']).exists():
+            return JsonResponse({'error': '¡Ya existe una categoría con este nombre!'}, status=400)
+
+        if CategoriaProducto.objects.filter(descripcion__iexact=data['descripcion']).exists():
+            return JsonResponse({'error': '¡Ya existe una categoría con esta descripción!'}, status=400)
+        
         categoria = CategoriaProducto.objects.create(
             nombre=data['nombre'],
             descripcion=data['descripcion']
@@ -200,6 +207,12 @@ def admin_categoria_actualizar(request, categoria_id):
     try:
         categoria = get_object_or_404(CategoriaProducto, pk=categoria_id)
         data = json.loads(request.body)
+
+        if CategoriaProducto.objects.filter(nombre__iexact=data['nombre']).exists():
+            return JsonResponse({'error': '¡Ya existe una categoría con este nombre!'}, status=400)
+
+        if CategoriaProducto.objects.filter(descripcion__iexact=data['descripcion']).exists():
+            return JsonResponse({'error': '¡Ya existe una categoría con esta descripción!'}, status=400)
         
         categoria.nombre = data.get('nombre', categoria.nombre)
         categoria.descripcion = data.get('descripcion', categoria.descripcion)
@@ -229,6 +242,13 @@ def maquinas(request):
 def admin_maquina_crear(request):
     try:
         data = json.loads(request.body)
+
+        if Maquina.objects.filter(nombre__iexact=data['nombre']).exists():
+            return JsonResponse({'error': '¡Ya existe una máquina con este nombre!'}, status=400)
+
+        if Maquina.objects.filter(descripcion__iexact=data['descripcion']).exists():
+            return JsonResponse({'error': '¡Ya existe una máquina con esta descripción!'}, status=400)
+        
         maquina = Maquina.objects.create(
             nombre=data['nombre'],
             descripcion=data['descripcion'],
@@ -247,6 +267,12 @@ def admin_maquina_actualizar(request, maquina_id):
     try:
         maquina = get_object_or_404(Maquina, pk=maquina_id)
         data = json.loads(request.body)
+
+        if Maquina.objects.filter(nombre__iexact=data['nombre']).exists():
+            return JsonResponse({'error': '¡Ya existe una máquina con este nombre!'}, status=400)
+
+        if Maquina.objects.filter(descripcion__iexact=data['descripcion']).exists():
+            return JsonResponse({'error': '¡Ya existe una máquina con esta descripción!'}, status=400)
         
         maquina.nombre = data.get('nombre', maquina.nombre)
         maquina.descripcion = data.get('descripcion', maquina.descripcion)
