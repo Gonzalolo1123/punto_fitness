@@ -124,7 +124,7 @@ def inventario(request):
     #    id=Min('id'))
     categorias = CategoriaProducto.objects.values('id', 'nombre', 'descripcion')
 
-    return render(request, 'punto_app/inventario.html', {'productos': productos, 'categorias': categorias})
+    return render(request, 'punto_app/admin_inventario.html', {'productos': productos, 'categorias': categorias})
 
 @csrf_exempt
 def admin_producto_crear(request):
@@ -236,7 +236,7 @@ def admin_categoria_borrar(request, categoria_id):
 
 def maquinas(request):
     maquinas = Maquina.objects.values('id', 'nombre', 'descripcion')
-    return render(request, 'punto_app/maquinas.html', {'maquinas': maquinas})
+    return render(request, 'punto_app/admin_maquinas.html', {'maquinas': maquinas})
 
 @csrf_exempt
 def admin_maquina_crear(request):
@@ -292,6 +292,74 @@ def admin_maquina_borrar(request, maquina_id):
         maquina = get_object_or_404(Maquina, pk=maquina_id)
         maquina.delete()
         return JsonResponse({'message': 'Máquina eliminada correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+def usuarios(request):
+    usuarios = Cliente.objects.values('id', 'nombre', 'apellido', 'email', 'telefono')
+    return render(request, 'punto_app/admin_usuarios.html', {'usuarios': usuarios})
+
+@csrf_exempt
+def admin_usuario_crear(request):
+    try:
+        data = json.loads(request.body)
+
+        if Cliente.objects.filter(email__iexact=data['correo']).exists():
+            return JsonResponse({'error': '¡Ya existe un usuario con este correo!'}, status=400)
+
+        if Cliente.objects.filter(telefono__iexact=data['telefono']).exists():
+            return JsonResponse({'error': '¡Ya existe un usuario con este telefono!'}, status=400)
+        
+        usuario = Cliente.objects.create(
+            nombre=data['nombre'],
+            apellido=data['apellido'],
+            email=data['correo'],
+            telefono=data['telefono']
+        )
+        return JsonResponse({
+            'id': usuario.id,
+            'nombre': usuario.nombre,
+            'apellido': usuario.apellido,
+            'correo': usuario.email,
+            'telefono': usuario.telefono
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_usuario_actualizar(request, usuario_id):
+    try:
+        usuario = get_object_or_404(Cliente, pk=usuario_id)
+        data = json.loads(request.body)
+
+        if Cliente.objects.filter(email__iexact=data['correo']).exists():
+            return JsonResponse({'error': '¡Ya existe un usuario con este correo!'}, status=400)
+
+        if Cliente.objects.filter(telefono__iexact=data['telefono']).exists():
+            return JsonResponse({'error': '¡Ya existe un usuario con este telefono!'}, status=400)
+        
+        usuario.nombre = data.get('nombre', usuario.nombre)
+        usuario.apellido = data.get('apellido', usuario.apellido)
+        usuario.email = data.get('correo', usuario.email)
+        usuario.telefono = data.get('telefono', usuario.telefono)
+        usuario.save()
+        
+        return JsonResponse({
+            'id': usuario.id,
+            'nombre': usuario.nombre,
+            'apellido': usuario.apellido,
+            'correo': usuario.email,
+            'telefono': usuario.telefono
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+@csrf_exempt   
+def admin_usuario_borrar(request, usuario_id):
+    try:
+        usuario = get_object_or_404(Cliente, pk=usuario_id)
+        usuario.delete()
+        return JsonResponse({'message': 'Usuario eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
     

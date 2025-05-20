@@ -25,6 +25,12 @@ urlpatterns = [
     path('maquinas/crear_maquina/', views.admin_maquina_crear, name='admin_maquina_crear'),
     path('maquinas/actualizar_maquina/<int:maquina_id>/', views.admin_maquina_actualizar, name='admin_maquina_actualizar'),
     path('maquinas/borrar_maquina/<int:maquina_id>/', views.admin_maquina_borrar, name='admin_maquina_borrar'),
+    
+    path('usuarios/', views.usuarios, name='usuarios'),
+
+    path('usuarios/crear_usuario/', views.admin_usuario_crear, name='admin_usuario_crear'),
+    path('usuarios/actualizar_usuario/<int:usuario_id>/', views.admin_usuario_actualizar, name='admin_usuario_actualizar'),
+    path('usuarios/borrar_usuario/<int:usuario_id>/', views.admin_usuario_borrar, name='admin_usuario_borrar'),
 
     path('planes/', views.planes, name='planes'),
     path('estadisticas/', views.estadisticas, name='estadisticas'),
