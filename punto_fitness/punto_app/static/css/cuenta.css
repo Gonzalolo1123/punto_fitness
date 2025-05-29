@@ -34,18 +34,10 @@
     font-family: 'Segoe UI', sans-serif;
   }
   
-  /* Botón de cerrar */
-  .close {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 24px;
-    cursor: pointer;
-    color: #999;
-    transition: color 0.3s ease;
-  }
-  .close:hover {
-    color: #000;
+  .modal-content.cuenta {
+    max-width: 400px;
+    min-width: 280px;
+    padding: 30px;
   }
   
   /* Contenido dentro del modal */
@@ -89,3 +81,24 @@
     background-color: #d9363e;
   }
   
+  /* Solo para el modal de usuario logueado */
+
+  #userModal .close-cuenta {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 28px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.2s ease-in-out;
+    color: #333;
+    background: #fff;
+    border-radius: 50%;
+    padding: 2px 8px;
+    border: 1px solid #ccc;
+    z-index: 10;
+  }
+  #userModal .close-cuenta:hover {
+    color: #ff416c;
+    background: #f8f8f8;
+  }

@@ -2,43 +2,43 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 class MetodoPago(models.Model):
-    nombre = models.CharField(max_length=30)
-    descripcion = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
 
     class Meta:
         db_table = 'metodo_pago'
 
 
 class TipoDocumentoPago(models.Model):
-    nombre = models.CharField(max_length=30)
+    nombre = models.CharField(max_length=100)
 
     class Meta:
         db_table = 'tipo_documento_pago'
 
 
 class Proveedor(models.Model):
-    nombre = models.CharField(max_length=30)
+    nombre = models.CharField(max_length=100)
     telefono = models.IntegerField()
-    email = models.EmailField(max_length=30)
+    email = models.EmailField(max_length=100)
 
     class Meta:
         db_table = 'proveedor'
 
 
 class Encargado(models.Model):
-    nombre = models.CharField(max_length=30)
+    nombre = models.CharField(max_length=100)
     telefono = models.IntegerField()
-    email = models.EmailField(max_length=30)
+    email = models.EmailField(max_length=100)
 
     class Meta:
         db_table = 'encargado'
 
 
 class Establecimiento(models.Model):
-    nombre = models.CharField(max_length=30)
-    direccion = models.CharField(max_length=30)
+    nombre = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=100)
     telefono = models.IntegerField()
-    email = models.EmailField(max_length=30)
+    email = models.EmailField(max_length=100)
     horario_apertura = models.TimeField()
     horario_cierre = models.TimeField()
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
@@ -48,7 +48,7 @@ class Establecimiento(models.Model):
 
 
 class Administrador(models.Model):
-    nivel_acceso = models.CharField(max_length=30)
+    nivel_acceso = models.CharField(max_length=100)
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
 
     class Meta:
@@ -58,11 +58,11 @@ class Administrador(models.Model):
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    contrasena = models.CharField(max_length=255)
+    email = models.EmailField(max_length=100)
+    contrasena = models.CharField(max_length=100)
     telefono = models.IntegerField()
     fecha_registro = models.DateField(auto_now_add=True)  # Usamos auto_now_add para agregar la fecha automáticamente
-    estado = models.CharField(max_length=30, default='Activo')
+    estado = models.CharField(max_length=100, default='Activo')
 
     class Meta:
         db_table = 'cliente'
@@ -78,17 +78,17 @@ class RegistroAcceso(models.Model):
 
 
 class CategoriaProducto(models.Model):
-    nombre = models.CharField(max_length=30)
-    descripcion = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
 
     class Meta:
         db_table = 'categoria_producto'
 
 
 class Vendedor(models.Model):
-    nombre = models.CharField(max_length=30)
+    nombre = models.CharField(max_length=100)
     telefono = models.IntegerField()
-    email = models.EmailField(max_length=30)
+    email = models.EmailField(max_length=100)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
 
     class Meta:
@@ -108,8 +108,8 @@ class CompraVendedor(models.Model):
 
 
 class Producto(models.Model):
-    nombre = models.CharField(max_length=30)
-    descripcion = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
     precio = models.IntegerField()
     stock_actual = models.IntegerField()
     stock_minimo = models.IntegerField()
@@ -159,8 +159,8 @@ class DetalleVenta(models.Model):
 
 class Membresia(models.Model):
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=30)
-    descripcion = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
     precio = models.IntegerField()
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
@@ -175,7 +175,16 @@ class ClienteMembresia(models.Model):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     estado = models.BooleanField()
-    codigo_qr = models.CharField(max_length=30)
+    codigo_qr = models.CharField(max_length=100)
 
     class Meta:
         db_table = 'cliente_membresia'
+
+
+class Maquina(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=100)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'maquina'

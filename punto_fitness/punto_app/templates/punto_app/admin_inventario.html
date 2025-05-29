@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventario - Punto Fitness</title>
+  <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">Punto Fitness</div>
+    <nav>
+      <a href="{% url 'pagina_admin' %}">Estadísticas</a>
+      <a href="{% url 'usuarios' %}">Usuarios</a>
+      <a href="{% url 'inventario' %}">Inventario</a>
+      <a href="{% url 'maquinas' %}">Maquinas</a>
+    </nav>
+  </header>
+
+  <div class="content">
+    <h2>Inventario</h2>
+
+    <!-- Productos -->
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre del Producto</th>
+          <th>Stock</th>
+          <th>Stock Mínimo</th>
+          <th>Precio Unitario ($)</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for producto in productos %}
+        <tr data-id="{{ producto.id }}">
+          <td>{{ producto.nombre }}</td>
+          <td>{{ producto.stock_actual }}</td>
+          <td>{{ producto.stock_minimo }}</td>
+          <td>{{ producto.precio }}</td>
+          <td>
+            <button class="filtro-btn" name="btn-editar-producto" data-id="{{ producto.id }}">Actualizar</button>
+            <button class="filtro-btn" name="btn-eliminar-producto" data-id="{{ producto.id }}">Eliminar</button>
+          </td>
+        </tr>
+
+        <!-- Formulario de edición (aparece al querer actualizar un producto) -->
+        <tr id="form-editar-producto-{{ producto.id }}" class="form-edicion-producto" style="display: none;">
+          <td colspan="5">
+            <h3>Actualizar datos</h3>
+            <form class="formulario" name="form-editar-producto" data-id="{{ producto.id }}">
+              {% csrf_token %}
+              <div class="form-fila">
+                <label for="producto-nombre">Nombre:</label>
+                <input type="text" name="producto-nombre" value="{{ producto.nombre }}" required>
+              </div>
+              <div class="form-fila">
+                <label for="producto-descripcion">Descripción:</label>
+                <input type="text" name="producto-descripcion" value="{{ producto.descripcion }}" required>
+              </div>
+              <div class="form-fila">
+                <label for="producto-precio">Precio:</label>
+                <input type="number" name="producto-precio" value="{{ producto.precio }}" required>
+              </div>
+              <div class="form-fila">
+                <label for="producto-stock-minimo">Stock Mínimo:</label>
+                <input type="number" name="producto-stock-minimo" value="{{ producto.stock_minimo }}" required>
+              </div>
+              <button class="filtro-btn" type="submit">Guardar</button>
+              <button class="filtro-btn" type="button"
+                onclick="ocultarFormularioEdicion('{{ producto.id }}', 'producto')">Cancelar</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">No hay productos en el inventario.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <!-- Formulario para agregar nuevos productos -->
+    <div class="form-container">
+      <h3>Agregar Nuevo Producto</h3>
+      <form class="formulario" id="form-crear-producto">
+        {% csrf_token %}
+        <div class="form-fila">
+          <label for="producto-nombre">Nombre:</label>
+          <input type="text" id="producto-nombre" name="producto-nombre" maxlength="30" required>
+        </div>
+        <div class="form-fila">
+          <label for="producto-descripcion">Descripción:</label>
+          <input type="text" id="producto-descripcion" name="producto-descripcion" maxlength="50" required>
+        </div>
+        <div class="form-fila">
+          <label for="producto-precio">Precio:</label>
+          <input type="number" id="producto-precio" name="producto-precio" min="0" required>
+        </div>
+        <div class="form-fila">
+          <label for="producto-stock-actual">Stock Actual:</label>
+          <input type="number" id="producto-stock-actual" name="producto-stock-actual" min="0" required>
+        </div>
+        <div class="form-fila">
+          <label for="producto-stock-minimo">Stock Mínimo:</label>
+          <input type="number" id="producto-stock-minimo" name="producto-stock-minimo" min="0" required>
+        </div>
+        <div class="form-fila">
+          <label for="producto-categoria">Categoría:</label>
+          <select id="producto-categoria" name="producto-categoria" required>
+            <option value="">Seleccione</option>
+            {% for categoria in categorias %}
+            <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="filtro-btn" type="submit">Agregar Producto</button>
+      </form>
+    </div>
+
+    <!-- Categorías de productos-->
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre de la Categoría</th>
+          <th>Descripción</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for categoria in categorias %}
+        <tr data-id="{{ categoria.id }}">
+          <td>{{ categoria.nombre }}</td>
+          <td>{{ categoria.descripcion }}</td>
+          <td>
+            <button class="filtro-btn" name="btn-editar-categoria" data-id="{{ categoria.id }}">Actualizar</button>
+            <button class="filtro-btn" name="btn-eliminar-categoria" data-id="{{ categoria.id }}">Eliminar</button>
+          </td>
+        </tr>
+
+        <!-- Formulario de edición (aparece al querer actualizar una categoria) -->
+        <tr id="form-editar-categoria-{{ categoria.id }}" class="form-edicion-categoria" style="display: none;">
+          <td colspan="5">
+            <h3>Actualizar datos</h3>
+            <form class="formulario" name="form-editar-categoria" data-id="{{ categoria.id }}">
+              {% csrf_token %}
+              <div class="form-fila">
+                <label for="categoria-nombre">Nombre:</label>
+                <input type="text" name="categoria-nombre" value="{{ categoria.nombre }}" required>
+              </div>
+              <div class="form-fila">
+                <label for="categoria-descripcion">Descripción:</label>
+                <input type="text" name="categoria-descripcion" value="{{ categoria.descripcion }}" required>
+              </div>
+              <button class="filtro-btn" type="submit">Guardar</button>
+              <button class="filtro-btn" type="button"
+                onclick="ocultarFormularioEdicion('{{ categoria.id }}', 'categoria')">Cancelar</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">No hay categorias en el inventario.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <!-- Formulario para agregar nuevas categorias -->
+    <div class="form-container">
+      <h3>Agregar Nueva Categoría</h3>
+      <form class="formulario" id="form-crear-categoria">
+        {% csrf_token %}
+        <div class="form-fila">
+          <label for="categoria-nombre">Nombre:</label>
+          <input type="text" id="categoria-nombre" name="categoria-nombre" maxlength="30" required>
+        </div>
+        <div class="form-fila">
+          <label for="categoria-descripcion">Descripción:</label>
+          <input type="text" id="categoria-descripcion" name="categoria-descripcion" maxlength="50" required>
+        </div>
+        <button class="filtro-btn" type="submit">Agregar categoría</button>
+      </form>
+    </div>
+
+  </div>
+  <script src="../../static/js/inventario.js"></script>
+</body>
+
+</html>

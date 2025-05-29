@@ -1,0 +1,78 @@
+{% extends "punto_app/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/planes.css' %}">
+{% endblock %}
+
+{% block content %}
+<section id="planes">
+  <div class="contenedor-planes">
+    <h2 class="titulo-seccion">Planes</h2>
+    <div class="carrusel-planes">
+      <button class="flecha-izquierda">&#9664;</button>
+      <div class="plan">
+        <img src="{% static  'images/planes/1.png' %}" alt="plan" class="img-plan">
+        <p class="precio">Precio: $50</p>
+        <p class="descripcion">Descripción: ¡Plan básico de entrenamiento!</p>
+        <button class="btn-inscribir">Inscribir</button>
+      </div>
+      <button class="flecha-derecha">&#9654;</button>
+    </div>
+  </div>
+</section>
+
+<section id="actividades-extras">
+  <div class="contenedor-actividades">
+    <h2 class="titulo-seccion">Actividades extra</h2>
+    <div class="grid-actividades">
+      <div class="actividad">
+        <img src="{% static 'images/grupales/box.jpg' %}" alt="Actividad 1">
+        <p>Yoga al aire libre</p>
+      </div>
+      <div class="actividad">
+        <img src="{% static 'images/grupales/box.jpg' %}" alt="Actividad 2">
+        <p>Clases de baile</p>
+      </div>
+      <div class="actividad">
+        <img src="{% static 'images/grupales/box.jpg' %}" alt="Actividad 3">
+        <p>Crossfit</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="productos-tienda">
+  <div class="contenedor-productos">
+    <h2 class="titulo-seccion">Productos en Tienda</h2>
+    <div class="filtros">
+      <button class="filtro activo">Todos</button>
+      <button class="filtro">Barras de cereal</button>
+      <button class="filtro">Bebidas</button>
+    </div>
+    <div class="carrusel-productos">
+      <button class="flecha-izquierda">&#9664;</button>
+      <div class="producto">
+        <img src="{% static 'images/productos/bitter.png' %}" alt="Producto 1">
+      </div>
+      <div class="producto">
+        <img src="{% static 'images/productos/bitter.png' %}" alt="Producto 2">
+      </div>
+      <div class="producto">
+        <img src="{% static 'images/productos/bitter.png' %}" alt="Producto 3">
+      </div>
+      <div class="producto">
+        <img src="{% static 'images/productos/bitter.png' %}" alt="Producto 4">
+      </div>
+      <div class="producto">
+        <img src="{% static 'images/productos/bitter.png' %}" alt="Producto 5">
+      </div>
+      <button class="flecha-derecha">&#9654;</button>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="{% static 'js/planes.js' %}"></script>
+{% endblock %}

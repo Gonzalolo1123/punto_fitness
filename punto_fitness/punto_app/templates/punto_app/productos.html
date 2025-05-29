@@ -2,10 +2,7 @@
 {% load static %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/index.css' %}">
-<link rel="stylesheet" href="{% static 'css/signIn-Up.css' %}">
-<link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
-<link rel="stylesheet" href="{% static 'css/alert.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/index.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -34,62 +31,31 @@
     </div>
   </div>
 </section>
-<section id="servicios">
-  <div class="contenedor-servicio">
-    <h2 class="titulo-seccion">Nuestros Servicios</h2>
 
-    <div class="servicios-grid">
-
-      <div class="servicio-box">
-        <h3>Busca el plan para ti</h3>
-        <a href="{% url 'planes' %}" class="btn-servicio">Ver Planes</a>
-      </div>
-
-      <div class="servicio-box">
-        <h3>Elige tu forma de ejercitar</h3>
-        <a href="{% url 'maquinas' %}" class="btn-servicio">Ver Rutinas</a>
-      </div>
-
-      <div class="servicio-box">
-        <h3>Compra lo que necesites</h3>
-        <a href="{% url 'maquinas' %}" class="btn-servicio">Ver Productos</a>
-      </div>
-
-    </div>
-  </div>
-</section>
 <section id="equipo">
   <div class="contenedor-equipo">
     <h2>Nuestro Equipo</h2>
     <div class="equipo">
       <div class="persona">
-        <img src="{% static 'images/trabajadores/persona.jpg' %}" alt="Entrenador">
+        <img src="{% static 'img/entrenador.jpg' %}" alt="Entrenador">
         <h3>Entrenador</h3>
         <p>Especialista en fitness funcional.</p>
       </div>
       <div class="persona">
-        <img src="{% static 'images/trabajadores/persona.jpg' %}" alt="Dueño">
+        <img src="{% static 'img/dueno.jpg' %}" alt="Dueño">
         <h3>Dueño</h3>
         <p>Fundador de Punto Fitness.</p>
       </div>
       <div class="persona">
-        <img src="{% static 'images/trabajadores/persona.jpg' %}" alt="Administrador">
+        <img src="{% static 'img/administrador.jpg' %}" alt="Administrador">
         <h3>Administrador</h3>
         <p>Encargado de operaciones y atención al cliente.</p>
       </div>
     </div>
   </div>
 </section>
-<section id="opinio">
-  <div class="contenedor-opiniones">
-    <h2>Danos tu opinón</h2>
-    <h6>Escribe como ha sido tu experiencia como usuario de
-      nuestras dependencias
-    </h6>
-  </div>
-</section>
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{% static 'js/index.js' %}"></script>
+  <script src="{% static 'js/index.js' %}"></script>
 {% endblock %}

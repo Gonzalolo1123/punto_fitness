@@ -273,3 +273,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+document.getElementById('usuarioBtn')?.addEventListener('click', function(e) {
+  e.preventDefault();
+  document.getElementById('authModal').classList.remove('hidden');
+});
+
+// Cerrar modal de login/registro
+document.getElementById('closeAuthModal')?.addEventListener('click', function() {
+  document.getElementById('authModal').classList.add('hidden');
+});

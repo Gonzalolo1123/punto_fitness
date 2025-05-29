@@ -1,34 +1,37 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  
+
   <link rel="stylesheet" href="{% static 'css/admin.css' %}">
   <title>Punto Fitness Admin</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
   <header>
     <div class="logo">Punto Fitness</div>
     <nav>
       <a href="{% url 'pagina_admin' %}">Estadísticas</a>
-      <a href="#">Usuarios</a>
+      <a href="{% url 'usuarios' %}">Usuarios</a>
       <a href="{% url 'inventario' %}">Inventario</a>
+      <a href="{% url 'maquinas' %}">Maquinas</a>
     </nav>
   </header>
 
   <div class="content">
     <div class="button-group">
-        <label for="view-mode">Vista de gráficos:</label>
-        <select id="view-mode" onchange="changeViewMode(this.value)">
-          <option value="small">Pequeño</option>
-          <option value="medium" selected>Mediano</option>
-          <option value="large">Grande</option>
-        </select>
-      </div>
+      <label for="view-mode">Vista de gráficos:</label>
+      <select id="view-mode" onchange="changeViewMode(this.value)">
+        <option value="small">Pequeño</option>
+        <option value="medium" selected>Mediano</option>
+        <option value="large">Grande</option>
+      </select>
+    </div>
 
     <div class="section">
       <h2>Estadísticas Monetarias</h2>
@@ -206,13 +209,14 @@
     }
 
     function changeViewMode(mode) {
-  const canvases = document.querySelectorAll('canvas');
-  canvases.forEach(canvas => {
-    canvas.classList.remove('chart-small', 'chart-medium', 'chart-large');
-    canvas.classList.add(`chart-${mode}`);
-  });
-}
+      const canvases = document.querySelectorAll('canvas');
+      canvases.forEach(canvas => {
+        canvas.classList.remove('chart-small', 'chart-medium', 'chart-large');
+        canvas.classList.add(`chart-${mode}`);
+      });
+    }
 
   </script>
 </body>
+
 </html>
