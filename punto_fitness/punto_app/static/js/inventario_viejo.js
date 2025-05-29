@@ -1,12 +1,11 @@
 const BASE_URL = '/inventario/';
 
-////////////////////
-//// PRODUCTOS /////
-////////////////////
+////////////////////////////////
+//// PRODUCTOS Y CATEGORIAS ////
+////////////////////////////////
 
 document.addEventListener('DOMContentLoaded', function() {
-  inicializarEventListenersProductos();
-  inicializarEventListenersCategorias();
+  inicializarEventListeners();
 });
 
 // Función para obtener csrf token
@@ -16,32 +15,53 @@ function getCSRFToken() {
 }
 
 // Función para mostrar formulario de edición
-function mostrarFormularioEdicionProducto(productoId) {
-  document.querySelectorAll('.form-edicion-producto').forEach(form => {
+function mostrarFormularioEdicion(id, id_tipo) {
+  document.querySelectorAll(`.form-edicion-${id_tipo}`).forEach(form => {
     form.style.display = 'none';
   });
-  document.getElementById(`form-editar-producto-${productoId}`).style.display = 'table-row';
+  document.getElementById(`form-editar-${id_tipo}-${id}`).style.display = 'table-row';
 }
 
 // Función para ocultar formulario de edición
-function ocultarFormularioEdicionProducto(productoId) {
-  document.getElementById(`form-editar-producto-${productoId}`).style.display = 'none';
+function ocultarFormularioEdicion(id, id_tipo) {
+  document.getElementById(`form-editar-${id_tipo}-${id}`).style.display = 'none';
 }
 
-// Función para actualizar vista de datos de producto
-function actualizarVista(producto) {
-  const row = document.querySelector(`tr[data-id="${producto.id}"]`);
-  if (row) {
-    const cells = row.cells;
-    cells[0].textContent = producto.nombre;
-    cells[2].textContent = producto.stock_minimo;
-    cells[3].textContent = producto.precio;
+// Función para actualizar vista de datos (INCOMPLETO)
+function actualizarVista(objeto, id_tipo) {
+  const row = document.querySelector(`tr[data-id="${objeto.id}"]`);
+  if (id_tipo=='producto') {
+    if (row) {
+      const cells = row.cells;
+      cells[0].textContent = objeto.nombre;
+      cells[2].textContent = objeto.stock_minimo;
+      cells[3].textContent = objeto.precio;
+    }
+  }
+  if (id_tipo=='categoria') {
+    if (row) {
+      const cells = row.cells;
+      cells[0].textContent = objeto.nombre;
+      cells[2].textContent = objeto.descripcion;
+    }
   }
 }
 
 // Función para crear producto
 function crearProducto(formData) {
   return fetch(`${BASE_URL}crear_producto/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: JSON.stringify(formData)
+  }).then(response => response.json());
+}
+
+// Función para crear categoria
+function crearCategoria(formData) {
+  return fetch(`${BASE_URL}crear_categoria/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -63,147 +83,6 @@ function actualizarProducto(id, data) {
   }).then(response => response.json());
 }
 
-// Función para eliminar producto
-function eliminarProducto(id) {
-  return fetch(`${BASE_URL}borrar_producto/${id}/`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken()
-    }
-  }).then(response => response.json());
-}
-
-function inicializarEventListenersProductos() {
-  const formCrearProducto = document.getElementById('form-crear-producto');
-  if (formCrearProducto) {
-    formCrearProducto.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = {
-        nombre: document.getElementById('producto-nombre').value,
-        descripcion: document.getElementById('producto-descripcion').value,
-        precio: document.getElementById('producto-precio').value,
-        stock_actual: document.getElementById('producto-stock-actual').value,
-        stock_minimo: document.getElementById('producto-stock-minimo').value,
-        compra_id: 1,
-        categoria_id: document.getElementById('producto-categoria').value,
-        establecimiento_id: 1
-      };
-      
-      crearProducto(formData)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          alert('Producto creado exitosamente');
-          window.location.reload();
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error al crear producto: ' + error.message);
-        });
-    });
-  }
-}
-
-  // Formularios de actualización de datos
-  document.querySelectorAll('[name="form-editar-producto"]').forEach(form => {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const productoId = this.dataset.id;
-      const formData = {
-        nombre: this.querySelector('[name="producto-nombre"]').value,
-        descripcion: this.querySelector('[name="producto-descripcion"]').value,
-        precio: this.querySelector('[name="producto-precio"]').value,
-        stock_minimo: this.querySelector('[name="producto-stock-minimo"]').value
-      };
-      
-      actualizarProducto(productoId, formData)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          actualizarVista(data);
-          ocultarFormularioEdicionProducto(productoId);
-          alert('Producto actualizado correctamente');
-          window.location.reload();
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error al actualizar: ' + error.message);
-        });
-    });
-  });
-
-  // Boton editar
-  document.querySelectorAll('[name="btn-editar-producto"]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      mostrarFormularioEdicionProducto(this.getAttribute('data-id'));
-    });
-  });
-
-  // Boton eliminar
-  document.querySelectorAll('[name="btn-eliminar-producto"]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const id = this.getAttribute('data-id');
-
-      if (confirm('¿Eliminar este producto?')) {
-        eliminarProducto(id)
-          .then(data => {
-            if (data.error) throw new Error(data.error);
-            document.querySelector(`tr[data-id="${id}"]`).remove();
-            document.querySelector(`#form-editar-producto-${id}`)?.remove();
-            window.location.reload();
-          })
-          .catch(console.error);
-      }
-    });
-  });
-
-  // Boton cancelar
-  document.querySelectorAll('.btn-cancelar').forEach(btn => {
-    btn.addEventListener('click', function() {
-      ocultarFormularioEdicionProducto(this.getAttribute('data-id'));
-    });
-  });
-
-
-////////////////////
-/// CATEGORIAS ////categoriaID
-////////////////////
-
-// Función para mostrar formulario de edición
-function mostrarFormularioEdicionCategoria(categoriaId) {
-  document.querySelectorAll('.form-edicion-categoria').forEach(form => {
-    form.style.display = 'none';
-  });
-  document.getElementById(`form-editar-categoria-${categoriaId}`).style.display = 'table-row';
-}
-
-// Función para ocultar formulario de edición
-function ocultarFormularioEdicionCategoria(categoriaId) {
-  document.getElementById(`form-editar-categoria-${categoriaId}`).style.display = 'none';
-}
-
-// Función para actualizar vista de datos de categoria
-function actualizarVista(categoria) {
-  const row = document.querySelector(`tr[data-id="${categoria.id}"]`);
-  if (row) {
-    const cells = row.cells;
-    cells[0].textContent = categoria.nombre;
-    cells[2].textContent = categoria.descripcion;
-  }
-}
-
-// Función para crear categoria
-function crearCategoria(formData) {
-  return fetch(`${BASE_URL}crear_categoria/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken()
-    },
-    body: JSON.stringify(formData)
-  }).then(response => response.json());
-}
-
 // Función para actualizar categoria
 function actualizarCategoria(id, data) {
   return fetch(`${BASE_URL}actualizar_categoria/${id}/`, {
@@ -213,6 +92,17 @@ function actualizarCategoria(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
+  }).then(response => response.json());
+}
+
+// Función para eliminar producto
+function eliminarProducto(id) {
+  return fetch(`${BASE_URL}borrar_producto/${id}/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    }
   }).then(response => response.json());
 }
 
@@ -227,32 +117,98 @@ function eliminarCategoria(id) {
   }).then(response => response.json());
 }
 
-function inicializarEventListenersCategorias() {
-  const formCrearCategoria = document.getElementById('form-crear-categoria');
-  if (formCrearCategoria) {
-    formCrearCategoria.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = {
-        nombre: document.getElementById('categoria-nombre').value,
-        descripcion: document.getElementById('categoria-descripcion').value,
-      };
-      
-      crearCategoria(formData)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          alert('Categoría creada exitosamente');
-          window.location.reload();
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error al crear categoría: ' + error.message);
-        });
+// Creación de productos de event listeners
+function manejoCrearProducto(e) {
+  e.preventDefault();
+
+  const formData = {
+    nombre: document.getElementById('producto-nombre').value,
+    descripcion: document.getElementById('producto-descripcion').value,
+    precio: document.getElementById('producto-precio').value,
+    stock_actual: document.getElementById('producto-stock-actual').value,
+    stock_minimo: document.getElementById('producto-stock-minimo').value,
+    compra_id: 1,
+    categoria_id: document.getElementById('producto-categoria').value,
+    establecimiento_id: 1
+  };
+
+  crearProducto(formData)
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      alert('Producto creado exitosamente');
+      window.location.reload();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error al crear producto: ' + error.message);
     });
+};
+
+// Creación de categorías de event listeners
+function manejoCrearCategoria(e) {
+  e.preventDefault();
+  
+  const formData = {
+    nombre: document.getElementById('categoria-nombre').value,
+    descripcion: document.getElementById('categoria-descripcion').value,
+  };
+  
+  crearCategoria(formData)
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      alert('Categoría creada exitosamente');
+      window.location.reload();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error al crear categoría: ' + error.message);
+    });
+};
+
+// Event listeners
+function inicializarEventListeners() {
+  const formCrearProducto = document.getElementById('form-crear-producto');
+  const formCrearCategoria = document.getElementById('form-crear-categoria');
+  if (formCrearProducto) {
+    formCrearProducto.addEventListener('submit', manejoCrearProducto);
+  }
+  if (formCrearCategoria) {
+    formCrearCategoria.addEventListener('submit', manejoCrearCategoria);
   }
 }
 
-// Formularios de actualización de datos
+// Variable para identificar entre producto y categoria
+let id_tipo;
+
+// Formularios de actualización de datos de producto
+document.querySelectorAll('[name="form-editar-producto"]').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const productoId = this.dataset.id;
+    const formData = {
+      nombre: this.querySelector('[name="producto-nombre"]').value,
+      descripcion: this.querySelector('[name="producto-descripcion"]').value,
+      precio: this.querySelector('[name="producto-precio"]').value,
+      stock_minimo: this.querySelector('[name="producto-stock-minimo"]').value
+    };
+    
+    actualizarProducto(productoId, formData)
+      .then(data => {
+        if (data.error) throw new Error(data.error);
+        id_tipo='producto';
+        actualizarVista(data, id_tipo);
+        ocultarFormularioEdicion(productoId, id_tipo);
+        alert('Producto actualizado correctamente');
+        window.location.reload();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar: ' + error.message);
+      });
+  });
+});
+
+// Formularios de actualización de datos de categoria
 document.querySelectorAll('[name="form-editar-categoria"]').forEach(form => {
   form.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -265,8 +221,9 @@ document.querySelectorAll('[name="form-editar-categoria"]').forEach(form => {
     actualizarCategoria(categoriaId, formData)
       .then(data => {
         if (data.error) throw new Error(data.error);
-        actualizarVista(data);
-        ocultarFormularioEdicionCategoria(categoriaId);
+        id_tipo='categoria';
+        actualizarVista(data, id_tipo);
+        ocultarFormularioEdicion(categoriaId, id_tipo);
         alert('categoria actualizado correctamente');
         window.location.reload();
       })
@@ -277,14 +234,41 @@ document.querySelectorAll('[name="form-editar-categoria"]').forEach(form => {
   });
 });
 
-// Boton editar
-document.querySelectorAll('[name="btn-editar-categoria"]').forEach(btn => {
+// Boton editar producto
+document.querySelectorAll('[name="btn-editar-producto"]').forEach(btn => {
   btn.addEventListener('click', function() {
-    mostrarFormularioEdicionCategoria(this.getAttribute('data-id'));
+    id_tipo='producto';
+    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
   });
 });
 
-// Boton eliminar
+// Boton editar categoria
+document.querySelectorAll('[name="btn-editar-categoria"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    id_tipo='categoria';
+    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
+  });
+});
+
+// Boton eliminar producto
+document.querySelectorAll('[name="btn-eliminar-producto"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const id = this.getAttribute('data-id');
+
+    if (confirm('¿Eliminar este producto?')) {
+      eliminarProducto(id)
+        .then(data => {
+          if (data.error) throw new Error(data.error);
+          document.querySelector(`tr[data-id="${id}"]`).remove();
+          document.querySelector(`#form-editar-producto-${id}`)?.remove();
+          window.location.reload();
+        })
+        .catch(console.error);
+    }
+  });
+});
+
+// Boton eliminar categoría
 document.querySelectorAll('[name="btn-eliminar-categoria"]').forEach(btn => {
   btn.addEventListener('click', function() {
     const id = this.getAttribute('data-id');
@@ -304,7 +288,7 @@ document.querySelectorAll('[name="btn-eliminar-categoria"]').forEach(btn => {
 // Boton cancelar
 document.querySelectorAll('.btn-cancelar').forEach(btn => {
   btn.addEventListener('click', function() {
-    ocultarFormularioEdicionCategoria(this.getAttribute('data-id'));
+    ocultarFormularioEdicion(this.getAttribute('data-id'));
   });
 });
 
