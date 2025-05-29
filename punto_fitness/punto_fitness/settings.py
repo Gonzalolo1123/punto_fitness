@@ -77,9 +77,9 @@ WSGI_APPLICATION = 'punto_fitness.wsgi.application'
 DATABASES = {
    'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'punto_fitness',
+        'NAME': 'postgres',
         'USER': 'postgres',
-        'PASSWORD': 'hola1234',
+        'PASSWORD': 'damian8140',
         'HOST': 'localhost',
         'PORT': '5432',
     }

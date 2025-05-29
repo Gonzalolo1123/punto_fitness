@@ -14,6 +14,7 @@ urlpatterns = [
     path('productos/actualizar/<int:producto_id>/', views.admin_producto_actualizar, name='admin_producto_actualizar'),
     path('productos/borrar/<int:producto_id>/', views.admin_producto_borrar, name='admin_producto_borrar'),
     path('planes/', views.planes, name='planes'),
+    path('maquinas/', views.maquinas, name='maquinas'),
     path('estadisticas/', views.estadisticas, name='estadisticas'),
     path('principal/', views.principal, name='principal'),
     path('logout/', views.logout_cliente, name='logout'),

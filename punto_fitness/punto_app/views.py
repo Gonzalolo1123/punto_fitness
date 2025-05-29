@@ -170,6 +170,7 @@ def admin_producto_borrar(request, producto_id):
         return JsonResponse({'error': str(e)}, status=400)
 def planes(request):
     return render(request, 'punto_app/planes.html')
-
+def maquinas(request):
+    return render(request,'punto_app/maquinas.html', {'maquinas': range(1, 9)})
 def estadisticas(request):
     return render(request, 'punto_app/estadisticas.html')

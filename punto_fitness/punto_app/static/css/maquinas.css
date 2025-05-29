@@ -1,0 +1,130 @@
+.contenedor-blanco {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  margin: 2rem auto;
+  max-width: 1200px;
+}
+
+.titulo-seccion {
+  text-align: center;
+  color: #d62828;
+  margin-bottom: 1rem;
+}
+
+
+.carrusel-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.carrusel-maquinas {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 1rem;
+  padding: 10px;
+}
+
+.maquina {
+  min-width: 250px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.maquina img {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  height: 200px;
+}
+
+.flecha {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255,255,255,0.7);
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 10;
+  padding: 10px;
+  border-radius: 50%;
+}
+
+.flecha.izquierda {
+  left: 10px;
+}
+.flecha.derecha {
+  right: 10px;
+}
+
+.texto-ayuda {
+  text-align: center;
+}
+
+.filtros-rutinas {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filtro-rutina {
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #eee;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.filtro-rutina.activo {
+  background-color: #d62828;
+  color: white;
+}
+
+.zona-cuerpo {
+  position: relative;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.imagen-cuerpo {
+  width: 100%;
+  max-width: 400px;
+}
+
+.highlight {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(214, 40, 40, 0.5);
+  display: none;
+}
+
+#zona-fullbody { top: 40%; left: 60%; width: 100px; height: 180px; transform: translate(-50%, -50%); }
+#zona-pectoral { top: 25%; left: 40%; width: 90px; height: 40px; transform: translate(-50%, -50%); }
+#zona-espalda  {position: absolute;
+  top: 33%;
+  left: 52%;
+  width: 90px;
+  height: 90px;
+  background-color: rgba(255, 0, 0, 0.5); /* Color y opacidad */
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%); /* Triángulo hacia abajo */
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+#zona-cuadriceps { top: 65%; left: 50%; width: 70px; height: 90px; transform: translate(-50%, -50%); }
+#zona-gluteos { top: 55%; left: 50%; width: 70px; height: 50px; transform: translate(-50%, -50%); }
+
+.tabla-rutina {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-rutina th, .tabla-rutina td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  text-align: center;
+}
