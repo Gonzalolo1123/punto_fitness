@@ -31,7 +31,7 @@ SECRET_KEY = 'django-insecure--srandy--wou)yx)bm6iyaiqllk37!#t&nn_&e=yqgb*#ocyq$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['punto-fitness.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
