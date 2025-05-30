@@ -13,7 +13,8 @@ from django.contrib.auth.hashers import check_password
 from django.views.decorators.csrf import csrf_exempt
 from .models import Producto
 from django.db.models import Sum, Min
-
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 # Create your views here.
 def principal(request):
     cliente_nombre = request.session.get('cliente_nombre')
@@ -174,3 +175,28 @@ def maquinas(request):
     return render(request,'punto_app/maquinas.html', {'maquinas': range(1, 9)})
 def estadisticas(request):
     return render(request, 'punto_app/estadisticas.html')
+
+def asistencias(request):
+    clientes = Cliente.objects.values('id', 'nombre', 'apellido', 'email')
+    return render(request,'punto_app/asistencias.html', {'clientes': clientes})
+def confirmar_asistencia(request):
+    if request.method == 'POST':
+        cliente_id = request.POST.get('cliente_id')
+        
+        if not cliente_id:
+            messages.error(request, "ID de cliente no recibido")
+            return redirect('asistencias')
+        
+        try:
+            cliente = Cliente.objects.get(id=cliente_id)
+            print(f"Asistencia confirmada para cliente ID: {cliente.id}, Email: {cliente.email}")
+            
+            # Registrar la asistencia...
+            
+            messages.success(request, f"Asistencia confirmada para {cliente.nombre} {cliente.apellido}")
+        except Cliente.DoesNotExist:
+            messages.error(request, "Cliente no encontrado")
+        
+        return redirect('asistencias')
+    
+    return redirect('asistencias')

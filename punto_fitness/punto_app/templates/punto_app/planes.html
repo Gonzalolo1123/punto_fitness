@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/planes.css' %}">
+<link rel="stylesheet" href="{% static 'css/planes.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -39,6 +39,8 @@
         <p>Crossfit</p>
       </div>
     </div>
+
+    <button id="btn-inscribir-curso" class="btn-inscribir-curso">Inscribir curso</button>
   </div>
 </section>
 
@@ -74,5 +76,102 @@
 {% endblock %}
 
 {% block extra_scripts %}
-  <script src="{% static 'js/planes.js' %}"></script>
+<script src="{% static 'js/planes.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.getElementById("btn-inscribir-curso").addEventListener("click", function () {
+    Swal.fire({
+      title: '📋 Cursos disponibles',
+      html: `
+        <style>
+          .tabla-cursos {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Segoe UI', sans-serif;
+            margin-top: 10px;
+          }
+
+          .tabla-cursos thead {
+            background-color: #e60000;
+            color: white;
+          }
+
+          .tabla-cursos th, .tabla-cursos td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+          }
+
+          .tabla-cursos tbody tr:hover {
+            background-color: #f2f2f2;
+          }
+
+          .btn-reservar {
+            background-color: #e60000;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+          }
+
+          .btn-reservar:hover {
+            background-color: #cc0000;
+          }
+        </style>
+
+        <table class="tabla-cursos">
+          <thead>
+            <tr>
+              <th>👨‍🏫 Profesor</th>
+              <th>📚 Curso</th>
+              <th>👥 Cupos Totales</th>
+              <th>✅ Disponibles</th>
+              <th>🎯 Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Juan Pérez</td>
+              <td>Zumba</td>
+              <td>20</td>
+              <td>5</td>
+              <td><button class="btn-reservar" onclick="reservarCupo('Zumba')">Reservar</button></td>
+            </tr>
+            <tr>
+              <td>Ana Gómez</td>
+              <td>Baile</td>
+              <td>25</td>
+              <td>10</td>
+              <td><button class="btn-reservar" onclick="reservarCupo('Baile')">Reservar</button></td>
+            </tr>
+            <tr>
+              <td>Carlos Díaz</td>
+              <td>Crossfit</td>
+              <td>15</td>
+              <td>2</td>
+              <td><button class="btn-reservar" onclick="reservarCupo('Crossfit')">Reservar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      `,
+      showConfirmButton: false,
+      width: '70%',
+      customClass: {
+        popup: 'swal-wide'
+      }
+    });
+  });
+
+  function reservarCupo(curso) {
+    Swal.fire({
+      icon: 'success',
+      title: `¡Reservado!`,
+      text: `Has reservado un cupo para ${curso}`,
+      confirmButtonColor: '#e60000',
+      confirmButtonText: 'Aceptar'
+    });
+  }
+</script>
 {% endblock %}

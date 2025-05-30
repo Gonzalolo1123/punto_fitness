@@ -182,3 +182,37 @@
   margin: 30px auto;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+
+.formulario-opinion {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.campo-opinion {
+  width: 95%;
+  height: 100px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: vertical;
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.btn-enviar-opinion {
+  align-self:center;
+  background-color: #e63946; /* rojo fuerte */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-enviar-opinion:hover {
+  background-color: #c5303c;
+}
