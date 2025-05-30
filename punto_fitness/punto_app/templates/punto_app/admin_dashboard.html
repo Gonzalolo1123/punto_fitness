@@ -12,18 +12,21 @@
 </head>
 
 <body>
-
+  <!-- ======= HEADER INICIO ======= -->
   <header>
     <div class="logo">Punto Fitness</div>
     <nav>
+      <a href="{% url 'principal' %}" target="_blank">Web</a>
       <a href="{% url 'pagina_admin' %}">Estadísticas</a>
       <a href="{% url 'usuarios' %}">Usuarios</a>
       <a href="{% url 'inventario' %}">Inventario</a>
       <a href="{% url 'maquinas' %}">Maquinas</a>
     </nav>
   </header>
+  <!-- ======= HEADER FIN ======= -->
 
   <div class="content">
+    <!-- Aquí va el contenido principal del dashboard -->
     <div class="button-group">
       <label for="view-mode">Vista de gráficos:</label>
       <select id="view-mode" onchange="changeViewMode(this.value)">
@@ -73,6 +76,10 @@
       <canvas id="membershipChart"></canvas>
     </div>
   </div>
+
+  <!-- ======= FOOTER INICIO ======= -->
+  <!-- Aquí podrías agregar un footer si lo necesitas -->
+  <!-- ======= FOOTER FIN ======= -->
 
   <script>
     const moneyChartCtx = document.getElementById('moneyChart').getContext('2d');

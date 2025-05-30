@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-import dj_database_url
 import os
 from dotenv import load_dotenv
 
@@ -28,11 +27,32 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure--srandy--wou)yx)bm6iyaiqllk37!#t&nn_&e=yqgb*#ocyq$'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# ----------- PRODUCCIÓN -----------
+# Uncomment this block for production and comment the development one
+
+# DEBUG = False
+# ALLOWED_HOSTS = ['punto-fitness.onrender.com']
+# DATABASES = {
+#     'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+# }
+
+# ----------- DESARROLLO -----------
+# Uncomment this block for development and comment the production one
+
 DEBUG = True
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'punto_fitness',
+        'USER': 'postgres',
+        'PASSWORD': 'hola1234',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
 
-ALLOWED_HOSTS = ['punto-fitness.onrender.com', 'localhost', '127.0.0.1']
-
+# -----------------------------------
 
 # Application definition
 
@@ -77,22 +97,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'punto_fitness.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-DATABASES = {
-   'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'punto_fitness',
-        'USER': 'postgres',
-        'PASSWORD': 'hola1234',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-
-DATABASES['default'] = dj_database_url.parse(os.environ.get("DATABASE_URL"))
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

@@ -34,8 +34,13 @@ function actualizarVista(objeto, id_tipo) {
     if (row) {
       const cells = row.cells;
       cells[0].textContent = objeto.nombre;
-      cells[2].textContent = objeto.stock_minimo;
+      cells[2].textContent = objeto.descripcion;
       cells[3].textContent = objeto.precio;
+      cells[4].textContent = objeto.stock_actual;
+      cells[5].textContent = objeto.stock_minimo;
+      cells[6].textContent = objeto.compra_id;
+      cells[7].textContent = objeto.categoria_id;
+      cells[8].textContent = objeto.establecimiento_id;
     }
   }
   if (id_tipo=='categoria') {
@@ -45,7 +50,51 @@ function actualizarVista(objeto, id_tipo) {
       cells[2].textContent = objeto.descripcion;
     }
   }
+  if (id_tipo=='compra') {
+    if (row) {
+      const cells = row.cells;
+      cells[0].textContent = objeto.fecha;
+      cells[2].textContent = objeto.total;
+      cells[3].textContent = objeto.iva;
+      cells[4].textContent = objeto.estado;
+      cells[5].textContent = objeto.establecimiento_id;
+      cells[6].textContent = objeto.vendedor_id;
+    }
+  }
+  if (id_tipo=='vendedor') {
+    if (row) {
+      const cells = row.cells;
+      cells[0].textContent = objeto.nombre;
+      cells[2].textContent = objeto.telefono;
+      cells[3].textContent = objeto.email;
+      cells[4].textContent = objeto.proveedor_id;
+    }
+  }
+  if (id_tipo=='establecimiento') {
+    if (row) {
+      const cells = row.cells;
+      cells[0].textContent = objeto.nombre;
+      cells[2].textContent = objeto.direccion;
+      cells[3].textContent = objeto.telefono;
+      cells[4].textContent = objeto.email;
+      cells[5].textContent = objeto.horario_apertura;
+      cells[6].textContent = objeto.horario_cierre;
+      cells[6].textContent = objeto.proveedor_id;
+    }
+  }
+  if (id_tipo=='proveedor') {
+    if (row) {
+      const cells = row.cells;
+      cells[0].textContent = objeto.nombre;
+      cells[2].textContent = objeto.telefono;
+      cells[3].textContent = objeto.email;
+    }
+  }
 }
+
+///////////////////////////
+// FUNCIONES DE CREACIÓN //
+///////////////////////////
 
 // Función para crear producto
 function crearProducto(formData) {
@@ -71,6 +120,58 @@ function crearCategoria(formData) {
   }).then(response => response.json());
 }
 
+// Función para crear compra
+function crearCompraVendedor(formData) {
+  return fetch(`${BASE_URL}crear_compra_vendedor/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: JSON.stringify(formData)
+  }).then(response => response.json());
+}
+
+// Función para crear vendedor
+function crearVendedor(formData) {
+  return fetch(`${BASE_URL}crear_vendedor/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: JSON.stringify(formData)
+  }).then(response => response.json());
+}
+
+// Función para crear establecimiento
+function crearEstablecimiento(formData) {
+  return fetch(`${BASE_URL}crear_establecimiento/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: JSON.stringify(formData)
+  }).then(response => response.json());
+}
+
+// Función para crear proveedor
+function crearProveedor(formData) {
+  return fetch(`${BASE_URL}crear_proveedor/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: JSON.stringify(formData)
+  }).then(response => response.json());
+}
+
+////////////////////////////////
+// FUNCIONES DE ACTUALIZACIÓN //
+////////////////////////////////
+
 // Función para actualizar producto
 function actualizarProducto(id, data) {
   return fetch(`${BASE_URL}actualizar_producto/${id}/`, {
@@ -95,6 +196,58 @@ function actualizarCategoria(id, data) {
   }).then(response => response.json());
 }
 
+// Función para actualizar compra
+function actualizarCompraVendedor(id, data) {
+  return fetch(`${BASE_URL}actualizar_compra_vendedor/${id}/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: JSON.stringify(data)
+  }).then(response => response.json());
+}
+
+// Función para actualizar vendedor
+function actualizarVendedor(id, data) {
+  return fetch(`${BASE_URL}actualizar_vendedor/${id}/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: JSON.stringify(data)
+  }).then(response => response.json());
+}
+
+// Función para actualizar establecimiento
+function actualizarEstablecimiento(id, data) {
+  return fetch(`${BASE_URL}actualizar_establecimiento/${id}/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: JSON.stringify(data)
+  }).then(response => response.json());
+}
+
+// Función para actualizar proveedor
+function actualizarProveedor(id, data) {
+  return fetch(`${BASE_URL}actualizar_proveedor/${id}/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: JSON.stringify(data)
+  }).then(response => response.json());
+}
+
+//////////////////////////////
+// FUNCIONES DE ELIMINACIÓN //
+//////////////////////////////
+
 // Función para eliminar producto
 function eliminarProducto(id) {
   return fetch(`${BASE_URL}borrar_producto/${id}/`, {
@@ -116,6 +269,54 @@ function eliminarCategoria(id) {
     }
   }).then(response => response.json());
 }
+
+// Función para eliminar compra
+function eliminarCompraVendedor(id) {
+  return fetch(`${BASE_URL}borrar_compra_vendedor/${id}/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    }
+  }).then(response => response.json());
+}
+
+// Función para eliminar vendedor
+function eliminarVendedor(id) {
+  return fetch(`${BASE_URL}borrar_vendedor/${id}/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    }
+  }).then(response => response.json());
+}
+
+// Función para eliminar establecimiento
+function eliminarEstablecimiento(id) {
+  return fetch(`${BASE_URL}borrar_establecimiento/${id}/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    }
+  }).then(response => response.json());
+}
+
+// Función para eliminar proveedor
+function eliminarProveedor(id) {
+  return fetch(`${BASE_URL}borrar_proveedor/${id}/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    }
+  }).then(response => response.json());
+}
+
+////////////////////////////////////////////
+// FUNCIONES DE MANEJO DE EVENT LISTENERS //
+////////////////////////////////////////////
 
 // Creación de productos de event listeners
 function manejoCrearProducto(e) {
@@ -165,19 +366,138 @@ function manejoCrearCategoria(e) {
     });
 };
 
-// Event listeners
+// Creación de compra de event listeners
+function manejoCrearCompraVendedor(e) {
+  e.preventDefault();
+  
+  const formData = {
+    fecha: document.getElementById('compra-fecha').value,
+    total: document.getElementById('compra-total').value,
+    iva: document.getElementById('compra-iva').value,
+    estado: document.getElementById('compra-estado').value,
+    establecimiento_id: document.getElementById('compra-establecimiento').value,
+    vendedor_id: document.getElementById('compra-vendedor').value,
+  };
+  
+  crearCompraVendedor(formData)
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      alert('Compra creada exitosamente');
+      window.location.reload();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error al crear compra: ' + error.message);
+    });
+};
+
+// Creación de vendedor de event listeners
+function manejoCrearVendedor(e) {
+  e.preventDefault();
+  
+  const formData = {
+    nombre: document.getElementById('vendedor-nombre').value,
+    telefono: document.getElementById('vendedor-telefono').value,
+    email: document.getElementById('vendedor-email').value,
+    proveedor_id: document.getElementById('vendedor-proveedor').value,
+  };
+  
+  crearVendedor(formData)
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      alert('Vendedor creado exitosamente');
+      window.location.reload();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error al crear vendedor: ' + error.message);
+    });
+};
+
+// Creación de establecimiento de event listeners
+function manejoCrearEstablecimiento(e) {
+  e.preventDefault();
+  
+  const formData = {
+    nombre: document.getElementById('establecimiento-nombre').value,
+    direccion: document.getElementById('establecimiento-direccion').value,
+    telefono: document.getElementById('establecimiento-telefono').value,
+    email: document.getElementById('establecimiento-email').value,
+    horario_apertura: document.getElementById('establecimiento-horario_apertura').value,
+    horario_cierre: document.getElementById('establecimiento-horario_cierre').value,
+    proveedor_id: document.getElementById('establecimiento-proveedor').value,
+  };
+  
+  crearEstablecimiento(formData)
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      alert('Establecimiento creado exitosamente');
+      window.location.reload();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error al crear establecimiento: ' + error.message);
+    });
+};
+
+// Creación de proveedor de event listeners
+function manejoCrearProveedor(e) {
+  e.preventDefault();
+  
+  const formData = {
+    nombre: document.getElementById('proveedor-nombre').value,
+    telefono: document.getElementById('proveedor-telefono').value,
+    email: document.getElementById('proveedor-email').value,
+  };
+  
+  crearProveedor(formData)
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      alert('Proveedor creado exitosamente');
+      window.location.reload();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error al crear proveedor: ' + error.message);
+    });
+};
+
+////////////////////////////////////
+// INICIALIZACIÓN EVENT LISTENERS //
+////////////////////////////////////
+
 function inicializarEventListeners() {
   const formCrearProducto = document.getElementById('form-crear-producto');
   const formCrearCategoria = document.getElementById('form-crear-categoria');
+  const formCrearCompraVendedor = document.getElementById('form-crear-compra');
+  const formCrearVendedor = document.getElementById('form-crear-vendedor');
+  const formCrearEstablecimiento = document.getElementById('form-crear-establecimiento');
+  const formCrearProveedor = document.getElementById('form-crear-proveedor');
   if (formCrearProducto) {
     formCrearProducto.addEventListener('submit', manejoCrearProducto);
   }
   if (formCrearCategoria) {
     formCrearCategoria.addEventListener('submit', manejoCrearCategoria);
   }
+  if (formCrearCompraVendedor) {
+    formCrearCompraVendedor.addEventListener('submit', manejoCrearCompraVendedor);
+  }
+  if (formCrearVendedor) {
+    formCrearVendedor.addEventListener('submit', manejoCrearVendedor);
+  }
+  if (formCrearEstablecimiento) {
+    formCrearEstablecimiento.addEventListener('submit', manejoCrearEstablecimiento);
+  }
+  if (formCrearProveedor) {
+    formCrearProveedor.addEventListener('submit', manejoCrearProveedor);
+  }
 }
 
-// Variable para identificar entre producto y categoria
+///////////////////////////////////////////////
+// FUNCIONES DE FORMULARIOS DE ACTUALIZACIÓN //
+///////////////////////////////////////////////
+
+// Variable para identificar entre diferentes tablas
 let id_tipo;
 
 // Formularios de actualización de datos de producto
@@ -234,6 +554,126 @@ document.querySelectorAll('[name="form-editar-categoria"]').forEach(form => {
   });
 });
 
+// Formularios de actualización de datos de compra
+document.querySelectorAll('[name="form-editar-compra"]').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const compraId = this.dataset.id;
+    const formData = {
+      fecha: this.querySelector('[name="compra-fecha"]').value,
+      total: this.querySelector('[name="compra-total"]').value,
+      iva: this.querySelector('[name="compra-iva"]').value,
+      estado: this.querySelector('[name="compra-estado"]').value,
+      establecimiento_id: this.querySelector('[name="compra-establecimiento"]').value,
+      vendedor_id: this.querySelector('[name="compra-vendedor"]').value,
+    };
+    
+    actualizarCompraVendedor(compraId, formData)
+      .then(data => {
+        if (data.error) throw new Error(data.error);
+        id_tipo='compra';
+        actualizarVista(data, id_tipo);
+        ocultarFormularioEdicion(compraId, id_tipo);
+        alert('Compra actualizada correctamente');
+        window.location.reload();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar: ' + error.message);
+      });
+  });
+});
+
+// Formularios de actualización de datos de vendedor
+document.querySelectorAll('[name="form-editar-vendedor"]').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const vendedorId = this.dataset.id;
+    const formData = {
+      nombre: this.querySelector('[name="vendedor-nombre"]').value,
+      telefono: this.querySelector('[name="vendedor-telefono"]').value,
+      email: this.querySelector('[name="vendedor-email"]').value,
+      proveedor_id: this.querySelector('[name="vendedor-proveedor"]').value,
+    };
+    
+    actualizarVendedor(vendedorId, formData)
+      .then(data => {
+        if (data.error) throw new Error(data.error);
+        id_tipo='vendedor';
+        actualizarVista(data, id_tipo);
+        ocultarFormularioEdicion(vendedorId, id_tipo);
+        alert('Vendedor actualizado correctamente');
+        window.location.reload();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar: ' + error.message);
+      });
+  });
+});
+
+// Formularios de actualización de datos de establecimiento
+document.querySelectorAll('[name="form-editar-establecimiento"]').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const establecimientoId = this.dataset.id;
+    const formData = {
+      nombre: this.querySelector('[name="establecimiento-nombre"]').value,
+      direccion: this.querySelector('[name="establecimiento-direccion"]').value,
+      telefono: this.querySelector('[name="establecimiento-telefono"]').value,
+      email: this.querySelector('[name="establecimiento-email"]').value,
+      horario_apertura: this.querySelector('[name="establecimiento-horario_apertura"]').value,
+      horario_cierre: this.querySelector('[name="establecimiento-horario_cierre"]').value,
+      proveedor_id: this.querySelector('[name="establecimiento-proveedor"]').value,
+    };
+    
+    actualizarEstablecimiento(establecimientoId, formData)
+      .then(data => {
+        if (data.error) throw new Error(data.error);
+        id_tipo='establecimiento';
+        actualizarVista(data, id_tipo);
+        ocultarFormularioEdicion(establecimientoId, id_tipo);
+        alert('Establecimiento actualizado correctamente');
+        window.location.reload();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar: ' + error.message);
+      });
+  });
+});
+
+// Formularios de actualización de datos de proveedor
+document.querySelectorAll('[name="form-editar-proveedor"]').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const proveedorId = this.dataset.id;
+    const formData = {
+      nombre: this.querySelector('[name="proveedor-nombre"]').value,
+      telefono: this.querySelector('[name="proveedor-telefono"]').value,
+      email: this.querySelector('[name="proveedor-email"]').value,
+    };
+    
+    actualizarProveedor(proveedor-Id, formData)
+      .then(data => {
+        if (data.error) throw new Error(data.error);
+        id_tipo='proveedor';
+        actualizarVista(data, id_tipo);
+        ocultarFormularioEdicion(proveedorId, id_tipo);
+        alert('Proveedor actualizado correctamente');
+        window.location.reload();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar: ' + error.message);
+      });
+  });
+});
+
+////////////////////////
+// BOTONES DE EDICIÓN //
+////////////////////////
+
 // Boton editar producto
 document.querySelectorAll('[name="btn-editar-producto"]').forEach(btn => {
   btn.addEventListener('click', function() {
@@ -249,6 +689,42 @@ document.querySelectorAll('[name="btn-editar-categoria"]').forEach(btn => {
     mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
   });
 });
+
+// Boton editar compra
+document.querySelectorAll('[name="btn-editar-compra"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    id_tipo='compra';
+    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
+  });
+});
+
+// Boton editar vendedor
+document.querySelectorAll('[name="btn-editar-vendedor"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    id_tipo='vendedor';
+    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
+  });
+});
+
+// Boton editar establecimiento
+document.querySelectorAll('[name="btn-editar-establecimiento"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    id_tipo='establecimiento';
+    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
+  });
+});
+
+// Boton editar proveedor
+document.querySelectorAll('[name="btn-editar-proveedor"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    id_tipo='proveedor';
+    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
+  });
+});
+
+////////////////////////////
+// BOTONES DE ELIMINACIÓN //
+////////////////////////////
 
 // Boton eliminar producto
 document.querySelectorAll('[name="btn-eliminar-producto"]').forEach(btn => {
@@ -285,10 +761,81 @@ document.querySelectorAll('[name="btn-eliminar-categoria"]').forEach(btn => {
   });
 });
 
+// Boton eliminar compra
+document.querySelectorAll('[name="btn-eliminar-compra"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const id = this.getAttribute('data-id');
+    if (confirm('¿Eliminar esta compra?')) {
+      eliminarCompraVendedor(id)
+        .then(data => {
+          if (data.error) throw new Error(data.error);
+          document.querySelector(`tr[data-id="${id}"]`).remove();
+          document.querySelector(`#form-editar-compra-${id}`)?.remove();
+          window.location.reload();
+        })
+        .catch(console.error);
+    }
+  });
+});
+
+// Boton eliminar vendedor
+document.querySelectorAll('[name="btn-eliminar-vendedor"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const id = this.getAttribute('data-id');
+    if (confirm('¿Eliminar este vendedor?')) {
+      eliminarVendedor(id)
+        .then(data => {
+          if (data.error) throw new Error(data.error);
+          document.querySelector(`tr[data-id="${id}"]`).remove();
+          document.querySelector(`#form-editar-vendedor-${id}`)?.remove();
+          window.location.reload();
+        })
+        .catch(console.error);
+    }
+  });
+});
+
+// Boton eliminar establecimiento
+document.querySelectorAll('[name="btn-eliminar-establecimiento"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const id = this.getAttribute('data-id');
+    if (confirm('¿Eliminar este establecimiento?')) {
+      eliminarEstablecimiento(id)
+        .then(data => {
+          if (data.error) throw new Error(data.error);
+          document.querySelector(`tr[data-id="${id}"]`).remove();
+          document.querySelector(`#form-editar-establecimiento-${id}`)?.remove();
+          window.location.reload();
+        })
+        .catch(console.error);
+    }
+  });
+});
+
+// Boton eliminar proveedor
+document.querySelectorAll('[name="btn-eliminar-proveedor"]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const id = this.getAttribute('data-id');
+    if (confirm('¿Eliminar este proveedor?')) {
+      eliminarProveedor(id)
+        .then(data => {
+          if (data.error) throw new Error(data.error);
+          document.querySelector(`tr[data-id="${id}"]`).remove();
+          document.querySelector(`#form-editar-proveedor-${id}`)?.remove();
+          window.location.reload();
+        })
+        .catch(console.error);
+    }
+  });
+});
+
+/////////////////////////////////////
+// BOTÓN DE CANCELACIÓN DE EDICIÓN //
+/////////////////////////////////////
+
 // Boton cancelar
 document.querySelectorAll('.btn-cancelar').forEach(btn => {
   btn.addEventListener('click', function() {
     ocultarFormularioEdicion(this.getAttribute('data-id'));
   });
 });
-

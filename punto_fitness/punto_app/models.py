@@ -46,15 +46,6 @@ class Establecimiento(models.Model):
     class Meta:
         db_table = 'establecimiento'
 
-
-class Administrador(models.Model):
-    nivel_acceso = models.CharField(max_length=100)
-    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = 'administrador'
-
-
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
@@ -66,6 +57,15 @@ class Cliente(models.Model):
 
     class Meta:
         db_table = 'cliente'
+
+class Administrador(models.Model):
+    cliente = models.ForeignKey('Cliente', on_delete=models.CASCADE)  # Relación con Cliente
+    nivel_acceso = models.CharField(max_length=100)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'administrador'
+
 
 class RegistroAcceso(models.Model):
     usuario = models.ForeignKey(Cliente, on_delete=models.CASCADE)

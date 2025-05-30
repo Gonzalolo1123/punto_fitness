@@ -3,13 +3,15 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 import json
-from .models import CategoriaProducto, Cliente, Maquina
+from .models import CategoriaProducto, Cliente, Maquina, Administrador
 from django.contrib.auth.hashers import check_password
 # Funcionamiento CRUD
 from django.views.decorators.csrf import csrf_exempt
-from .models import Producto
 from django.db.models import Sum, Min
 from django.db import IntegrityError
+# Funcionamiento CRUD
+from django.views.decorators.csrf import csrf_exempt
+from .models import Producto, CompraVendedor, Vendedor, Establecimiento, Proveedor
 
 # Create your views here.
 def principal(request):
@@ -65,27 +67,31 @@ def login_view(request):
         correo = data.get('correo')
         contrasena = data.get('contrasena')
 
-         # Imprimir los datos recibidos
-        print(f"Correo recibido: {correo}")
-        print(f"Contraseña recibida: {contrasena}")
-
-        # Buscar al cliente por correo
         try:
-           cliente = Cliente.objects.get(email=correo)
-
+            cliente = Cliente.objects.get(email=correo)
         except Cliente.DoesNotExist:
             return JsonResponse({"success": False, "detail": "Cliente no encontrado"}, status=404)
 
-        # Verificar si la contraseña es correcta
-        if check_password(contrasena, cliente.contrasena):  # Asegúrate de que la contraseña se verifica de forma segura
-            # Guardar datos en la sesión
+        if check_password(contrasena, cliente.contrasena):
             request.session['cliente_id'] = cliente.id
             request.session['cliente_nombre'] = cliente.nombre
             request.session['cliente_correo'] = cliente.email
             request.session['cliente_telefono'] = cliente.telefono
-            return JsonResponse({"success": True, "message": "Inicio de sesión exitoso"})
+
+            # Verifica si el cliente es administrador o superadmin
+            admin_obj = Administrador.objects.filter(cliente=cliente).first()
+            if admin_obj:
+                if admin_obj.nivel_acceso.lower() == "superadmin":
+                    return JsonResponse({"success": True, "redirect_url": "/super_admin/"})
+                elif admin_obj.nivel_acceso.lower() == "admin":
+                    return JsonResponse({"success": True, "redirect_url": "/admin-dashboard/"})
+                else:
+                    # Si hay otro nivel de acceso, puedes manejarlo aquí
+                    return JsonResponse({"success": True, "redirect_url": "/principal/"})
+            else:
+                # Usuario normal
+                return JsonResponse({"success": True, "redirect_url": "/principal/"})
         else:
-            # Si la contraseña es incorrecta
             return JsonResponse({"success": False, "detail": "Credenciales incorrectas"}, status=400)
 
     return JsonResponse({"success": False, "detail": "Método no permitido"}, status=405)
@@ -104,12 +110,28 @@ def usuarios(request):
     return render(request, 'punto_app/usuarios.html')
 
 def inventario(request):
-    productos = Producto.objects.values('nombre', 'precio', 'categoria','stock_minimo'
-    ).annotate(
-        stock_actual=Sum('stock_actual'),
-        id=Min('id'))
+    productos = Producto.objects.values('id').annotate(
+        nombre=Min('nombre'),
+        precio=Min('precio'),
+        categoria=Min('categoria'),
+        stock_minimo=Min('stock_minimo'),
+        stock_actual=Sum('stock_actual')
+    )
 
-    return render(request, 'punto_app/inventario.html', {'productos': productos})
+    #productos = Producto.objects.values('id', 'nombre', 'precio', 'categoria','stock_minimo'
+    #).annotate(
+    #    stock_actual=Sum('stock_actual'),
+    #    id=Min('id'))
+    categorias = CategoriaProducto.objects.values('id', 'nombre', 'descripcion')
+
+    # nuevas adiciones para funcionamiento de crud de productos
+    compras = CompraVendedor.objects.values('id', 'fecha', 'total', 'iva', 'estado', 'establecimiento_id', 'vendedor_id')
+    vendedores = Vendedor.objects.values('id', 'nombre', 'telefono', 'email', 'proveedor_id')
+    establecimientos = Establecimiento.objects.values('id', 'nombre', 'direccion', 'telefono', 'email', 'horario_apertura', 'horario_cierre', 'proveedor_id')
+    proveedores = Proveedor.objects.values('id', 'nombre', 'telefono', 'email')
+
+    return render(request, 'punto_app/admin_inventario.html', {'productos': productos, 'categorias': categorias, 'compras': compras, 'vendedores': vendedores, 'establecimientos': establecimientos, 'proveedores': proveedores})
+
 @csrf_exempt
 def admin_producto_crear(request):
     try:
@@ -188,7 +210,6 @@ def verificar_correo(request):
             return JsonResponse({'error': 'JSON inválido'}, status=400)
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
-
 def inventario(request):
     productos = Producto.objects.values('id').annotate(
         nombre=Min('nombre'),
@@ -204,7 +225,13 @@ def inventario(request):
     #    id=Min('id'))
     categorias = CategoriaProducto.objects.values('id', 'nombre', 'descripcion')
 
-    return render(request, 'punto_app/admin_inventario.html', {'productos': productos, 'categorias': categorias})
+    # nuevas adiciones para funcionamiento de crud de productos
+    compras = CompraVendedor.objects.values('id', 'fecha', 'total', 'iva', 'estado', 'establecimiento_id', 'vendedor_id')
+    vendedores = Vendedor.objects.values('id', 'nombre', 'telefono', 'email', 'proveedor_id')
+    establecimientos = Establecimiento.objects.values('id', 'nombre', 'direccion', 'telefono', 'email', 'horario_apertura', 'horario_cierre', 'proveedor_id')
+    proveedores = Proveedor.objects.values('id', 'nombre', 'telefono', 'email')
+
+    return render(request, 'punto_app/admin_inventario.html', {'productos': productos, 'categorias': categorias, 'compras': compras, 'vendedores': vendedores, 'establecimientos': establecimientos, 'proveedores': proveedores})
 
 @csrf_exempt
 def admin_producto_crear(request):
@@ -442,3 +469,235 @@ def admin_usuario_borrar(request, usuario_id):
         return JsonResponse({'message': 'Usuario eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+    
+#################################################################
+# Nuevas adiciones para el funcionamiento del crud de productos #
+#################################################################
+
+@csrf_exempt
+def admin_compra_vendedor_crear(request):
+    try:
+        data = json.loads(request.body)
+        
+        compra_vendedor = CompraVendedor.objects.create(
+            fecha=data['fecha'],
+            total=data['total'],
+            iva=data['iva'],
+            estado=data['estado'],
+            establecimiento_id=data['establecimiento_id'],
+            vendedor_id=data['vendedor_id'],
+        )
+        return JsonResponse({
+            'id': compra_vendedor.id,
+            'fecha': compra_vendedor.fecha,
+            'total': compra_vendedor.total,
+            'iva': compra_vendedor.iva,
+            'estado': compra_vendedor.estado,
+            'establecimiento_id': compra_vendedor.establecimiento_id,
+            'vendedor_id': compra_vendedor.vendedor_id
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_compra_vendedor_actualizar(request, compra_vendedor_id):
+    try:
+        compra_vendedor = get_object_or_404(CompraVendedor, pk=compra_vendedor_id)
+        data = json.loads(request.body)
+        
+        compra_vendedor.fecha = data.get('fecha', compra_vendedor.fecha)
+        compra_vendedor.total = data.get('total', compra_vendedor.total)
+        compra_vendedor.iva = data.get('iva', compra_vendedor.iva)
+        compra_vendedor.estado = data.get('estado', compra_vendedor.estado)
+        compra_vendedor.establecimiento_id = data.get('establecimiento_id', compra_vendedor.establecimiento_id)
+        compra_vendedor.vendedor_id = data.get('vendedor_id', compra_vendedor.vendedor_id)
+        compra_vendedor.save()
+        
+        return JsonResponse({
+            'id': compra_vendedor.id,
+            'fecha': compra_vendedor.fecha,
+            'total': compra_vendedor.total,
+            'iva': compra_vendedor.iva,
+            'estado': compra_vendedor.estado,
+            'establecimiento_id': compra_vendedor.establecimiento_id,
+            'vendedor_id': compra_vendedor.vendedor_id,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+@csrf_exempt   
+def admin_compra_vendedor_borrar(request, compra_vendedor_id):
+    try:
+        compra_vendedor = get_object_or_404(CompraVendedor, pk=compra_vendedor_id)
+        compra_vendedor.delete()
+        return JsonResponse({'message': 'compra_vendedor eliminado correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_vendedor_crear(request):
+    try:
+        data = json.loads(request.body)
+        
+        vendedor = Vendedor.objects.create(
+            nombre=data['nombre'],
+            telefono=data['telefono'],
+            email=data['email'],
+            proveedor_id=data['proveedor_id'],
+        )
+        return JsonResponse({
+            'id': vendedor.id,
+            'nombre': vendedor.nombre,
+            'telefono': vendedor.telefono,
+            'email': vendedor.email,
+            'proveedor_id': vendedor.proveedor_id
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_vendedor_actualizar(request, vendedor_id):
+    try:
+        vendedor = get_object_or_404(Vendedor, pk=vendedor_id)
+        data = json.loads(request.body)
+        
+        vendedor.nombre = data.get('nombre', vendedor.nombre)
+        vendedor.telefono = data.get('telefono', vendedor.telefono)
+        vendedor.email = data.get('email', vendedor.email)
+        vendedor.proveedor_id = data.get('proveedor_id', vendedor.proveedor_id)
+        vendedor.save()
+        
+        return JsonResponse({
+            'id': vendedor.id,
+            'nombre': vendedor.nombre,
+            'telefono': vendedor.telefono,
+            'email': vendedor.email,
+            'proveedor_id': vendedor.proveedor_id,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+@csrf_exempt   
+def admin_vendedor_borrar(request, vendedor_id):
+    try:
+        vendedor = get_object_or_404(Vendedor, pk=vendedor_id)
+        vendedor.delete()
+        return JsonResponse({'message': 'vendedor eliminado correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_establecimiento_crear(request):
+    try:
+        data = json.loads(request.body)
+        
+        establecimiento = Establecimiento.objects.create(
+            nombre=data['nombre'],
+            direccion=data['direccion'],
+            telefono=data['telefono'],
+            email=data['email'],
+            horario_apertura=data['horario_apertura'],
+            horario_cierre=data['horario_cierre'],
+            proveedor_id=data['proveedor_id'],
+        )
+        return JsonResponse({
+            'id': establecimiento.id,
+            'nombre': establecimiento.nombre,
+            'direccion': establecimiento.direccion,
+            'telefono': establecimiento.telefono,
+            'email': establecimiento.email,
+            'horario_apertura': establecimiento.horario_apertura,
+            'horario_cierre': establecimiento.horario_cierre,
+            'proveedor_id': establecimiento.proveedor_id
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_establecimiento_actualizar(request, establecimiento_id):
+    try:
+        establecimiento = get_object_or_404(Establecimiento, pk=establecimiento_id)
+        data = json.loads(request.body)
+        
+        establecimiento.nombre = data.get('nombre', establecimiento.nombre)
+        establecimiento.direccion = data.get('direccion', establecimiento.direccion)
+        establecimiento.telefono = data.get('telefono', establecimiento.telefono)
+        establecimiento.email = data.get('email', establecimiento.email)
+        establecimiento.horario_apertura = data.get('horario_apertura', establecimiento.horario_apertura)
+        establecimiento.horario_cierre = data.get('horario_cierre', establecimiento.horario_cierre)
+        establecimiento.proveedor_id = data.get('proveedor_id', establecimiento.proveedor_id)
+        establecimiento.save()
+        
+        return JsonResponse({
+            'id': establecimiento.id,
+            'nombre': establecimiento.nombre,
+            'direccion': establecimiento.direccion,
+            'telefono': establecimiento.telefono,
+            'email': establecimiento.email,
+            'horario_apertura': establecimiento.horario_apertura,
+            'horario_cierre': establecimiento.horario_cierre,
+            'proveedor_id': establecimiento.proveedor_id,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+@csrf_exempt   
+def admin_establecimiento_borrar(request, establecimiento_id):
+    try:
+        establecimiento = get_object_or_404(Establecimiento, pk=establecimiento_id)
+        establecimiento.delete()
+        return JsonResponse({'message': 'establecimiento eliminado correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_proveedor_crear(request):
+    try:
+        data = json.loads(request.body)
+        
+        proveedor = Proveedor.objects.create(
+            nombre=data['nombre'],
+            telefono=data['telefono'],
+            blabla=data['blabla'],
+        )
+        return JsonResponse({
+            'id': proveedor.id,
+            'nombre': proveedor.nombre,
+            'telefono': proveedor.telefono,
+            'email': proveedor.email
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_proveedor_actualizar(request, proveedor_id):
+    try:
+        proveedor = get_object_or_404(Proveedor, pk=proveedor_id)
+        data = json.loads(request.body)
+        
+        proveedor.nombre = data.get('nombre', proveedor.nombre)
+        proveedor.telefono = data.get('telefono', proveedor.telefono)
+        proveedor.email = data.get('email', proveedor.email)
+        proveedor.save()
+        
+        return JsonResponse({
+            'id': proveedor.id,
+            'nombre': proveedor.nombre,
+            'telefono': proveedor.telefono,
+            'email': proveedor.email,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+@csrf_exempt   
+def admin_proveedor_borrar(request, proveedor_id):
+    try:
+        proveedor = get_object_or_404(Proveedor, pk=proveedor_id)
+        proveedor.delete()
+        return JsonResponse({'message': 'proveedor eliminado correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+def super_admin_view(request):
+    administradores = Administrador.objects.select_related('cliente').all()
+    return render(request, 'punto_app/super_admin.html', {'administradores': administradores})

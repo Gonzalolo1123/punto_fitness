@@ -35,6 +35,24 @@ urlpatterns = [
     path('usuarios/crear_usuario/', views.admin_usuario_crear, name='admin_usuario_crear'),
     path('usuarios/actualizar_usuario/<int:usuario_id>/', views.admin_usuario_actualizar, name='admin_usuario_actualizar'),
     path('usuarios/borrar_usuario/<int:usuario_id>/', views.admin_usuario_borrar, name='admin_usuario_borrar'),
+    # Adiciones nuevas para funcionamiento de crud de productos
+    # Compras
+    path('inventario/crear_compra_vendedor/', views.admin_compra_vendedor_crear, name='admin_compra_vendedor_crear'),
+    path('inventario/actualizar_compra_vendedor/<int:compra_vendedor_id>/', views.admin_compra_vendedor_actualizar, name='admin_compra_vendedor_actualizar'),
+    path('inventario/borrar_compra_vendedor/<int:compra_vendedor_id>/', views.admin_compra_vendedor_borrar, name='admin_compra_vendedor_borrar'),
+    # Vendedores
+    path('inventario/crear_vendedor/', views.admin_vendedor_crear, name='admin_vendedor_crear'),
+    path('inventario/actualizar_vendedor/<int:vendedor_id>/', views.admin_vendedor_actualizar, name='admin_vendedor_actualizar'),
+    path('inventario/borrar_vendedor/<int:vendedor_id>/', views.admin_vendedor_borrar, name='admin_vendedor_borrar'),
+    # Establecimientos
+    path('inventario/crear_establecimiento/', views.admin_establecimiento_crear, name='admin_establecimiento_crear'),
+    path('inventario/actualizar_establecimiento/<int:establecimiento_id>/', views.admin_establecimiento_actualizar, name='admin_establecimiento_actualizar'),
+    path('inventario/borrar_establecimiento/<int:establecimiento_id>/', views.admin_establecimiento_borrar, name='admin_establecimiento_borrar'),
+    # Proveedores
+    path('inventario/crear_proveedor/', views.admin_proveedor_crear, name='admin_proveedor_crear'),
+    path('inventario/actualizar_proveedor/<int:proveedor_id>/', views.admin_proveedor_actualizar, name='admin_proveedor_actualizar'),
+    path('inventario/borrar_proveedor/<int:proveedor_id>/', views.admin_proveedor_borrar, name='admin_proveedor_borrar'),
+    #SuperAdmin
+    path('super_admin/', views.super_admin_view, name='super_admin'),
 
-    
 ]

@@ -139,59 +139,55 @@ document.addEventListener("DOMContentLoaded", function () {
 //Inicio de Sesion
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("signInForm");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
+      const correo = document.getElementById("correoi").value;
+      const contrasena = document.getElementById("contrasenai").value;
 
-    const correo = document.getElementById("correoi").value;
-    const contrasena = document.getElementById("contrasenai").value;
+      // Obtener el token CSRF
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    // Obtener el token CSRF
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      const datos = {
+        correo: correo,
+        contrasena: contrasena
+      };
 
-    const datos = {
-      correo: correo,
-      contrasena: contrasena
-    };
+      console.log(datos); // Verifica los datos que se están enviando
+      console.log("Datos enviados al servidor:", datos);
 
-    console.log(datos); // Verifica los datos que se están enviando
-    console.log("Datos enviados al servidor:", datos);
-
-    // Hacer la solicitud fetch para iniciar sesión
-    fetch("login/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken // Añadir el token CSRF
-      },
-      body: JSON.stringify(datos)
-    })
-      .then(response => {
-        if (!response.ok) {
-          // Si hay un error, mostrar el mensaje del servidor
-          return response.json().then(errorData => {
-            throw new Error(errorData.detail || "Error en las respuesta del servidor");
-          });
-        }
-        return response.json(); // Parsear la respuesta si está bien
+      // Hacer la solicitud fetch para iniciar sesión
+      fetch("/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken // Añadir el token CSRF
+        },
+        body: JSON.stringify(datos)
       })
-      .then(data => {
-        console.log("Respuesta del servidor:", data);
-        if (data.success) {
-          // Si la respuesta del servidor indica que el inicio de sesión fue exitoso
-          showCustomAlert("Inicio de sesión exitoso");
-          // Redirigir a una página de inicio o dashboard
-          window.location.href = '/principal/';
-        } else {
-          // Si hubo un problema con las credenciales
-          showCustomAlert("Credenciales incorrectas");
-        }
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        showCustomAlert("Ocurrió un error: " + error.message); // Muestra el mensaje de error detallado
-      });
-  });
+        .then(response => {
+          if (!response.ok) {
+            // Si hay un error, mostrar el mensaje del servidor
+            return response.json().then(errorData => {
+              throw new Error(errorData.detail || "Error en las respuesta del servidor");
+            });
+          }
+          return response.json(); // Parsear la respuesta si está bien
+        })
+        .then(data => {
+          if (data.success) {
+            window.location.href = data.redirect_url;
+          } else {
+            showCustomAlert("Credenciales incorrectas");
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          showCustomAlert("Ocurrió un error: " + error.message); // Muestra el mensaje de error detallado
+        });
+    });
+  }
 });
 
 function showCustomAlert(message, type = "success") {
