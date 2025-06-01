@@ -16,6 +16,7 @@
       <a href="{% url 'usuarios' %}">Usuarios</a>
       <a href="{% url 'inventario' %}">Inventario</a>
       <a href="{% url 'maquinas' %}">Maquinas</a>
+      <a href="{% url 'cursos' %}">Cursos</a>
     </nav>
   </header>
 
@@ -343,11 +344,11 @@
         </div>
         <div class="form-fila">
           <label for="compra-total">Total:</label>
-          <input type="number" id="compra-total" name="compra-total" maxlength="30" required>
+          <input type="number" id="compra-total" name="compra-total" min="0" required>
         </div>
         <div class="form-fila">
           <label for="compra-iva">IVA:</label>
-          <input type="number" id="compra-iva" name="compra-iva" maxlength="30" required>
+          <input type="number" id="compra-iva" name="compra-iva" min="0" required>
         </div>
         <div class="form-fila">
           <label for="compra-estado">Estado:</label>
@@ -749,7 +750,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay vendedores.</td>
+          <td colspan="5">No hay proveedores.</td>
         </tr>
         {% endfor %}
       </tbody>

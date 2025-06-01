@@ -328,9 +328,9 @@ function manejoCrearProducto(e) {
     precio: document.getElementById('producto-precio').value,
     stock_actual: document.getElementById('producto-stock-actual').value,
     stock_minimo: document.getElementById('producto-stock-minimo').value,
-    compra_id: 1,
+    compra_id: document.getElementById('producto-compra').value,
     categoria_id: document.getElementById('producto-categoria').value,
-    establecimiento_id: 1
+    establecimiento_id: document.getElementById('producto-establecimiento').value
   };
 
   crearProducto(formData)

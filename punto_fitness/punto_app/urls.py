@@ -34,6 +34,14 @@ urlpatterns = [
     path('inventario/crear_proveedor/', views.admin_proveedor_crear, name='admin_proveedor_crear'),
     path('inventario/actualizar_proveedor/<int:proveedor_id>/', views.admin_proveedor_actualizar, name='admin_proveedor_actualizar'),
     path('inventario/borrar_proveedor/<int:proveedor_id>/', views.admin_proveedor_borrar, name='admin_proveedor_borrar'),
+
+    path('cursos/', views.cursos, name='cursos'),
+    path('cursos/crear_curso/', views.admin_curso_crear, name='admin_curso_crear'),
+    path('cursos/actualizar_curso/<int:curso_id>/', views.admin_curso_actualizar, name='admin_curso_actualizar'),
+    path('cursos/borrar_curso/<int:curso_id>/', views.admin_curso_borrar, name='admin_curso_borrar'),
+    path('cursos/crear_inscripcion/', views.admin_inscripcion_crear, name='admin_inscripcion_crear'),
+    path('cursos/actualizar_inscripcion/<int:inscripcion_id>/', views.admin_inscripcion_actualizar, name='admin_inscripcion_actualizar'),
+    path('cursos/borrar_inscripcion/<int:inscripcion_id>/', views.admin_inscripcion_borrar, name='admin_inscripcion_borrar'),
     
     path('maquinas/', views.maquinas, name='maquinas'),
     path('maquinas/crear_maquina/', views.admin_maquina_crear, name='admin_maquina_crear'),

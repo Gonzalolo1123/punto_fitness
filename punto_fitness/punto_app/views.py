@@ -11,7 +11,7 @@ from .models import Cliente
 from django.contrib.auth.hashers import check_password
 # Funcionamiento CRUD
 from django.views.decorators.csrf import csrf_exempt
-from .models import Producto, CategoriaProducto, Maquina, CompraVendedor, Vendedor, Establecimiento, Proveedor
+from .models import Producto, CategoriaProducto, Maquina, CompraVendedor, Vendedor, Establecimiento, Proveedor, Curso, Inscripcion
 from django.db.models import Sum, Min
 
 # Create your views here.
@@ -142,9 +142,9 @@ def admin_producto_crear(request):
             precio=data['precio'],
             stock_actual=data['stock_actual'],
             stock_minimo=data['stock_minimo'],
-            compra_id=1,
+            compra_id=data['compra_id'],
             categoria_id=data['categoria_id'],
-            establecimiento_id=1
+            establecimiento_id=data['establecimiento_id']
         )
         return JsonResponse({
             'id': producto.id,
@@ -557,7 +557,7 @@ def admin_proveedor_crear(request):
         proveedor = Proveedor.objects.create(
             nombre=data['nombre'],
             telefono=data['telefono'],
-            blabla=data['blabla'],
+            email=data['email'],
         )
         return JsonResponse({
             'id': proveedor.id,
@@ -603,3 +603,114 @@ def planes(request):
 
 def estadisticas(request):
     return render(request, 'punto_app/estadisticas.html')
+
+def cursos(request):
+    cursos = Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado', 'establecimiento')
+    inscripciones = Inscripcion.objects.values('id', 'usuario', 'curso', 'fecha_inscripcion')
+    usuarios = Cliente.objects.values('id', 'nombre', 'apellido', 'email', 'telefono')
+    establecimientos = Establecimiento.objects.values('id', 'nombre')
+    return render(request, 'punto_app/admin_cursos.html', {'cursos': cursos, 'usuarios': usuarios, 'inscripciones': inscripciones, 'establecimientos': establecimientos})
+
+@csrf_exempt
+def admin_curso_crear(request):
+    try:
+        data = json.loads(request.body)
+        
+        curso = Curso.objects.create(
+            nombre=data['nombre'],
+            cupos=data['cupos'],
+            fecha_realizacion=data['fecha_realizacion'],
+            estado=data['estado'],
+            establecimiento_id=data['establecimiento_id']
+        )
+        return JsonResponse({
+            'id': curso.id,
+            'nombre': curso.nombre,
+            'cupos': curso.cupos,
+            'fecha_realizacion': curso.fecha_realizacion,
+            'estado': curso.estado,
+            'establecimiento_id': curso.establecimiento_id
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_curso_actualizar(request, curso_id):
+    try:
+        curso = get_object_or_404(Curso, pk=curso_id)
+        data = json.loads(request.body)
+        
+        curso.nombre = data.get('nombre', curso.nombre)
+        curso.cupos = data.get('cupos', curso.cupos)
+        curso.fecha_realizacion = data.get('fecha_realizacion', curso.fecha_realizacion)
+        curso.estado = data.get('estado', curso.estado)
+        curso.establecimiento = data.get('establecimiento', curso.establecimiento)
+        curso.save()
+        
+        return JsonResponse({
+            'id': curso.id,
+            'nombre': curso.nombre,
+            'cupos': curso.cupos,
+            'fecha_realizacion': curso.fecha_realizacion,
+            'estado': curso.estado,
+            'establecimiento': curso.establecimiento
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+@csrf_exempt   
+def admin_curso_borrar(request, curso_id):
+    try:
+        curso = get_object_or_404(Curso, pk=curso_id)
+        curso.delete()
+        return JsonResponse({'message': 'Curso eliminado correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_inscripcion_crear(request):
+    try:
+        data = json.loads(request.body)
+        
+        inscripcion = Inscripcion.objects.create(
+            usuario_id=data['usuario_id'],
+            curso_id=data['curso_id'],
+            fecha_inscripcion=data['fecha_inscripcion']
+        )
+        return JsonResponse({
+            'id': inscripcion.id,
+            'usuario_id': inscripcion.usuario_id,
+            'curso_id': inscripcion.curso_id,
+            'fecha_inscripcion': inscripcion.fecha_inscripcion
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def admin_inscripcion_actualizar(request, inscripcion_id):
+    try:
+        inscripcion = get_object_or_404(Inscripcion, pk=inscripcion_id)
+        data = json.loads(request.body)
+        
+        inscripcion.usuario = data.get('usuario', inscripcion.usuario)
+        inscripcion.curso = data.get('curso', inscripcion.curso)
+        inscripcion.fecha_inscripcion = data.get('fecha_inscripcion', inscripcion.fecha_inscripcion)
+        inscripcion.save()
+        
+        return JsonResponse({
+            'id': inscripcion.id,
+            'usuario': inscripcion.usuario,
+            'curso': inscripcion.curso,
+            'fecha_inscripcion': inscripcion.fecha_inscripcion
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+@csrf_exempt   
+def admin_inscripcion_borrar(request, inscripcion_id):
+    try:
+        inscripcion = get_object_or_404(Inscripcion, pk=inscripcion_id)
+        inscripcion.delete()
+        return JsonResponse({'message': 'Inscripcion eliminada correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
