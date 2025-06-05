@@ -28,6 +28,7 @@ nav a {
   color: #fff;
   font-weight: 600;
   transition: color 0.3s;
+  text-decoration: none;
 }
 
 nav a:hover {
@@ -37,7 +38,10 @@ nav a:hover {
 .content {
   padding: 40px 60px;
 }
-
+h1
+{
+  margin-top: 10px;
+}
 h2, h3 {
   color: #e10600;
   margin-bottom: 20px;
@@ -94,7 +98,9 @@ tr:nth-child(even) {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  max-width: 500px;
+  width: auto;
+  min-width: 280px;
+  max-width: 400px;
   background: #fff;
   padding: 20px;
   margin-top: 20px;
@@ -102,25 +108,16 @@ tr:nth-child(even) {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.form-fila {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-fila label {
+.form-label {
   font-weight: 600;
   margin-bottom: 5px;
   color: #333;
 }
 
-.form-fila input {
+.form-input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-}
-
-.form-container {
-  margin-top: 40px;
 }
 
 button[type="submit"] {
@@ -140,3 +137,42 @@ button[type="button"] {
 button[type="button"]:hover {
   background-color: #bbb;
 }
+
+.header-content {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    gap: 20px;
+}
+
+.form-container {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: flex-start;
+  /* Elimina el max-width global si lo tienes */
+}
+
+.btn-toggle-form {
+  margin-left: 10px;
+  background: #e10600;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-form {
+  position: relative; /* o absolute si quieres que flote sobre la tabla */
+  width: 100%;
+  max-width: 500px; /* o el tamaño que necesites */
+  border-radius: 10px;
+  z-index: 10;
+  display: none;
+}
+
+.modal-form-content {
+  padding-top: 20px;
+}
+

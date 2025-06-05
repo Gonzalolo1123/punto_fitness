@@ -59,13 +59,12 @@ class Cliente(models.Model):
         db_table = 'cliente'
 
 class Administrador(models.Model):
-    cliente = models.ForeignKey('Cliente', on_delete=models.CASCADE)  # Relación con Cliente
+    cliente =models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True) 
     nivel_acceso = models.CharField(max_length=100)
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'administrador'
-
 
 class RegistroAcceso(models.Model):
     usuario = models.ForeignKey(Cliente, on_delete=models.CASCADE)
@@ -188,3 +187,22 @@ class Maquina(models.Model):
 
     class Meta:
         db_table = 'maquina'
+        
+class Curso(models.Model):
+    nombre = models.CharField(max_length=30)
+    cupos = models.IntegerField()
+    fecha_realizacion = models.DateField()
+    estado = models.CharField(max_length=30, default='Pendiente')
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'curso'
+
+
+class Inscripcion(models.Model):
+    usuario = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
+    fecha_inscripcion = models.DateField()
+
+    class Meta:
+        db_table = 'inscripcion'

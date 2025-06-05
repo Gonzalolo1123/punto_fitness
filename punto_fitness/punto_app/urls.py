@@ -1,10 +1,11 @@
+
 # miapp/urls.py
 
 from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.principal, name='principal'),
+     path('', views.principal, name='principal'),
     path('login/', views.login_view, name='login'),
     path('admin-dashboard/', views.pagina_admin, name='pagina_admin'),
     path('registro/', views.register_view, name='registro'),
@@ -24,8 +25,15 @@ urlpatterns = [
     path('inventario/actualizar_categoria/<int:categoria_id>/', views.admin_categoria_actualizar, name='admin_categoria_actualizar'),
     path('inventario/borrar_categoria/<int:categoria_id>/', views.admin_categoria_borrar, name='admin_categoria_borrar'),
     
+    path('cursos/', views.cursos, name='cursos'),
+    path('cursos/crear_curso/', views.admin_curso_crear, name='admin_curso_crear'),
+    path('cursos/actualizar_curso/<int:curso_id>/', views.admin_curso_actualizar, name='admin_curso_actualizar'),
+    path('cursos/borrar_curso/<int:curso_id>/', views.admin_curso_borrar, name='admin_curso_borrar'),
+    path('cursos/crear_inscripcion/', views.admin_inscripcion_crear, name='admin_inscripcion_crear'),
+    path('cursos/actualizar_inscripcion/<int:inscripcion_id>/', views.admin_inscripcion_actualizar, name='admin_inscripcion_actualizar'),
+    path('cursos/borrar_inscripcion/<int:inscripcion_id>/', views.admin_inscripcion_borrar, name='admin_inscripcion_borrar'),
     path('maquinas/', views.maquinas, name='maquinas'),
-
+    path('maquinas-admin/', views.admin_maquinas, name='maquinas-admin'),
     path('maquinas/crear_maquina/', views.admin_maquina_crear, name='admin_maquina_crear'),
     path('maquinas/actualizar_maquina/<int:maquina_id>/', views.admin_maquina_actualizar, name='admin_maquina_actualizar'),
     path('maquinas/borrar_maquina/<int:maquina_id>/', views.admin_maquina_borrar, name='admin_maquina_borrar'),
@@ -53,6 +61,9 @@ urlpatterns = [
     path('inventario/actualizar_proveedor/<int:proveedor_id>/', views.admin_proveedor_actualizar, name='admin_proveedor_actualizar'),
     path('inventario/borrar_proveedor/<int:proveedor_id>/', views.admin_proveedor_borrar, name='admin_proveedor_borrar'),
     #SuperAdmin
-    path('super_admin/', views.super_admin_view, name='super_admin'),
-
+    path('super_admin/', views.super_admin, name='super_admin'),
+    path('asistencias/', views.asistencias, name='asistencias'),
+    path('confirmar_asistencia/', views.confirmar_asistencia, name='confirmar_asistencia'),
+    path('confirmar-salida/', views.confirmar_salida, name='confirmar_salida'),
+    path('cambiar-rol-admin/', views.cambiar_rol_admin, name='cambiar_rol_admin'),
 ]

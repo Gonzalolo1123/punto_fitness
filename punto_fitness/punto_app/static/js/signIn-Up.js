@@ -95,7 +95,8 @@ document.addEventListener("DOMContentLoaded", function () {
         correo: correo,
         telefono: telefono,
         contrasena: contrasena,
-        estado: estado
+        estado: estado,
+        nivel_acceso: "cliente" // Asignar nivel de acceso por defecto
       };
 
       const registroResponse = await fetch("registro/", {
@@ -139,55 +140,63 @@ document.addEventListener("DOMContentLoaded", function () {
 //Inicio de Sesion
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("signInForm");
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
 
-      const correo = document.getElementById("correoi").value;
-      const contrasena = document.getElementById("contrasenai").value;
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
 
-      // Obtener el token CSRF
-      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const correo = document.getElementById("correoi").value;
+    const contrasena = document.getElementById("contrasenai").value;
 
-      const datos = {
-        correo: correo,
-        contrasena: contrasena
-      };
+    // Obtener el token CSRF
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-      console.log(datos); // Verifica los datos que se están enviando
-      console.log("Datos enviados al servidor:", datos);
+    const datos = {
+      correo: correo,
+      contrasena: contrasena,
+    };
+    console.log("Datos enviados al servidor:", datos);
 
-      // Hacer la solicitud fetch para iniciar sesión
-      fetch("/login/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken // Añadir el token CSRF
-        },
-        body: JSON.stringify(datos)
+    // Hacer la solicitud fetch para iniciar sesión
+    fetch("login/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken // Añadir el token CSRF
+      },
+      body: JSON.stringify(datos)
+    })
+      .then(response => {
+        if (!response.ok) {
+          // Si hay un error, mostrar el mensaje del servidor
+          return response.json().then(errorData => {
+            throw new Error(errorData.detail || "Error en las respuesta del servidor");
+          });
+        }
+        return response.json(); // Parsear la respuesta si está bien
       })
-        .then(response => {
-          if (!response.ok) {
-            // Si hay un error, mostrar el mensaje del servidor
-            return response.json().then(errorData => {
-              throw new Error(errorData.detail || "Error en las respuesta del servidor");
-            });
-          }
-          return response.json(); // Parsear la respuesta si está bien
-        })
-        .then(data => {
-          if (data.success) {
-            window.location.href = data.redirect_url;
-          } else {
+      .then(data => {
+        console.log("Respuesta del servidor:", data);
+        if (data.success) {
+            showCustomAlert("Inicio de sesión exitoso");
+            // Redirigir según el nivel de acceso
+            if (data.is_admin) {
+                if (data.nivel_acceso === "superadmin") {
+                    window.location.href = '/super_admin/';
+                } else if (data.nivel_acceso === "admin") {
+                    window.location.href = '/admin-dashboard/';
+                }
+            } else {
+                window.location.href = '/principal/';
+            }
+        } else {
             showCustomAlert("Credenciales incorrectas");
-          }
-        })
-        .catch(error => {
-          console.error("Error:", error);
-          showCustomAlert("Ocurrió un error: " + error.message); // Muestra el mensaje de error detallado
-        });
-    });
-  }
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        showCustomAlert("Ocurrió un error: " + error.message); // Muestra el mensaje de error detallado
+      });
+  });
 });
 
 function showCustomAlert(message, type = "success") {

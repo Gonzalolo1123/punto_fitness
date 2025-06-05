@@ -5,11 +5,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Administradores - Punto Fitness</title>
+  <title>Gestión de Administradores - Punto Fitness</title>
   <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
 </head>
 
 <body>
+
   <header>
     <div class="logo">Punto Fitness</div>
     <nav>
@@ -18,8 +19,13 @@
   </header>
 
   <div class="content">
-    <h2>Administradores</h2>
-
+    <div class="header-content">
+      <h2>Gestión de Administradores</h2>
+      <!-- Botón para agregar nuevo administrador -->
+      <button id="abrir-form-admin" class="filtro-btn" data-estado="cerrado">
+        +
+      </button>
+    </div>
     <!-- Tabla de administradores -->
     <table>
       <thead>
@@ -34,6 +40,7 @@
       </thead>
       <tbody>
         {% for admin in administradores %}
+        {% if admin.nivel_acceso == 'admin' %}  <!-- Solo muestra los de nivel admin -->
         <tr data-id="{{ admin.id }}">
           <td>{{ admin.cliente.nombre }}</td>
           <td>{{ admin.cliente.apellido }}</td>
@@ -45,31 +52,36 @@
             <button class="filtro-btn" name="btn-eliminar-admin" data-id="{{ admin.id }}">Eliminar</button>
           </td>
         </tr>
-        <!-- Formulario de edición (aparece al querer actualizar un admin) -->
+
+        <!-- Formulario de edición para cada admin -->
         <tr id="form-editar-admin-{{ admin.id }}" class="form-edicion-admin" style="display: none;">
           <td colspan="6">
-            <h3>Actualizar datos</h3>
-            <form class="formulario" name="form-editar-usuario" data-id="{{ usuario.id }}">
+            <h3>Actualizar Administrador</h3>
+            <form class="formulario" name="form-editar-admin" data-id="{{ admin.id }}">
               {% csrf_token %}
               <div class="form-fila">
-                <label for="admin-nombre">Nombre:</label>
+                <label for="admin-nombre-{{ admin.id }}">Nombre:</label>
                 <input type="text" name="admin-nombre" value="{{ admin.cliente.nombre }}" required>
               </div>
               <div class="form-fila">
-                <label for="admin-apellido">Apellido:</label>
+                <label for="admin-apellido-{{ admin.id }}">Apellido:</label>
                 <input type="text" name="admin-apellido" value="{{ admin.cliente.apellido }}" required>
               </div>
               <div class="form-fila">
-                <label for="admin-correo">Correo Electrónico:</label>
+                <label for="admin-correo-{{ admin.id }}">Correo Electrónico:</label>
                 <input type="email" name="admin-correo" value="{{ admin.cliente.email }}" required>
               </div>
               <div class="form-fila">
-                <label for="admin-telefono">Teléfono:</label>
+                <label for="admin-telefono-{{ admin.id }}">Teléfono:</label>
                 <input type="tel" name="admin-telefono" value="{{ admin.cliente.telefono }}" required>
               </div>
               <div class="form-fila">
-                <label for="admin-nivel">Nivel de Acceso:</label>
-                <input type="text" name="admin-nivel" value="{{ admin.nivel_acceso }}" required>
+                <label for="admin-nivel-{{ admin.id }}">Nivel de Acceso:</label>
+                <select name="admin-nivel" required>
+                  <option value="admin" {% if admin.nivel_acceso == 'admin' %}selected{% endif %}>Admin</option>
+                  <option value="superadmin" {% if admin.nivel_acceso == 'superadmin' %}selected{% endif %}>Super Admin
+                  </option>
+                </select>
               </div>
               <button class="filtro-btn" type="submit">Guardar</button>
               <button class="filtro-btn" type="button"
@@ -77,18 +89,20 @@
             </form>
           </td>
         </tr>
+        {% endif %}
         {% empty %}
         <tr>
-          <td colspan="6">No hay administradores.</td>
+          <td colspan="6">No hay administradores registrados.</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
 
-    <!-- Formulario para agregar nuevos administradores -->
-    <div class="form-container">
+
+    <!-- Formulario para crear nuevo administrador (oculto) -->
+    <div class="form-container" id="form-crear-admin-container" style="display:none;">
       <h3>Agregar Nuevo Administrador</h3>
-      <form class="formulario" id="form-crear-admin">
+      <form class="formulario" id="form-crear-admin-modal">
         {% csrf_token %}
         <div class="form-fila">
           <label for="admin-nombre">Nombre:</label>
@@ -108,12 +122,23 @@
         </div>
         <div class="form-fila">
           <label for="admin-nivel">Nivel de Acceso:</label>
-          <input type="text" id="admin-nivel" name="admin-nivel" required>
+          <select id="admin-nivel" name="admin-nivel" required>
+            <option value="admin">Admin</option>
+            <option value="superadmin">Super Admin</option>
+          </select>
         </div>
-        <button class="filtro-btn" type="submit">Agregar administrador</button>
+        <button class="filtro-btn" type="submit">Agregar Administrador</button>
       </form>
     </div>
+
+    <!-- Modal reutilizable -->
+    <div id="modal-fondo" class="modal-fondo" style="display:none;"></div>
+    <div id="modal-form" class="modal-form" style="display:none;">
+      <div id="modal-form-content"></div>
+    </div>
   </div>
-  <script src="{% static 'js/usuarios.js' %}"></script>
+
+  <script src="{% static 'js/super_admin.js' %}"></script>
 </body>
+
 </html>
