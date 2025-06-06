@@ -208,6 +208,7 @@ def admin_usuario_borrar(request, usuario_id):
         return JsonResponse({'message': 'Usuario eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
 def inventario(request):
     productos = Producto.objects.values('id').annotate(
         nombre=Min('nombre'),
@@ -218,7 +219,13 @@ def inventario(request):
     )
     categorias = CategoriaProducto.objects.values('id', 'nombre', 'descripcion')
 
-    return render(request, 'punto_app/admin_inventario.html', {'productos': productos, 'categorias': categorias})
+    # nuevas adiciones para funcionamiento de crud de productos
+    compras = CompraVendedor.objects.values('id', 'fecha', 'total', 'iva', 'estado', 'establecimiento_id', 'vendedor_id')
+    vendedores = Vendedor.objects.values('id', 'nombre', 'telefono', 'email', 'proveedor_id')
+    establecimientos = Establecimiento.objects.values('id', 'nombre', 'direccion', 'telefono', 'email', 'horario_apertura', 'horario_cierre', 'proveedor_id')
+    proveedores = Proveedor.objects.values('id', 'nombre', 'telefono', 'email')
+
+    return render(request, 'punto_app/admin_inventario.html', {'productos': productos, 'categorias': categorias, 'compras': compras, 'vendedores': vendedores, 'establecimientos': establecimientos, 'proveedores': proveedores})
 
 @csrf_exempt
 def verificar_correo(request):
@@ -598,7 +605,7 @@ def admin_proveedor_crear(request):
         proveedor = Proveedor.objects.create(
             nombre=data['nombre'],
             telefono=data['telefono'],
-            blabla=data['blabla'],
+            email=data['email'],
         )
         return JsonResponse({
             'id': proveedor.id,
