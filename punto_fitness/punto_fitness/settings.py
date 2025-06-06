@@ -35,7 +35,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['punto-fitness.onrender.com']
 DATABASES = {
      'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
- }
+}
 
 # ----------- DESARROLLO -----------
 # Uncomment this block for development and comment the production one
