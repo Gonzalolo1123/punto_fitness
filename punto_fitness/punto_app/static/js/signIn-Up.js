@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (telefono && !/^\d{9,11}$/.test(telefono)) {
-      showCustomAlert("Por favor ingrese un número de teléfono válido (9-11 dígitos)");
+      showCustomAlert("Por favor, ingrese un número de teléfono válido (9 a 11 dígitos)");
       document.getElementById("telefono").focus();
       return;
     }
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const verificarData = await verificarResponse.json();
 
       if (verificarData.existe) {
-        showCustomAlert("El correo ya está registrado. Por favor, utiliza otro correo.");
+        showCustomAlert("El correo ya está registrado. Por favor, utiliza otro correo");
         return;
       }
 

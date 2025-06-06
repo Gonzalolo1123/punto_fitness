@@ -154,7 +154,7 @@ def admin_usuario_crear(request):
             return JsonResponse({'error': '¡Ya existe un usuario con este correo!'}, status=400)
 
         if Cliente.objects.filter(telefono__iexact=data['telefono']).exists():
-            return JsonResponse({'error': '¡Ya existe un usuario con este telefono!'}, status=400)
+            return JsonResponse({'error': '¡Ya existe un usuario con este teléfono!'}, status=400)
         
         usuario = Cliente.objects.create(
             nombre=data['nombre'],
@@ -182,7 +182,7 @@ def admin_usuario_actualizar(request, usuario_id):
             return JsonResponse({'error': '¡Ya existe un usuario con este correo!'}, status=400)
 
         if Cliente.objects.filter(telefono__iexact=data['telefono']).exists():
-            return JsonResponse({'error': '¡Ya existe un usuario con este telefono!'}, status=400)
+            return JsonResponse({'error': '¡Ya existe un usuario con este teléfono!'}, status=400)
         
         usuario.nombre = data.get('nombre', usuario.nombre)
         usuario.apellido = data.get('apellido', usuario.apellido)
@@ -208,6 +208,7 @@ def admin_usuario_borrar(request, usuario_id):
         return JsonResponse({'message': 'Usuario eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
 def inventario(request):
     productos = Producto.objects.values('id').annotate(
         nombre=Min('nombre'),
@@ -216,14 +217,15 @@ def inventario(request):
         stock_minimo=Min('stock_minimo'),
         stock_actual=Sum('stock_actual')
     )
-
-    #productos = Producto.objects.values('id', 'nombre', 'precio', 'categoria','stock_minimo'
-    #).annotate(
-    #    stock_actual=Sum('stock_actual'),
-    #    id=Min('id'))
     categorias = CategoriaProducto.objects.values('id', 'nombre', 'descripcion')
 
-    return render(request, 'punto_app/admin_inventario.html', {'productos': productos, 'categorias': categorias})
+    # nuevas adiciones para funcionamiento de crud de productos
+    compras = CompraVendedor.objects.values('id', 'fecha', 'total', 'iva', 'estado', 'establecimiento_id', 'vendedor_id')
+    vendedores = Vendedor.objects.values('id', 'nombre', 'telefono', 'email', 'proveedor_id')
+    establecimientos = Establecimiento.objects.values('id', 'nombre', 'direccion', 'telefono', 'email', 'horario_apertura', 'horario_cierre', 'proveedor_id')
+    proveedores = Proveedor.objects.values('id', 'nombre', 'telefono', 'email')
+
+    return render(request, 'punto_app/admin_inventario.html', {'productos': productos, 'categorias': categorias, 'compras': compras, 'vendedores': vendedores, 'establecimientos': establecimientos, 'proveedores': proveedores})
 
 @csrf_exempt
 def verificar_correo(request):
@@ -475,7 +477,7 @@ def admin_compra_vendedor_borrar(request, compra_vendedor_id):
     try:
         compra_vendedor = get_object_or_404(CompraVendedor, pk=compra_vendedor_id)
         compra_vendedor.delete()
-        return JsonResponse({'message': 'compra_vendedor eliminado correctamente'}, status=200)
+        return JsonResponse({'message': 'Compra eliminada correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
@@ -527,7 +529,7 @@ def admin_vendedor_borrar(request, vendedor_id):
     try:
         vendedor = get_object_or_404(Vendedor, pk=vendedor_id)
         vendedor.delete()
-        return JsonResponse({'message': 'vendedor eliminado correctamente'}, status=200)
+        return JsonResponse({'message': 'Vendedor eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
@@ -591,7 +593,7 @@ def admin_establecimiento_borrar(request, establecimiento_id):
     try:
         establecimiento = get_object_or_404(Establecimiento, pk=establecimiento_id)
         establecimiento.delete()
-        return JsonResponse({'message': 'establecimiento eliminado correctamente'}, status=200)
+        return JsonResponse({'message': 'Establecimiento eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
@@ -603,7 +605,7 @@ def admin_proveedor_crear(request):
         proveedor = Proveedor.objects.create(
             nombre=data['nombre'],
             telefono=data['telefono'],
-            blabla=data['blabla'],
+            email=data['email'],
         )
         return JsonResponse({
             'id': proveedor.id,
@@ -641,7 +643,7 @@ def admin_proveedor_borrar(request, proveedor_id):
     try:
         proveedor = get_object_or_404(Proveedor, pk=proveedor_id)
         proveedor.delete()
-        return JsonResponse({'message': 'proveedor eliminado correctamente'}, status=200)
+        return JsonResponse({'message': 'Proveedor eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 def cursos(request):
@@ -853,7 +855,7 @@ def super_admin(request):
         print(f"\nIntento de acceso a super_admin:")
         print(f"Cliente ID: {cliente_id}")
         print(f"Email cliente: {cliente.email}")
-        print(f"Nivel acceso session: {nivel_acceso}")
+        print(f"Nivel acceso sesión: {nivel_acceso}")
 
         if nivel_acceso == 'superadmin':
             print(f"Autorización exitosa - Nivel detectado: {nivel_acceso}")
@@ -867,7 +869,7 @@ def super_admin(request):
             })
             
     except Cliente.DoesNotExist:
-        print("Acceso denegado - Cliente no encontrado en DB")
+        print("Acceso denegado - Cliente no encontrado en base de datos")
     except Exception as e:
         print(f"Error en super_admin: {str(e)}")
     

@@ -1,0 +1,17 @@
+* [33m4b1a38d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mgonzalo[m[33m, [m[1;31morigin/sergio[m[33m)[m correcciones 2
+* [33ma93ab4e[m correcciones de cruds
+* [33m533e98e[m Faltas ortográficas arregladas
+* [33m37bf6d6[m actualización
+* [33mdcc049b[m correcciones en cruds de inventario, adicion de cursos e inscripciones en base de datos, y crud de cursos e inscripciones
+* [33m2cbf2ad[m cruds adicionales en pagina de inventario
+* [33mc712533[m crud de usuarios funcional y uso de prefijo admin_ en paginas crud inventario y maquinas
+* [33m6f706d6[m validaciones para evitar repetición de categorías de productos y máquinas
+* [33m86f115c[m reorganización de codigo en inventario.js
+* [33m20bbdd5[m crud maquinas funcional
+* [33m4f31706[m crud funcional de productos y categorias en inventario
+* [33m4fa41b5[m categorias en inventario (incompleto)
+* [33mfa02c6b[m configuración base de datos
+* [33m135dd07[m actualización rama sergio
+* [33m1f238d9[m test
+* [33m4366a18[m funcionamiento CRUD de productos en página de inventario para administración
+* [33m1d7aead[m[33m ([m[1;31morigin/fernando[m[33m)[m Initial commit
