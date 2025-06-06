@@ -1,287 +1,95 @@
-{% load static%}
-<!DOCTYPE html>
-<html lang="es">
+{% extends "punto_app/base.html" %}
+{% load static %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Punto Fitness</title>
-  <link rel="stylesheet" href="{% static 'css/index.css' %}">
-  <link rel="stylesheet" href="{% static 'css/signIn-Up.css' %}">
-  <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
-</head>
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+<link rel="stylesheet" href="{% static 'css/signIn-Up.css' %}">
+<link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
+<link rel="stylesheet" href="{% static 'css/alert.css' %}?v=2">
+{% endblock %}
 
-<body>
+{% block content %}
+<section id="historia">
+  <div class="contenedor-historia">
+    <h2>Nuestra Historia</h2>
+    <p>Desde nuestros humildes comienzos, Punto Fitness ha crecido...</p>
 
-  <!-- Menú Superior -->
-  <header class="encabezado">
-    <div class="logo">
-      <img src="{% static 'images/logo_gym.png' %}" alt="Punto Fitness" class="logo-img">
-    </div>
-    <nav class="menu">
-      <ul>
-        <li><a href="#inicio">Inicio</a></li>
-        <li><a href="#historia">Historia</a></li>
-        <li><a href="#trabajadores">Trabajadores</a></li>
-        <li><a href="#maquinas">Máquinas</a></li>
-        <li>
-          {% if cliente_nombre %}
-          <a href="#" id="cuentaBtn">Hola, {{ cliente_nombre }}</a>
-          {% else %}
-          <a href="#" id="usuarioBtn">Usuario</a>
-          {% endif %}
-        </li>
-      </ul>
-    </nav>
-  </header>
-  <main>
-    <!-- Historia del Gimnasio (Carrusel de Videos) -->
-    <section id="historia">
-      <h2>Nuestra Historia</h2>
-      <p>Desde nuestros humildes comienzos, Punto Fitness ha crecido para convertirse en un referente de entrenamiento
-        personalizado...</p>
-
-      <div class="carrusel-videos-historia">
-        <div class="video-slider">
-          <div class="video-slide" id="video0">
-            <video src="{% static 'videos/gym1.mp4' %}" muted onclick="cambiarSlide(0)"></video>
-          </div>
-          <div class="video-slide central" id="video1">
-            <video src="{% static 'videos/gym2.mp4' %}" controls onclick="cambiarSlide(1)"></video>
-          </div>
-          <div class="video-slide" id="video2">
-            <video src="{% static 'videos/gym3.mp4' %}" muted onclick="cambiarSlide(2)"></video>
-          </div>
+    <div class="carrusel-videos-historia">
+      <div class="video-slider">
+        <div class="video-slide" id="video0">
+          <video src="{% static 'videos/gym1.mp4' %}" muted onclick="cambiarSlide(0)"></video>
         </div>
-        <div class="puntos-indicadores">
-          <span class="punto" onclick="cambiarSlide(0)"></span>
-          <span class="punto activo" onclick="cambiarSlide(1)"></span>
-          <span class="punto" onclick="cambiarSlide(2)"></span>
+        <div class="video-slide central" id="video1">
+          <video src="{% static 'videos/gym2.mp4' %}" controls onclick="cambiarSlide(1)"></video>
+        </div>
+        <div class="video-slide" id="video2">
+          <video src="{% static 'videos/gym3.mp4' %}" muted onclick="cambiarSlide(2)"></video>
         </div>
       </div>
-    </section>
-
-    <!-- Planes (Carrusel) -->
-    <section id="planes">
-      <h2>Planes</h2>
-      <div class="carrusel-planes">
-        <button class="flecha izquierda" onclick="moverCarrusel(-1)">&#10094;</button>
-        <div class="contenedor-carrusel">
-          <div class="carrusel-interno" id="carruselPlanes">
-            <img src="{% static 'images/planes/1.png' %}" alt="Plan 1" class="plan">
-            <img src="{% static 'images/planes/2.png' %}" alt="Plan 2" class="plan">
-            <img src="{% static 'images/planes/3.png' %}" alt="Plan 3" class="plan">
-            <img src="{% static 'images/planes/4.png' %}" alt="Plan 4" class="plan">
-            <img src="{% static 'images/planes/5.png' %}" alt="Plan 5" class="plan">
-            <img src="{% static 'images/planes/6.png' %}" alt="Plan 6" class="plan">
-          </div>
-        </div>
-        <button class="flecha derecha" onclick="moverCarrusel(1)">&#10095;</button>
-      </div>
-    </section>
-
-    <!-- Máquinas del Gimnasio (Grid) -->
-    <section id="maquinas">
-      <h2>Nuestras Máquinas</h2>
-      <div class="contenedor-carrusel-maquinas">
-        <div class="carrusel-interno-maquinas">
-          <div class="maquina">
-            <img src="{% static 'images/maquinas/biceps.jpg' %}" alt="Cinta de correr">
-            <p>biceps</p>
-          </div>
-          <div class="maquina">
-            <img src="{% static 'images/maquinas/ext_cuadriceps.jpg' %}" alt="ext_cuadriceps">
-            <p>ext_cuadriceps</p>
-          </div>
-          <div class="maquina">
-            <img src="{% static 'images/maquinas/femoral.jpg' %}" alt="femoral">
-            <p>femoral</p>
-          </div>
-          <div class="maquina">
-            <img src="{% static 'images/maquinas/fondos_triceps.jpg' %}" alt="fondos_triceps">
-            <p>fondos_triceps</p>
-          </div>
-          <div class="maquina">
-            <img src="{% static 'images/maquinas/mancuernas.jpg' %}" alt="mancuernas">
-            <p>mancuernas</p>
-          </div>
-          <div class="maquina">
-            <img src="{% static 'images/maquinas/pecho_sentado.jpg' %}" alt="pecho_sentado">
-            <p>pecho_sentado</p>
-          </div>
-          <div class="maquina">
-            <img src="{% static 'images/maquinas/polea_alta.jpg' %}" alt="polea_alta">
-            <p>polea_alta</p>
-          </div>
-          <div class="maquina">
-            <img src="{% static 'images/maquinas/prensa.jpg' %}" alt="prensa">
-            <p>prensa</p>
-          </div>
-          <div class="maquina">
-            <img src="{% static 'images/maquinas/trotadora.jpg' %}" alt="trotadora">
-            <p>trotadora</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Productos en Venta (Grid) -->
-    <section id="productos">
-      <h2>Productos</h2>
-
-      <!-- Botones de filtro -->
-      <div class="filtros">
-        <button class="filtro-btn activo" data-categoria="todos">Todos</button>
-        <button class="filtro-btn" data-categoria="barras">Barras de Cereal</button>
-        <button class="filtro-btn" data-categoria="bebidas">Bebidas</button>
-      </div>
-
-      <!-- Contenedor de productos -->
-      <div class="productos">
-        <div class="producto barras">
-          <img src="{% static 'images/productos/wild-choco.jpg' %}" alt="wild-choco">
-          <p>Barra de cereal wild-choco</p>
-        </div>
-        <div class="producto barras">
-          <img src="{% static 'images/productos/bitter.png' %}" alt="bitter">
-          <p>Barra de cereal wild-bitter</p>
-        </div>
-        <div class="producto barras">
-          <img src="{% static 'images/productos/naranja.png' %}" alt="naranja">
-          <p>Barra de cereal wild-naranja</p>
-        </div>
-        <div class="producto barras">
-          <img src="{% static 'images/productos/coco.png' %}" alt="coco" style="margin-top: 25px;">
-          <p>Barra de cereal wild-coco</p>
-        </div>
-        <div class="producto bebidas">
-          <img src="{% static 'images/productos/ultra-gold.jpg' %}" alt="Monster Energy ultra gold">
-          <p>Monster Energy ultra gold</p>
-        </div>
-        <div class="producto bebidas">
-          <img src="{% static 'images/productos/original.png' %}" alt="Monster Energy original">
-          <p>Monster Energy original</p>
-        </div>
-        <div class="producto bebidas">
-          <img src="{% static 'images/productos/monster-energy-paradise.jpg' %}" alt="Monster Energy paradise">
-          <p>Monster Energy paradise</p>
-        </div>
-        <div class="producto bebidas">
-          <img src="{% static 'images/productos/mango-loco.png' %}" alt="Monster Energy mango loco">
-          <p>Monster Energy mango loco</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Equipo de Trabajo -->
-    <section id="equipo">
-      <h2>Nuestro Equipo</h2>
-      <div class="equipo">
-        <div class="persona">
-          <img src="{% static 'img/entrenador.jpg' %}" alt="Entrenador">
-          <h3>Entrenador</h3>
-          <p>Especialista en fitness funcional.</p>
-        </div>
-        <div class="persona">
-          <img src="{% static 'img/dueno.jpg' %}" alt="Dueño">
-          <h3>Dueño</h3>
-          <p>Fundador de Punto Fitness.</p>
-        </div>
-        <div class="persona">
-          <img src="{% static 'img/administrador.jpg' %}" alt="Administrador">
-          <h3>Administrador</h3>
-          <p>Encargado de operaciones y atención al cliente.</p>
-        </div>
-      </div>
-    </section>
-  </main>
-  <!-- Footer -->
-  <footer>
-    <p>© 2025 Punto Fitness</p>
-    <p>Síguenos en:
-      <a href="#">Instagram</a> |
-      <a href="#">Facebook</a> |
-      <a href="#">WhatsApp</a>
-    </p>
-    <p>Contacto: +56 9 1234 5678 | contacto@puntofitness.cl</p>
-  </footer>
-
-
-  <!-- Modal de Login/Registro -->
-  <div id="authModal" class="modal hidden">
-    <div class="modal-content">
-      <span class="close" id="closeModal">&times;</span>
-      <section>
-        <div class="container" id="container">
-          <div class="form-container sign-up-container">
-            <form id="signUpForm" method="POST">
-              {% csrf_token %}
-              <h1>Crear Cuenta</h1>
-              <label>
-                <input type="text" id="nombre" placeholder="Nombre" required />
-              </label>
-              <label>
-                <input type="text" id="apellido" placeholder="Apellido" required />
-              </label>
-              <label>
-                <input type="email" id="correo" placeholder="Correo" required />
-              </label>
-              <label>
-                <input type="tel" id="telefono" placeholder="Número de teléfono" required />
-              </label>
-              <label>
-                <input type="password" id="contrasena" placeholder="Contraseña" required />
-              </label>
-              <button type="submit" style="margin-top: 9px">Crear Cuenta</button>
-            </form>
-          </div>
-          <div class="form-container sign-in-container">
-            <form id="signInForm">
-              <h1>Iniciar Sesión</h1>
-              <label>
-                <input type="email" id="correoi" placeholder="Correo" required />
-              </label>
-              <label>
-                <input type="password" id="contrasenai" placeholder="Contraseña" required />
-              </label>
-              <a href="#">¿Olvidaste tu contraseña?</a>
-              <button>Iniciar Sesión</button>
-            </form>
-          </div>
-          <div class="overlay-container">
-            <div class="overlay">
-              <div class="overlay-panel overlay-left">
-                <h1>Iniciar Sesión</h1>
-                <p>Inicia sesión aquí si ya tienes una cuenta.</p>
-                <button class="ghost mt-5" id="signIn">Iniciar Sesión</button>
-              </div>
-              <div class="overlay-panel overlay-right">
-                <h1>Crear cuenta!</h1>
-                <p>Regístrate si aún no tienes una cuenta...</p>
-                <button class="ghost" id="signUp">Crear Cuenta</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  </div>
-  <!-- Modal de Cuenta de Usuario -->
-  <div id="userModal" class="modal hidden">
-    <div class="modal-content">
-      <span class="close" id="closeUserModal">&times;</span>
-      <div class="form-container">
-        <h1>Mi Cuenta</h1>
-        <p><strong>Nombre:</strong> {{cliente_nombre}}</p>
-        <p><strong>Correo:</strong> {{cliente_correo}}</p>
-        <p><strong>Teléfono:</strong> {{cliente_telefono}}</p>
-          <a href="{% url 'logout' %}" id="cerrarSesionBtn">Cerrar Sesión</a>
+      <div class="puntos-indicadores">
+        <span class="punto" onclick="cambiarSlide(0)"></span>
+        <span class="punto activo" onclick="cambiarSlide(1)"></span>
+        <span class="punto" onclick="cambiarSlide(2)"></span>
       </div>
     </div>
   </div>
-  <script src="{% static 'js/cuenta.js' %}"></script>
-  <script src="{% static 'js/signIn-Up.js' %}"></script>
-  <script src="{% static 'js/index.js' %}"></script>
-</body>
+</section>
+<section id="servicios">
+  <div class="contenedor-servicio">
+    <h2 class="titulo-seccion">Nuestros Servicios</h2>
 
-</html>
+    <div class="servicios-grid">
+
+      <div class="servicio-box">
+        <h3>Busca el plan para ti</h3>
+        <a href="{% url 'planes' %}" class="btn-servicio">Ver Planes</a>
+      </div>
+
+      <div class="servicio-box">
+        <h3>Elige tu forma de ejercitar</h3>
+        <a href="{% url 'maquinas' %}" class="btn-servicio">Ver Rutinas</a>
+      </div>
+
+      <div class="servicio-box">
+        <h3>Compra lo que necesites</h3>
+        <a href="{% url 'maquinas' %}" class="btn-servicio">Ver Productos</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+<section id="equipo">
+  <div class="contenedor-equipo">
+    <h2>Nuestro Equipo</h2>
+    <div class="equipo">
+      <div class="persona">
+        <img src="{% static 'images/trabajadores/persona.jpg' %}" alt="Entrenador">
+        <h3>Entrenador</h3>
+        <p>Especialista en fitness funcional.</p>
+      </div>
+      <div class="persona">
+        <img src="{% static 'images/trabajadores/persona.jpg' %}" alt="Dueño">
+        <h3>Dueño</h3>
+        <p>Fundador de Punto Fitness.</p>
+      </div>
+      <div class="persona">
+        <img src="{% static 'images/trabajadores/persona.jpg' %}" alt="Administrador">
+        <h3>Administrador</h3>
+        <p>Encargado de operaciones y atención al cliente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="opinio">
+  <div class="contenedor-opiniones">
+    <h2>Danos tu opinón</h2>
+    <h6>Escribe como ha sido tu experiencia como usuario de
+      nuestras dependencias
+    </h6>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/index.js' %}"></script>
+{% endblock %}

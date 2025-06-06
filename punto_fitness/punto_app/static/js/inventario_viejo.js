@@ -291,4 +291,3 @@ document.querySelectorAll('.btn-cancelar').forEach(btn => {
     ocultarFormularioEdicion(this.getAttribute('data-id'));
   });
 });
-

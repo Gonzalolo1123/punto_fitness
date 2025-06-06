@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,11 +27,32 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure--srandy--wou)yx)bm6iyaiqllk37!#t&nn_&e=yqgb*#ocyq$'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# ----------- PRODUCCIÓN -----------
+# Uncomment this block for production and comment the development one
+
+# DEBUG = False
+# ALLOWED_HOSTS = ['punto-fitness.onrender.com']
+# DATABASES = {
+#     'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+# }
+
+# ----------- DESARROLLO -----------
+# Uncomment this block for development and comment the production one
+
 DEBUG = True
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'punto_fitness',
+        'USER': 'postgres',
+        'PASSWORD': 'hola1234',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
 
-ALLOWED_HOSTS = []
-
+# -----------------------------------
 
 # Application definition
 
@@ -43,6 +69,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # <--- agrega esta línea
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,21 +96,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'punto_fitness.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-DATABASES = {
-   'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'punto_fitness',
-        'USER': 'postgres',
-        'PASSWORD': 'compuvi',
-        'HOST': 'localhost',
-        'PORT': '5433',
-    }
-}
 
 
 # Password validation
@@ -120,7 +132,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'punto_app', 'static'),
+]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

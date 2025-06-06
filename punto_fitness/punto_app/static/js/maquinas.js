@@ -1,156 +1,76 @@
-const BASE_URL = '/maquinas/';
+document.addEventListener("DOMContentLoaded", function () {
+  const carrusel = document.querySelector(".carrusel-maquinas");
+  const btnIzq = document.querySelector(".flecha.izquierda");
+  const btnDer = document.querySelector(".flecha.derecha");
 
-////////////////////
-//// MAQUINAS /////
-////////////////////
+  let scrollAmount = 0;
+  const scrollStep = 260; // ancho de una tarjeta + gap
 
-document.addEventListener('DOMContentLoaded', function() {
-  inicializarEventListeners();
+  btnIzq.addEventListener("click", () => {
+    scrollAmount = Math.max(0, scrollAmount - scrollStep);
+    carrusel.scrollTo({ left: scrollAmount, behavior: "smooth" });
+  });
+
+  btnDer.addEventListener("click", () => {
+    scrollAmount += scrollStep;
+    carrusel.scrollTo({ left: scrollAmount, behavior: "smooth" });
+  });
 });
 
-// Función para obtener csrf token
-function getCSRFToken() {
-  const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
-  return csrfInput ? csrfInput.value : '';
-}
+const rutinas = {
+  fullbody: [
+    ["Sentadillas", "4", "12", "60s", "Ver video"],
+    ["Press de banca", "3", "10", "60s", "Ver video"]
+  ],
+  pectoral: [
+    ["Press plano", "4", "12", "60s", "Ver video"],
+    ["Aperturas", "3", "15", "45s", "Ver video"]
+  ],
+  espalda: [
+    ["Dominadas", "4", "10", "60s", "Ver video"],
+    ["Remo", "3", "12", "60s", "Ver video"]
+  ],
+  cuadriceps: [
+    ["Prensa", "4", "10", "60s", "Ver video"],
+    ["Sentadilla frontal", "3", "12", "60s", "Ver video"]
+  ],
+  gluteos: [
+    ["Hip Thrust", "4", "15", "60s", "Ver video"],
+    ["Puente glúteo", "3", "20", "45s", "Ver video"]
+  ]
+};
 
-// Función para mostrar formulario de edición
-function mostrarFormularioEdicion(maquinaId) {
-  document.querySelectorAll('.form-edicion-maquina').forEach(form => {
-    form.style.display = 'none';
+document.querySelectorAll('.filtro-rutina').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filtro-rutina').forEach(b => b.classList.remove('activo'));
+    btn.classList.add('activo');
+
+    const zona = btn.dataset.zona;
+    mostrarZona(zona);
+    cargarRutina(zona);
   });
-  document.getElementById(`form-editar-maquina-${maquinaId}`).style.display = 'table-row';
+});
+
+function mostrarZona(zona) {
+  document.querySelectorAll('.highlight').forEach(el => el.style.display = 'none');
+  const zonaHighlight = document.getElementById(`zona-${zona}`);
+  if (zonaHighlight) zonaHighlight.style.display = 'block';
 }
 
-// Función para ocultar formulario de edición
-function ocultarFormularioEdicion(maquinaId) {
-  document.getElementById(`form-editar-maquina-${maquinaId}`).style.display = 'none';
-}
-
-// Función para actualizar vista de datos de maquina
-function actualizarVista(maquina) {
-  const row = document.querySelector(`tr[data-id="${maquina.id}"]`);
-  if (row) {
-    const cells = row.cells;
-    cells[0].textContent = maquina.nombre;
-    cells[2].textContent = maquina.descripcion;
-  }
-}
-
-// Función para crear maquina
-function crearMaquina(formData) {
-  return fetch(`${BASE_URL}crear_maquina/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken()
-    },
-    body: JSON.stringify(formData)
-  }).then(response => response.json());
-}
-
-// Función para actualizar maquina
-function actualizarMaquina(id, data) {
-  return fetch(`${BASE_URL}actualizar_maquina/${id}/`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken()
-    },
-    body: JSON.stringify(data)
-  }).then(response => response.json());
-}
-
-// Función para eliminar maquina
-function eliminarMaquina(id) {
-  return fetch(`${BASE_URL}borrar_maquina/${id}/`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken()
-    }
-  }).then(response => response.json());
-}
-
-function inicializarEventListeners() {
-  const formCrearMaquina = document.getElementById('form-crear-maquina');
-  if (formCrearMaquina) {
-    formCrearMaquina.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = {
-        nombre: document.getElementById('maquina-nombre').value,
-        descripcion: document.getElementById('maquina-descripcion').value,
-        establecimiento_id: 1
-      };
-      
-      crearMaquina(formData)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          alert('Máquina creada exitosamente');
-          window.location.reload();
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error al crear máquina: ' + error.message);
-        });
+function cargarRutina(zona) {
+  const tabla = document.getElementById('tabla-ejercicios');
+  tabla.innerHTML = '';
+  rutinas[zona].forEach(row => {
+    const tr = document.createElement('tr');
+    row.forEach(cell => {
+      const td = document.createElement('td');
+      td.textContent = cell;
+      tr.appendChild(td);
     });
-  }
-}
-
-  // Formularios de actualización de datos
-  document.querySelectorAll('[name="form-editar-maquina"]').forEach(form => {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const maquinaId = this.dataset.id;
-      const formData = {
-        nombre: this.querySelector('[name="maquina-nombre"]').value,
-        descripcion: this.querySelector('[name="maquina-descripcion"]').value,
-      };
-      
-      actualizarMaquina(maquinaId, formData)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          actualizarVista(data);
-          ocultarFormularioEdicion(maquinaId);
-          alert('maquina actualizado correctamente');
-          window.location.reload();
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error al actualizar: ' + error.message);
-        });
-    });
+    tabla.appendChild(tr);
   });
+}
 
-  // Boton editar
-  document.querySelectorAll('[name="btn-editar-maquina"]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      mostrarFormularioEdicion(this.getAttribute('data-id'));
-    });
-  });
-
-  // Boton eliminar
-  document.querySelectorAll('[name="btn-eliminar-maquina"]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const id = this.getAttribute('data-id');
-      if (confirm('¿Eliminar esta maquina?')) {
-        eliminarMaquina(id)
-          .then(data => {
-            if (data.error) throw new Error(data.error);
-            document.querySelector(`tr[data-id="${id}"]`).remove();
-            document.querySelector(`#form-editar-maquina-${id}`)?.remove();
-            window.location.reload();
-          })
-          .catch(console.error);
-      }
-    });
-  });
-
-  // Boton cancelar
-  document.querySelectorAll('.btn-cancelar').forEach(btn => {
-    btn.addEventListener('click', function() {
-      ocultarFormularioEdicion(this.getAttribute('data-id'));
-    });
-  });
-
+// Mostrar por defecto Full Body
+mostrarZona('fullbody');
+cargarRutina('fullbody');

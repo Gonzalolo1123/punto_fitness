@@ -1,31 +1,18 @@
+{% extends 'punto_app/base_admin.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cursos - Punto Fitness</title>
-  <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
-</head>
-<body>
 
-  <header>
-    <div class="logo">Punto Fitness</div>
-    <nav>
-      <a href="{% url 'pagina_admin' %}">Estadísticas</a>
-      <a href="{% url 'usuarios' %}">Usuarios</a>
-      <a href="{% url 'inventario' %}">Inventario</a>
-      <a href="{% url 'maquinas' %}">Maquinas</a>
-      <a href="{% url 'cursos' %}">Cursos</a>
-    </nav>
-  </header>
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+{% endblock %}
 
-  <div class="content">
+{% block content %}
+<div class="content">
 
-    <h2>Cursos e Inscripciones</h2>
+  <h1>Cursos e Inscripciones</h1>
 
-    <!-- Cursos -->
-    <h3>Cursos</h3>
+  <!-- Cursos -->
+  <section name="seccion-cursos">
+    <h2>Cursos</h2>
     <table>
       <thead>
         <tr>
@@ -54,38 +41,35 @@
         <!-- Formulario de edición -->
         <tr id="form-editar-curso-{{ curso.id }}" class="form-edicion-curso" style="display: none;">
           <td colspan="5">
+
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-curso" data-id="{{ curso.id }}">
               {% csrf_token %}
-              <div class="form-fila">
-                <label for="curso-nombre">Nombre:</label>
-                <input type="text" name="curso-nombre" value="{{ curso.nombre }}" required>
-              </div>
-              <div class="form-fila">
-                <label for="curso-cupos">Cupos:</label>
-                <input type="number" id="curso-cupos" name="curso-cupos" min="0" required>
-              </div>
-              <div class="form-fila">
-                <label for="curso-fecha_realizacion">Fecha:</label>
-                <input type="date" name="curso-fecha_realizacion" value="{{ curso.fecha }}" required>
-              </div>
-              <div class="form-fila">
-                <label for="curso-estado">Estado:</label>
-                <select id="curso-estado" name="curso-estado" required>
-                  <option value="">Seleccione</option>
-                  <option value="activo">Activo</option>
-                  <option value="cancelado">Cancelado</option>
-                </select>
-              </div>
-              <div class="form-fila">
-                <label for="curso-establecimiento">Establecimiento:</label>
-                <select id="curso-establecimiento" name="curso-establecimiento" required>
-                  <option value="">Seleccione</option>
-                  {% for establecimiento in establecimientos %}
-                  <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
-                  {% endfor %}
-                </select>
-              </div>
+              
+              <label class="form-label" for="curso-nombre">Nombre:</label>
+              <input class="form-input" type="text" name="curso-nombre" value="{{ curso.nombre }}" required>
+            
+              <label class="form-label" for="curso-cupos">Cupos:</label>
+              <input class="form-input" type="number" id="curso-cupos" name="curso-cupos" min="0" required>
+            
+              <label class="form-label" for="curso-fecha_realizacion">Fecha:</label>
+              <input class="form-input" type="date" name="curso-fecha_realizacion" value="{{ curso.fecha }}" required>
+            
+              <label class="form-label" for="curso-estado">Estado:</label>
+              <select id="curso-estado" name="curso-estado" required>
+                <option value="">Seleccione</option>
+                <option value="activo">Activo</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            
+              <label class="form-label" for="curso-establecimiento">Establecimiento:</label>
+              <select id="curso-establecimiento" name="curso-establecimiento" required>
+                <option value="">Seleccione</option>
+                {% for establecimiento in establecimientos %}
+                <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
+                {% endfor %}
+              </select>
+              
               <button class="filtro-btn" type="submit">Guardar</button>
               <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicion('{{ curso.id }}', 'curso')">Cancelar</button>
             </form>
@@ -98,46 +82,43 @@
         {% endfor %}
       </tbody>
     </table>
-    <!-- Formulario de creación -->
-    <div class="form-container">
-      <h3>Agregar Nuevo Curso</h3>
-      <form class="formulario" id="form-crear-curso">
-        {% csrf_token %}
-        <div class="form-fila">
-          <label for="curso-nombre">Nombre:</label>
-          <input type="text" id="curso-nombre" name="curso-nombre" maxlength="30" required>
-        </div>
-        <div class="form-fila">
-          <label for="curso-cupos">Cupos:</label>
-          <input type="number" id="curso-cupos" name="curso-cupos" min="0" required>
-        </div>
-        <div class="form-fila">
-          <label for="curso-fecha_realizacion">Fecha:</label>
-          <input type="date" id="curso-fecha_realizacion" name="curso-fecha_realizacion" required>
-        </div>
-        <div class="form-fila">
-          <label for="curso-estado">Estado:</label>
-          <select id="curso-estado" name="curso-estado" required>
-            <option value="">Seleccione</option>
-            <option value="activo">Activo</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
-        </div>
-        <div class="form-fila">
-          <label for="curso-establecimiento">Establecimiento:</label>
-          <select id="curso-establecimiento" name="curso-establecimiento" required>
-            <option value="">Seleccione</option>
-            {% for establecimiento in establecimientos %}
-            <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <button class="filtro-btn" type="submit">Agregar Curso</button>
-      </form>
-    </div>
 
-    <!-- Inscripciones -->
-    <h3>Inscripciones</h3>
+    <!-- Formulario de creación -->
+    <h3>Agregar</h3>
+    <form class="formulario" id="form-crear-curso">
+      {% csrf_token %}
+      
+      <label class="form-label" for="curso-nombre">Nombre:</label>
+      <input class="form-input" type="text" id="curso-nombre" name="curso-nombre" maxlength="30" required>
+    
+      <label class="form-label" for="curso-cupos">Cupos:</label>
+      <input class="form-input" type="number" id="curso-cupos" name="curso-cupos" min="0" required>
+    
+      <label class="form-label" for="curso-fecha_realizacion">Fecha:</label>
+      <input class="form-input" type="date" id="curso-fecha_realizacion" name="curso-fecha_realizacion" required>
+    
+      <label class="form-label" for="curso-estado">Estado:</label>
+      <select id="curso-estado" name="curso-estado" required>
+        <option value="">Seleccione</option>
+        <option value="activo">Activo</option>
+        <option value="cancelado">Cancelado</option>
+      </select>
+    
+      <label class="form-label" for="curso-establecimiento">Establecimiento:</label>
+      <select id="curso-establecimiento" name="curso-establecimiento" required>
+        <option value="">Seleccione</option>
+        {% for establecimiento in establecimientos %}
+        <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
+        {% endfor %}
+      </select>
+
+      <button class="filtro-btn" type="submit">Agregar Curso</button>
+    </form>
+  </section>
+
+  <!-- Inscripciones -->
+  <section name="seccion-inscripciones">
+    <h2>Inscripciones</h2>
     <table>
       <thead>
         <tr>
@@ -162,31 +143,30 @@
         <!-- Formulario de edición -->
         <tr id="form-editar-inscripcion-{{ inscripcion.id }}" class="form-edicion-inscripcion" style="display: none;">
           <td colspan="5">
+
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-inscripcion" data-id="{{ inscripcion.id }}">
               {% csrf_token %}
-              <div class="form-fila">
-                <label for="inscripcion-curso">Curso:</label>
-                <select id="inscripcion-curso" name="inscripcion-curso" required>
-                  <option value="">Seleccione</option>
-                  {% for curso in cursos %}
-                  <option value="{{ curso.id }}">{{ curso.nombre }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="form-fila">
-                <label for="inscripcion-usuario">Usuario:</label>
-                <select id="inscripcion-usuario" name="inscripcion-usuario" required>
-                  <option value="">Seleccione</option>
-                  {% for usuario in usuarios %}
-                  <option value="{{ usuario.id }}">{{ usuario.nombre }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="form-fila">
-                <label for="inscripcion-fecha_inscripcion">Fecha:</label>
-                <input type="text" name="inscripcion-fecha_inscripcion" value="{{ inscripcion.fecha }}" required>
-              </div>
+              
+              <label class="form-label" for="inscripcion-curso">Curso:</label>
+              <select id="inscripcion-curso" name="inscripcion-curso" required>
+                <option value="">Seleccione</option>
+                {% for curso in cursos %}
+                <option value="{{ curso.id }}">{{ curso.nombre }}</option>
+                {% endfor %}
+              </select>
+            
+              <label class="form-label" for="inscripcion-usuario">Usuario:</label>
+              <select id="inscripcion-usuario" name="inscripcion-usuario" required>
+                <option value="">Seleccione</option>
+                {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}">{{ usuario.nombre }}</option>
+                {% endfor %}
+              </select>
+            
+              <label class="form-label" for="inscripcion-fecha_inscripcion">Fecha:</label>
+              <input class="form-input" type="date" name="inscripcion-fecha_inscripcion" value="{{ inscripcion.fecha }}" required>
+              
               <button class="filtro-btn" type="submit">Guardar</button>
               <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicion('{{ inscripcion.id }}', 'inscripcion')">Cancelar</button>
             </form>
@@ -199,39 +179,38 @@
         {% endfor %}
       </tbody>
     </table>
+
     <!-- Formulario de creación -->
-    <div class="form-container">
-      <h3>Agregar Nueva Inscripción</h3>
-      <form class="formulario" id="form-crear-inscripcion">
-        {% csrf_token %}
-        <div class="form-fila">
-          <label for="inscripcion-curso">Curso:</label>
-          <select id="inscripcion-curso" name="inscripcion-curso" required>
-            <option value="">Seleccione</option>
-            {% for curso in cursos %}
-            <option value="{{ curso.id }}">{{ curso.nombre }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="form-fila">
-          <label for="inscripcion-usuario">Usuario:</label>
-          <select id="inscripcion-usuario" name="inscripcion-usuario" required>
-            <option value="">Seleccione</option>
-            {% for usuario in usuarios %}
-            <option value="{{ usuario.id }}">{{ usuario.nombre }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="form-fila">
-          <label for="inscripcion-fecha_inscripcion">Fecha:</label>
-          <input type="date" id="inscripcion-fecha_inscripcion" name="inscripcion-fecha_inscripcion" value="{{ inscripcion.fecha }}" required>
-        </div>
-        <button class="filtro-btn" type="submit">Agregar Inscripción</button>
-      </form>
-    </div>
+    <h3>Agregar</h3>
+    <form class="formulario" id="form-crear-inscripcion">
+      {% csrf_token %}
+      
+      <label class="form-label" for="inscripcion-curso">Curso:</label>
+      <select id="inscripcion-curso" name="inscripcion-curso" required>
+        <option value="">Seleccione</option>
+        {% for curso in cursos %}
+        <option value="{{ curso.id }}">{{ curso.nombre }}</option>
+        {% endfor %}
+      </select>
+    
+      <label class="form-label" for="inscripcion-usuario">Usuario:</label>
+      <select id="inscripcion-usuario" name="inscripcion-usuario" required>
+        <option value="">Seleccione</option>
+        {% for usuario in usuarios %}
+        <option value="{{ usuario.id }}">{{ usuario.nombre }}</option>
+        {% endfor %}
+      </select>
+    
+      <label class="form-label" for="inscripcion-fecha_inscripcion">Fecha:</label>
+      <input class="form-input" type="date" id="inscripcion-fecha_inscripcion" name="inscripcion-fecha_inscripcion" value="{{ inscripcion.fecha }}" required>
 
+      <button class="filtro-btn" type="submit">Agregar Inscripción</button>
+    </form>
+  </section>
 
-  </div>
-<script src="../../static/js/cursos.js"></script>
-</body>
-</html>
+</div>
+
+{% endblock %}
+{% block extra_scripts %}
+<script src="{% static 'js/cursos.js' %}"></script>
+{% endblock %}
