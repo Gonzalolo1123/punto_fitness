@@ -224,7 +224,7 @@ document.querySelectorAll('[name="form-editar-categoria"]').forEach(form => {
         id_tipo='categoria';
         actualizarVista(data, id_tipo);
         ocultarFormularioEdicion(categoriaId, id_tipo);
-        alert('categoria actualizado correctamente');
+        alert('Categoría actualizada correctamente');
         window.location.reload();
       })
       .catch(error => {

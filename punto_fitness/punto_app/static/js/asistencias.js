@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function(e) {
             if (!selectEstablecimiento.value) {
                 e.preventDefault();
-                alert('Por favor seleccione un establecimiento');
+                alert('Por favor, seleccione un establecimiento');
             }
         });
     });
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function(e) {
             if (!selectEstablecimiento.value) {
                 e.preventDefault();
-                alert('Por favor seleccione un establecimiento');
+                alert('Por favor, seleccione un establecimiento');
             }
         });
     });

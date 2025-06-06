@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gestión de Administradores - Punto Fitness</title>
+  <title>Gestión de administradores - Punto Fitness</title>
   <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
 </head>
 
@@ -14,13 +14,13 @@
   <header>
     <div class="logo">Punto Fitness</div>
     <nav>
-      <a href="{% url 'pagina_admin' %}">Admin Dashboard</a>
+      <a href="{% url 'pagina_admin' %}">Admin dashboard</a>
     </nav>
   </header>
 
   <div class="content">
     <div class="header-content">
-      <h2>Gestión de Administradores</h2>
+      <h2>Gestión de administradores</h2>
       <!-- Botón para agregar nuevo administrador -->
       <button id="abrir-form-admin" class="filtro-btn" data-estado="cerrado">
         +
@@ -32,9 +32,9 @@
         <tr>
           <th>Nombre</th>
           <th>Apellido</th>
-          <th>Correo Electrónico</th>
+          <th>Correo electrónico</th>
           <th>Teléfono</th>
-          <th>Nivel de Acceso</th>
+          <th>Nivel de acceso</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -56,7 +56,7 @@
         <!-- Formulario de edición para cada admin -->
         <tr id="form-editar-admin-{{ admin.id }}" class="form-edicion-admin" style="display: none;">
           <td colspan="6">
-            <h3>Actualizar Administrador</h3>
+            <h3>Actualizar administrador</h3>
             <form class="formulario" name="form-editar-admin" data-id="{{ admin.id }}">
               {% csrf_token %}
               <div class="form-fila">
@@ -68,7 +68,7 @@
                 <input type="text" name="admin-apellido" value="{{ admin.cliente.apellido }}" required>
               </div>
               <div class="form-fila">
-                <label for="admin-correo-{{ admin.id }}">Correo Electrónico:</label>
+                <label for="admin-correo-{{ admin.id }}">Correo electrónico:</label>
                 <input type="email" name="admin-correo" value="{{ admin.cliente.email }}" required>
               </div>
               <div class="form-fila">
@@ -76,7 +76,7 @@
                 <input type="tel" name="admin-telefono" value="{{ admin.cliente.telefono }}" required>
               </div>
               <div class="form-fila">
-                <label for="admin-nivel-{{ admin.id }}">Nivel de Acceso:</label>
+                <label for="admin-nivel-{{ admin.id }}">Nivel de acceso:</label>
                 <select name="admin-nivel" required>
                   <option value="admin" {% if admin.nivel_acceso == 'admin' %}selected{% endif %}>Admin</option>
                   <option value="superadmin" {% if admin.nivel_acceso == 'superadmin' %}selected{% endif %}>Super Admin
@@ -92,7 +92,7 @@
         {% endif %}
         {% empty %}
         <tr>
-          <td colspan="6">No hay administradores registrados.</td>
+          <td colspan="6">No hay administradores registrados</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -101,7 +101,7 @@
 
     <!-- Formulario para crear nuevo administrador (oculto) -->
     <div class="form-container" id="form-crear-admin-container" style="display:none;">
-      <h3>Agregar Nuevo Administrador</h3>
+      <h3>Agregar nuevo administrador</h3>
       <form class="formulario" id="form-crear-admin-modal">
         {% csrf_token %}
         <div class="form-fila">
@@ -113,7 +113,7 @@
           <input type="text" id="admin-apellido" name="admin-apellido" required>
         </div>
         <div class="form-fila">
-          <label for="admin-correo">Correo Electrónico:</label>
+          <label for="admin-correo">Correo electrónico:</label>
           <input type="email" id="admin-correo" name="admin-correo" required>
         </div>
         <div class="form-fila">
@@ -121,13 +121,13 @@
           <input type="tel" id="admin-telefono" name="admin-telefono" required>
         </div>
         <div class="form-fila">
-          <label for="admin-nivel">Nivel de Acceso:</label>
+          <label for="admin-nivel">Nivel de acceso:</label>
           <select id="admin-nivel" name="admin-nivel" required>
             <option value="admin">Admin</option>
-            <option value="superadmin">Super Admin</option>
+            <option value="superadmin">Super admin</option>
           </select>
         </div>
-        <button class="filtro-btn" type="submit">Agregar Administrador</button>
+        <button class="filtro-btn" type="submit">Agregar administrador</button>
       </form>
     </div>
 

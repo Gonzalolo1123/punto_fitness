@@ -223,7 +223,7 @@ document.querySelectorAll('[name="form-editar-curso"]').forEach(form => {
         id_tipo='curso';
         actualizarVista(data, id_tipo);
         ocultarFormularioEdicion(cursoId, id_tipo);
-        alert('curso actualizado correctamente');
+        alert('Curso actualizado correctamente');
         window.location.reload();
       })
       .catch(error => {
@@ -250,7 +250,7 @@ document.querySelectorAll('[name="form-editar-inscripcion"]').forEach(form => {
         id_tipo='inscripcion';
         actualizarVista(data, id_tipo);
         ocultarFormularioEdicion(inscripcionId, id_tipo);
-        alert('inscripcion actualizado correctamente');
+        alert('Inscripción actualizado correctamente');
         window.location.reload();
       })
       .catch(error => {
@@ -306,7 +306,7 @@ document.querySelectorAll('[name="btn-eliminar-curso"]').forEach(btn => {
 document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
   btn.addEventListener('click', function() {
     const id = this.getAttribute('data-id');
-    if (confirm('¿Eliminar esta inscripcion?')) {
+    if (confirm('¿Eliminar esta inscripción?')) {
       eliminarInscripcion(id)
         .then(data => {
           if (data.error) throw new Error(data.error);

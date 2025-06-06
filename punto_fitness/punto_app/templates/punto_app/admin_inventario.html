@@ -8,7 +8,7 @@
 {% block content %}
 <div class="content">
 
-  <h1>Administración de Inventario</h1>
+  <h1>Administración de inventario</h1>
 
   <!-- Productos -->
   <section name="seccion-productos">
@@ -21,9 +21,9 @@
         <tr>
           <th>Nombre</th>
           <th>Descripción</th>
-          <th>Precio Unitario ($)</th>
-          <th>Stock Actual</th>
-          <th>Stock Mínimo</th>
+          <th>Precio unitario ($)</th>
+          <th>Stock actual</th>
+          <th>Stock mínimo</th>
           <th>Compra</th>
           <th>Categoría</th>
           <th>Establecimiento</th>
@@ -65,11 +65,11 @@
               <label class="form-label" for="producto-precio">Precio:</label>
               <input class="form-input" type="number" name="producto-precio" value="{{ producto.precio }}" required>
 
-              <label class="form-label" for="producto-stock-actual">Stock Actual:</label>
+              <label class="form-label" for="producto-stock-actual">Stock actual:</label>
               <input class="form-input" type="number" name="producto-stock-actual" value="{{ producto.stock_actual }}"
                 required>
 
-              <label class="form-label" for="producto-stock-minimo">Stock Mínimo:</label>
+              <label class="form-label" for="producto-stock-minimo">Stock mínimo:</label>
               <input class="form-input" type="number" name="producto-stock-minimo" value="{{ producto.stock_minimo }}"
                 required>
 
@@ -107,7 +107,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay productos en el inventario.</td>
+          <td colspan="5">No hay productos en el inventario</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -116,7 +116,7 @@
     <!-- Formulario de creación de producto -->
     <div class="modal-form" id="modal-producto" style="display:none;">
       <div class="modal-form-content">
-        <h3>Agregar Producto</h3>
+        <h3>Agregar producto</h3>
         <form class="formulario" id="form-crear-producto">
           {% csrf_token %}
           <!-- ...campos del producto... -->
@@ -126,9 +126,9 @@
           <input class="form-input" type="text" name="producto-descripcion" maxlength="50" required>
           <label class="form-label" for="producto-precio">Precio:</label>
           <input class="form-input" type="number" name="producto-precio" min="0" required>
-          <label class="form-label" for="producto-stock-actual">Stock Actual:</label>
+          <label class="form-label" for="producto-stock-actual">Stock actual:</label>
           <input class="form-input" type="number" name="producto-stock-actual" min="0" required>
-          <label class="form-label" for="producto-stock-minimo">Stock Mínimo:</label>
+          <label class="form-label" for="producto-stock-minimo">Stock mínimo:</label>
           <input class="form-input" type="number" name="producto-stock-minimo" min="0" required>
           <label class="form-label" for="producto-compra">Compra:</label>
           <select id="producto-compra" name="producto-compra" required>
@@ -164,13 +164,13 @@
   <!-- Categorías de productos -->
   <section name="seccion-categorias">
     <div class="header-content">
-      <h2>Categorías de Productos</h2>
+      <h2>Categorías de productos</h2>
       <button class="filtro-btn btn-toggle-form" data-form="modal-categoria" data-estado="cerrado">+</button>
     </div>
     <table>
       <thead>
         <tr>
-          <th>Nombre de la Categoría</th>
+          <th>Nombre de la categoría</th>
           <th>Descripción</th>
           <th>Acciones</th>
         </tr>
@@ -210,7 +210,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay categorias en el inventario.</td>
+          <td colspan="5">No hay categorias en el inventario</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -219,7 +219,7 @@
     <!-- Formulario de creación de categoría -->
     <div class="modal-form" id="modal-categoria" style="display:none;">
       <div class="modal-form-content">
-        <h3>Agregar Categoría</h3>
+        <h3>Agregar categoría</h3>
         <form class="formulario" id="form-crear-categoria">
           {% csrf_token %}
           <label class="form-label" for="categoria-nombre">Nombre:</label>
@@ -316,7 +316,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay compras.</td>
+          <td colspan="5">No hay compras</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -325,7 +325,7 @@
     <!-- Formulario de creación de compra -->
     <div class="modal-form" id="modal-compra" style="display:none;">
       <div class="modal-form-content">
-        <h3>Agregar Compra</h3>
+        <h3>Agregar compra</h3>
         <form class="formulario" id="form-crear-compra">
           {% csrf_token %}
           <label class="form-label" for="compra-fecha">Fecha:</label>
@@ -371,7 +371,7 @@
         <tr>
           <th>Nombre</th>
           <th>Teléfono</th>
-          <th>Correo Electrónico</th>
+          <th>Correo electrónico</th>
           <th>Proveedor</th>
           <th>Acciones</th>
         </tr>
@@ -403,7 +403,7 @@
               <label class="form-label" for="vendedor-telefono">Teléfono:</label>
               <input class="form-input" type="tel" name="vendedor-telefono" value="{{ vendedor.telefono }}" required>
 
-              <label class="form-label" for="vendedor-email">Correo Electrónico:</label>
+              <label class="form-label" for="vendedor-email">Correo electrónico:</label>
               <input class="form-input" type="email" name="vendedor-email" value="{{ vendedor.email }}" required>
 
               <label class="form-label" for="vendedor-proveedor">Proveedor:</label>
@@ -423,7 +423,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay vendedores.</td>
+          <td colspan="5">No hay vendedores</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -432,14 +432,14 @@
     <!-- Formulario de creación de vendedor -->
     <div class="modal-form" id="modal-vendedor" style="display:none;">
       <div class="modal-form-content">
-        <h3>Agregar Vendedor</h3>
+        <h3>Agregar vendedor</h3>
         <form class="formulario" id="form-crear-vendedor">
           {% csrf_token %}
           <label class="form-label" for="vendedor-nombre">Nombre:</label>
           <input class="form-input" type="text" id="vendedor-nombre" name="vendedor-nombre" maxlength="30" required>
           <label class="form-label" for="vendedor-telefono">Teléfono:</label>
           <input class="form-input" type="tel" id="vendedor-telefono" name="vendedor-telefono" maxlength="30" required>
-          <label class="form-label" for="vendedor-email">Correo Electrónico:</label>
+          <label class="form-label" for="vendedor-email">Correo electrónico:</label>
           <input class="form-input" type="email" id="vendedor-email" name="vendedor-email" maxlength="30" required>
           <label class="form-label" for="vendedor-proveedor">Proveedor:</label>
           <select id="vendedor-proveedor" name="vendedor-proveedor" required>
@@ -466,9 +466,9 @@
           <th>Nombre</th>
           <th>Dirección</th>
           <th>Teléfono</th>
-          <th>Correo Electrónico</th>
-          <th>Horario de Apertura</th>
-          <th>Horario de Cierre</th>
+          <th>Correo electrónico</th>
+          <th>Horario de apertura</th>
+          <th>Horario de cierre</th>
           <th>Provedor</th>
           <th>Acciones</th>
         </tr>
@@ -512,17 +512,17 @@
               <input class="form-input" type="tel" name="establecimiento-telefono"
                 value="{{ establecimiento.telefono }}" required>
 
-              <label class="form-label" for="establecimiento-email">Correo Electrónico:</label>
+              <label class="form-label" for="establecimiento-email">Correo electrónico:</label>
               <input class="form-input" type="email" name="establecimiento-email" value="{{ establecimiento.email }}"
                 required>
 
-              <label class="form-label" for="establecimiento-horario_apertura">Horario de Apertura:</label>
+              <label class="form-label" for="establecimiento-horario_apertura">Horario de apertura:</label>
               <input class="form-input" type="time" id="establecimiento-horario_apertura" 
                 name="establecimiento-horario_apertura" 
                 value="{{ establecimiento.horario_apertura|time:'H:i' }}" 
                 required>
 
-              <label class="form-label" for="establecimiento-horario_cierre">Horario de Cierre:</label>
+              <label class="form-label" for="establecimiento-horario_cierre">Horario de cierre:</label>
               <input class="form-input" type="time" id="establecimiento-horario_cierre" 
                 name="establecimiento-horario_cierre" 
                 value="{{ establecimiento.horario_cierre|time:'H:i' }}" 
@@ -545,7 +545,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay establecimientos.</td>
+          <td colspan="5">No hay establecimientos</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -554,7 +554,7 @@
     <!-- Formulario de creación de establecimiento -->
     <div class="modal-form" id="modal-establecimiento" style="display:none;">
       <div class="modal-form-content">
-        <h3>Agregar Establecimiento</h3>
+        <h3>Agregar establecimiento</h3>
         <form class="formulario" id="form-crear-establecimiento">
           {% csrf_token %}
           <label class="form-label" for="establecimiento-nombre">Nombre:</label>
@@ -563,13 +563,13 @@
           <input class="form-input" type="text" id="establecimiento-direccion" name="establecimiento-direccion" maxlength="30" required>
           <label class="form-label" for="establecimiento-telefono">Teléfono:</label>
           <input class="form-input" type="tel" id="establecimiento-telefono" name="establecimiento-telefono" maxlength="30" required>
-          <label class="form-label" for="establecimiento-email">Correo Electrónico:</label>
+          <label class="form-label" for="establecimiento-email">Correo electrónico:</label>
           <input class="form-input" type="email" id="establecimiento-email" name="establecimiento-email" maxlength="30" required>
-          <label class="form-label" for="establecimiento-horario_apertura">Horario de Apertura:</label>
+          <label class="form-label" for="establecimiento-horario_apertura">Horario de apertura:</label>
           <input class="form-input" type="time" id="establecimiento-horario_apertura" 
           name="establecimiento-horario_apertura" required>
 
-          <label class="form-label" for="establecimiento-horario_cierre">Horario de Cierre:</label>
+          <label class="form-label" for="establecimiento-horario_cierre">Horario de cierre:</label>
           <input class="form-input" type="time" id="establecimiento-horario_cierre" 
           name="establecimiento-horario_cierre" required>
 
@@ -598,7 +598,7 @@
         <tr>
           <th>Nombre</th>
           <th>Teléfono</th>
-          <th>Correo Electrónico</th>
+          <th>Correo electrónico</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -628,7 +628,7 @@
               <label class="form-label" for="proveedor-telefono">Teléfono:</label>
               <input class="form-input" type="tel" name="proveedor-telefono" value="{{ proveedor.telefono }}" required>
 
-              <label class="form-label" for="proveedor-email">Correo Electrónico:</label>
+              <label class="form-label" for="proveedor-email">Correo electrónico:</label>
               <input class="form-input" type="email" name="proveedor-email" value="{{ proveedor.email }}" required>
 
               <button class="filtro-btn" type="submit">Guardar</button>
@@ -640,7 +640,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay proveedores.</td>
+          <td colspan="5">No hay proveedores</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -649,7 +649,7 @@
     <!-- Formulario de creación -->
     <div class="modal-form" id="modal-proveedor" style="display:none;">
       <div class="modal-form-content">
-        <h3>Agregar Proveedor</h3>
+        <h3>Agregar proveedor</h3>
         <form class="formulario" id="form-crear-proveedor">
           {% csrf_token %}
           <label class="form-label" for="proveedor-nombre">Nombre:</label>
@@ -658,7 +658,7 @@
           <label class="form-label" for="proveedor-telefono">Teléfono:</label>
           <input class="form-input" type="tel" id="proveedor-telefono" name="proveedor-telefono" maxlength="30" required>
 
-          <label class="form-label" for="proveedor-email">Correo Electrónico:</label>
+          <label class="form-label" for="proveedor-email">Correo electrónico:</label>
           <input class="form-input" type="email" id="proveedor-email" name="proveedor-email" maxlength="30" required>
 
           <button class="filtro-btn" type="submit">Agregar</button>
