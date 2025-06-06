@@ -95,7 +95,8 @@ document.addEventListener("DOMContentLoaded", function () {
         correo: correo,
         telefono: telefono,
         contrasena: contrasena,
-        estado: estado
+        estado: estado,
+        nivel_acceso: "cliente" // Asignar nivel de acceso por defecto
       };
 
       const registroResponse = await fetch("registro/", {
@@ -151,10 +152,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const datos = {
       correo: correo,
-      contrasena: contrasena
+      contrasena: contrasena,
     };
-
-    console.log(datos); // Verifica los datos que se están enviando
     console.log("Datos enviados al servidor:", datos);
 
     // Hacer la solicitud fetch para iniciar sesión
@@ -178,13 +177,19 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(data => {
         console.log("Respuesta del servidor:", data);
         if (data.success) {
-          // Si la respuesta del servidor indica que el inicio de sesión fue exitoso
-          showCustomAlert("Inicio de sesión exitoso");
-          // Redirigir a una página de inicio o dashboard
-          window.location.href = '/principal/';
+            showCustomAlert("Inicio de sesión exitoso");
+            // Redirigir según el nivel de acceso
+            if (data.is_admin) {
+                if (data.nivel_acceso === "superadmin") {
+                    window.location.href = '/super_admin/';
+                } else if (data.nivel_acceso === "admin") {
+                    window.location.href = '/admin-dashboard/';
+                }
+            } else {
+                window.location.href = '/principal/';
+            }
         } else {
-          // Si hubo un problema con las credenciales
-          showCustomAlert("Credenciales incorrectas");
+            showCustomAlert("Credenciales incorrectas");
         }
       })
       .catch(error => {

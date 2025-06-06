@@ -32,6 +32,7 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     text-align: center;
     font-family: 'Segoe UI', sans-serif;
+    position: relative;
   }
   
   .modal-content.cuenta {
@@ -102,3 +103,27 @@
     color: #ff416c;
     background: #f8f8f8;
   }
+.admin-panel-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.admin-panel-btn:hover {
+  background-color: #45a049;
+}
+
+/* Puedes agregar esto a tu CSS para asegurar la posición del botón de cerrar */
+.close {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 2;
+}

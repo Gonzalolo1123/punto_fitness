@@ -292,3 +292,78 @@ document.querySelectorAll('.btn-cancelar').forEach(btn => {
   });
 });
 
+// MODAL FUNCIONAL PARA TODOS LOS FORMULARIOS DE CREACIÓN
+document.addEventListener('DOMContentLoaded', function () {
+  // Modal reutilizable
+  const modalFondo = document.getElementById('modal-fondo');
+  const modalForm = document.getElementById('modal-form');
+  const modalFormContent = document.getElementById('modal-form-content');
+
+  // Botones "+" al lado de cada h2 para abrir el modal
+  document.querySelectorAll('.btn-modal-abrir').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const formId = this.getAttribute('data-form');
+      const formContainer = document.getElementById(formId);
+      if (formContainer) {
+        // Clonar el nodo para evitar conflictos de IDs y eventos
+        const clone = formContainer.cloneNode(true);
+        clone.style.display = 'block';
+        modalFormContent.innerHTML = '';
+        modalFormContent.appendChild(clone);
+
+        modalFondo.style.display = 'block';
+        modalForm.style.display = 'block';
+
+        // Agregar event listener al form dentro del modal
+        const formInModal = modalFormContent.querySelector('form');
+        if (formInModal) {
+          formInModal.addEventListener('submit', function (e) {
+            e.preventDefault();
+            // Ejemplo para vendedor
+            const nombre = this.querySelector('[name="vendedor-nombre"]').value;
+            // ...otros campos...
+            // Realiza el fetch aquí o llama a tu función de creación
+            // Al finalizar:
+            modalFondo.style.display = 'none';
+            modalForm.style.display = 'none';
+            modalFormContent.innerHTML = '';
+            window.location.reload();
+          });
+        }
+      }
+    });
+  });
+
+  // Cerrar modal al hacer click en el fondo
+  if (modalFondo) {
+    modalFondo.addEventListener('click', function (event) {
+      if (event.target === modalFondo) {
+        modalFondo.style.display = 'none';
+        modalForm.style.display = 'none';
+        modalFormContent.innerHTML = '';
+      }
+    });
+  }
+});
+
+// Mostrar/ocultar formularios de creación en el flujo normal de la página (sin modal)
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.btn-toggle-form').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const formId = this.getAttribute('data-form');
+      const modal = document.getElementById(formId);
+      const estado = this.getAttribute('data-estado') || 'cerrado';
+      if (!modal) return;
+
+      if (estado === 'cerrado') {
+        modal.style.display = 'block';
+        this.setAttribute('data-estado', 'abierto');
+        this.textContent = '-';
+      } else {
+        modal.style.display = 'none';
+        this.setAttribute('data-estado', 'cerrado');
+        this.textContent = '+';
+      }
+    });
+  });
+});

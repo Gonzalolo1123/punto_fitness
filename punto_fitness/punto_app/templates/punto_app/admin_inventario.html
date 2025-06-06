@@ -1,37 +1,32 @@
+{% extends 'punto_app/base_admin.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inventario - Punto Fitness</title>
-  <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
-</head>
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/inventario.css' %}">
+{% endblock %}
 
-<body>
+{% block content %}
+<div class="content">
 
-  <header>
-    <div class="logo">Punto Fitness</div>
-    <nav>
-      <a href="{% url 'pagina_admin' %}">Estadísticas</a>
-      <a href="{% url 'usuarios' %}">Usuarios</a>
-      <a href="{% url 'inventario' %}">Inventario</a>
-      <a href="{% url 'maquinas' %}">Maquinas</a>
-    </nav>
-  </header>
+  <h1>Administración de Inventario</h1>
 
-  <div class="content">
-    <h2>Inventario</h2>
-
-    <!-- Productos -->
+  <!-- Productos -->
+  <section name="seccion-productos">
+    <div class="header-content">
+      <h2>Productos</h2>
+      <button class="filtro-btn btn-toggle-form" data-form="modal-producto" data-estado="cerrado">+</button>
+    </div>
     <table>
       <thead>
         <tr>
-          <th>Nombre del Producto</th>
-          <th>Stock</th>
-          <th>Stock Mínimo</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
           <th>Precio Unitario ($)</th>
+          <th>Stock Actual</th>
+          <th>Stock Mínimo</th>
+          <th>Compra</th>
+          <th>Categoría</th>
+          <th>Establecimiento</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -39,41 +34,75 @@
         {% for producto in productos %}
         <tr data-id="{{ producto.id }}">
           <td>{{ producto.nombre }}</td>
+          <td>{{ producto.descripcion }}</td>
+          <td>{{ producto.precio }}</td>
           <td>{{ producto.stock_actual }}</td>
           <td>{{ producto.stock_minimo }}</td>
-          <td>{{ producto.precio }}</td>
+          <td>{{ producto.compra_id }}</td>
+          <td>{{ producto.categoria_id }}</td>
+          <td>{{ producto.establecimiento_id }}</td>
           <td>
             <button class="filtro-btn" name="btn-editar-producto" data-id="{{ producto.id }}">Actualizar</button>
             <button class="filtro-btn" name="btn-eliminar-producto" data-id="{{ producto.id }}">Eliminar</button>
           </td>
         </tr>
 
-        <!-- Formulario de edición (aparece al querer actualizar un producto) -->
+        <!-- Formulario de edición -->
         <tr id="form-editar-producto-{{ producto.id }}" class="form-edicion-producto" style="display: none;">
           <td colspan="5">
+
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-producto" data-id="{{ producto.id }}">
               {% csrf_token %}
-              <div class="form-fila">
-                <label for="producto-nombre">Nombre:</label>
-                <input type="text" name="producto-nombre" value="{{ producto.nombre }}" required>
-              </div>
-              <div class="form-fila">
-                <label for="producto-descripcion">Descripción:</label>
-                <input type="text" name="producto-descripcion" value="{{ producto.descripcion }}" required>
-              </div>
-              <div class="form-fila">
-                <label for="producto-precio">Precio:</label>
-                <input type="number" name="producto-precio" value="{{ producto.precio }}" required>
-              </div>
-              <div class="form-fila">
-                <label for="producto-stock-minimo">Stock Mínimo:</label>
-                <input type="number" name="producto-stock-minimo" value="{{ producto.stock_minimo }}" required>
-              </div>
+
+              <label class="form-label" for="producto-nombre">Nombre:</label>
+              <input class="form-input" type="text" name="producto-nombre" value="{{ producto.nombre }}" required>
+
+              <label class="form-label" for="producto-descripcion">Descripción:</label>
+              <input class="form-input" type="text" name="producto-descripcion" value="{{ producto.descripcion }}"
+                required>
+
+              <label class="form-label" for="producto-precio">Precio:</label>
+              <input class="form-input" type="number" name="producto-precio" value="{{ producto.precio }}" required>
+
+              <label class="form-label" for="producto-stock-actual">Stock Actual:</label>
+              <input class="form-input" type="number" name="producto-stock-actual" value="{{ producto.stock_actual }}"
+                required>
+
+              <label class="form-label" for="producto-stock-minimo">Stock Mínimo:</label>
+              <input class="form-input" type="number" name="producto-stock-minimo" value="{{ producto.stock_minimo }}"
+                required>
+
+              <label class="form-label" for="producto-compra">Compra:</label>
+              <select id="producto-compra" name="producto-compra" required>
+                <option value="">Seleccione</option>
+                {% for compra in compras %}
+                <option value="{{ compra.id }}">{{ compra.fecha }} - {{ compra.total }} - {{ compra.establecimiento_id
+                  }} - {{ compra.vendedor_id }}</option>
+                {% endfor %}
+              </select>
+
+              <label class="form-label" for="producto-categoria">Categoría:</label>
+              <select id="producto-categoria" name="producto-categoria" required>
+                <option value="">Seleccione</option>
+                {% for categoria in categorias %}
+                <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                {% endfor %}
+              </select>
+
+              <label class="form-label" for="producto-establecimiento">Establecimiento:</label>
+              <select id="producto-establecimiento" name="producto-establecimiento" required>
+                <option value="">Seleccione</option>
+                {% for establecimiento in establecimientos %}
+                <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
+                {% endfor %}
+              </select>
+
               <button class="filtro-btn" type="submit">Guardar</button>
               <button class="filtro-btn" type="button"
                 onclick="ocultarFormularioEdicion('{{ producto.id }}', 'producto')">Cancelar</button>
             </form>
+
           </td>
         </tr>
         {% empty %}
@@ -83,45 +112,61 @@
         {% endfor %}
       </tbody>
     </table>
-    <!-- Formulario para agregar nuevos productos -->
-    <div class="form-container">
-      <h3>Agregar Nuevo Producto</h3>
-      <form class="formulario" id="form-crear-producto">
-        {% csrf_token %}
-        <div class="form-fila">
-          <label for="producto-nombre">Nombre:</label>
-          <input type="text" id="producto-nombre" name="producto-nombre" maxlength="30" required>
-        </div>
-        <div class="form-fila">
-          <label for="producto-descripcion">Descripción:</label>
-          <input type="text" id="producto-descripcion" name="producto-descripcion" maxlength="50" required>
-        </div>
-        <div class="form-fila">
-          <label for="producto-precio">Precio:</label>
-          <input type="number" id="producto-precio" name="producto-precio" min="0" required>
-        </div>
-        <div class="form-fila">
-          <label for="producto-stock-actual">Stock Actual:</label>
-          <input type="number" id="producto-stock-actual" name="producto-stock-actual" min="0" required>
-        </div>
-        <div class="form-fila">
-          <label for="producto-stock-minimo">Stock Mínimo:</label>
-          <input type="number" id="producto-stock-minimo" name="producto-stock-minimo" min="0" required>
-        </div>
-        <div class="form-fila">
-          <label for="producto-categoria">Categoría:</label>
+
+    <!-- Formulario de creación de producto -->
+    <div class="modal-form" id="modal-producto" style="display:none;">
+      <div class="modal-form-content">
+        <h3>Agregar Producto</h3>
+        <form class="formulario" id="form-crear-producto">
+          {% csrf_token %}
+          <!-- ...campos del producto... -->
+          <label class="form-label" for="producto-nombre">Nombre:</label>
+          <input class="form-input" type="text" name="producto-nombre" maxlength="30" required>
+          <label class="form-label" for="producto-descripcion">Descripción:</label>
+          <input class="form-input" type="text" name="producto-descripcion" maxlength="50" required>
+          <label class="form-label" for="producto-precio">Precio:</label>
+          <input class="form-input" type="number" name="producto-precio" min="0" required>
+          <label class="form-label" for="producto-stock-actual">Stock Actual:</label>
+          <input class="form-input" type="number" name="producto-stock-actual" min="0" required>
+          <label class="form-label" for="producto-stock-minimo">Stock Mínimo:</label>
+          <input class="form-input" type="number" name="producto-stock-minimo" min="0" required>
+          <label class="form-label" for="producto-compra">Compra:</label>
+          <select id="producto-compra" name="producto-compra" required>
+            <option value="">Seleccione</option>
+            {% for compra in compras %}
+            <option value="{{ compra.id }}">{{ compra.fecha }} - {{ compra.total }} - {{ compra.establecimiento_id }} - {{
+              compra.vendedor_id }}</option>
+            {% endfor %}
+          </select>
+
+          <label class="form-label" for="producto-categoria">Categoría:</label>
           <select id="producto-categoria" name="producto-categoria" required>
             <option value="">Seleccione</option>
             {% for categoria in categorias %}
             <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
             {% endfor %}
           </select>
-        </div>
-        <button class="filtro-btn" type="submit">Agregar Producto</button>
-      </form>
-    </div>
 
-    <!-- Categorías de productos-->
+          <label class="form-label" for="producto-establecimiento">Establecimiento:</label>
+          <select id="producto-establecimiento" name="producto-establecimiento" required>
+            <option value="">Seleccione</option>
+            {% for establecimiento in establecimientos %}
+            <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
+            {% endfor %}
+          </select>
+
+          <button class="filtro-btn" type="submit">Agregar Producto</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categorías de productos -->
+  <section name="seccion-categorias">
+    <div class="header-content">
+      <h2>Categorías de Productos</h2>
+      <button class="filtro-btn btn-toggle-form" data-form="modal-categoria" data-estado="cerrado">+</button>
+    </div>
     <table>
       <thead>
         <tr>
@@ -141,24 +186,26 @@
           </td>
         </tr>
 
-        <!-- Formulario de edición (aparece al querer actualizar una categoria) -->
+        <!-- Formulario de edición -->
         <tr id="form-editar-categoria-{{ categoria.id }}" class="form-edicion-categoria" style="display: none;">
           <td colspan="5">
+
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-categoria" data-id="{{ categoria.id }}">
               {% csrf_token %}
-              <div class="form-fila">
-                <label for="categoria-nombre">Nombre:</label>
-                <input type="text" name="categoria-nombre" value="{{ categoria.nombre }}" required>
-              </div>
-              <div class="form-fila">
-                <label for="categoria-descripcion">Descripción:</label>
-                <input type="text" name="categoria-descripcion" value="{{ categoria.descripcion }}" required>
-              </div>
+
+              <label class="form-label" for="categoria-nombre">Nombre:</label>
+              <input class="form-input" type="text" name="categoria-nombre" value="{{ categoria.nombre }}" required>
+
+              <label class="form-label" for="categoria-descripcion">Descripción:</label>
+              <input class="form-input" type="text" name="categoria-descripcion" value="{{ categoria.descripcion }}"
+                required>
+
               <button class="filtro-btn" type="submit">Guardar</button>
               <button class="filtro-btn" type="button"
                 onclick="ocultarFormularioEdicion('{{ categoria.id }}', 'categoria')">Cancelar</button>
             </form>
+
           </td>
         </tr>
         {% empty %}
@@ -168,25 +215,460 @@
         {% endfor %}
       </tbody>
     </table>
-    <!-- Formulario para agregar nuevas categorias -->
-    <div class="form-container">
-      <h3>Agregar Nueva Categoría</h3>
-      <form class="formulario" id="form-crear-categoria">
-        {% csrf_token %}
-        <div class="form-fila">
-          <label for="categoria-nombre">Nombre:</label>
-          <input type="text" id="categoria-nombre" name="categoria-nombre" maxlength="30" required>
-        </div>
-        <div class="form-fila">
-          <label for="categoria-descripcion">Descripción:</label>
-          <input type="text" id="categoria-descripcion" name="categoria-descripcion" maxlength="50" required>
-        </div>
-        <button class="filtro-btn" type="submit">Agregar categoría</button>
-      </form>
+
+    <!-- Formulario de creación de categoría -->
+    <div class="modal-form" id="modal-categoria" style="display:none;">
+      <div class="modal-form-content">
+        <h3>Agregar Categoría</h3>
+        <form class="formulario" id="form-crear-categoria">
+          {% csrf_token %}
+          <label class="form-label" for="categoria-nombre">Nombre:</label>
+          <input class="form-input" type="text" id="categoria-nombre" name="categoria-nombre" maxlength="30" required>
+          <label class="form-label" for="categoria-descripcion">Descripción:</label>
+          <input class="form-input" type="text" id="categoria-descripcion" name="categoria-descripcion" maxlength="50" required>
+          <button class="filtro-btn" type="submit">Agregar Categoría</button>
+        </form>
+      </div>
     </div>
+  </section>
 
-  </div>
-  <script src="../../static/js/inventario.js"></script>
-</body>
+  <h1>Compras y vendedores</h1>
 
-</html>
+  <!-- Compras de productos -->
+  <section name="seccion-compras">
+    <div class="header-content">
+      <h2>Compras</h2>
+      <button class="filtro-btn btn-toggle-form" data-form="modal-compra" data-estado="cerrado">+</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Total</th>
+          <th>IVA</th>
+          <th>Estado</th>
+          <th>Establecimiento</th>
+          <th>Vendedor</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for compra in compras %}
+        <tr data-id="{{ compra.id }}">
+          <td>{{ compra.fecha }}</td>
+          <td>{{ compra.total }}</td>
+          <td>{{ compra.iva }}</td>
+          <td>{{ compra.estado }}</td>
+          <td>{{ compra.establecimiento_id }}</td>
+          <td>{{ compra.vendedor_id }}</td>
+          <td>
+            <button class="filtro-btn" name="btn-editar-compra" data-id="{{ compra.id }}">Actualizar</button>
+            <button class="filtro-btn" name="btn-eliminar-compra" data-id="{{ compra.id }}">Eliminar</button>
+          </td>
+        </tr>
+
+        <!-- Formulario de edición -->
+        <tr id="form-editar-compra-{{ compra.id }}" class="form-edicion-compra" style="display: none;">
+          <td colspan="5">
+
+            <h3>Actualizar datos</h3>
+            <form class="formulario" name="form-editar-compra" data-id="{{ compra.id }}">
+              {% csrf_token %}
+
+              <label class="form-label" for="compra-fecha">Fecha:</label>
+              <input class="form-input" type="date" name="compra-fecha" value="{{ compra.fecha }}" required>
+
+              <label class="form-label" for="compra-total">Total:</label>
+              <input class="form-input" type="number" name="compra-total" value="{{ compra.total }}" required>
+
+              <label class="form-label" for="compra-iva">IVA:</label>
+              <input class="form-input" type="number" name="compra-iva" value="{{ compra.iva }}" required>
+
+              <label class="form-label" for="compra-estado">Estado:</label>
+              <select id="compra-estado" name="compra-estado" required>
+                <option value="">Seleccione</option>
+                <option value="True">Hecho</option>
+                <option value="False">No hecho</option>
+              </select>
+
+              <label class="form-label" for="compra-establecimiento">Establecimiento:</label>
+              <select id="compra-establecimiento" name="compra-establecimiento" required>
+                <option value="">Seleccione</option>
+                {% for establecimiento in establecimientos %}
+                <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
+                {% endfor %}
+              </select>
+
+              <label class="form-label" for="compra-vendedor">Vendedor:</label>
+              <select id="compra-vendedor" name="compra-vendedor" required>
+                <option value="">Seleccione</option>
+                {% for vendedor in vendedores %}
+                <option value="{{ vendedor.id }}">{{ vendedor.nombre }}</option>
+                {% endfor %}
+              </select>
+
+              <button class="filtro-btn" type="submit">Guardar</button>
+              <button class="filtro-btn" type="button"
+                onclick="ocultarFormularioEdicion('{{ compra.id }}', 'compra')">Cancelar</button>
+            </form>
+
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">No hay compras.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Formulario de creación de compra -->
+    <div class="modal-form" id="modal-compra" style="display:none;">
+      <div class="modal-form-content">
+        <h3>Agregar Compra</h3>
+        <form class="formulario" id="form-crear-compra">
+          {% csrf_token %}
+          <label class="form-label" for="compra-fecha">Fecha:</label>
+          <input class="form-input" type="date" id="compra-fecha" name="compra-fecha" maxlength="30" required>
+          <label class="form-label" for="compra-total">Total:</label>
+          <input class="form-input" type="number" id="compra-total" name="compra-total" min="0" required>
+          <label class="form-label" for="compra-iva">IVA:</label>
+          <input class="form-input" type="number" id="compra-iva" name="compra-iva" min="0" required>
+          <label class="form-label" for="compra-estado">Estado:</label>
+          <select id="compra-estado" name="compra-estado" required>
+            <option value="">Seleccione</option>
+            <option value="True">Hecho</option>
+            <option value="False">No hecho</option>
+          </select>
+          <label class="form-label" for="compra-establecimiento">Establecimiento:</label>
+          <select id="compra-establecimiento" name="compra-establecimiento" required>
+            <option value="">Seleccione</option>
+            {% for establecimiento in establecimientos %}
+            <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
+            {% endfor %}
+          </select>
+          <label class="form-label" for="compra-vendedor">Vendedor:</label>
+          <select id="compra-vendedor" name="compra-vendedor" required>
+            <option value="">Seleccione</option>
+            {% for vendedor in vendedores %}
+            <option value="{{ vendedor.id }}">{{ vendedor.nombre }}</option>
+            {% endfor %}
+          </select>
+          <button class="filtro-btn" type="submit">Agregar</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vendedores -->
+  <section name="seccion-vendedores">
+    <div class="header-content">
+      <h2>Vendedores</h2>
+      <button class="filtro-btn btn-toggle-form" data-form="modal-vendedor" data-estado="cerrado">+</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Teléfono</th>
+          <th>Correo Electrónico</th>
+          <th>Proveedor</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vendedor in vendedores %}
+        <tr data-id="{{ vendedor.id }}">
+          <td>{{ vendedor.nombre }}</td>
+          <td>{{ vendedor.telefono }}</td>
+          <td>{{ vendedor.email }}</td>
+          <td>{{ vendedor.proveedor }}</td>
+          <td>
+            <button class="filtro-btn" name="btn-editar-vendedor" data-id="{{ vendedor.id }}">Actualizar</button>
+            <button class="filtro-btn" name="btn-eliminar-vendedor" data-id="{{ vendedor.id }}">Eliminar</button>
+          </td>
+        </tr>
+
+        <!-- Formulario de edición -->
+        <tr id="form-editar-vendedor-{{ vendedor.id }}" class="form-edicion-vendedor" style="display: none;">
+          <td colspan="5">
+
+            <h3>Actualizar datos</h3>
+            <form class="formulario" name="form-editar-vendedor" data-id="{{ vendedor.id }}">
+              {% csrf_token %}
+
+              <label class="form-label" for="vendedor-nombre">Nombre:</label>
+              <input class="form-input" type="text" name="vendedor-nombre" value="{{ vendedor.nombre }}" required>
+
+              <label class="form-label" for="vendedor-telefono">Teléfono:</label>
+              <input class="form-input" type="tel" name="vendedor-telefono" value="{{ vendedor.telefono }}" required>
+
+              <label class="form-label" for="vendedor-email">Correo Electrónico:</label>
+              <input class="form-input" type="email" name="vendedor-email" value="{{ vendedor.email }}" required>
+
+              <label class="form-label" for="vendedor-proveedor">Proveedor:</label>
+              <select id="vendedor-proveedor" name="vendedor-proveedor" required>
+                <option value="">Seleccione</option>
+                {% for proveedor in proveedores %}
+                <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+                {% endfor %}
+              </select>
+
+              <button class="filtro-btn" type="submit">Guardar</button>
+              <button class="filtro-btn" type="button"
+                onclick="ocultarFormularioEdicion('{{ vendedor.id }}', 'vendedor')">Cancelar</button>
+            </form>
+
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">No hay vendedores.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Formulario de creación de vendedor -->
+    <div class="modal-form" id="modal-vendedor" style="display:none;">
+      <div class="modal-form-content">
+        <h3>Agregar Vendedor</h3>
+        <form class="formulario" id="form-crear-vendedor">
+          {% csrf_token %}
+          <label class="form-label" for="vendedor-nombre">Nombre:</label>
+          <input class="form-input" type="text" id="vendedor-nombre" name="vendedor-nombre" maxlength="30" required>
+          <label class="form-label" for="vendedor-telefono">Teléfono:</label>
+          <input class="form-input" type="tel" id="vendedor-telefono" name="vendedor-telefono" maxlength="30" required>
+          <label class="form-label" for="vendedor-email">Correo Electrónico:</label>
+          <input class="form-input" type="email" id="vendedor-email" name="vendedor-email" maxlength="30" required>
+          <label class="form-label" for="vendedor-proveedor">Proveedor:</label>
+          <select id="vendedor-proveedor" name="vendedor-proveedor" required>
+            <option value="">Seleccione</option>
+            {% for proveedor in proveedores %}
+            <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+            {% endfor %}
+          </select>
+          <button class="filtro-btn" type="submit">Agregar</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Establecimiento -->
+  <section name="seccion-establecimientos">
+    <div class="header-content">
+      <h2>Establecimiento</h2>
+      <button class="filtro-btn btn-toggle-form" data-form="modal-establecimiento" data-estado="cerrado">+</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Dirección</th>
+          <th>Teléfono</th>
+          <th>Correo Electrónico</th>
+          <th>Horario de Apertura</th>
+          <th>Horario de Cierre</th>
+          <th>Provedor</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for establecimiento in establecimientos %}
+        <tr data-id="{{ establecimiento.id }}">
+          <td>{{ establecimiento.nombre }}</td>
+          <td>{{ establecimiento.direccion }}</td>
+          <td>{{ establecimiento.telefono }}</td>
+          <td>{{ establecimiento.email }}</td>
+          <td>{{ establecimiento.horario_apertura }}</td>
+          <td>{{ establecimiento.horario_cierre }}</td>
+          <td>{{ establecimiento.proveedor_id }}</td>
+          <td>
+            <button class="filtro-btn" name="btn-editar-establecimiento"
+              data-id="{{ establecimiento.id }}">Actualizar</button>
+            <button class="filtro-btn" name="btn-eliminar-establecimiento"
+              data-id="{{ establecimiento.id }}">Eliminar</button>
+          </td>
+        </tr>
+
+        <!-- Formulario de edición -->
+        <tr id="form-editar-establecimiento-{{ establecimiento.id }}" class="form-edicion-establecimiento"
+          style="display: none;">
+          <td colspan="5">
+
+            <h3>Actualizar datos</h3>
+            <form class="formulario" name="form-editar-establecimiento" data-id="{{ establecimiento.id }}">
+              {% csrf_token %}
+
+              <label class="form-label" for="establecimiento-nombre">Nombre:</label>
+              <input class="form-input" type="text" name="establecimiento-nombre" value="{{ establecimiento.nombre }}"
+                required>
+
+              <label class="form-label" for="establecimiento-direccion">Dirección:</label>
+              <input class="form-input" type="text" name="establecimiento-direccion"
+                value="{{ establecimiento.direccion }}" required>
+
+              <label class="form-label" for="establecimiento-telefono">Teléfono:</label>
+              <input class="form-input" type="tel" name="establecimiento-telefono"
+                value="{{ establecimiento.telefono }}" required>
+
+              <label class="form-label" for="establecimiento-email">Correo Electrónico:</label>
+              <input class="form-input" type="email" name="establecimiento-email" value="{{ establecimiento.email }}"
+                required>
+
+              <label class="form-label" for="establecimiento-horario_apertura">Horario de Apertura:</label>
+              <input class="form-input" type="time" id="establecimiento-horario_apertura" 
+                name="establecimiento-horario_apertura" 
+                value="{{ establecimiento.horario_apertura|time:'H:i' }}" 
+                required>
+
+              <label class="form-label" for="establecimiento-horario_cierre">Horario de Cierre:</label>
+              <input class="form-input" type="time" id="establecimiento-horario_cierre" 
+                name="establecimiento-horario_cierre" 
+                value="{{ establecimiento.horario_cierre|time:'H:i' }}" 
+                required>
+
+              <label class="form-label" for="establecimiento-proveedor">Proveedor:</label>
+              <select id="establecimiento-proveedor" name="establecimiento-proveedor" required>
+                <option value="">Seleccione</option>
+                {% for proveedor in proveedores %}
+                <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+                {% endfor %}
+              </select>
+
+              <button class="filtro-btn" type="submit">Guardar</button>
+              <button class="filtro-btn" type="button"
+                onclick="ocultarFormularioEdicion('{{ establecimiento.id }}', 'establecimiento')">Cancelar</button>
+            </form>
+
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">No hay establecimientos.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Formulario de creación de establecimiento -->
+    <div class="modal-form" id="modal-establecimiento" style="display:none;">
+      <div class="modal-form-content">
+        <h3>Agregar Establecimiento</h3>
+        <form class="formulario" id="form-crear-establecimiento">
+          {% csrf_token %}
+          <label class="form-label" for="establecimiento-nombre">Nombre:</label>
+          <input class="form-input" type="text" id="establecimiento-nombre" name="establecimiento-nombre" maxlength="30" required>
+          <label class="form-label" for="establecimiento-direccion">Dirección:</label>
+          <input class="form-input" type="text" id="establecimiento-direccion" name="establecimiento-direccion" maxlength="30" required>
+          <label class="form-label" for="establecimiento-telefono">Teléfono:</label>
+          <input class="form-input" type="tel" id="establecimiento-telefono" name="establecimiento-telefono" maxlength="30" required>
+          <label class="form-label" for="establecimiento-email">Correo Electrónico:</label>
+          <input class="form-input" type="email" id="establecimiento-email" name="establecimiento-email" maxlength="30" required>
+          <label class="form-label" for="establecimiento-horario_apertura">Horario de Apertura:</label>
+          <input class="form-input" type="time" id="establecimiento-horario_apertura" 
+          name="establecimiento-horario_apertura" required>
+
+          <label class="form-label" for="establecimiento-horario_cierre">Horario de Cierre:</label>
+          <input class="form-input" type="time" id="establecimiento-horario_cierre" 
+          name="establecimiento-horario_cierre" required>
+
+          <label class="form-label" for="establecimiento-proveedor">Proveedor:</label>
+          <select id="establecimiento-proveedor" name="establecimiento-proveedor" required>
+            <option value="">Seleccione</option>
+            {% for proveedor in proveedores %}
+            <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+            {% endfor %}
+          </select>
+
+          <button class="filtro-btn" type="submit">Agregar</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Proveedores -->
+  <section name="seccion-proveedores">
+    <div class="header-content">
+      <h2>Proveedores</h2>
+      <button class="filtro-btn btn-toggle-form" data-form="modal-proveedor" data-estado="cerrado">+</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Teléfono</th>
+          <th>Correo Electrónico</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for proveedor in proveedores %}
+        <tr data-id="{{ proveedor.id }}">
+          <td>{{ proveedor.nombre }}</td>
+          <td>{{ proveedor.telefono }}</td>
+          <td>{{ proveedor.email }}</td>
+          <td>
+            <button class="filtro-btn" name="btn-editar-proveedor" data-id="{{ proveedor.id }}">Actualizar</button>
+            <button class="filtro-btn" name="btn-eliminar-proveedor" data-id="{{ proveedor.id }}">Eliminar</button>
+          </td>
+        </tr>
+
+        <!-- Formulario de edición -->
+        <tr id="form-editar-proveedor-{{ proveedor.id }}" class="form-edicion-proveedor" style="display: none;">
+          <td colspan="5">
+
+            <h3>Actualizar datos</h3>
+            <form class="formulario" name="form-editar-proveedor" data-id="{{ proveedor.id }}">
+              {% csrf_token %}
+
+              <label class="form-label" for="proveedor-nombre">Nombre:</label>
+              <input class="form-input" type="text" name="proveedor-nombre" value="{{ proveedor.nombre }}" required>
+
+              <label class="form-label" for="proveedor-telefono">Teléfono:</label>
+              <input class="form-input" type="tel" name="proveedor-telefono" value="{{ proveedor.telefono }}" required>
+
+              <label class="form-label" for="proveedor-email">Correo Electrónico:</label>
+              <input class="form-input" type="email" name="proveedor-email" value="{{ proveedor.email }}" required>
+
+              <button class="filtro-btn" type="submit">Guardar</button>
+              <button class="filtro-btn" type="button"
+                onclick="ocultarFormularioEdicion('{{ proveedor.id }}', 'proveedor')">Cancelar</button>
+            </form>
+
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">No hay proveedores.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Formulario de creación -->
+    <div class="modal-form" id="modal-proveedor" style="display:none;">
+      <div class="modal-form-content">
+        <h3>Agregar Proveedor</h3>
+        <form class="formulario" id="form-crear-proveedor">
+          {% csrf_token %}
+          <label class="form-label" for="proveedor-nombre">Nombre:</label>
+          <input class="form-input" type="text" id="proveedor-nombre" name="proveedor-nombre" maxlength="30" required>
+
+          <label class="form-label" for="proveedor-telefono">Teléfono:</label>
+          <input class="form-input" type="tel" id="proveedor-telefono" name="proveedor-telefono" maxlength="30" required>
+
+          <label class="form-label" for="proveedor-email">Correo Electrónico:</label>
+          <input class="form-input" type="email" id="proveedor-email" name="proveedor-email" maxlength="30" required>
+
+          <button class="filtro-btn" type="submit">Agregar</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/inventario.js' %}"></script>
+{% endblock %}

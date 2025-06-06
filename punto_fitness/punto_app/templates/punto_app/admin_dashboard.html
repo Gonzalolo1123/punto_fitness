@@ -1,222 +1,213 @@
+{% extends 'punto_app/base_admin.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+{% block title %}Dashboard - Punto Fitness{% endblock %}
 
-  <link rel="stylesheet" href="{% static 'css/admin.css' %}">
-  <title>Punto Fitness Admin</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/inventario.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
 
-<body>
-
-  <header>
-    <div class="logo">Punto Fitness</div>
-    <nav>
-      <a href="{% url 'pagina_admin' %}">Estadísticas</a>
-      <a href="{% url 'usuarios' %}">Usuarios</a>
-      <a href="{% url 'inventario' %}">Inventario</a>
-      <a href="{% url 'maquinas' %}">Maquinas</a>
-    </nav>
-  </header>
-
-  <div class="content">
-    <div class="button-group">
-      <label for="view-mode">Vista de gráficos:</label>
-      <select id="view-mode" onchange="changeViewMode(this.value)">
-        <option value="small">Pequeño</option>
-        <option value="medium" selected>Mediano</option>
-        <option value="large">Grande</option>
-      </select>
-    </div>
-
-    <div class="section">
-      <h2>Estadísticas Monetarias</h2>
-      <div class="button-group" id="time-filter">
-        <button onclick="updateMoneyChart('daily')">Diario</button>
-        <button onclick="updateMoneyChart('weekly')">Semanal</button>
-        <button onclick="updateMoneyChart('monthly')">Mensual</button>
-        <button onclick="updateMoneyChart('yearly')">Anual</button>
-      </div>
-      <canvas id="moneyChart"></canvas>
-    </div>
-
-    <div class="section">
-      <h2>Ventas por Producto</h2>
-      <div class="button-group">
-        <button onclick="setProduct('barra')">Barra de Cereal</button>
-        <button onclick="setProduct('agua')">Agua</button>
-        <button onclick="setProduct('monster')">Monster</button>
-        <button onclick="setProduct('proteina')">Proteína</button>
-        <button onclick="setProduct('todos')">Todos</button>
-      </div>
-
-      <div class="button-group">
-        <button onclick="setProductPeriod('daily')">Diario</button>
-        <button onclick="setProductPeriod('weekly')">Semanal</button>
-        <button onclick="setProductPeriod('monthly')">Mensual</button>
-      </div>
-
-      <canvas id="productChart"></canvas>
-    </div>
-
-    <div class="section">
-      <h2>Ventas de Membresías</h2>
-      <div class="button-group">
-        <button onclick="updateMembershipChart('daily')">Diario</button>
-        <button onclick="updateMembershipChart('weekly')">Semanal</button>
-        <button onclick="updateMembershipChart('monthly')">Mensual</button>
-      </div>
-      <canvas id="membershipChart"></canvas>
-    </div>
+{% block content %}
+<div class="content">
+  <div class="button-group">
+    <label for="view-mode">Vista de gráficos:</label>
+    <select id="view-mode" onchange="changeViewMode(this.value)">
+      <option value="small">Pequeño</option>
+      <option value="medium" selected>Mediano</option>
+      <option value="large">Grande</option>
+    </select>
   </div>
 
-  <script>
-    const moneyChartCtx = document.getElementById('moneyChart').getContext('2d');
-    const productChartCtx = document.getElementById('productChart').getContext('2d');
-    const membershipChartCtx = document.getElementById('membershipChart').getContext('2d');
+  <!-- Sección de Estadísticas Monetarias -->
+  <div class="section">
+    <h2>Estadísticas Monetarias</h2>
+    <div class="button-group" id="time-filter">
+      <button onclick="updateMoneyChart('daily')">Diario</button>
+      <button onclick="updateMoneyChart('weekly')">Semanal</button>
+      <button onclick="updateMoneyChart('monthly')">Mensual</button>
+      <button onclick="updateMoneyChart('yearly')">Anual</button>
+    </div>
+    <canvas id="moneyChart"></canvas>
+  </div>
 
-    let selectedProduct = 'barra';
-    let selectedPeriod = 'daily';
+  <!-- Sección de Ventas por Producto -->
+  <div class="section">
+    <h2>Ventas por Producto</h2>
+    <div class="button-group">
+      <button onclick="setProduct('barra')">Barra de Cereal</button>
+      <button onclick="setProduct('agua')">Agua</button>
+      <button onclick="setProduct('monster')">Monster</button>
+      <button onclick="setProduct('proteina')">Proteína</button>
+      <button onclick="setProduct('todos')">Todos</button>
+    </div>
+    <div class="button-group">
+      <button onclick="setProductPeriod('daily')">Diario</button>
+      <button onclick="setProductPeriod('weekly')">Semanal</button>
+      <button onclick="setProductPeriod('monthly')">Mensual</button>
+    </div>
+    <canvas id="productChart"></canvas>
+  </div>
 
-    const productData = {
-      barra: {
-        daily: [10, 12, 8, 15, 17, 20, 13],
-        weekly: [95, 100, 110, 105],
-        monthly: [400, 420, 430, 440]
-      },
-      agua: {
-        daily: [5, 7, 6, 8, 10, 12, 9],
-        weekly: [60, 65, 62, 70],
-        monthly: [230, 240, 250, 260]
-      },
-      monster: {
-        daily: [2, 3, 5, 4, 6, 5, 3],
-        weekly: [30, 25, 27, 29],
-        monthly: [100, 110, 105, 115]
-      },
-      proteina: {
-        daily: [1, 2, 1, 3, 2, 3, 2],
-        weekly: [20, 22, 21, 23],
-        monthly: [80, 85, 87, 90]
-      },
-      todos: {
-        daily: [18, 24, 20, 30, 35, 40, 27],
-        weekly: [190, 212, 220, 227],
-        monthly: [750, 800, 830, 850]
-      }
+  <!-- Sección de Ventas de Membresías -->
+  <div class="section">
+    <h2>Ventas de Membresías</h2>
+    <div class="button-group">
+      <button onclick="updateMembershipChart('daily')">Diario</button>
+      <button onclick="updateMembershipChart('weekly')">Semanal</button>
+      <button onclick="updateMembershipChart('monthly')">Mensual</button>
+    </div>
+    <canvas id="membershipChart"></canvas>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Inicialización de contextos de gráficos
+  const moneyChartCtx = document.getElementById('moneyChart').getContext('2d');
+  const productChartCtx = document.getElementById('productChart').getContext('2d');
+  const membershipChartCtx = document.getElementById('membershipChart').getContext('2d');
+
+  // Variables globales
+  let selectedProduct = 'barra';
+  let selectedPeriod = 'daily';
+
+  // Datos de productos
+  const productData = {
+    barra: {
+      daily: [10, 12, 8, 15, 17, 20, 13],
+      weekly: [95, 100, 110, 105],
+      monthly: [400, 420, 430, 440]
+    },
+    agua: {
+      daily: [5, 7, 6, 8, 10, 12, 9],
+      weekly: [60, 65, 62, 70],
+      monthly: [230, 240, 250, 260]
+    },
+    monster: {
+      daily: [2, 3, 5, 4, 6, 5, 3],
+      weekly: [30, 25, 27, 29],
+      monthly: [100, 110, 105, 115]
+    },
+    proteina: {
+      daily: [1, 2, 1, 3, 2, 3, 2],
+      weekly: [20, 22, 21, 23],
+      monthly: [80, 85, 87, 90]
+    },
+    todos: {
+      daily: [18, 24, 20, 30, 35, 40, 27],
+      weekly: [190, 212, 220, 227],
+      monthly: [750, 800, 830, 850]
+    }
+  };
+
+  // Configuración de gráficos
+  let moneyChart = new Chart(moneyChartCtx, {
+    type: 'line',
+    data: {
+      labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+      datasets: [{
+        label: 'Ingresos ($)',
+        data: [120, 150, 170, 130, 190, 200, 180],
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        borderColor: '#e10600',
+        borderWidth: 2,
+        fill: true
+      }]
+    }
+  });
+
+  let productChart = new Chart(productChartCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+      datasets: [{
+        label: 'Ventas',
+        data: productData[selectedProduct][selectedPeriod],
+        backgroundColor: '#e10600'
+      }]
+    }
+  });
+
+  let membershipChart = new Chart(membershipChartCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+      datasets: [{
+        label: 'Membresías Vendidas',
+        data: [5, 4, 6, 7, 8, 9, 10],
+        backgroundColor: 'rgba(0, 123, 255, 0.6)'
+      }]
+    }
+  });
+
+  // Funciones de actualización
+  function updateMoneyChart(period) {
+    const datasets = {
+      daily: [120, 150, 170, 130, 190, 200, 180],
+      weekly: [700, 720, 690, 750, 770, 800, 760],
+      monthly: [3000, 3200, 3100, 3500],
+      yearly: [34000, 36000, 39000, 41000]
+    };
+    const labels = {
+      daily: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+      weekly: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+      monthly: ['Ene', 'Feb', 'Mar', 'Abr'],
+      yearly: ['2021', '2022', '2023', '2024']
     };
 
-    let moneyChart = new Chart(moneyChartCtx, {
-      type: 'line',
-      data: {
-        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        datasets: [{
-          label: 'Ingresos ($)',
-          data: [120, 150, 170, 130, 190, 200, 180],
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          borderColor: '#e10600',
-          borderWidth: 2,
-          fill: true
-        }]
-      }
+    moneyChart.data.labels = labels[period];
+    moneyChart.data.datasets[0].data = datasets[period];
+    moneyChart.update();
+  }
+
+  function updateProductChart() {
+    const labels = {
+      daily: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+      weekly: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+      monthly: ['Ene', 'Feb', 'Mar', 'Abr']
+    };
+
+    productChart.data.labels = labels[selectedPeriod];
+    productChart.data.datasets[0].data = productData[selectedProduct][selectedPeriod];
+    productChart.update();
+  }
+
+  function setProduct(product) {
+    selectedProduct = product;
+    updateProductChart();
+  }
+
+  function setProductPeriod(period) {
+    selectedPeriod = period;
+    updateProductChart();
+  }
+
+  function updateMembershipChart(period) {
+    const datasets = {
+      daily: [5, 4, 6, 7, 8, 9, 10],
+      weekly: [40, 38, 42, 39],
+      monthly: [150, 160, 170, 180]
+    };
+
+    const labels = {
+      daily: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+      weekly: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+      monthly: ['Ene', 'Feb', 'Mar', 'Abr']
+    };
+
+    membershipChart.data.labels = labels[period];
+    membershipChart.data.datasets[0].data = datasets[period];
+    membershipChart.update();
+  }
+
+  function changeViewMode(mode) {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+      canvas.classList.remove('chart-small', 'chart-medium', 'chart-large');
+      canvas.classList.add(`chart-${mode}`);
     });
-
-    let productChart = new Chart(productChartCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        datasets: [{
-          label: 'Ventas',
-          data: productData[selectedProduct][selectedPeriod],
-          backgroundColor: '#e10600'
-        }]
-      }
-    });
-
-    let membershipChart = new Chart(membershipChartCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        datasets: [{
-          label: 'Membresías Vendidas',
-          data: [5, 4, 6, 7, 8, 9, 10],
-          backgroundColor: 'rgba(0, 123, 255, 0.6)'
-        }]
-      }
-    });
-
-    function updateMoneyChart(period) {
-      const datasets = {
-        daily: [120, 150, 170, 130, 190, 200, 180],
-        weekly: [700, 720, 690, 750, 770, 800, 760],
-        monthly: [3000, 3200, 3100, 3500],
-        yearly: [34000, 36000, 39000, 41000]
-      };
-      const labels = {
-        daily: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        weekly: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-        monthly: ['Ene', 'Feb', 'Mar', 'Abr'],
-        yearly: ['2021', '2022', '2023', '2024']
-      };
-
-      moneyChart.data.labels = labels[period];
-      moneyChart.data.datasets[0].data = datasets[period];
-      moneyChart.update();
-    }
-
-    function updateProductChart() {
-      const labels = {
-        daily: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        weekly: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-        monthly: ['Ene', 'Feb', 'Mar', 'Abr']
-      };
-
-      productChart.data.labels = labels[selectedPeriod];
-      productChart.data.datasets[0].data = productData[selectedProduct][selectedPeriod];
-      productChart.update();
-    }
-
-    function setProduct(product) {
-      selectedProduct = product;
-      updateProductChart();
-    }
-
-    function setProductPeriod(period) {
-      selectedPeriod = period;
-      updateProductChart();
-    }
-
-    function updateMembershipChart(period) {
-      const datasets = {
-        daily: [5, 4, 6, 7, 8, 9, 10],
-        weekly: [40, 38, 42, 39],
-        monthly: [150, 160, 170, 180]
-      };
-
-      const labels = {
-        daily: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        weekly: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-        monthly: ['Ene', 'Feb', 'Mar', 'Abr']
-      };
-
-      membershipChart.data.labels = labels[period];
-      membershipChart.data.datasets[0].data = datasets[period];
-      membershipChart.update();
-    }
-
-    function changeViewMode(mode) {
-      const canvases = document.querySelectorAll('canvas');
-      canvases.forEach(canvas => {
-        canvas.classList.remove('chart-small', 'chart-medium', 'chart-large');
-        canvas.classList.add(`chart-${mode}`);
-      });
-    }
-
-  </script>
-</body>
-
-</html>
+  }
+</script>
+{% endblock %}
