@@ -30,12 +30,11 @@ def principal(request):
 
     return render(request, 'punto_app/principal.html', {'cliente_nombre': cliente_nombre,'cliente_correo':cliente_correo,'cliente_telefono':cliente_telefono})
 
+@csrf_exempt
 def register_view(request):
     if request.method == "POST":
         try:
-            print(request.body)
             data = json.loads(request.body)
-
             nombre = data.get('nombre')
             apellido = data.get('apellido')
             correo = data.get('correo')
@@ -44,33 +43,56 @@ def register_view(request):
             estado = data.get('estado', 'Activo')
 
             if not all([nombre, apellido, correo, contrasena]):
-                return JsonResponse({'error': 'Faltan campos'}, status=400)
+                return JsonResponse({'error': 'Faltan campos requeridos'}, status=400)
 
-            if User.objects.filter(username=nombre).exists():
-                return JsonResponse({'error': 'Nombre de usuario ya existe'}, status=400)
+            try:
+                # Verificar si el correo ya existe en Cliente
+                if Cliente.objects.filter(email=correo).exists():
+                    return JsonResponse({'error': 'Correo ya registrado'}, status=400)
 
-            if User.objects.filter(email=correo).exists():
-                return JsonResponse({'error': 'Correo ya registrado'}, status=400)
-            
-            # Encriptar la contraseña
-            contrasena_encriptada = make_password(contrasena)
-            # Crear el cliente en la tabla 'cliente' en PostgreSQL
-            cliente = Cliente.objects.create(
-                nombre=nombre,
-                apellido=apellido,
-                email=correo,
-                contrasena=contrasena_encriptada,  # Guárdalo como está en el modelo de cliente
-                telefono=telefono,  # Teléfono
-                estado=estado  # Estado
-            )
-            
-            return JsonResponse({'message': 'Usuario y cliente creados correctamente'}, status=201)
+                # Encriptar la contraseña
+                contrasena_encriptada = make_password(contrasena)
+
+                # Crear el cliente
+                cliente = Cliente.objects.create(
+                    nombre=nombre,
+                    apellido=apellido,
+                    email=correo,
+                    contrasena=contrasena_encriptada,
+                    telefono=telefono,
+                    estado=estado
+                )
+
+                # Intentar crear el usuario de Django si es posible
+                try:
+                    User.objects.create_user(
+                        username=correo,
+                        email=correo,
+                        password=contrasena
+                    )
+                except Exception as e:
+                    logger.warning(f"No se pudo crear usuario de Django: {str(e)}")
+                    # Continuamos aunque falle la creación del usuario de Django
+                    pass
+
+                return JsonResponse({
+                    'message': 'Usuario creado correctamente',
+                    'id': cliente.id,
+                    'nombre': cliente.nombre,
+                    'email': cliente.email
+                }, status=201)
+
+            except Exception as e:
+                logger.error(f"Error al crear usuario: {str(e)}")
+                return JsonResponse({'error': 'Error al crear el usuario'}, status=500)
 
         except json.JSONDecodeError:
             return JsonResponse({'error': 'JSON inválido'}, status=400)
+        except Exception as e:
+            logger.error(f"Error inesperado en registro: {str(e)}")
+            return JsonResponse({'error': 'Error interno del servidor'}, status=500)
 
-    else:
-        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 @csrf_exempt  # Solo si es una API
 def login_view(request):
