@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -30,11 +31,11 @@ SECRET_KEY = 'django-insecure--srandy--wou)yx)bm6iyaiqllk37!#t&nn_&e=yqgb*#ocyq$
 # ----------- PRODUCCIÓN -----------
 # Uncomment this block for production and comment the development one
 
-# DEBUG = False
-# ALLOWED_HOSTS = ['punto-fitness.onrender.com']
-# DATABASES = {
+#DEBUG = False
+#ALLOWED_HOSTS = ['punto-fitness.onrender.com']
+#DATABASES = {
 #     'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
-# }
+#}
 
 # ----------- DESARROLLO -----------
 # Uncomment this block for development and comment the production one
@@ -46,7 +47,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'punto_fitness',
         'USER': 'postgres',
-        'PASSWORD': 'compuvi',
+        'PASSWORD': 'hola1234',
         'HOST': 'localhost',
         'PORT': '5432',
     }
