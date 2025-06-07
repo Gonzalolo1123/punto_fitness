@@ -16,6 +16,7 @@
     <table>
       <thead>
         <tr>
+          <th>Id</th>
           <th>Nombre</th>
           <th>Cupos</th>
           <th>Fecha de realización</th>
@@ -27,11 +28,12 @@
       <tbody>
         {% for curso in cursos %}
         <tr data-id="{{ curso.id }}">
+          <td>{{ curso.id }}</td>
           <td>{{ curso.nombre }}</td>
           <td>{{ curso.cupos }}</td>
           <td>{{ curso.fecha_realizacion }}</td>
           <td>{{ curso.estado }}</td>
-          <td>{{ curso.establecimiento_id }}</td>
+          <td>{{ curso.establecimiento }}</td>
           <td>
             <button class="filtro-btn" name="btn-editar-curso" data-id="{{ curso.id }}">Actualizar</button>
             <button class="filtro-btn" name="btn-eliminar-curso" data-id="{{ curso.id }}">Eliminar</button>
@@ -50,21 +52,21 @@
               <input class="form-input" type="text" name="curso-nombre" value="{{ curso.nombre }}" required>
             
               <label class="form-label" for="curso-cupos">Cupos:</label>
-              <input class="form-input" type="number" id="curso-cupos" name="curso-cupos" min="0" required>
+              <input class="form-input" type="number" name="curso-cupos" min="0" required>
             
               <label class="form-label" for="curso-fecha_realizacion">Fecha:</label>
               <input class="form-input" type="date" name="curso-fecha_realizacion" value="{{ curso.fecha }}" required>
             
               <label class="form-label" for="curso-estado">Estado:</label>
               <select id="curso-estado" name="curso-estado" required>
-                <option value="">Seleccione</option>
+                <option value="" selected disabled>Seleccione</option>
                 <option value="activo">Activo</option>
                 <option value="cancelado">Cancelado</option>
               </select>
             
               <label class="form-label" for="curso-establecimiento">Establecimiento:</label>
               <select id="curso-establecimiento" name="curso-establecimiento" required>
-                <option value="">Seleccione</option>
+                <option value="" selected disabled>Seleccione</option>
                 {% for establecimiento in establecimientos %}
                 <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
                 {% endfor %}
@@ -99,14 +101,14 @@
     
       <label class="form-label" for="curso-estado">Estado:</label>
       <select id="curso-estado" name="curso-estado" required>
-        <option value="">Seleccione</option>
+        <option value="" selected disabled>Seleccione</option>
         <option value="activo">Activo</option>
         <option value="cancelado">Cancelado</option>
       </select>
     
       <label class="form-label" for="curso-establecimiento">Establecimiento:</label>
       <select id="curso-establecimiento" name="curso-establecimiento" required>
-        <option value="">Seleccione</option>
+        <option value="" selected disabled>Seleccione</option>
         {% for establecimiento in establecimientos %}
         <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
         {% endfor %}
@@ -124,7 +126,8 @@
         <tr>
           <th>Usuario</th>
           <th>Curso</th>
-          <th>Fecha</th>
+          <th>Fecha inscripción</th>
+          <th>Fecha realizacion del curso al momento de inscribir</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -133,7 +136,8 @@
         <tr data-id="{{ inscripcion.id }}">
           <td>{{ inscripcion.usuario }}</td>
           <td>{{ inscripcion.curso }}</td>
-          <td>{{ inscripcion.fecha }}</td>
+          <td>{{ inscripcion.fecha_inscripcion }}</td>
+          <td>{{ inscripcion.fecha_realizacion }}</td>
           <td>
             <button class="filtro-btn" name="btn-editar-inscripcion" data-id="{{ inscripcion.id }}">Actualizar</button>
             <button class="filtro-btn" name="btn-eliminar-inscripcion" data-id="{{ inscripcion.id }}">Eliminar</button>
@@ -149,16 +153,16 @@
               {% csrf_token %}
               
               <label class="form-label" for="inscripcion-curso">Curso:</label>
-              <select id="inscripcion-curso" name="inscripcion-curso" required>
-                <option value="">Seleccione</option>
+              <select name="inscripcion-curso" required>
+                <option value="" selected disabled>Seleccione</option>
                 {% for curso in cursos %}
                 <option value="{{ curso.id }}">{{ curso.nombre }}</option>
                 {% endfor %}
               </select>
             
               <label class="form-label" for="inscripcion-usuario">Usuario:</label>
-              <select id="inscripcion-usuario" name="inscripcion-usuario" required>
-                <option value="">Seleccione</option>
+              <select name="inscripcion-usuario" required>
+                <option value="" selected disabled>Seleccione</option>
                 {% for usuario in usuarios %}
                 <option value="{{ usuario.id }}">{{ usuario.nombre }}</option>
                 {% endfor %}
@@ -187,7 +191,7 @@
       
       <label class="form-label" for="inscripcion-curso">Curso:</label>
       <select id="inscripcion-curso" name="inscripcion-curso" required>
-        <option value="">Seleccione</option>
+        <option value="" selected disabled>Seleccione</option>
         {% for curso in cursos %}
         <option value="{{ curso.id }}">{{ curso.nombre }}</option>
         {% endfor %}
@@ -195,7 +199,7 @@
     
       <label class="form-label" for="inscripcion-usuario">Usuario:</label>
       <select id="inscripcion-usuario" name="inscripcion-usuario" required>
-        <option value="">Seleccione</option>
+        <option value="" selected disabled>Seleccione</option>
         {% for usuario in usuarios %}
         <option value="{{ usuario.id }}">{{ usuario.nombre }}</option>
         {% endfor %}
