@@ -16,7 +16,9 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 import pytz
+import logging
 
+logger = logging.getLogger('punto_app')
 
 # Create your views here.
 def principal(request):
@@ -78,56 +80,71 @@ def login_view(request):
             correo = data.get('correo')
             contrasena = data.get('contrasena')
 
+            if not correo or not contrasena:
+                logger.error("Intento de login sin correo o contraseña")
+                return JsonResponse({"success": False, "detail": "Correo y contraseña son requeridos"}, status=400)
+
             try:
                 cliente = Cliente.objects.get(email=correo)
             except Cliente.DoesNotExist:
-                return JsonResponse({"success": False, "detail": "Cliente no encontrado"}, status=404)
+                logger.warning(f"Intento de login con correo no existente: {correo}")
+                return JsonResponse({"success": False, "detail": "Credenciales incorrectas"}, status=404)
 
             # Verificar contraseña
             if check_password(contrasena, cliente.contrasena):
-                # Autenticación estándar de Django
-                user, created = User.objects.get_or_create(
-                    username=correo,
-                    defaults={'email': correo, 'password': cliente.contrasena}
-                )
-                user = authenticate(request, username=correo, password=contrasena)
-                login(request, user)  # Esto hace que request.user.is_authenticated funcione
+                try:
+                    # Autenticación estándar de Django
+                    user = authenticate(request, username=correo, password=contrasena)
+                    if user is None:
+                        # Si el usuario no existe en auth_user, crearlo
+                        user = User.objects.create_user(
+                            username=correo,
+                            email=correo,
+                            password=contrasena
+                        )
+                    
+                    login(request, user)
 
-                # Tu sistema de sesión personalizado
-                request.session['cliente_id'] = cliente.id
-                request.session['cliente_nombre'] = cliente.nombre
-                request.session['cliente_correo'] = cliente.email
-                request.session['cliente_telefono'] = cliente.telefono
+                    # Sistema de sesión personalizado
+                    request.session['cliente_id'] = cliente.id
+                    request.session['cliente_nombre'] = cliente.nombre
+                    request.session['cliente_correo'] = cliente.email
+                    request.session['cliente_telefono'] = cliente.telefono
 
-                admin_obj = Administrador.objects.filter(cliente=cliente).first()
-                if admin_obj:
-                    nivel_acceso = admin_obj.nivel_acceso.lower()
-                    request.session['nivel_acceso'] = nivel_acceso
-                    response_data = {
-                        "success": True,
-                        "is_admin": True,
-                        "nivel_acceso": nivel_acceso,
-                        "message": "Inicio de sesión exitoso"
-                    }
-                    print(f"\nInicio de sesión exitoso (admin): {cliente.nombre} - Nivel: {nivel_acceso}")
-                else:
-                    request.session['nivel_acceso'] = 'cliente'
-                    response_data = {
-                        "success": True,
-                        "is_admin": False,
-                        "nivel_acceso": 'cliente',
-                        "message": "Inicio de sesión exitoso"
-                    }
-                    print(f"\nInicio de sesión exitoso (cliente): {cliente.nombre}")
+                    admin_obj = Administrador.objects.filter(cliente=cliente).first()
+                    if admin_obj:
+                        nivel_acceso = admin_obj.nivel_acceso.lower()
+                        request.session['nivel_acceso'] = nivel_acceso
+                        response_data = {
+                            "success": True,
+                            "is_admin": True,
+                            "nivel_acceso": nivel_acceso,
+                            "message": "Inicio de sesión exitoso"
+                        }
+                        logger.info(f"Inicio de sesión exitoso (admin): {cliente.nombre} - Nivel: {nivel_acceso}")
+                    else:
+                        request.session['nivel_acceso'] = 'cliente'
+                        response_data = {
+                            "success": True,
+                            "is_admin": False,
+                            "nivel_acceso": 'cliente',
+                            "message": "Inicio de sesión exitoso"
+                        }
+                        logger.info(f"Inicio de sesión exitoso (cliente): {cliente.nombre}")
 
-                return JsonResponse(response_data)
+                    return JsonResponse(response_data)
+                except Exception as e:
+                    logger.error(f"Error en autenticación: {str(e)}")
+                    return JsonResponse({"success": False, "detail": "Error en la autenticación"}, status=500)
             else:
+                logger.warning(f"Intento de login con contraseña incorrecta para: {correo}")
                 return JsonResponse({"success": False, "detail": "Credenciales incorrectas"}, status=400)
 
         except json.JSONDecodeError:
+            logger.error("Error al decodificar JSON en login")
             return JsonResponse({"success": False, "detail": "JSON inválido"}, status=400)
         except Exception as e:
-            print(f"Error en login_view: {str(e)}")
+            logger.error(f"Error inesperado en login_view: {str(e)}")
             return JsonResponse({"success": False, "detail": "Error interno del servidor"}, status=500)
 
     return JsonResponse({"success": False, "detail": "Método no permitido"}, status=405)
