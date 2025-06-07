@@ -285,14 +285,14 @@
               <input class="form-input" type="number" name="compra-iva" value="{{ compra.iva }}" required>
 
               <label class="form-label" for="compra-estado">Estado:</label>
-              <select id="compra-estado" name="compra-estado" required>
+              <select name="compra-estado" required>
                 <option value="">Seleccione</option>
                 <option value="True">Hecho</option>
                 <option value="False">No hecho</option>
               </select>
 
               <label class="form-label" for="compra-establecimiento">Establecimiento:</label>
-              <select id="compra-establecimiento" name="compra-establecimiento" required>
+              <select name="compra-establecimiento" required>
                 <option value="">Seleccione</option>
                 {% for establecimiento in establecimientos %}
                 <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
@@ -407,7 +407,7 @@
               <input class="form-input" type="email" name="vendedor-email" value="{{ vendedor.email }}" required>
 
               <label class="form-label" for="vendedor-proveedor">Proveedor:</label>
-              <select id="vendedor-proveedor" name="vendedor-proveedor" required>
+              <select name="vendedor-proveedor" required>
                 <option value="">Seleccione</option>
                 {% for proveedor in proveedores %}
                 <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
@@ -517,19 +517,19 @@
                 required>
 
               <label class="form-label" for="establecimiento-horario_apertura">Horario de apertura:</label>
-              <input class="form-input" type="time" id="establecimiento-horario_apertura" 
+              <input class="form-input" type="time" 
                 name="establecimiento-horario_apertura" 
                 value="{{ establecimiento.horario_apertura|time:'H:i' }}" 
                 required>
 
               <label class="form-label" for="establecimiento-horario_cierre">Horario de cierre:</label>
-              <input class="form-input" type="time" id="establecimiento-horario_cierre" 
+              <input class="form-input" type="time" 
                 name="establecimiento-horario_cierre" 
                 value="{{ establecimiento.horario_cierre|time:'H:i' }}" 
                 required>
 
               <label class="form-label" for="establecimiento-proveedor">Proveedor:</label>
-              <select id="establecimiento-proveedor" name="establecimiento-proveedor" required>
+              <select name="establecimiento-proveedor" required>
                 <option value="">Seleccione</option>
                 {% for proveedor in proveedores %}
                 <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
