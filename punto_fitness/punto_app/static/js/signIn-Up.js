@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //###################Validaciones######################
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(correo)) {
-      showCustomAlert("Por favor ingrese un correo electrónico válido");
+      showCustomAlert("Por favor, ingrese un correo electrónico válido");
       document.getElementById("correo").focus();
       return;
     }
@@ -56,6 +56,30 @@ document.addEventListener("DOMContentLoaded", function () {
     if (telefono && !/^\d{9,11}$/.test(telefono)) {
       showCustomAlert("Por favor, ingrese un número de teléfono válido (9 a 11 dígitos)");
       document.getElementById("telefono").focus();
+      return;
+    }
+
+    if (contrasena.length < 8) {
+      showCustomAlert("Por favor, ingrese una contraseña válida (al menos 8 caracteres)");
+      document.getElementById("contrasena").focus();
+      return;
+    }
+
+    if (!/[A-Z]/.test(contrasena)) {
+      showCustomAlert("Por favor, ingrese una contraseña válida (al menos una letra mayúscula)");
+      document.getElementById("contrasena").focus();
+      return;
+    }
+
+    if (!/[a-z]/.test(contrasena)) {
+      showCustomAlert("Por favor, ingrese una contraseña válida (al menos una letra minúscula)");
+      document.getElementById("contrasena").focus();
+      return;
+    }
+
+    if (!/\d/.test(contrasena)) {
+      showCustomAlert("Por favor, ingrese una contraseña válida (al menos un número)");
+      document.getElementById("contrasena").focus();
       return;
     }
 
