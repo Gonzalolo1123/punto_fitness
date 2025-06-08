@@ -687,7 +687,7 @@ def admin_curso_actualizar(request, curso_id):
         curso.cupos = data.get('cupos', curso.cupos)
         curso.fecha_realizacion = data.get('fecha_realizacion', curso.fecha_realizacion)
         curso.estado = data.get('estado', curso.estado)
-        curso.establecimiento = data.get('establecimiento', curso.establecimiento)
+        curso.establecimiento_id = data.get('establecimiento_id', curso.establecimiento_id)
         curso.save()
         
         return JsonResponse({
@@ -696,7 +696,7 @@ def admin_curso_actualizar(request, curso_id):
             'cupos': curso.cupos,
             'fecha_realizacion': curso.fecha_realizacion,
             'estado': curso.estado,
-            'establecimiento': curso.establecimiento
+            'establecimiento_id': curso.establecimiento_id
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -718,7 +718,7 @@ def admin_inscripcion_crear(request):
         inscripcion = Inscripcion.objects.create(
             usuario_id=data['usuario_id'],
             curso_id=data['curso_id'],
-            fecha_inscripcion=data['fecha_inscripcion']
+            fecha_inscripcion=timezone.now()
         )
         return JsonResponse({
             'id': inscripcion.id,

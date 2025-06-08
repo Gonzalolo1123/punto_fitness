@@ -169,7 +169,6 @@ function manejoCrearInscripcion(e) {
   const formData = {
     usuario_id: document.getElementById('inscripcion-usuario').value,
     curso_id: document.getElementById('inscripcion-curso').value,
-    fecha_inscripcion: document.getElementById('inscripcion-fecha_inscripcion').value,
   };
   
   crearInscripcion(formData)

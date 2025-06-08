@@ -58,14 +58,14 @@
               <input class="form-input" type="date" name="curso-fecha_realizacion" value="{{ curso.fecha }}" required>
             
               <label class="form-label" for="curso-estado">Estado:</label>
-              <select id="curso-estado" name="curso-estado" required>
+              <select name="curso-estado" required>
                 <option value="" selected disabled>Seleccione</option>
                 <option value="activo">Activo</option>
                 <option value="cancelado">Cancelado</option>
               </select>
             
               <label class="form-label" for="curso-establecimiento">Establecimiento:</label>
-              <select id="curso-establecimiento" name="curso-establecimiento" required>
+              <select name="curso-establecimiento" required>
                 <option value="" selected disabled>Seleccione</option>
                 {% for establecimiento in establecimientos %}
                 <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
@@ -204,9 +204,6 @@
         <option value="{{ usuario.id }}">{{ usuario.nombre }}</option>
         {% endfor %}
       </select>
-    
-      <label class="form-label" for="inscripcion-fecha_inscripcion">Fecha:</label>
-      <input class="form-input" type="date" id="inscripcion-fecha_inscripcion" name="inscripcion-fecha_inscripcion" value="{{ inscripcion.fecha }}" required>
 
       <button class="filtro-btn" type="submit">Agregar inscripción</button>
     </form>
