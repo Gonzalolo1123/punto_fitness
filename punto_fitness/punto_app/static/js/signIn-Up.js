@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Verificar si el correo ya existe
     try {
-      const verificarResponse = await fetch("verificar-correo/", {
+      const verificarResponse = await fetch("/verificar-correo/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
         nivel_acceso: "cliente" // Asignar nivel de acceso por defecto
       };
 
-      const registroResponse = await fetch("registro/", {
+      const registroResponse = await fetch("/registro/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", function () {
         contrasena: contrasena,
       };
 
-      const response = await fetch("login/", {
+      const response = await fetch("/login/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -208,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
               window.location.replace('/admin-dashboard/');
             }
           } else {
-            window.location.replace('/');
+            window.location.reload();
           }
         }, 500);
       } else {
