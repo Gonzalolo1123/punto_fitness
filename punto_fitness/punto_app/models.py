@@ -203,6 +203,13 @@ class Inscripcion(models.Model):
     usuario = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
     fecha_inscripcion = models.DateField()
+    fecha_realizacion = models.DateField()
 
     class Meta:
         db_table = 'inscripcion'
+        unique_together = ('usuario', 'curso', 'fecha_realizacion')
+        
+    def save(self, *args, **kwargs):
+        # Establece la fecha_realizacion igual a la del curso relacionado
+        self.fecha_realizacion = self.curso.fecha_realizacion
+        super().save(*args, **kwargs)
