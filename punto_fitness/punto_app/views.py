@@ -391,7 +391,21 @@ def admin_categoria_borrar(request, categoria_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 def planes(request):
-    return render(request, 'punto_app/planes.html')
+    cursos = list(Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado','establecimiento'))
+    inscritos =list(Inscripcion.objects.values('usuario', 'curso', 'fecha_inscripcion'))
+    return render(request, 'punto_app/planes.html', {'cursos': cursos})
+def inscribir_curso(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        curso_id = data.get('curso_id')
+
+        # Tu lógica de inscripción aquí, por ejemplo:
+        # curso = Curso.objects.get(id=curso_id)
+        # curso.inscritos += 1
+        # curso.save()
+
+        return JsonResponse({'success': True})
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 def maquinas(request):
     return render(request,'punto_app/maquinas.html', {'maquinas': range(1, 9)})
 

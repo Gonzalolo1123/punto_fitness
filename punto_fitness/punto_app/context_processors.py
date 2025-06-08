@@ -1,4 +1,4 @@
-from .models import Cliente, Administrador, Establecimiento # Asegúrate de importar todos los modelos necesarios
+from .models import Cliente, Administrador # Asegúrate de importar todos los modelos necesarios
 
 def user_info(request):
     cliente_id = request.session.get('cliente_id')

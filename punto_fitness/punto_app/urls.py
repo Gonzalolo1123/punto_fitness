@@ -10,7 +10,6 @@ urlpatterns = [
     path('registro/', views.register_view, name='registro'),
     path('planes/', views.planes, name='planes'),
     path('estadisticas/', views.estadisticas, name='estadisticas'),
-    path('principal/', views.principal, name='principal'),
     path('logout/', views.logout_cliente, name='logout'),
     path("verificar-correo/", views.verificar_correo, name="verificar_correo"),
     path("verificar-sesion/", views.verificar_sesion, name="verificar_sesion"),

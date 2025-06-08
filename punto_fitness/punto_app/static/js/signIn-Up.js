@@ -208,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
               window.location.replace('/admin-dashboard/');
             }
           } else {
-            window.location.replace('/principal/');
+            window.location.replace('/');
           }
         }, 500);
       } else {
