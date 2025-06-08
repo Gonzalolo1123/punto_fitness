@@ -38,6 +38,11 @@ body {
     padding: 0;
 }
 
+.menu ul li {
+  display: flex;
+  align-items: center; /* Alinea verticalmente el contenido dentro de cada li */
+}
+
 .menu ul li a {
     color: white;
     text-decoration: none;

@@ -43,14 +43,14 @@ SECRET_KEY = 'django-insecure--srandy--wou)yx)bm6iyaiqllk37!#t&nn_&e=yqgb*#ocyq$
 DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'punto_fitness',
-        'USER': 'postgres',
-        'PASSWORD': 'compuvi',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+       'default': {
+       'ENGINE': 'django.db.backends.postgresql',
+       'NAME': 'punto_fitness',
+       'USER': 'postgres',
+       'PASSWORD': 'hola1234',
+       'HOST': 'localhost',
+       'PORT': '5432',
+   }
 }
 
 # -----------------------------------
@@ -91,6 +91,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'punto_app.context_processors.user_info',
             ],
         },
     },
@@ -144,3 +145,40 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuración de Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'django.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'ERROR',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'punto_app': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}

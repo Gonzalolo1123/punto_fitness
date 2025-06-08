@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Verificar si el correo ya existe
     try {
-      const verificarResponse = await fetch("verificar-correo/", {
+      const verificarResponse = await fetch("/verificar-correo/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
         nivel_acceso: "cliente" // Asignar nivel de acceso por defecto
       };
 
-      const registroResponse = await fetch("registro/", {
+      const registroResponse = await fetch("/registro/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -141,83 +141,122 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("signInForm");
 
-  form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const correo = document.getElementById("correoi").value;
     const contrasena = document.getElementById("contrasenai").value;
 
-    // Obtener el token CSRF
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    if (!correo || !contrasena) {
+      showCustomAlert("Por favor, complete todos los campos");
+      return;
+    }
 
-    const datos = {
-      correo: correo,
-      contrasena: contrasena,
-    };
-    console.log("Datos enviados al servidor:", datos);
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correo)) {
+      showCustomAlert("Por favor ingrese un correo electrónico válido");
+      return;
+    }
 
-    // Hacer la solicitud fetch para iniciar sesión
-    fetch("login/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken // Añadir el token CSRF
-      },
-      body: JSON.stringify(datos)
-    })
-      .then(response => {
-        if (!response.ok) {
-          // Si hay un error, mostrar el mensaje del servidor
-          return response.json().then(errorData => {
-            throw new Error(errorData.detail || "Error en las respuesta del servidor");
-          });
-        }
-        return response.json(); // Parsear la respuesta si está bien
-      })
-      .then(data => {
-        console.log("Respuesta del servidor:", data);
-        if (data.success) {
-            showCustomAlert("Inicio de sesión exitoso");
-            // Redirigir según el nivel de acceso
-            if (data.is_admin) {
-                if (data.nivel_acceso === "superadmin") {
-                    window.location.href = '/super_admin/';
-                } else if (data.nivel_acceso === "admin") {
-                    window.location.href = '/admin-dashboard/';
-                }
-            } else {
-                window.location.href = '/principal/';
-            }
-        } else {
-            showCustomAlert("Credenciales incorrectas");
-        }
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        showCustomAlert("Ocurrió un error: " + error.message); // Muestra el mensaje de error detallado
+    try {
+      // Obtener el token CSRF
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      if (!csrfToken) {
+        console.error("No se pudo obtener el token CSRF");
+        showCustomAlert("Error de seguridad. Por favor, recargue la página e intente nuevamente.");
+        return;
+      }
+
+      const datos = {
+        correo: correo,
+        contrasena: contrasena,
+      };
+
+      const response = await fetch("/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify(datos)
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Error en el inicio de sesión");
+      }
+
+      if (data.success) {
+        showCustomAlert(data.message || "Inicio de sesión exitoso");
+        // Limpiar el formulario
+        form.reset();
+        // Cerrar el modal
+        const authModal = document.getElementById("authModal");
+        if (authModal) {
+          authModal.classList.add("hidden");
+        }
+        
+        // Esperar un momento para asegurar que la sesión se haya establecido
+        setTimeout(() => {
+          // Redirigir según el nivel de acceso usando fetch para mantener las cookies
+          if (data.is_admin) {
+            if (data.nivel_acceso === "superadmin") {
+              window.location.replace('/super_admin/');
+            } else if (data.nivel_acceso === "admin") {
+              window.location.replace('/admin-dashboard/');
+            }
+          } else {
+            window.location.reload();
+          }
+        }, 500);
+      } else {
+        showCustomAlert(data.detail || "Error en el inicio de sesión");
+      }
+    } catch (error) {
+      console.error("Error en inicio de sesión:", error);
+      showCustomAlert(error.message || "Error al intentar iniciar sesión. Por favor, intente nuevamente.");
+    }
   });
 });
 
-function showCustomAlert(message, type = "success") {
-  // type: "success", "error", "warning", "info"
-  // Elimina alertas previas
-  document.querySelectorAll('.custom-alert').forEach(el => el.remove());
-
-  const alertDiv = document.createElement('div');
-  alertDiv.className = `custom-alert ${type}`;
-  alertDiv.innerHTML = `
-    <span>${message}</span>
-    <button class="close-alert" aria-label="Cerrar">&times;</button>
-  `;
-  document.body.appendChild(alertDiv);
-
-  alertDiv.querySelector('.close-alert').onclick = () => alertDiv.remove();
-
+function showCustomAlert(message) {
+  // Verificar si ya existe un div de alerta
+  let alertDiv = document.querySelector('.custom-alert');
+  if (!alertDiv) {
+    alertDiv = document.createElement('div');
+    alertDiv.className = 'custom-alert';
+    document.body.appendChild(alertDiv);
+  }
+  
+  alertDiv.textContent = message;
+  alertDiv.style.display = 'block';
+  
+  // Ocultar después de 3 segundos
   setTimeout(() => {
-    if (alertDiv.parentNode) alertDiv.remove();
-  }, 3500);
+    alertDiv.style.display = 'none';
+  }, 3000);
 }
+
+// Agregar estilos para la alerta personalizada
+const style = document.createElement('style');
+style.textContent = `
+  .custom-alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 5px;
+    z-index: 9999;
+    display: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+`;
+document.head.appendChild(style);
 
 document.addEventListener("DOMContentLoaded", function () {
   const passwordInput = document.getElementById("contrasena");

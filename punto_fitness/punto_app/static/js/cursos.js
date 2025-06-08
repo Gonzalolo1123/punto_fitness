@@ -33,12 +33,11 @@ function actualizarVista(objeto, id_tipo) {
   if (id_tipo=='curso') {
     if (row) {
       const cells = row.cells;
-      cells[0].textContent = objeto.id;
-      cells[2].textContent = objeto.nombre;
-      cells[3].textContent = objeto.cupos;
-      cells[4].textContent = objeto.fecha_realizacion;
-      cells[5].textContent = objeto.estado;
-      cells[6].textContent = objeto.establecimiento_id;
+      cells[0].textContent = objeto.nombre;
+      cells[2].textContent = objeto.cupos;
+      cells[3].textContent = objeto.fecha_realizacion;
+      cells[4].textContent = objeto.estado;
+      cells[5].textContent = objeto.establecimiento_id;
     }
   }
   if (id_tipo=='inscripcion') {
@@ -47,7 +46,6 @@ function actualizarVista(objeto, id_tipo) {
       cells[0].textContent = objeto.cliente_id;
       cells[2].textContent = objeto.curso_id;
       cells[3].textContent = objeto.fecha_inscripcion;
-      cells[3].textContent = objeto.fecha_realizacion;
     }
   }
 }
@@ -169,6 +167,7 @@ function manejoCrearInscripcion(e) {
   const formData = {
     usuario_id: document.getElementById('inscripcion-usuario').value,
     curso_id: document.getElementById('inscripcion-curso').value,
+    fecha_inscripcion: document.getElementById('inscripcion-fecha_inscripcion').value,
   };
   
   crearInscripcion(formData)
@@ -224,7 +223,7 @@ document.querySelectorAll('[name="form-editar-curso"]').forEach(form => {
         id_tipo='curso';
         actualizarVista(data, id_tipo);
         ocultarFormularioEdicion(cursoId, id_tipo);
-        alert('curso actualizado correctamente');
+        alert('Curso actualizado correctamente');
         window.location.reload();
       })
       .catch(error => {
@@ -251,7 +250,7 @@ document.querySelectorAll('[name="form-editar-inscripcion"]').forEach(form => {
         id_tipo='inscripcion';
         actualizarVista(data, id_tipo);
         ocultarFormularioEdicion(inscripcionId, id_tipo);
-        alert('inscripcion actualizado correctamente');
+        alert('Inscripción actualizado correctamente');
         window.location.reload();
       })
       .catch(error => {
@@ -307,7 +306,7 @@ document.querySelectorAll('[name="btn-eliminar-curso"]').forEach(btn => {
 document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
   btn.addEventListener('click', function() {
     const id = this.getAttribute('data-id');
-    if (confirm('¿Eliminar esta inscripcion?')) {
+    if (confirm('¿Eliminar esta inscripción?')) {
       eliminarInscripcion(id)
         .then(data => {
           if (data.error) throw new Error(data.error);
