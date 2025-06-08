@@ -1,4 +1,3 @@
-
 # miapp/urls.py
 
 from django.urls import path
@@ -14,6 +13,7 @@ urlpatterns = [
     path('principal/', views.principal, name='principal'),
     path('logout/', views.logout_cliente, name='logout'),
     path("verificar-correo/", views.verificar_correo, name="verificar_correo"),
+    path("verificar-sesion/", views.verificar_sesion, name="verificar_sesion"),
     
     path('inventario/', views.inventario, name='inventario'),
 
@@ -62,6 +62,9 @@ urlpatterns = [
     path('inventario/borrar_proveedor/<int:proveedor_id>/', views.admin_proveedor_borrar, name='admin_proveedor_borrar'),
     #SuperAdmin
     path('super_admin/', views.super_admin, name='super_admin'),
+    path('super_admin/crear_admin/', views.crear_o_actualizar_admin, name='crear_o_actualizar_admin'),
+    path('super_admin/actualizar_admin/<int:admin_id>/', views.actualizar_admin, name='actualizar_admin'),
+    path('super_admin/borrar_admin/<int:admin_id>/', views.borrar_admin, name='borrar_admin'),
     path('asistencias/', views.asistencias, name='asistencias'),
     path('confirmar_asistencia/', views.confirmar_asistencia, name='confirmar_asistencia'),
     path('confirmar-salida/', views.confirmar_salida, name='confirmar_salida'),

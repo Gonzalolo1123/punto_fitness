@@ -197,16 +197,20 @@ document.addEventListener("DOMContentLoaded", function () {
         if (authModal) {
           authModal.classList.add("hidden");
         }
-        // Redirigir según el nivel de acceso
-        if (data.is_admin) {
-          if (data.nivel_acceso === "superadmin") {
-            window.location.href = '/super_admin/';
-          } else if (data.nivel_acceso === "admin") {
-            window.location.href = '/admin-dashboard/';
+        
+        // Esperar un momento para asegurar que la sesión se haya establecido
+        setTimeout(() => {
+          // Redirigir según el nivel de acceso usando fetch para mantener las cookies
+          if (data.is_admin) {
+            if (data.nivel_acceso === "superadmin") {
+              window.location.replace('/super_admin/');
+            } else if (data.nivel_acceso === "admin") {
+              window.location.replace('/admin-dashboard/');
+            }
+          } else {
+            window.location.replace('/principal/');
           }
-        } else {
-          window.location.href = '/principal/';
-        }
+        }, 500);
       } else {
         showCustomAlert(data.detail || "Error en el inicio de sesión");
       }
