@@ -7,8 +7,9 @@ services:
       .venv\Scripts\activate
       pip install --upgrade pip
       pip install -r punto_fitness/requirements.txt
-      python manage.py migrate
-      python manage.py collectstatic --noinput
+      python punto_fitness/fix_migration_order.py
+      python punto_fitness/manage.py migrate
+      python punto_fitness/manage.py collectstatic --noinput
     startCommand: gunicorn punto_fitness.wsgi:application
     envVars:
       - key: PYTHON_VERSION
