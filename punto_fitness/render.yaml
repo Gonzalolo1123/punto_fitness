@@ -7,7 +7,6 @@ services:
       source .venv/bin/activate
       pip install --upgrade pip
       pip install -r requirements.txt
-      python fix_migrations.py
       python manage.py migrate
       python manage.py collectstatic --noinput
     startCommand: gunicorn punto_fitness.wsgi:application
