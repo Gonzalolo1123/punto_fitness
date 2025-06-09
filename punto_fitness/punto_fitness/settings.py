@@ -31,27 +31,47 @@ SECRET_KEY = 'django-insecure--srandy--wou)yx)bm6iyaiqllk37!#t&nn_&e=yqgb*#ocyq$
 # ----------- PRODUCCIÓN -----------
 # Uncomment this block for production and comment the development one
 
-#DEBUG = False
-#ALLOWED_HOSTS = ['punto-fitness.onrender.com']
-#DATABASES = {
-#     'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
-#}
+DEBUG = False
+ALLOWED_HOSTS = ['punto-fitness.onrender.com']
+
+# Configuración de base de datos para producción
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
+    # Configuración de respaldo para desarrollo
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'punto_fitness',
+            'USER': 'postgres',
+            'PASSWORD': 'hola1234',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
 
 # ----------- DESARROLLO -----------
 # Uncomment this block for development and comment the production one
 
-DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-DATABASES = {
-       'default': {
-       'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'punto_fitness',
-       'USER': 'postgres',
-       'PASSWORD': 'hola1234',
-       'HOST': 'localhost',
-       'PORT': '5432',
-   }
-}
+#DEBUG = True
+#ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': 'punto_fitness',
+#        'USER': 'postgres',
+#        'PASSWORD': 'hola1234',
+#        'HOST': 'localhost',
+#        'PORT': '5432',
+#    }
+#}
 
 # -----------------------------------
 
@@ -139,6 +159,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'punto_app', 'static'),
 ]
+
+# Configuración de WhiteNoise para servir archivos estáticos
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # Default primary key field type
