@@ -816,7 +816,7 @@ def admin_proveedor_borrar(request, proveedor_id):
 @requiere_admin
 def cursos(request):
     cursos = Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado', 'establecimiento')
-    inscripciones = Inscripcion.objects.values('id', 'usuario', 'curso', 'fecha_inscripcion')
+    inscripciones = Inscripcion.objects.values('id', 'usuario', 'curso', 'fecha_inscripcion', 'fecha_realizacion')
     usuarios = Cliente.objects.values('id', 'nombre', 'apellido', 'email', 'telefono')
     establecimientos = Establecimiento.objects.values('id', 'nombre')
     return render(request, 'punto_app/admin_cursos.html', {'cursos': cursos, 'usuarios': usuarios, 'inscripciones': inscripciones, 'establecimientos': establecimientos})
