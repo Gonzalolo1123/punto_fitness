@@ -815,8 +815,8 @@ def admin_proveedor_borrar(request, proveedor_id):
 
 @requiere_admin
 def cursos(request):
-    cursos = Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado', 'establecimiento')
-    inscripciones = Inscripcion.objects.values('id', 'usuario', 'curso', 'fecha_inscripcion')
+    cursos = Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado', 'establecimiento_id')
+    inscripciones = Inscripcion.objects.values('id', 'usuario_id', 'curso_id', 'fecha_inscripcion','fecha_realizacion')
     usuarios = Cliente.objects.values('id', 'nombre', 'apellido', 'email', 'telefono')
     establecimientos = Establecimiento.objects.values('id', 'nombre')
     return render(request, 'punto_app/admin_cursos.html', {'cursos': cursos, 'usuarios': usuarios, 'inscripciones': inscripciones, 'establecimientos': establecimientos})
@@ -854,7 +854,7 @@ def admin_curso_actualizar(request, curso_id):
         curso.cupos = data.get('cupos', curso.cupos)
         curso.fecha_realizacion = data.get('fecha_realizacion', curso.fecha_realizacion)
         curso.estado = data.get('estado', curso.estado)
-        curso.establecimiento = data.get('establecimiento', curso.establecimiento)
+        curso.establecimiento_id = data.get('establecimiento_id', curso.establecimiento_id)
         curso.save()
         
         return JsonResponse({
@@ -863,7 +863,7 @@ def admin_curso_actualizar(request, curso_id):
             'cupos': curso.cupos,
             'fecha_realizacion': curso.fecha_realizacion,
             'estado': curso.estado,
-            'establecimiento': curso.establecimiento
+            'establecimiento_id': curso.establecimiento_id
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -903,15 +903,15 @@ def admin_inscripcion_actualizar(request, inscripcion_id):
         inscripcion = get_object_or_404(Inscripcion, pk=inscripcion_id)
         data = json.loads(request.body)
         
-        inscripcion.usuario = data.get('usuario', inscripcion.usuario)
-        inscripcion.curso = data.get('curso', inscripcion.curso)
+        inscripcion.usuario_id = data.get('usuario_id', inscripcion.usuario_id)
+        inscripcion.curso_id = data.get('curso_id', inscripcion.curso_id)
         inscripcion.fecha_inscripcion = data.get('fecha_inscripcion', inscripcion.fecha_inscripcion)
         inscripcion.save()
         
         return JsonResponse({
             'id': inscripcion.id,
-            'usuario': inscripcion.usuario,
-            'curso': inscripcion.curso,
+            'usuario_id': inscripcion.usuario_id,
+            'curso_id': inscripcion.curso_id,
             'fecha_inscripcion': inscripcion.fecha_inscripcion
         })
     except Exception as e:

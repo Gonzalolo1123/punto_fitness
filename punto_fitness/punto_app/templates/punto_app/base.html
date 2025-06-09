@@ -23,10 +23,10 @@
     </div>
     <nav class="menu">
       <ul>
-        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="{% url 'principal' %}">Inicio</a></li>
         <li><a href="#historia">Historia</a></li>
         <li><a href="#trabajadores">Trabajadores</a></li>
-        <li><a href="#maquinas">Máquinas</a></li>
+        <li><a href="{% url 'maquinas' %}">Máquinas</a></li>
         <li>
           <a href="#" id="cuentaBtn" style="display: none;">Hola, {{ cliente_nombre|default:"Usuario" }}</a>
           <a href="#" id="usuarioBtn">Usuario</a>
