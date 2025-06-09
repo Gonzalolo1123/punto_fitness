@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //###################Validaciones######################
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(correo)) {
-      showCustomAlert("Por favor ingrese un correo electrónico válido");
+      showCustomAlert("Por favor, ingrese un correo electrónico válido");
       document.getElementById("correo").focus();
       return;
     }
@@ -56,6 +56,30 @@ document.addEventListener("DOMContentLoaded", function () {
     if (telefono && !/^\d{9,11}$/.test(telefono)) {
       showCustomAlert("Por favor, ingrese un número de teléfono válido (9 a 11 dígitos)");
       document.getElementById("telefono").focus();
+      return;
+    }
+
+    if (contrasena.length < 8) {
+      showCustomAlert("Por favor, ingrese una contraseña válida (al menos 8 caracteres)");
+      document.getElementById("contrasena").focus();
+      return;
+    }
+
+    if (!/[A-Z]/.test(contrasena)) {
+      showCustomAlert("Por favor, ingrese una contraseña válida (al menos una letra mayúscula)");
+      document.getElementById("contrasena").focus();
+      return;
+    }
+
+    if (!/[a-z]/.test(contrasena)) {
+      showCustomAlert("Por favor, ingrese una contraseña válida (al menos una letra minúscula)");
+      document.getElementById("contrasena").focus();
+      return;
+    }
+
+    if (!/\d/.test(contrasena)) {
+      showCustomAlert("Por favor, ingrese una contraseña válida (al menos un número)");
+      document.getElementById("contrasena").focus();
       return;
     }
 
@@ -293,27 +317,76 @@ document.addEventListener("DOMContentLoaded", function () {
   const signInContainer = document.querySelector('.sign-in-container');
   const signUpContainer = document.querySelector('.sign-up-container');
   const forgotContainer = document.querySelector('.forgot-password-container');
-  const forgotLink = document.querySelector('#signInForm a[href="#"]');
+  const forgotPasswordLink = document.getElementById('forgotPasswordLink');
   const volverLogin = document.getElementById("volverLogin");
+  const forgotPasswordForm = document.getElementById("forgotPasswordForm");
   const authModal = document.getElementById("authModal");
 
   // Mostrar formulario de recuperación
-  if (forgotLink && forgotContainer && signInContainer) {
-    forgotLink.addEventListener("click", function(e) {
+  if (forgotPasswordLink && forgotContainer && signInContainer) {
+    forgotPasswordLink.addEventListener("click", function(e) {
       e.preventDefault();
       signInContainer.style.display = "none";
       forgotContainer.style.display = "block";
-      if (authModal) authModal.classList.add("center-forgot");
     });
   }
 
   // Volver al login
-  if (volverLogin && forgotContainer && signInContainer && signUpContainer) {
+  if (volverLogin && forgotContainer && signInContainer) {
     volverLogin.addEventListener("click", function(e) {
       e.preventDefault();
       forgotContainer.style.display = "none";
       signInContainer.style.display = "block";
+    });
+  }
 
+  // Manejar envío del formulario de recuperación de contraseña
+  if (forgotPasswordForm) {
+    forgotPasswordForm.addEventListener("submit", async function(e) {
+      e.preventDefault();
+      
+      const correo = document.getElementById("forgotCorreo").value;
+      
+      if (!correo) {
+        showCustomAlert("Por favor, ingrese su correo electrónico");
+        return;
+      }
+
+      // Validar formato de correo
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(correo)) {
+        showCustomAlert("Por favor ingrese un correo electrónico válido");
+        return;
+      }
+
+      try {
+        // Obtener el token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        const response = await fetch("/recuperar-contrasena/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken
+          },
+          body: JSON.stringify({ correo: correo })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showCustomAlert(data.message || "Se ha enviado un enlace de recuperación a su correo electrónico");
+          forgotPasswordForm.reset();
+          // Volver al formulario de login
+          forgotContainer.style.display = "none";
+          signInContainer.style.display = "block";
+        } else {
+          throw new Error(data.error || "Error al procesar la solicitud");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        showCustomAlert(error.message || "Error al enviar la solicitud de recuperación");
+      }
     });
   }
 });

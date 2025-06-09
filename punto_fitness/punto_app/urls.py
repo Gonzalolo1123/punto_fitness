@@ -9,10 +9,13 @@ urlpatterns = [
     path('admin-dashboard/', views.pagina_admin, name='pagina_admin'),
     path('registro/', views.register_view, name='registro'),
     path('planes/', views.planes, name='planes'),
+    path('inscribir_curso/', views.inscribir_curso, name='inscribir_curso'),
+    path('cancelar_inscripcion/', views.cancelar_inscripcion, name='cancelar_inscripcion'),
     path('estadisticas/', views.estadisticas, name='estadisticas'),
     path('logout/', views.logout_cliente, name='logout'),
     path("verificar-correo/", views.verificar_correo, name="verificar_correo"),
     path("verificar-sesion/", views.verificar_sesion, name="verificar_sesion"),
+    path("recuperar-contrasena/", views.recuperar_contrasena, name="recuperar_contrasena"),
     
     path('inventario/', views.inventario, name='inventario'),
 

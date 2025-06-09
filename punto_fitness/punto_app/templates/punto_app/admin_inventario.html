@@ -38,9 +38,9 @@
           <td>{{ producto.precio }}</td>
           <td>{{ producto.stock_actual }}</td>
           <td>{{ producto.stock_minimo }}</td>
-          <td>{{ producto.compra_id }}</td>
-          <td>{{ producto.categoria_id }}</td>
-          <td>{{ producto.establecimiento_id }}</td>
+          <td>{{ producto.compra_id}}</td>
+          <td>{{ producto.categoria__nombre }}</td>
+          <td>{{ producto.establecimiento__nombre }}</td>
           <td>
             <button class="filtro-btn" name="btn-editar-producto" data-id="{{ producto.id }}">Actualizar</button>
             <button class="filtro-btn" name="btn-eliminar-producto" data-id="{{ producto.id }}">Eliminar</button>
@@ -49,7 +49,7 @@
 
         <!-- Formulario de edición -->
         <tr id="form-editar-producto-{{ producto.id }}" class="form-edicion-producto" style="display: none;">
-          <td colspan="5">
+          <td colspan="9">
 
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-producto" data-id="{{ producto.id }}">
@@ -77,8 +77,7 @@
               <select id="producto-compra" name="producto-compra" required>
                 <option value="">Seleccione</option>
                 {% for compra in compras %}
-                <option value="{{ compra.id }}">{{ compra.fecha }} - {{ compra.total }} - {{ compra.establecimiento_id
-                  }} - {{ compra.vendedor_id }}</option>
+                <option value="{{ compra.id }}">{{ compra.fecha|date:"Y-m-d" }} - {{ compra.total }}</option>
                 {% endfor %}
               </select>
 
@@ -107,7 +106,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay productos en el inventario</td>
+          <td colspan="9">No hay productos en el inventario</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -119,23 +118,21 @@
         <h3>Agregar producto</h3>
         <form class="formulario" id="form-crear-producto">
           {% csrf_token %}
-          <!-- ...campos del producto... -->
           <label class="form-label" for="producto-nombre">Nombre:</label>
-          <input class="form-input" type="text" name="producto-nombre" maxlength="30" required>
+          <input class="form-input" type="text" id="producto-nombre" name="producto-nombre" maxlength="30" required>
           <label class="form-label" for="producto-descripcion">Descripción:</label>
-          <input class="form-input" type="text" name="producto-descripcion" maxlength="50" required>
+          <input class="form-input" type="text" id="producto-descripcion" name="producto-descripcion" maxlength="50" required>
           <label class="form-label" for="producto-precio">Precio:</label>
-          <input class="form-input" type="number" name="producto-precio" min="0" required>
+          <input class="form-input" type="number" id="producto-precio" name="producto-precio" min="0" required>
           <label class="form-label" for="producto-stock-actual">Stock actual:</label>
-          <input class="form-input" type="number" name="producto-stock-actual" min="0" required>
+          <input class="form-input" type="number" id="producto-stock-actual" name="producto-stock-actual" min="0" required>
           <label class="form-label" for="producto-stock-minimo">Stock mínimo:</label>
-          <input class="form-input" type="number" name="producto-stock-minimo" min="0" required>
+          <input class="form-input" type="number" id="producto-stock-minimo" name="producto-stock-minimo" min="0" required>
           <label class="form-label" for="producto-compra">Compra:</label>
           <select id="producto-compra" name="producto-compra" required>
             <option value="">Seleccione</option>
             {% for compra in compras %}
-            <option value="{{ compra.id }}">{{ compra.fecha }} - {{ compra.total }} - {{ compra.establecimiento_id }} - {{
-              compra.vendedor_id }}</option>
+            <option value="{{ compra.id }}">{{ compra.fecha|date:"Y-m-d" }} - {{ compra.total }}</option>
             {% endfor %}
           </select>
 
@@ -188,7 +185,7 @@
 
         <!-- Formulario de edición -->
         <tr id="form-editar-categoria-{{ categoria.id }}" class="form-edicion-categoria" style="display: none;">
-          <td colspan="5">
+          <td colspan="3">
 
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-categoria" data-id="{{ categoria.id }}">
@@ -210,7 +207,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay categorias en el inventario</td>
+          <td colspan="3">No hay categorias en el inventario</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -255,12 +252,12 @@
       <tbody>
         {% for compra in compras %}
         <tr data-id="{{ compra.id }}">
-          <td>{{ compra.fecha }}</td>
+          <td>{{ compra.fecha|date:"Y-m-d" }}</td>
           <td>{{ compra.total }}</td>
           <td>{{ compra.iva }}</td>
           <td>{{ compra.estado }}</td>
-          <td>{{ compra.establecimiento_id }}</td>
-          <td>{{ compra.vendedor_id }}</td>
+          <td>{{ compra.establecimiento__nombre }}</td>
+          <td>{{ compra.vendedor__nombre }}</td>
           <td>
             <button class="filtro-btn" name="btn-editar-compra" data-id="{{ compra.id }}">Actualizar</button>
             <button class="filtro-btn" name="btn-eliminar-compra" data-id="{{ compra.id }}">Eliminar</button>
@@ -269,14 +266,14 @@
 
         <!-- Formulario de edición -->
         <tr id="form-editar-compra-{{ compra.id }}" class="form-edicion-compra" style="display: none;">
-          <td colspan="5">
+          <td colspan="7">
 
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-compra" data-id="{{ compra.id }}">
               {% csrf_token %}
 
               <label class="form-label" for="compra-fecha">Fecha:</label>
-              <input class="form-input" type="date" name="compra-fecha" value="{{ compra.fecha }}" required>
+              <input class="form-input" type="date" name="compra-fecha" value="{{ compra.fecha|date:'Y-m-d' }}" required>
 
               <label class="form-label" for="compra-total">Total:</label>
               <input class="form-input" type="number" name="compra-total" value="{{ compra.total }}" required>
@@ -287,15 +284,15 @@
               <label class="form-label" for="compra-estado">Estado:</label>
               <select name="compra-estado" required>
                 <option value="">Seleccione</option>
-                <option value="True">Hecho</option>
-                <option value="False">No hecho</option>
+                <option value="True" {% if compra.estado %}selected{% endif %}>Hecho</option>
+                <option value="False" {% if not compra.estado %}selected{% endif %}>No hecho</option>
               </select>
 
               <label class="form-label" for="compra-establecimiento">Establecimiento:</label>
               <select name="compra-establecimiento" required>
                 <option value="">Seleccione</option>
                 {% for establecimiento in establecimientos %}
-                <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
+                <option value="{{ establecimiento.id }}" {% if establecimiento.id == compra.establecimiento_id %}selected{% endif %}>{{ establecimiento.nombre }}</option>
                 {% endfor %}
               </select>
 
@@ -303,7 +300,7 @@
               <select id="compra-vendedor" name="compra-vendedor" required>
                 <option value="">Seleccione</option>
                 {% for vendedor in vendedores %}
-                <option value="{{ vendedor.id }}">{{ vendedor.nombre }}</option>
+                <option value="{{ vendedor.id }}" {% if vendedor.id == compra.vendedor_id %}selected{% endif %}>{{ vendedor.nombre }}</option>
                 {% endfor %}
               </select>
 
@@ -316,7 +313,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay compras</td>
+          <td colspan="7">No hay compras</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -382,7 +379,7 @@
           <td>{{ vendedor.nombre }}</td>
           <td>{{ vendedor.telefono }}</td>
           <td>{{ vendedor.email }}</td>
-          <td>{{ vendedor.proveedor }}</td>
+          <td>{{ vendedor.proveedor__nombre }}</td>
           <td>
             <button class="filtro-btn" name="btn-editar-vendedor" data-id="{{ vendedor.id }}">Actualizar</button>
             <button class="filtro-btn" name="btn-eliminar-vendedor" data-id="{{ vendedor.id }}">Eliminar</button>
@@ -410,7 +407,7 @@
               <select name="vendedor-proveedor" required>
                 <option value="">Seleccione</option>
                 {% for proveedor in proveedores %}
-                <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+                <option value="{{ proveedor.id }}" {% if proveedor.id == vendedor.proveedor_id %}selected{% endif %}>{{ proveedor.nombre }}</option>
                 {% endfor %}
               </select>
 
@@ -482,7 +479,7 @@
           <td>{{ establecimiento.email }}</td>
           <td>{{ establecimiento.horario_apertura }}</td>
           <td>{{ establecimiento.horario_cierre }}</td>
-          <td>{{ establecimiento.proveedor_id }}</td>
+          <td>{{ establecimiento.proveedor__nombre }}</td>
           <td>
             <button class="filtro-btn" name="btn-editar-establecimiento"
               data-id="{{ establecimiento.id }}">Actualizar</button>
@@ -494,7 +491,7 @@
         <!-- Formulario de edición -->
         <tr id="form-editar-establecimiento-{{ establecimiento.id }}" class="form-edicion-establecimiento"
           style="display: none;">
-          <td colspan="5">
+          <td colspan="8">
 
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-establecimiento" data-id="{{ establecimiento.id }}">
@@ -545,7 +542,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay establecimientos</td>
+          <td colspan="8">No hay establecimientos</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -616,7 +613,7 @@
 
         <!-- Formulario de edición -->
         <tr id="form-editar-proveedor-{{ proveedor.id }}" class="form-edicion-proveedor" style="display: none;">
-          <td colspan="5">
+          <td colspan="4">
 
             <h3>Actualizar datos</h3>
             <form class="formulario" name="form-editar-proveedor" data-id="{{ proveedor.id }}">
@@ -640,7 +637,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">No hay proveedores</td>
+          <td colspan="4">No hay proveedores</td>
         </tr>
         {% endfor %}
       </tbody>
