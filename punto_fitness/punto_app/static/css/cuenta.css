@@ -1,5 +1,7 @@
-/* Fondo oscuro difuminado para el modal */
-.modal {
+/* Estilos específicos para el modal de cuenta (userModal) */
+
+/* Fondo oscuro difuminado para el modal de cuenta */
+#userModal.modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -10,81 +12,246 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
-  }
-  
-  /* Ocultar el modal por defecto */
-  .hidden {
+}
+
+/* Ocultar el modal de cuenta por defecto */
+#userModal.hidden {
     display: none;
-  }
-  
-  /* Contenedor del contenido del modal */
-  .modal-content {
+}
+
+/* Contenedor del contenido del modal de cuenta */
+#userModal .modal-content {
     background: #ffffff;
-    border-radius: 16px;
-    padding: 30px;
+    border-radius: 40px;
+    padding: 20px 50px;
     width: 100%;
-    max-width: 400px;
-    height: 100%;
-    max-height: 400px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    font-family: 'Segoe UI', sans-serif;
-    position: relative;
-  }
-  
-  .modal-content.cuenta {
-    max-width: 400px;
-    min-width: 280px;
-    padding: 30px;
-  }
-  
-  /* Contenido dentro del modal */
-  .form-container {
+    max-width: 500px;
+    min-height: 500px;
+    max-height: 1000px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
     align-items: center;
-    justify-content: center;
-    align-content: center;
-  }
-  
-  /* Encabezado */
-  .form-container h1 {
-    margin-bottom: 10px;
+    justify-content: flex-start;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    font-family: Arial, sans-serif;
+    position: relative;
+    border: 2px solid #000;
+    box-sizing: border-box;
+}
+
+/* Contenido dentro del modal de cuenta */
+#userModal .form-container {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    margin: 10px;
+    box-sizing: border-box;
+}
+
+/* Encabezado del modal de cuenta */
+#userModal .form-container h1 {
+    margin-bottom: 15px;
     font-size: 24px;
     font-weight: bold;
-    color: #333;
-  }
-  
-  /* Información del usuario */
-  .form-container p {
-    margin: 0;
-    font-size: 16px;
-    color: #444;
-  }
-  
-  /* Estilo del botón */
-  #cerrarSesionBtn {
-    margin-top: 20px;
-    padding: 10px 25px;
-    background-color: #ff4d4f;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 15px;
-    transition: background-color 0.3s ease;
-  }
-  #cerrarSesionBtn:hover {
-    background-color: #d9363e;
-  }
-  
-  /* Solo para el modal de usuario logueado */
+    color: #000;
+}
 
-  #userModal .close-cuenta {
+/* Información del usuario en el modal de cuenta */
+#userModal .form-container p {
+    margin: 0;
+    font-size: 14px;
+    color: #000;
+    padding: 6px 0;
+    border-bottom: 1px solid #e0e0e0;
+    width: 100%;
+    text-align: left;
+    font-weight: 100;
+    line-height: 20px;
+    letter-spacing: 0.5px;
+}
+
+#userModal .form-container p:last-of-type {
+    border-bottom: none;
+}
+
+#userModal .form-container p strong {
+    color: #000;
+    font-weight: bold;
+    min-width: 80px;
+    display: inline-block;
+}
+
+/* Estilo especial para el rol en el modal de cuenta */
+#userModal .form-container p:nth-child(5) {
+    background: #e0e0e0;
+    padding: 8px 15px;
+    border-radius: 50px;
+    margin: 8px 0;
+    border: none;
+    font-weight: bold;
+    color: #000;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+#userModal .form-container p:nth-child(5) strong {
+    color: #000;
+}
+
+/* Contenedor de botones de admin en el modal de cuenta */
+#userModal .admin-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 5px 0;
+    width: 100%;
+    padding: 0 15px;
+    animation: slideInUp 0.6s ease-in-out;
+}
+
+/* Estilos para los botones de admin en el modal de cuenta */
+#userModal .admin-btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: transform 80ms ease-in;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+#userModal .admin-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+#userModal .admin-btn:hover::before {
+    left: 100%;
+}
+
+#userModal .superadmin-btn {
+    background: #000000;
+    color: #ffffff;
+    border: 2px solid #000000;
+}
+
+#userModal .superadmin-btn:hover {
+    background: #333333;
+    border-color: #333333;
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+#userModal .admin-btn:not(.superadmin-btn) {
+    background: #000000;
+    color: #ffffff;
+    border: 2px solid #000000;
+}
+
+#userModal .admin-btn:not(.superadmin-btn):hover {
+    background: #333333;
+    border-color: #333333;
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+#userModal .admin-btn:active {
+    transform: scale(0.98);
+}
+
+#userModal .admin-btn:focus {
+    outline: none;
+}
+
+/* Animación de entrada para los botones del modal de cuenta */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilo especial para el botón de cerrar sesión en el modal de cuenta */
+#userModal #cerrarSesionBtn {
+    margin-top: 10px;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: transform 80ms ease-in;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    background: #ff4444;
+    color: #ffffff;
+    border: 2px solid #ff4444;
+}
+
+#userModal #cerrarSesionBtn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+#userModal #cerrarSesionBtn:hover::before {
+    left: 100%;
+}
+
+#userModal #cerrarSesionBtn:hover {
+    background: #e63946;
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(255, 65, 108, 0.4);
+}
+
+#userModal #cerrarSesionBtn:active {
+    transform: scale(0.98);
+}
+
+#userModal #cerrarSesionBtn:focus {
+    outline: none;
+}
+
+/* Botón de cerrar del modal de cuenta */
+#userModal .close-cuenta {
     position: absolute;
     top: 8px;
     right: 8px;
@@ -98,11 +265,13 @@
     padding: 2px 8px;
     border: 1px solid #ccc;
     z-index: 10;
-  }
-  #userModal .close-cuenta:hover {
+}
+
+#userModal .close-cuenta:hover {
     color: #ff416c;
     background: #f8f8f8;
-  }
+}
+
 .admin-panel-btn {
   background-color: #4CAF50;
   color: white;

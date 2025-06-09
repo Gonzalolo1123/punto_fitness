@@ -1169,12 +1169,12 @@ def verificar_sesion(request):
     if request.method == "GET":
         # Verificar si el usuario está autenticado usando la sesión
         cliente_id = request.session.get('cliente_id')
-
+        
         if cliente_id:
             try:
                 cliente = Cliente.objects.get(id=cliente_id)
                 admin_obj = Administrador.objects.filter(cliente=cliente).first()
-
+                
                 return JsonResponse({
                     'is_authenticated': True,
                     'cliente_nombre': cliente.nombre,
@@ -1183,6 +1183,7 @@ def verificar_sesion(request):
                     'nivel_acceso': admin_obj.nivel_acceso.lower() if admin_obj else 'cliente'
                 })
             except Cliente.DoesNotExist:
+                # Si el cliente no existe, limpiar la sesión
                 request.session.flush()
                 return JsonResponse({
                     'is_authenticated': False,
@@ -1193,6 +1194,24 @@ def verificar_sesion(request):
                 'is_authenticated': False,
                 'requires_auth': False
             })
+    
+    elif request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            cliente_id = data.get('cliente_id')
+            
+            if cliente_id:
+                cliente = Cliente.objects.filter(id=cliente_id).first()
+                if cliente:
+                    return JsonResponse({
+                        'autenticado': True,
+                        'nombre': cliente.nombre,
+                        'email': cliente.email
+                    })
+            
+            return JsonResponse({'autenticado': False})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 

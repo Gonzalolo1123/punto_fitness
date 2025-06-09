@@ -27,12 +27,8 @@
         <li><a href="{% url 'inventario' %}">Inventario</a></li>
         <li><a href="{% url 'cursos' %}">Cursos</a></li>
         <li>
-          {% if cliente_nombre %}
-          <a href="#" id="cuentaBtn">Hola, {{ cliente_nombre }}</a>
-          {% else %}
+          <a href="#" id="cuentaBtn" style="display: none;">Hola, {{ cliente_nombre|default:"Usuario" }}</a>
           <a href="#" id="usuarioBtn">Usuario</a>
-          {% endif %}
-
         </li>
       </ul>
     </nav>
@@ -100,6 +96,11 @@
         <p><strong>Nombre:</strong> {{cliente_nombre}}</p>
         <p><strong>Correo:</strong> {{cliente_email}}</p>
         <p><strong>Teléfono:</strong> {{cliente_telefono}}</p>
+        <p><strong>Rol:</strong> {{nivel_acceso|default:"Cliente"}}</p>
+        <div class="admin-buttons" style="display: none;">
+          <a href="{% url 'super_admin' %}" class="admin-btn superadmin-btn" style="display: none;">Panel Super Admin</a>
+          <a href="{% url 'pagina_admin' %}" class="admin-btn admin-btn" style="display: none;">Panel Admin</a>
+        </div>
         <a href="{% url 'logout' %}" id="cerrarSesionBtn">Cerrar Sesión</a>
       </div>
     </div>
