@@ -1,3 +1,20 @@
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // ¿Esta cookie comienza con el nombre que buscamos?
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
 // ===== Carrusel de Planes =====
 const planes = [
   {
@@ -96,9 +113,10 @@ function formatearFecha(fechaISO) {
   return fecha.toLocaleDateString('es-ES', opciones);
 }
 document.getElementById('btnMostrarCursos').addEventListener('click', () => {
-    const cursos = JSON.parse(document.getElementById('cursos-json').textContent);
 
-    let tablaHTML = `
+  const cursos = JSON.parse(document.getElementById('cursos-json').textContent);
+
+  let tablaHTML = `
       <style>
         .swal2-popup .swal-table-container {
           max-height: 60vh;
@@ -196,12 +214,28 @@ document.getElementById('btnMostrarCursos').addEventListener('click', () => {
           align-items: center;
           gap: 6px;
         }
-        
+        .btn-cancelar {
+          padding: 8px 16px;
+          background: linear-gradient(135deg,rgb(211, 25, 25) 0%,rgb(166, 33, 0) 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 500;
+          box-shadow: 0 2px 8px rgba(186, 38, 12, 0.3);
+          transition: all 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
         .btn-inscribir:hover {
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0, 242, 254, 0.4);
         }
-        
+        .btn-cancelar:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(255, 10, 10, 0.4);
+        }
         .btn-inscribir i {
           font-size: 0.9rem;
         }
@@ -237,13 +271,13 @@ document.getElementById('btnMostrarCursos').addEventListener('click', () => {
           <tbody>
     `;
 
-    cursos.forEach(curso => {
+  cursos.forEach(curso => {
 
-        
-        const cuposDisponibles = curso.cupos - curso.inscritos;
-        const porcentajeDisponible = (cuposDisponibles / curso.cupos) * 100;
-        
-        tablaHTML += `
+
+    const cuposDisponibles = curso.cupos - curso.inscritos;
+    const porcentajeDisponible = (cuposDisponibles / curso.cupos) * 100;
+
+    tablaHTML += `
             <tr>
               <td>${curso.nombre}</td>
               <td>
@@ -256,86 +290,166 @@ document.getElementById('btnMostrarCursos').addEventListener('click', () => {
               </td>
               <td>${formatearFecha(curso.fecha_realizacion)}</td>
               <td>
-                <span class="badge ${curso.estado === 'Activo' ? 'badge-disponible' : 'badge-completo'}">
-                  ${curso.estado === 'Activo' ? 'Disponible' : 'Completo'}
+                <span class="badge ${curso.estado === 'activo' ? 'badge-disponible' : 'badge-completo'}">
+                  ${curso.estado === 'activo' ? 'Disponible' : 'Completo'}
                 </span>
               </td>
               <td>
-                ${curso.estado === 'Activo' ? 
-                  `<button class="btn-inscribir" onclick="inscribirCurso(${curso.id})">
-                    <i class="fas fa-user-plus"></i> Inscribir
-                  </button>` : 
-                  '<span class="badge badge-completo">Lleno</span>'}
+                ${curso.estado === 'activo' ?
+        (curso.inscrito ?
+          `<button class="btn-cancelar" onclick="cancelarInscripcion(${curso.id})">
+          <i class="fas fa-user-minus"></i> Cancelar
+        </button>` :
+          `<button class="btn-inscribir" onclick="inscribirCurso(${curso.id})">
+          <i class="fas fa-user-plus"></i> Inscribir
+        </button>`) :
+        '<span class="badge badge-completo">Lleno</span>'}
               </td>
             </tr>
         `;
-    });
+  });
 
-    tablaHTML += `
+  tablaHTML += `
           </tbody>
         </table>
       </div>
     `;
 
-    Swal.fire({
-        title: '<strong style="color: #333; font-size: 1.5rem;">Cursos Disponibles</strong>',
-        html: tablaHTML,
-        width: '900px',
-        showCloseButton: true,
-        showConfirmButton: false,
-        padding: '0',
-        background: '#f9f9f9',
-        backdrop: `
+  Swal.fire({
+    title: '<strong style="color: #333; font-size: 1.5rem;">Cursos Disponibles</strong>',
+    html: tablaHTML,
+    width: '900px',
+    showCloseButton: true,
+    showConfirmButton: false,
+    padding: '0',
+    background: '#f9f9f9',
+    backdrop: `
             rgba(0,0,0,0.4)
             url("https://i.gifer.com/ZZ5H.gif")
             center top
             no-repeat
         `,
-        customClass: {
-            container: 'swal2-container-custom',
-            popup: 'swal2-popup-custom'
-        }
-    });
+    customClass: {
+      container: 'swal2-container-custom',
+      popup: 'swal2-popup-custom'
+    }
+  });
 });
 
 function inscribirCurso(id) {
+  const usuario_id = document.body.getAttribute('data-user-id');
+  if (!usuario_id) {
     Swal.fire({
-        title: 'Confirmar Inscripción',
-        html: `<p style="color: #555;">¿Deseas inscribirte a este curso?</p>`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#667eea',
-        cancelButtonColor: '#dc3545',
-        confirmButtonText: '<i class="fas fa-check"></i> Confirmar',
-        cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
-        buttonsStyling: true,
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch('/inscribir_curso/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
-                },
-                body: JSON.stringify({ curso_id: id })
-            })
-            .then(response => {
-                if (response.ok) {
-                    Swal.fire({
-                        title: '¡Inscripción Exitosa!',
-                        html: `<p style="color: #555;">Tu inscripción ha sido registrada correctamente.</p>`,
-                        icon: 'success',
-                        confirmButtonColor: '#28a745'
-                    });
-                } else {
-                    Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
-                }
-            })
-            .catch(error => {
-                console.error(error);
-                Swal.fire('Error', 'Ocurrió un error de red.', 'error');
-            });
-        }
+      title: 'Iniciar Sesión',
+      html: `<p style="color: #555;">Debes iniciar sesión antes de realizar la inscripción.</p>`,
+      icon: 'warning',
+      confirmButtonColor: '#dc3545'
     });
+    return;
+  }
+  Swal.fire({
+    title: 'Confirmar Inscripción',
+    html: `<p style="color: #555;">¿Deseas inscribirte a este curso?</p>`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#667eea',
+    cancelButtonColor: '#dc3545',
+    confirmButtonText: '<i class="fas fa-check"></i> Confirmar',
+    cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
+    buttonsStyling: true,
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch('/inscribir_curso/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({ curso_id: id, usuario_id: usuario_id })
+      })
+        .then(response => {
+          if (response.ok) {
+            Swal.fire({
+              title: '¡Inscripción Exitosa!',
+              html: `<p style="color: #555;">Tu inscripción ha sido registrada correctamente.</p>`,
+              icon: 'success',
+              confirmButtonColor: '#28a745'
+            }).then(() => {
+              // Recarga la página cuando se cierra el SweetAlert
+              location.reload();
+            });
+          } else {
+            Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+        });
+    }
+  });
+}
+
+function cancelarInscripcion(idCurso) {
+  const usuario_id = document.body.getAttribute('data-user-id');
+  const cursos = JSON.parse(document.getElementById('cursos-json').textContent);
+  const curso = cursos.find(c => c.id === idCurso);
+
+  if (!usuario_id || !curso) {
+    Swal.fire({
+      title: 'Error',
+      html: `<p style="color: #555;">No se pudo encontrar la información necesaria para cancelar la inscripción.</p>`,
+      icon: 'error',
+      confirmButtonColor: '#dc3545'
+    });
+    return;
+  }
+
+  Swal.fire({
+    title: 'Cancelar Inscripción',
+    html: `<p style="color: #555;">¿Estás seguro que deseas cancelar tu inscripción a <strong>${curso.nombre}</strong>?</p>`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: '<i class="fas fa-user-minus"></i> Cancelar Inscripción',
+    cancelButtonText: '<i class="fas fa-times"></i> Mantener Inscripción',
+    buttonsStyling: true,
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch('/cancelar_inscripcion/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+          curso_id: idCurso,
+          usuario_id: usuario_id,
+          fecha_realizacion: curso.fecha_realizacion
+        })
+      })
+        .then(response => {
+          if (response.ok) {
+            Swal.fire({
+              title: '¡Inscripción Cancelada!',
+              html: `<p style="color: #555;">Se ha cancelado tu inscripción correctamente.</p>`,
+              icon: 'success',
+              confirmButtonColor: '#28a745'
+            }).then(() => {
+              // Recarga la página cuando se cierra el SweetAlert
+              location.reload();
+            });
+          } else {
+            Swal.fire('Error', 'No se pudo cancelar la inscripción.', 'error');
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          Swal.fire('Error', 'Ocurrió un error al intentar cancelar.', 'error');
+        });
+    }
+  });
 }

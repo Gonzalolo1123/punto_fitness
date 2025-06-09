@@ -120,6 +120,12 @@
             <td>{{ cliente.email }}</td>
             <td>{{ cliente.telefono }}</td>
             <td>
+              <select class="select-establecimiento" data-cliente-id="{{ cliente.id }}" required>
+                <option value="" disabled selected>Selecciona establecimiento</option>
+                {% for est in establecimientos %}
+                  <option value="{{ est.id }}">{{ est.nombre }}</option>
+                {% endfor %}
+              </select>
               <button class="filtro-btn btn-hacer-admin" data-cliente-id="{{ cliente.id }}">Hacer Admin</button>
             </td>
           </tr>

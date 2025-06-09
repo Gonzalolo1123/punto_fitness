@@ -84,28 +84,28 @@ function otorgarRolAdmin(clienteId, establecimientoId) {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
-    .then(result => {
-        if (result.success) {
-            alert('Rol de administrador otorgado con éxito.');
-            window.location.reload(); // Recargar la página para ver los cambios
-        } else {
-            alert('Error al otorgar rol de administrador: ' + result.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error en la petición:', error);
-        alert('Ocurrió un error al intentar cambiar el rol.');
-    });
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('Rol de administrador otorgado con éxito.');
+                window.location.reload(); // Recargar la página para ver los cambios
+            } else {
+                alert('Error al otorgar rol de administrador: ' + result.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error en la petición:', error);
+            alert('Ocurrió un error al intentar cambiar el rol.');
+        });
 }
 
 function inicializarEventListeners() {
     // Reemplaza el event listener del modal
     const btnToggleForm = document.getElementById('abrir-form-admin');
     const clientesNoAdminWrapper = document.getElementById('clientes-no-admin-wrapper'); // Nueva referencia
-    
+
     if (btnToggleForm) {
-        btnToggleForm.addEventListener('click', function() {
+        btnToggleForm.addEventListener('click', function () {
             const estado = this.getAttribute('data-estado');
             const modalFormContent = document.getElementById('modal-form-content');
             const formCrearAdminContainer = document.getElementById('form-crear-admin-container');
@@ -132,7 +132,7 @@ function inicializarEventListeners() {
     }
 
     // También cierra el formulario al hacer clic en el fondo modal
-    document.getElementById('modal-fondo')?.addEventListener('click', function() {
+    document.getElementById('modal-fondo')?.addEventListener('click', function () {
         ocultarFormularioModal();
     });
 
@@ -155,7 +155,7 @@ function inicializarEventListeners() {
     function inicializarFormularioCrearAdmin() {
         const formCrearAdminModal = document.getElementById('form-crear-admin-modal');
         if (formCrearAdminModal) {
-            formCrearAdminModal.addEventListener('submit', function(e) {
+            formCrearAdminModal.addEventListener('submit', function (e) {
                 e.preventDefault();
 
                 const clienteId = this.querySelector('#cliente-select').value;
@@ -192,14 +192,14 @@ function inicializarEventListeners() {
 
     // Botones de edición
     document.querySelectorAll('[name="btn-editar-admin"]').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             mostrarFormularioEdicion(this.getAttribute('data-id'));
         });
     });
 
     // Formularios de edición
     document.querySelectorAll('[name="form-editar-admin"]').forEach(form => {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             e.preventDefault();
             const adminId = this.dataset.id;
             const formData = {
@@ -227,7 +227,7 @@ function inicializarEventListeners() {
 
     // Botones de eliminación
     document.querySelectorAll('[name="btn-eliminar-admin"]').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const id = this.getAttribute('data-id');
             if (confirm('¿Eliminar a este administrador?')) {
                 eliminarAdmin(id)
@@ -249,8 +249,14 @@ function inicializarEventListeners() {
     document.querySelectorAll('.btn-hacer-admin').forEach(btn => {
         btn.addEventListener('click', function() {
             const clienteId = this.getAttribute('data-cliente-id');
-            // Usamos un ID de establecimiento fijo (ej. 1) o pides al usuario que lo seleccione si es necesario
-            const establecimientoId = 1; // Ajusta esto si necesitas que sea dinámico
+            // Obtener el select correspondiente a este cliente
+            const selectEst = document.querySelector('.select-establecimiento[data-cliente-id="' + clienteId + '"]');
+            const establecimientoId = selectEst ? selectEst.value : '';
+
+            if (!establecimientoId) {
+                alert('Por favor, selecciona un establecimiento antes de continuar.');
+                return;
+            }
 
             if (confirm(`¿Estás seguro de que quieres hacer a este cliente (ID: ${clienteId}) administrador?`)) {
                 otorgarRolAdmin(clienteId, establecimientoId);

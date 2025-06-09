@@ -24,5 +24,4 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('punto_app.urls')),
-    path('super_admin/crear_admin/', views.crear_o_actualizar_admin, name='crear_o_actualizar_admin'),
 ]

@@ -13,7 +13,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Min
 from django.utils import timezone
 import logging
-
+from django.db.models import Count, OuterRef, Subquery, IntegerField, Exists
+from django.db.models.functions import Coalesce
 logger = logging.getLogger('punto_app')
 
 # Create your views here.
@@ -245,19 +246,25 @@ def admin_usuario_borrar(request, usuario_id):
 
 @requiere_admin
 def inventario(request):
-    productos = Producto.objects.values('id').annotate(
-        nombre=Min('nombre'),
-        precio=Min('precio'),
-        categoria=Min('categoria'),
-        stock_minimo=Min('stock_minimo'),
-        stock_actual=Sum('stock_actual')
+    productos = Producto.objects.select_related('compra', 'categoria', 'establecimiento').values(
+        'id', 'nombre', 'descripcion', 'precio', 'stock_actual', 'stock_minimo', 
+        'compra_id', 'categoria_id', 'establecimiento_id',
+        'compra__fecha', 'compra__total', 'categoria__nombre', 'establecimiento__nombre'
     )
     categorias = CategoriaProducto.objects.values('id', 'nombre', 'descripcion')
 
     # nuevas adiciones para funcionamiento de crud de productos
-    compras = CompraVendedor.objects.values('id', 'fecha', 'total', 'iva', 'estado', 'establecimiento_id', 'vendedor_id')
-    vendedores = Vendedor.objects.values('id', 'nombre', 'telefono', 'email', 'proveedor_id')
-    establecimientos = Establecimiento.objects.values('id', 'nombre', 'direccion', 'telefono', 'email', 'horario_apertura', 'horario_cierre', 'proveedor_id')
+    compras = CompraVendedor.objects.select_related('establecimiento', 'vendedor').values(
+        'id', 'fecha', 'total', 'iva', 'estado', 'establecimiento_id', 'vendedor_id',
+        'establecimiento__nombre', 'vendedor__nombre'
+    )
+    vendedores = Vendedor.objects.select_related('proveedor').values(
+        'id', 'nombre', 'telefono', 'email', 'proveedor_id', 'proveedor__nombre'
+    )
+    establecimientos = Establecimiento.objects.select_related('proveedor').values(
+        'id', 'nombre', 'direccion', 'telefono', 'email', 'horario_apertura', 'horario_cierre', 
+        'proveedor_id', 'proveedor__nombre'
+    )
     proveedores = Proveedor.objects.values('id', 'nombre', 'telefono', 'email')
 
     return render(request, 'punto_app/admin_inventario.html', {'productos': productos, 'categorias': categorias, 'compras': compras, 'vendedores': vendedores, 'establecimientos': establecimientos, 'proveedores': proveedores})
@@ -291,18 +298,30 @@ def admin_producto_crear(request):
             nombre=data['nombre'],
             descripcion=data['descripcion'],
             precio=data['precio'],
-            stock_actual=1,
+            stock_actual=data['stock_actual'],
             stock_minimo=data['stock_minimo'],
-            compra_id=1,
-            categoria_id=1,
-            establecimiento_id=1
+            compra_id=data['compra_id'],
+            categoria_id=data['categoria_id'],
+            establecimiento_id=data['establecimiento_id']
         )
+        
+        # Obtener los datos con las relaciones
+        producto_con_relaciones = Producto.objects.select_related('compra', 'categoria', 'establecimiento').get(id=producto.id)
+        
         return JsonResponse({
             'id': producto.id,
             'nombre': producto.nombre,
-            'stock': producto.stock_actual,
+            'descripcion': producto.descripcion,
+            'precio': producto.precio,
+            'stock_actual': producto.stock_actual,
             'stock_minimo': producto.stock_minimo,
-            'precio': producto.precio
+            'compra_id': producto.compra_id,
+            'categoria_id': producto.categoria_id,
+            'establecimiento_id': producto.establecimiento_id,
+            'compra__fecha': producto_con_relaciones.compra.fecha.strftime('%Y-%m-%d'),
+            'compra__total': producto_con_relaciones.compra.total,
+            'categoria__nombre': producto_con_relaciones.categoria.nombre,
+            'establecimiento__nombre': producto_con_relaciones.establecimiento.nombre
         }, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -316,17 +335,31 @@ def admin_producto_actualizar(request, producto_id):
         producto.nombre = data.get('nombre', producto.nombre)
         producto.descripcion = data.get('descripcion', producto.descripcion)
         producto.precio = data.get('precio', producto.precio)
+        producto.stock_actual = data.get('stock_actual', producto.stock_actual)
         producto.stock_minimo = data.get('stock_minimo', producto.stock_minimo)
         producto.save()
+        
+        # Obtener los datos con las relaciones
+        producto_con_relaciones = Producto.objects.select_related('compra', 'categoria', 'establecimiento').get(id=producto.id)
         
         return JsonResponse({
             'id': producto.id,
             'nombre': producto.nombre,
+            'descripcion': producto.descripcion,
+            'precio': producto.precio,
+            'stock_actual': producto.stock_actual,
             'stock_minimo': producto.stock_minimo,
-            'precio': producto.precio
+            'compra_id': producto.compra_id,
+            'categoria_id': producto.categoria_id,
+            'establecimiento_id': producto.establecimiento_id,
+            'compra__fecha': producto_con_relaciones.compra.fecha.strftime('%Y-%m-%d'),
+            'compra__total': producto_con_relaciones.compra.total,
+            'categoria__nombre': producto_con_relaciones.categoria.nombre,
+            'establecimiento__nombre': producto_con_relaciones.establecimiento.nombre
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
 @csrf_exempt   
 def admin_producto_borrar(request, producto_id):
     try:
@@ -391,20 +424,71 @@ def admin_categoria_borrar(request, categoria_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 def planes(request):
-    cursos = list(Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado','establecimiento'))
-    inscritos =list(Inscripcion.objects.values('usuario', 'curso', 'fecha_inscripcion'))
+    ##cursos = list(Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado','establecimiento'))
+    ##inscritos =list(Inscripcion.objects.values('usuario', 'curso', 'fecha_inscripcion','fecha_realizacion'))
+    # Subquery: cantidad de inscritos por curso y fecha_realizacion
+    cliente_id = request.session.get('cliente_id')
+    print('tu cliente_id', cliente_id)
+    # Subconsulta: cantidad de inscritos por curso y fecha_realizacion
+    inscripciones_subquery = Inscripcion.objects.filter(
+        curso=OuterRef('pk'),
+        fecha_realizacion=OuterRef('fecha_realizacion')
+    ).values('curso').annotate(
+        inscritos_count=Count('id')
+    ).values('inscritos_count')[:1]
+
+    # Subconsulta para verificar si el usuario está inscrito al curso
+    inscrito_exist_subquery = Inscripcion.objects.filter(
+        curso=OuterRef('pk'),
+        usuario=cliente_id  # Aquí usamos el cliente_id de la sesión
+    )
+
+    # Cursos con número de inscritos + indicador si el usuario está inscrito
+    cursos = list(
+        Curso.objects.annotate(
+            inscritos=Coalesce(Subquery(inscripciones_subquery, output_field=IntegerField()), 0),
+            inscrito=Exists(inscrito_exist_subquery)
+        ).values(
+            'id', 'nombre', 'cupos', 'fecha_realizacion', 'estado',
+            'establecimiento', 'inscritos', 'inscrito'
+        )
+    )
     return render(request, 'punto_app/planes.html', {'cursos': cursos})
 def inscribir_curso(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         curso_id = data.get('curso_id')
-
-        # Tu lógica de inscripción aquí, por ejemplo:
-        # curso = Curso.objects.get(id=curso_id)
-        # curso.inscritos += 1
-        # curso.save()
-
+        usuario_id=data.get('usuario_id')
+        print(data)
+        print(curso_id)
+        print(usuario_id)
+        inscripcion = Inscripcion.objects.create(
+            usuario_id=data['usuario_id'],
+            curso_id=data['curso_id'],
+            fecha_inscripcion=timezone.now()
+        )
         return JsonResponse({'success': True})
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+def cancelar_inscripcion(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            usuario_id = data.get('usuario_id')
+            curso_id = data.get('curso_id')
+            fecha_realizacion = data.get('fecha_realizacion')
+            print(data)
+            
+            # Buscar la inscripción sin el campo fecha_realizacion para mayor flexibilidad
+            inscripcion = get_object_or_404(Inscripcion, usuario_id=usuario_id, curso_id=curso_id)
+            inscripcion.delete()
+
+            return JsonResponse({'mensaje': 'Inscripción cancelada correctamente.'}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 def maquinas(request):
     return render(request,'punto_app/maquinas.html', {'maquinas': range(1, 9)})
@@ -486,6 +570,10 @@ def admin_compra_vendedor_crear(request):
             establecimiento_id=data['establecimiento_id'],
             vendedor_id=data['vendedor_id'],
         )
+        
+        # Obtener los datos con las relaciones
+        compra_con_relaciones = CompraVendedor.objects.select_related('establecimiento', 'vendedor').get(id=compra_vendedor.id)
+        
         return JsonResponse({
             'id': compra_vendedor.id,
             'fecha': compra_vendedor.fecha,
@@ -493,7 +581,9 @@ def admin_compra_vendedor_crear(request):
             'iva': compra_vendedor.iva,
             'estado': compra_vendedor.estado,
             'establecimiento_id': compra_vendedor.establecimiento_id,
-            'vendedor_id': compra_vendedor.vendedor_id
+            'vendedor_id': compra_vendedor.vendedor_id,
+            'establecimiento__nombre': compra_con_relaciones.establecimiento.nombre,
+            'vendedor__nombre': compra_con_relaciones.vendedor.nombre
         }, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -512,6 +602,9 @@ def admin_compra_vendedor_actualizar(request, compra_vendedor_id):
         compra_vendedor.vendedor_id = data.get('vendedor_id', compra_vendedor.vendedor_id)
         compra_vendedor.save()
         
+        # Obtener los datos con las relaciones
+        compra_con_relaciones = CompraVendedor.objects.select_related('establecimiento', 'vendedor').get(id=compra_vendedor.id)
+        
         return JsonResponse({
             'id': compra_vendedor.id,
             'fecha': compra_vendedor.fecha,
@@ -520,6 +613,8 @@ def admin_compra_vendedor_actualizar(request, compra_vendedor_id):
             'estado': compra_vendedor.estado,
             'establecimiento_id': compra_vendedor.establecimiento_id,
             'vendedor_id': compra_vendedor.vendedor_id,
+            'establecimiento__nombre': compra_con_relaciones.establecimiento.nombre,
+            'vendedor__nombre': compra_con_relaciones.vendedor.nombre
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -544,12 +639,17 @@ def admin_vendedor_crear(request):
             email=data['email'],
             proveedor_id=data['proveedor_id'],
         )
+        
+        # Obtener los datos con las relaciones
+        vendedor_con_relaciones = Vendedor.objects.select_related('proveedor').get(id=vendedor.id)
+        
         return JsonResponse({
             'id': vendedor.id,
             'nombre': vendedor.nombre,
             'telefono': vendedor.telefono,
             'email': vendedor.email,
-            'proveedor_id': vendedor.proveedor_id
+            'proveedor_id': vendedor.proveedor_id,
+            'proveedor__nombre': vendedor_con_relaciones.proveedor.nombre
         }, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -566,12 +666,16 @@ def admin_vendedor_actualizar(request, vendedor_id):
         vendedor.proveedor_id = data.get('proveedor_id', vendedor.proveedor_id)
         vendedor.save()
         
+        # Obtener los datos con las relaciones
+        vendedor_con_relaciones = Vendedor.objects.select_related('proveedor').get(id=vendedor.id)
+        
         return JsonResponse({
             'id': vendedor.id,
             'nombre': vendedor.nombre,
             'telefono': vendedor.telefono,
             'email': vendedor.email,
             'proveedor_id': vendedor.proveedor_id,
+            'proveedor__nombre': vendedor_con_relaciones.proveedor.nombre
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -600,6 +704,10 @@ def admin_establecimiento_crear(request):
             horario_cierre=data['horario_cierre'],
             proveedor_id=data['proveedor_id'],
         )
+        
+        # Obtener los datos con las relaciones
+        establecimiento_con_relaciones = Establecimiento.objects.select_related('proveedor').get(id=establecimiento.id)
+        
         return JsonResponse({
             'id': establecimiento.id,
             'nombre': establecimiento.nombre,
@@ -608,7 +716,8 @@ def admin_establecimiento_crear(request):
             'email': establecimiento.email,
             'horario_apertura': establecimiento.horario_apertura,
             'horario_cierre': establecimiento.horario_cierre,
-            'proveedor_id': establecimiento.proveedor_id
+            'proveedor_id': establecimiento.proveedor_id,
+            'proveedor__nombre': establecimiento_con_relaciones.proveedor.nombre
         }, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -628,6 +737,9 @@ def admin_establecimiento_actualizar(request, establecimiento_id):
         establecimiento.proveedor_id = data.get('proveedor_id', establecimiento.proveedor_id)
         establecimiento.save()
         
+        # Obtener los datos con las relaciones
+        establecimiento_con_relaciones = Establecimiento.objects.select_related('proveedor').get(id=establecimiento.id)
+        
         return JsonResponse({
             'id': establecimiento.id,
             'nombre': establecimiento.nombre,
@@ -637,6 +749,7 @@ def admin_establecimiento_actualizar(request, establecimiento_id):
             'horario_apertura': establecimiento.horario_apertura,
             'horario_cierre': establecimiento.horario_cierre,
             'proveedor_id': establecimiento.proveedor_id,
+            'proveedor__nombre': establecimiento_con_relaciones.proveedor.nombre
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -769,11 +882,11 @@ def admin_curso_borrar(request, curso_id):
 def admin_inscripcion_crear(request):
     try:
         data = json.loads(request.body)
-        
+
         inscripcion = Inscripcion.objects.create(
             usuario_id=data['usuario_id'],
             curso_id=data['curso_id'],
-            fecha_inscripcion=data['fecha_inscripcion']
+            fecha_inscripcion=timezone.now()
         )
         return JsonResponse({
             'id': inscripcion.id,
@@ -1054,39 +1167,63 @@ def borrar_admin(request, admin_id):
 @csrf_exempt
 def verificar_sesion(request):
     if request.method == "GET":
+        # Verificar si el usuario está autenticado usando la sesión
         cliente_id = request.session.get('cliente_id')
-        response_data = {
-            'is_authenticated': False,
-            'requires_auth': False
-        }
-
-        # Verificar si la página actual requiere autenticación
-        current_path = request.path
-        rutas_protegidas = ['/admin-dashboard/', '/super_admin/', '/panel/']
-        response_data['requires_auth'] = any(current_path.startswith(ruta) for ruta in rutas_protegidas)
 
         if cliente_id:
             try:
                 cliente = Cliente.objects.get(id=cliente_id)
-                response_data.update({
+                admin_obj = Administrador.objects.filter(cliente=cliente).first()
+
+                return JsonResponse({
                     'is_authenticated': True,
-                    'cliente_id': cliente.id,
                     'cliente_nombre': cliente.nombre,
                     'cliente_email': cliente.email,
-                    'cliente_telefono': cliente.telefono
+                    'cliente_telefono': cliente.telefono,
+                    'nivel_acceso': admin_obj.nivel_acceso.lower() if admin_obj else 'cliente'
                 })
-
-                # Verificar si es administrador
-                admin_obj = Administrador.objects.filter(cliente=cliente).first()
-                if admin_obj:
-                    response_data['nivel_acceso'] = admin_obj.nivel_acceso.lower()
-                else:
-                    response_data['nivel_acceso'] = 'cliente'
-
             except Cliente.DoesNotExist:
                 request.session.flush()
-                response_data['is_authenticated'] = False
+                return JsonResponse({
+                    'is_authenticated': False,
+                    'requires_auth': False
+                })
+        else:
+            return JsonResponse({
+                'is_authenticated': False,
+                'requires_auth': False
+            })
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
-        return JsonResponse(response_data)
-
+@csrf_exempt
+def recuperar_contrasena(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            correo = data.get('correo')
+            
+            if not correo:
+                return JsonResponse({'error': 'Correo no proporcionado'}, status=400)
+            
+            # Verificar si el correo existe en la base de datos
+            cliente = Cliente.objects.filter(email=correo).first()
+            if not cliente:
+                return JsonResponse({'error': 'No existe una cuenta con este correo electrónico'}, status=404)
+            
+            # Aquí normalmente se enviaría un email con un enlace de recuperación
+            # Por ahora, solo simulamos el envío exitoso
+            
+            # En un entorno real, aquí se generaría un token único y se enviaría por email
+            # Por simplicidad, solo retornamos un mensaje de éxito
+            
+            return JsonResponse({
+                'message': f'Se ha enviado un enlace de recuperación a {correo}. Por favor, revise su bandeja de entrada.'
+            }, status=200)
+            
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON inválido'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
     return JsonResponse({'error': 'Método no permitido'}, status=405)
