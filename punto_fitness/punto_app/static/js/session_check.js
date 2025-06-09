@@ -39,10 +39,32 @@ async function verificarSesion() {
                 const nombreElement = userModal.querySelector('p:nth-child(2)');
                 const emailElement = userModal.querySelector('p:nth-child(3)');
                 const telefonoElement = userModal.querySelector('p:nth-child(4)');
+                const rolElement = userModal.querySelector('p:nth-child(5)');
+                const adminButtons = userModal.querySelector('.admin-buttons');
+                const superadminBtn = userModal.querySelector('.superadmin-btn');
+                const adminBtn = userModal.querySelector('.admin-btn:not(.superadmin-btn)');
                 
                 if (nombreElement) nombreElement.innerHTML = `<strong>Nombre:</strong> ${data.cliente_nombre}`;
                 if (emailElement) emailElement.innerHTML = `<strong>Correo:</strong> ${data.cliente_email || 'No disponible'}`;
                 if (telefonoElement) telefonoElement.innerHTML = `<strong>Teléfono:</strong> ${data.cliente_telefono || 'No disponible'}`;
+                if (rolElement) rolElement.innerHTML = `<strong>Rol:</strong> ${data.nivel_acceso || 'Cliente'}`;
+                
+                // Mostrar botones de admin según el nivel de acceso
+                if (adminButtons) {
+                    const nivelAcceso = data.nivel_acceso || 'cliente';
+                    
+                    if (nivelAcceso === 'superadmin') {
+                        adminButtons.style.display = 'block';
+                        if (superadminBtn) superadminBtn.style.display = 'inline-block';
+                        if (adminBtn) adminBtn.style.display = 'inline-block';
+                    } else if (nivelAcceso === 'admin') {
+                        adminButtons.style.display = 'block';
+                        if (superadminBtn) superadminBtn.style.display = 'none';
+                        if (adminBtn) adminBtn.style.display = 'inline-block';
+                    } else {
+                        adminButtons.style.display = 'none';
+                    }
+                }
             }
         } else {
             // Usuario no está autenticado - ocultar cuentaBtn, mostrar usuarioBtn
