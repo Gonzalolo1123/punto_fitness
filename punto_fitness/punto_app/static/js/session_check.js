@@ -9,18 +9,26 @@ async function verificarSesion() {
             credentials: 'same-origin' // Importante para enviar las cookies
         });
 
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
         
-        // Actualizar la UI según el estado de la sesión
+        // Obtener referencias a los elementos
         const cuentaBtn = document.getElementById('cuentaBtn');
         const usuarioBtn = document.getElementById('usuarioBtn');
         const userModal = document.getElementById('userModal');
         
-        if (data.is_authenticated) {
-            // Usuario está autenticado
+        if (data.is_authenticated && data.cliente_nombre) {
+            // Usuario está autenticado - mostrar cuentaBtn, ocultar usuarioBtn
             if (cuentaBtn) {
-                cuentaBtn.textContent = `Hola, ${data.cliente_nombre}`;
+                cuentaBtn.innerHTML = `Hola, ${data.cliente_nombre}`;
                 cuentaBtn.style.display = 'block';
+                // Asegurar que el href se mantenga
+                if (!cuentaBtn.getAttribute('href')) {
+                    cuentaBtn.setAttribute('href', '#');
+                }
             }
             if (usuarioBtn) {
                 usuarioBtn.style.display = 'none';
@@ -33,16 +41,20 @@ async function verificarSesion() {
                 const telefonoElement = userModal.querySelector('p:nth-child(4)');
                 
                 if (nombreElement) nombreElement.innerHTML = `<strong>Nombre:</strong> ${data.cliente_nombre}`;
-                if (emailElement) emailElement.innerHTML = `<strong>Correo:</strong> ${data.cliente_email}`;
-                if (telefonoElement) telefonoElement.innerHTML = `<strong>Teléfono:</strong> ${data.cliente_telefono}`;
+                if (emailElement) emailElement.innerHTML = `<strong>Correo:</strong> ${data.cliente_email || 'No disponible'}`;
+                if (telefonoElement) telefonoElement.innerHTML = `<strong>Teléfono:</strong> ${data.cliente_telefono || 'No disponible'}`;
             }
         } else {
-            // Usuario no está autenticado
+            // Usuario no está autenticado - ocultar cuentaBtn, mostrar usuarioBtn
             if (cuentaBtn) {
                 cuentaBtn.style.display = 'none';
             }
             if (usuarioBtn) {
                 usuarioBtn.style.display = 'block';
+                // Asegurar que el href se mantenga
+                if (!usuarioBtn.getAttribute('href')) {
+                    usuarioBtn.setAttribute('href', '#');
+                }
             }
             
             // Si estamos en una página que requiere autenticación, redirigir al login
@@ -52,6 +64,12 @@ async function verificarSesion() {
         }
     } catch (error) {
         console.error('Error al verificar sesión:', error);
+        // En caso de error, mostrar el botón de usuario por defecto
+        const cuentaBtn = document.getElementById('cuentaBtn');
+        const usuarioBtn = document.getElementById('usuarioBtn');
+        
+        if (cuentaBtn) cuentaBtn.style.display = 'none';
+        if (usuarioBtn) usuarioBtn.style.display = 'block';
     }
 }
 

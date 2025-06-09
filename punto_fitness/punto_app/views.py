@@ -1166,7 +1166,36 @@ def borrar_admin(request, admin_id):
 
 @csrf_exempt
 def verificar_sesion(request):
-    if request.method == "POST":
+    if request.method == "GET":
+        # Verificar si el usuario está autenticado usando la sesión
+        cliente_id = request.session.get('cliente_id')
+        
+        if cliente_id:
+            try:
+                cliente = Cliente.objects.get(id=cliente_id)
+                admin_obj = Administrador.objects.filter(cliente=cliente).first()
+                
+                return JsonResponse({
+                    'is_authenticated': True,
+                    'cliente_nombre': cliente.nombre,
+                    'cliente_email': cliente.email,
+                    'cliente_telefono': cliente.telefono,
+                    'nivel_acceso': admin_obj.nivel_acceso.lower() if admin_obj else 'cliente'
+                })
+            except Cliente.DoesNotExist:
+                # Si el cliente no existe, limpiar la sesión
+                request.session.flush()
+                return JsonResponse({
+                    'is_authenticated': False,
+                    'requires_auth': False
+                })
+        else:
+            return JsonResponse({
+                'is_authenticated': False,
+                'requires_auth': False
+            })
+    
+    elif request.method == "POST":
         try:
             data = json.loads(request.body)
             cliente_id = data.get('cliente_id')

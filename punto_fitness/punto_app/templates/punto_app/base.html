@@ -28,11 +28,8 @@
         <li><a href="#trabajadores">Trabajadores</a></li>
         <li><a href="#maquinas">Máquinas</a></li>
         <li>
-          {% if cliente_nombre %}
-          <a href="#" id="cuentaBtn">Hola, {{ cliente_nombre }}</a>
-          {% else %}
+          <a href="#" id="cuentaBtn" style="display: none;">Hola, {{ cliente_nombre|default:"Usuario" }}</a>
           <a href="#" id="usuarioBtn">Usuario</a>
-          {% endif %}
         </li>
       </ul>
     </nav>
