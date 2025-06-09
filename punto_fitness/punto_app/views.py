@@ -1,39 +1,32 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 import json
 from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor
 from django.contrib.auth.hashers import check_password
+from .decorators import requiere_admin, requiere_superadmin
 # Funcionamiento CRUD
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Min
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 from django.utils import timezone
-import pytz
-
+import logging
+from django.db.models import Count, OuterRef, Subquery, IntegerField, Exists
+from django.db.models.functions import Coalesce
+logger = logging.getLogger('punto_app')
 
 # Create your views here.
 def principal(request):
-    cliente_nombre = request.session.get('cliente_nombre')
-    cliente_correo = request.session.get('cliente_correo')
-    cliente_telefono= request.session.get('cliente_telefono')
-    if not cliente_nombre:
-        return render(request, 'punto_app/principal.html')
+    # La información del cliente ya está disponible en el contexto debido al context_processor
+    return render(request, 'punto_app/principal.html')
 
-    return render(request, 'punto_app/principal.html', {'cliente_nombre': cliente_nombre,'cliente_correo':cliente_correo,'cliente_telefono':cliente_telefono})
-
+@csrf_exempt
 def register_view(request):
     if request.method == "POST":
         try:
-            print(request.body)
             data = json.loads(request.body)
-
             nombre = data.get('nombre')
             apellido = data.get('apellido')
             correo = data.get('correo')
@@ -42,33 +35,56 @@ def register_view(request):
             estado = data.get('estado', 'Activo')
 
             if not all([nombre, apellido, correo, contrasena]):
-                return JsonResponse({'error': 'Faltan campos'}, status=400)
+                return JsonResponse({'error': 'Faltan campos requeridos'}, status=400)
 
-            if User.objects.filter(username=nombre).exists():
-                return JsonResponse({'error': 'Nombre de usuario ya existe'}, status=400)
+            try:
+                # Verificar si el correo ya existe en Cliente
+                if Cliente.objects.filter(email=correo).exists():
+                    return JsonResponse({'error': 'Correo ya registrado'}, status=400)
 
-            if User.objects.filter(email=correo).exists():
-                return JsonResponse({'error': 'Correo ya registrado'}, status=400)
-            
-            # Encriptar la contraseña
-            contrasena_encriptada = make_password(contrasena)
-            # Crear el cliente en la tabla 'cliente' en PostgreSQL
-            cliente = Cliente.objects.create(
-                nombre=nombre,
-                apellido=apellido,
-                email=correo,
-                contrasena=contrasena_encriptada,  # Guárdalo como está en el modelo de cliente
-                telefono=telefono,  # Teléfono
-                estado=estado  # Estado
-            )
-            
-            return JsonResponse({'message': 'Usuario y cliente creados correctamente'}, status=201)
+                # Encriptar la contraseña
+                contrasena_encriptada = make_password(contrasena)
+
+                # Crear el cliente
+                cliente = Cliente.objects.create(
+                    nombre=nombre,
+                    apellido=apellido,
+                    email=correo,
+                    contrasena=contrasena_encriptada,
+                    telefono=telefono,
+                    estado=estado
+                )
+
+                # Intentar crear el usuario de Django si es posible
+                try:
+                    User.objects.create_user(
+                        username=correo,
+                        email=correo,
+                        password=contrasena
+                    )
+                except Exception as e:
+                    logger.warning(f"No se pudo crear usuario de Django: {str(e)}")
+                    # Continuamos aunque falle la creación del usuario de Django
+                    pass
+
+                return JsonResponse({
+                    'message': 'Usuario creado correctamente',
+                    'id': cliente.id,
+                    'nombre': cliente.nombre,
+                    'email': cliente.email
+                }, status=201)
+
+            except Exception as e:
+                logger.error(f"Error al crear usuario: {str(e)}")
+                return JsonResponse({'error': 'Error al crear el usuario'}, status=500)
 
         except json.JSONDecodeError:
             return JsonResponse({'error': 'JSON inválido'}, status=400)
+        except Exception as e:
+            logger.error(f"Error inesperado en registro: {str(e)}")
+            return JsonResponse({'error': 'Error interno del servidor'}, status=500)
 
-    else:
-        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 @csrf_exempt  # Solo si es una API
 def login_view(request):
@@ -78,56 +94,71 @@ def login_view(request):
             correo = data.get('correo')
             contrasena = data.get('contrasena')
 
+            if not correo or not contrasena:
+                logger.error("Intento de login sin correo o contraseña")
+                return JsonResponse({"success": False, "detail": "Correo y contraseña son requeridos"}, status=400)
+
             try:
                 cliente = Cliente.objects.get(email=correo)
             except Cliente.DoesNotExist:
-                return JsonResponse({"success": False, "detail": "Cliente no encontrado"}, status=404)
+                logger.warning(f"Intento de login con correo no existente: {correo}")
+                return JsonResponse({"success": False, "detail": "Credenciales incorrectas"}, status=404)
 
             # Verificar contraseña
             if check_password(contrasena, cliente.contrasena):
-                # Autenticación estándar de Django
-                user, created = User.objects.get_or_create(
-                    username=correo,
-                    defaults={'email': correo, 'password': cliente.contrasena}
-                )
-                user = authenticate(request, username=correo, password=contrasena)
-                login(request, user)  # Esto hace que request.user.is_authenticated funcione
+                try:
+                    # Autenticación estándar de Django
+                    user = authenticate(request, username=correo, password=contrasena)
+                    if user is None:
+                        # Si el usuario no existe en auth_user, crearlo
+                        user = User.objects.create_user(
+                            username=correo,
+                            email=correo,
+                            password=contrasena
+                        )
+                    
+                    login(request, user)
 
-                # Tu sistema de sesión personalizado
-                request.session['cliente_id'] = cliente.id
-                request.session['cliente_nombre'] = cliente.nombre
-                request.session['cliente_correo'] = cliente.email
-                request.session['cliente_telefono'] = cliente.telefono
+                    # Sistema de sesión personalizado
+                    request.session['cliente_id'] = cliente.id
+                    request.session['cliente_nombre'] = cliente.nombre
+                    request.session['cliente_correo'] = cliente.email
+                    request.session['cliente_telefono'] = cliente.telefono
 
-                admin_obj = Administrador.objects.filter(cliente=cliente).first()
-                if admin_obj:
-                    nivel_acceso = admin_obj.nivel_acceso.lower()
-                    request.session['nivel_acceso'] = nivel_acceso
-                    response_data = {
-                        "success": True,
-                        "is_admin": True,
-                        "nivel_acceso": nivel_acceso,
-                        "message": "Inicio de sesión exitoso"
-                    }
-                    print(f"\nInicio de sesión exitoso (admin): {cliente.nombre} - Nivel: {nivel_acceso}")
-                else:
-                    request.session['nivel_acceso'] = 'cliente'
-                    response_data = {
-                        "success": True,
-                        "is_admin": False,
-                        "nivel_acceso": 'cliente',
-                        "message": "Inicio de sesión exitoso"
-                    }
-                    print(f"\nInicio de sesión exitoso (cliente): {cliente.nombre}")
+                    admin_obj = Administrador.objects.filter(cliente=cliente).first()
+                    if admin_obj:
+                        nivel_acceso = admin_obj.nivel_acceso.lower()
+                        request.session['nivel_acceso'] = nivel_acceso
+                        response_data = {
+                            "success": True,
+                            "is_admin": True,
+                            "nivel_acceso": nivel_acceso,
+                            "message": "Inicio de sesión exitoso"
+                        }
+                        logger.info(f"Inicio de sesión exitoso (admin): {cliente.nombre} - Nivel: {nivel_acceso}")
+                    else:
+                        request.session['nivel_acceso'] = 'cliente'
+                        response_data = {
+                            "success": True,
+                            "is_admin": False,
+                            "nivel_acceso": 'cliente',
+                            "message": "Inicio de sesión exitoso"
+                        }
+                        logger.info(f"Inicio de sesión exitoso (cliente): {cliente.nombre}")
 
-                return JsonResponse(response_data)
+                    return JsonResponse(response_data)
+                except Exception as e:
+                    logger.error(f"Error en autenticación: {str(e)}")
+                    return JsonResponse({"success": False, "detail": "Error en la autenticación"}, status=500)
             else:
+                logger.warning(f"Intento de login con contraseña incorrecta para: {correo}")
                 return JsonResponse({"success": False, "detail": "Credenciales incorrectas"}, status=400)
 
         except json.JSONDecodeError:
+            logger.error("Error al decodificar JSON en login")
             return JsonResponse({"success": False, "detail": "JSON inválido"}, status=400)
         except Exception as e:
-            print(f"Error en login_view: {str(e)}")
+            logger.error(f"Error inesperado en login_view: {str(e)}")
             return JsonResponse({"success": False, "detail": "Error interno del servidor"}, status=500)
 
     return JsonResponse({"success": False, "detail": "Método no permitido"}, status=405)
@@ -135,12 +166,15 @@ def login_view(request):
 def logout_cliente(request):
     request.session.flush()  # Elimina todos los datos de la sesión
     return redirect('/')     # 
+
+@requiere_admin
 def pagina_admin(request):
     return render(request, 'punto_app/admin_dashboard.html')
 
 def panel_principal(request):
     return render(request, 'punto_app/panel.html')
 
+@requiere_admin
 def usuarios(request):
     usuarios = Cliente.objects.values('id', 'nombre', 'apellido', 'email', 'telefono')
     return render(request, 'punto_app/admin_usuarios.html', {'usuarios': usuarios})
@@ -154,7 +188,7 @@ def admin_usuario_crear(request):
             return JsonResponse({'error': '¡Ya existe un usuario con este correo!'}, status=400)
 
         if Cliente.objects.filter(telefono__iexact=data['telefono']).exists():
-            return JsonResponse({'error': '¡Ya existe un usuario con este telefono!'}, status=400)
+            return JsonResponse({'error': '¡Ya existe un usuario con este teléfono!'}, status=400)
         
         usuario = Cliente.objects.create(
             nombre=data['nombre'],
@@ -182,7 +216,7 @@ def admin_usuario_actualizar(request, usuario_id):
             return JsonResponse({'error': '¡Ya existe un usuario con este correo!'}, status=400)
 
         if Cliente.objects.filter(telefono__iexact=data['telefono']).exists():
-            return JsonResponse({'error': '¡Ya existe un usuario con este telefono!'}, status=400)
+            return JsonResponse({'error': '¡Ya existe un usuario con este teléfono!'}, status=400)
         
         usuario.nombre = data.get('nombre', usuario.nombre)
         usuario.apellido = data.get('apellido', usuario.apellido)
@@ -200,7 +234,8 @@ def admin_usuario_actualizar(request, usuario_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
     
-@csrf_exempt   
+@csrf_exempt
+@requiere_admin
 def admin_usuario_borrar(request, usuario_id):
     try:
         usuario = get_object_or_404(Cliente, pk=usuario_id)
@@ -208,6 +243,8 @@ def admin_usuario_borrar(request, usuario_id):
         return JsonResponse({'message': 'Usuario eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+@requiere_admin
 def inventario(request):
     productos = Producto.objects.values('id').annotate(
         nombre=Min('nombre'),
@@ -216,14 +253,15 @@ def inventario(request):
         stock_minimo=Min('stock_minimo'),
         stock_actual=Sum('stock_actual')
     )
-
-    #productos = Producto.objects.values('id', 'nombre', 'precio', 'categoria','stock_minimo'
-    #).annotate(
-    #    stock_actual=Sum('stock_actual'),
-    #    id=Min('id'))
     categorias = CategoriaProducto.objects.values('id', 'nombre', 'descripcion')
 
-    return render(request, 'punto_app/admin_inventario.html', {'productos': productos, 'categorias': categorias})
+    # nuevas adiciones para funcionamiento de crud de productos
+    compras = CompraVendedor.objects.values('id', 'fecha', 'total', 'iva', 'estado', 'establecimiento_id', 'vendedor_id')
+    vendedores = Vendedor.objects.values('id', 'nombre', 'telefono', 'email', 'proveedor_id')
+    establecimientos = Establecimiento.objects.values('id', 'nombre', 'direccion', 'telefono', 'email', 'horario_apertura', 'horario_cierre', 'proveedor_id')
+    proveedores = Proveedor.objects.values('id', 'nombre', 'telefono', 'email')
+
+    return render(request, 'punto_app/admin_inventario.html', {'productos': productos, 'categorias': categorias, 'compras': compras, 'vendedores': vendedores, 'establecimientos': establecimientos, 'proveedores': proveedores})
 
 @csrf_exempt
 def verificar_correo(request):
@@ -344,7 +382,8 @@ def admin_categoria_actualizar(request, categoria_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
     
-@csrf_exempt   
+@csrf_exempt
+@requiere_admin
 def admin_categoria_borrar(request, categoria_id):
     try:
         categoria = get_object_or_404(CategoriaProducto, pk=categoria_id)
@@ -353,25 +392,73 @@ def admin_categoria_borrar(request, categoria_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 def planes(request):
-    cursos = list(Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado','establecimiento'))
-    inscritos =list(Inscripcion.objects.values('usuario', 'curso', 'fecha_inscripcion'))
+    ##cursos = list(Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado','establecimiento'))
+    ##inscritos =list(Inscripcion.objects.values('usuario', 'curso', 'fecha_inscripcion','fecha_realizacion'))
+    # Subquery: cantidad de inscritos por curso y fecha_realizacion
+    user = request.user.id
+    print('tu usuario',user)
+    # Subconsulta: cantidad de inscritos por curso y fecha_realizacion
+    inscripciones_subquery = Inscripcion.objects.filter(
+        curso=OuterRef('pk'),
+        fecha_realizacion=OuterRef('fecha_realizacion')
+    ).values('curso').annotate(
+        inscritos_count=Count('id')
+    ).values('inscritos_count')[:1]
+
+    # Subconsulta para verificar si el usuario está inscrito al curso
+    inscrito_exist_subquery = Inscripcion.objects.filter(
+        curso=OuterRef('pk'),
+        usuario=user  # Aquí usamos el usuario logueado
+    )
+
+    # Cursos con número de inscritos + indicador si el usuario está inscrito
+    cursos = list(
+        Curso.objects.annotate(
+            inscritos=Coalesce(Subquery(inscripciones_subquery, output_field=IntegerField()), 0),
+            inscrito=Exists(inscrito_exist_subquery)
+        ).values(
+            'id', 'nombre', 'cupos', 'fecha_realizacion', 'estado',
+            'establecimiento', 'inscritos', 'inscrito'
+        )
+    )
     return render(request, 'punto_app/planes.html', {'cursos': cursos})
 def inscribir_curso(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         curso_id = data.get('curso_id')
-
-        # Tu lógica de inscripción aquí, por ejemplo:
-        # curso = Curso.objects.get(id=curso_id)
-        # curso.inscritos += 1
-        # curso.save()
-
+        usuario_id=data.get('usuario_id')
+        print(data)
+        print(curso_id)
+        print(usuario_id)
+        inscripcion = Inscripcion.objects.create(
+            usuario_id=data['usuario_id'],
+            curso_id=data['curso_id'],
+            fecha_inscripcion=timezone.now()
+        )
         return JsonResponse({'success': True})
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
+def cancelar_inscripcion(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            usuario_id = data.get('usuario_id')
+            curso_id = data.get('curso_id')
+            fecha_realizacion = data.get('fecha_realizacion')  # opcional, solo si es necesario
+            print(data)
+            inscripcion = get_object_or_404(Inscripcion, usuario_id=usuario_id, curso_id=curso_id,fecha_realizacion=fecha_realizacion)
+            inscripcion.delete()
+
+            return JsonResponse({'mensaje': 'Inscripción cancelada correctamente.'}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 def maquinas(request):
     return render(request,'punto_app/maquinas.html', {'maquinas': range(1, 9)})
 
+@requiere_admin
 def admin_maquinas(request):
     maquinas = Maquina.objects.values('id', 'nombre', 'descripcion')
     return render(request, 'punto_app/admin_maquinas.html', {'maquinas': maquinas})
@@ -424,7 +511,8 @@ def admin_maquina_actualizar(request, maquina_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
     
-@csrf_exempt   
+@csrf_exempt
+@requiere_admin
 def admin_maquina_borrar(request, maquina_id):
     try:
         maquina = get_object_or_404(Maquina, pk=maquina_id)
@@ -490,7 +578,7 @@ def admin_compra_vendedor_borrar(request, compra_vendedor_id):
     try:
         compra_vendedor = get_object_or_404(CompraVendedor, pk=compra_vendedor_id)
         compra_vendedor.delete()
-        return JsonResponse({'message': 'compra_vendedor eliminado correctamente'}, status=200)
+        return JsonResponse({'message': 'Compra eliminada correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
@@ -537,12 +625,13 @@ def admin_vendedor_actualizar(request, vendedor_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
     
-@csrf_exempt   
+@csrf_exempt
+@requiere_admin
 def admin_vendedor_borrar(request, vendedor_id):
     try:
         vendedor = get_object_or_404(Vendedor, pk=vendedor_id)
         vendedor.delete()
-        return JsonResponse({'message': 'vendedor eliminado correctamente'}, status=200)
+        return JsonResponse({'message': 'Vendedor eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
@@ -606,7 +695,7 @@ def admin_establecimiento_borrar(request, establecimiento_id):
     try:
         establecimiento = get_object_or_404(Establecimiento, pk=establecimiento_id)
         establecimiento.delete()
-        return JsonResponse({'message': 'establecimiento eliminado correctamente'}, status=200)
+        return JsonResponse({'message': 'Establecimiento eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
@@ -618,7 +707,7 @@ def admin_proveedor_crear(request):
         proveedor = Proveedor.objects.create(
             nombre=data['nombre'],
             telefono=data['telefono'],
-            blabla=data['blabla'],
+            email=data['email'],
         )
         return JsonResponse({
             'id': proveedor.id,
@@ -656,21 +745,23 @@ def admin_proveedor_borrar(request, proveedor_id):
     try:
         proveedor = get_object_or_404(Proveedor, pk=proveedor_id)
         proveedor.delete()
-        return JsonResponse({'message': 'proveedor eliminado correctamente'}, status=200)
+        return JsonResponse({'message': 'Proveedor eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+@requiere_admin
 def cursos(request):
     cursos = Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado', 'establecimiento')
-    inscripciones = Inscripcion.objects.values('id', 'usuario', 'curso', 'fecha_inscripcion','fecha_realizacion')
+    inscripciones = Inscripcion.objects.values('id', 'usuario', 'curso', 'fecha_inscripcion')
     usuarios = Cliente.objects.values('id', 'nombre', 'apellido', 'email', 'telefono')
     establecimientos = Establecimiento.objects.values('id', 'nombre')
     return render(request, 'punto_app/admin_cursos.html', {'cursos': cursos, 'usuarios': usuarios, 'inscripciones': inscripciones, 'establecimientos': establecimientos})
 
 @csrf_exempt
+@requiere_admin
 def admin_curso_crear(request):
     try:
         data = json.loads(request.body)
-        
         curso = Curso.objects.create(
             nombre=data['nombre'],
             cupos=data['cupos'],
@@ -713,7 +804,8 @@ def admin_curso_actualizar(request, curso_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
     
-@csrf_exempt   
+@csrf_exempt
+@requiere_admin
 def admin_curso_borrar(request, curso_id):
     try:
         curso = get_object_or_404(Curso, pk=curso_id)
@@ -726,11 +818,11 @@ def admin_curso_borrar(request, curso_id):
 def admin_inscripcion_crear(request):
     try:
         data = json.loads(request.body)
-        
+
         inscripcion = Inscripcion.objects.create(
             usuario_id=data['usuario_id'],
             curso_id=data['curso_id'],
-            fecha_inscripcion=data['fecha_inscripcion']
+            fecha_inscripcion=timezone.now()
         )
         return JsonResponse({
             'id': inscripcion.id,
@@ -761,7 +853,8 @@ def admin_inscripcion_actualizar(request, inscripcion_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
     
-@csrf_exempt   
+@csrf_exempt
+@requiere_admin
 def admin_inscripcion_borrar(request, inscripcion_id):
     try:
         inscripcion = get_object_or_404(Inscripcion, pk=inscripcion_id)
@@ -854,43 +947,32 @@ def confirmar_salida(request):
         return redirect('asistencias')
     
     return redirect('asistencias')
-def super_admin(request):
-    # Verificar primero la sesión (que es lo que estás usando realmente)
-    if 'cliente_id' not in request.session:
-        print("Acceso denegado - No hay sesión activa (cliente_id no encontrado)")
-        return render(request, 'punto_app/no_autorizado.html')
 
+@requiere_superadmin
+def super_admin(request):
     try:
         cliente_id = request.session['cliente_id']
         cliente = Cliente.objects.get(id=cliente_id)
-        nivel_acceso = request.session.get('nivel_acceso', 'cliente')
+        
+        # Obtener solo clientes que NO son administradores
+        clientes_no_admin = Cliente.objects.filter(administrador__isnull=True)
+        administradores = Administrador.objects.select_related('cliente').all()
 
-        print(f"\nIntento de acceso a super_admin:")
-        print(f"Cliente ID: {cliente_id}")
-        print(f"Email cliente: {cliente.email}")
-        print(f"Nivel acceso session: {nivel_acceso}")
-
-        if nivel_acceso == 'superadmin':
-            print(f"Autorización exitosa - Nivel detectado: {nivel_acceso}")
-            clientes = Cliente.objects.all().select_related()
-            administradores = {a.cliente_id: a for a in Administrador.objects.all()}
-            
-            return render(request, 'punto_app/super_admin.html', {
-                'clientes': clientes,
-                'administradores':  Administrador.objects.select_related('cliente').all(),
-                'establecimientos': Establecimiento.objects.all()
-            })
+        return render(request, 'punto_app/super_admin.html', {
+            'clientes': clientes_no_admin,
+            'administradores': administradores,
+            'establecimientos': Establecimiento.objects.all()
+        })
             
     except Cliente.DoesNotExist:
-        print("Acceso denegado - Cliente no encontrado en DB")
+        return render(request, 'punto_app/no_autorizado.html')
     except Exception as e:
-        print(f"Error en super_admin: {str(e)}")
-    
-    print(f"Acceso denegado - Nivel de acceso insuficiente o error: {request.session.get('nivel_acceso', 'none')}")
-    return render(request, 'punto_app/no_autorizado.html')
+        logger.error(f"Error en super_admin: {str(e)}")
+        return render(request, 'punto_app/no_autorizado.html')
 
 
 @csrf_exempt
+@requiere_superadmin
 def cambiar_rol_admin(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -902,7 +984,7 @@ def cambiar_rol_admin(request):
             if es_admin:
                 # Otorgar admin (si no existe)
                 admin, created = Administrador.objects.get_or_create(
-                    id_cliente=cliente,
+                    cliente=cliente,
                     defaults={'nivel_acceso': 'admin', 'establecimiento_id': establecimiento_id}
                 )
                 if not created:
@@ -911,8 +993,149 @@ def cambiar_rol_admin(request):
                     admin.save()
             else:
                 # Quitar admin
-                Administrador.objects.filter(id_cliente=cliente).delete()
+                Administrador.objects.filter(cliente=cliente).delete()
             return JsonResponse({'success': True})
         except Cliente.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Cliente no encontrado'})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+@csrf_exempt
+@requiere_superadmin
+def crear_o_actualizar_admin(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            cliente_id = data.get('cliente_id')
+            nivel_acceso = data.get('nivel_acceso')
+
+            if not cliente_id or not nivel_acceso:
+                return JsonResponse({'error': 'Faltan datos'}, status=400)
+
+            cliente = Cliente.objects.get(id=cliente_id)
+
+            # Lógica para asegurar solo un superadmin
+            if nivel_acceso == 'superadmin':
+                # Encontrar y demote a cualquier otro superadmin
+                Administrador.objects.filter(nivel_acceso='superadmin').exclude(cliente=cliente).update(nivel_acceso='admin')
+
+            admin, created = Administrador.objects.get_or_create(cliente=cliente)
+            admin.nivel_acceso = nivel_acceso
+            admin.save()
+
+            return JsonResponse({
+                'success': True,
+                'admin': {
+                    'id': admin.id,
+                    'cliente': {
+                        'nombre': cliente.nombre,
+                        'apellido': cliente.apellido,
+                        'email': cliente.email,
+                        'telefono': cliente.telefono,
+                    },
+                    'nivel_acceso': admin.nivel_acceso,
+                }
+            })
+        except Cliente.DoesNotExist:
+            return JsonResponse({'error': 'Cliente no encontrado'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@requiere_superadmin
+def actualizar_admin(request, admin_id):
+    if request.method == "PUT":
+        try:
+            admin_obj = get_object_or_404(Administrador, pk=admin_id)
+            data = json.loads(request.body)
+
+            # Actualizar datos del Cliente asociado
+            cliente = admin_obj.cliente
+            cliente.nombre = data.get('nombre', cliente.nombre)
+            cliente.apellido = data.get('apellido', cliente.apellido)
+            cliente.email = data.get('correo', cliente.email)
+            cliente.telefono = data.get('telefono', cliente.telefono)
+            cliente.save()
+
+            # Actualizar el nivel de acceso del Administrador
+            # Lógica para asegurar solo un superadmin
+            if data.get('nivel_acceso') == 'superadmin':
+                Administrador.objects.filter(nivel_acceso='superadmin').exclude(pk=admin_id).update(nivel_acceso='admin')
+
+            admin_obj.nivel_acceso = data.get('nivel_acceso', admin_obj.nivel_acceso)
+            admin_obj.save()
+
+            return JsonResponse({
+                'id': admin_obj.id,
+                'cliente': {
+                    'nombre': cliente.nombre,
+                    'apellido': cliente.apellido,
+                    'email': cliente.email,
+                    'telefono': cliente.telefono,
+                },
+                'nivel_acceso': admin_obj.nivel_acceso,
+            }, status=200)
+
+        except Administrador.DoesNotExist:
+            return JsonResponse({'error': 'Administrador no encontrado'}, status=404)
+        except Cliente.DoesNotExist:
+            return JsonResponse({'error': 'Cliente asociado no encontrado'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON inválido'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@requiere_superadmin
+def borrar_admin(request, admin_id):
+    if request.method == "DELETE":
+        try:
+            admin_obj = get_object_or_404(Administrador, pk=admin_id)
+            admin_obj.delete()
+            return JsonResponse({'message': 'Administrador eliminado correctamente'}, status=200)
+        except Administrador.DoesNotExist:
+            return JsonResponse({'error': 'Administrador no encontrado'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+def verificar_sesion(request):
+    if request.method == "GET":
+        cliente_id = request.session.get('cliente_id')
+        response_data = {
+            'is_authenticated': False,
+            'requires_auth': False
+        }
+
+        # Verificar si la página actual requiere autenticación
+        current_path = request.path
+        rutas_protegidas = ['/admin-dashboard/', '/super_admin/', '/panel/']
+        response_data['requires_auth'] = any(current_path.startswith(ruta) for ruta in rutas_protegidas)
+
+        if cliente_id:
+            try:
+                cliente = Cliente.objects.get(id=cliente_id)
+                response_data.update({
+                    'is_authenticated': True,
+                    'cliente_id': cliente.id,
+                    'cliente_nombre': cliente.nombre,
+                    'cliente_email': cliente.email,
+                    'cliente_telefono': cliente.telefono
+                })
+
+                # Verificar si es administrador
+                admin_obj = Administrador.objects.filter(cliente=cliente).first()
+                if admin_obj:
+                    response_data['nivel_acceso'] = admin_obj.nivel_acceso.lower()
+                else:
+                    response_data['nivel_acceso'] = 'cliente'
+
+            except Cliente.DoesNotExist:
+                request.session.flush()
+                response_data['is_authenticated'] = False
+
+        return JsonResponse(response_data)
+
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
