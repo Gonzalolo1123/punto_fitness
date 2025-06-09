@@ -82,6 +82,46 @@ Para verificar la configuración antes del despliegue:
 python check_deploy.py
 ```
 
+## Solución de Problemas
+
+### Error de Conexión a Base de Datos
+
+Si encuentras errores de conexión durante el despliegue:
+
+1. Verifica que la variable `DATABASE_URL` esté configurada en Render
+2. Asegúrate de que la base de datos PostgreSQL esté creada
+3. Ejecuta `python check_deploy.py` para diagnosticar problemas
+
+### Error de Migraciones Inconsistentes
+
+Si encuentras el error `InconsistentMigrationHistory`:
+
+1. **En desarrollo local:**
+   ```bash
+   python fix_migrations.py
+   ```
+
+2. **En producción (Render):**
+   - El script `fix_migrations.py` se ejecuta automáticamente durante el build
+   - Si persiste el problema, puedes ejecutar manualmente:
+   ```bash
+   python manage.py migrate --fake-initial
+   python manage.py migrate
+   ```
+
+3. **Solución manual:**
+   ```bash
+   # Marcar todas las migraciones como aplicadas
+   python manage.py migrate --fake
+   
+   # Luego aplicar migraciones reales
+   python manage.py migrate
+   ```
+
+### Archivos Estáticos
+
+Los archivos estáticos se sirven automáticamente con WhiteNoise en producción.
+
 ## Estructura del Proyecto
 
 ```
@@ -96,22 +136,9 @@ punto_fitness/
 │   └── templates/         # Plantillas HTML
 ├── requirements.txt       # Dependencias de Python
 ├── render.yaml           # Configuración de Render
+├── fix_migrations.py     # Script para solucionar migraciones
 └── manage.py             # Script de gestión de Django
 ```
-
-## Solución de Problemas
-
-### Error de Conexión a Base de Datos
-
-Si encuentras errores de conexión durante el despliegue:
-
-1. Verifica que la variable `DATABASE_URL` esté configurada en Render
-2. Asegúrate de que la base de datos PostgreSQL esté creada
-3. Ejecuta `python check_deploy.py` para diagnosticar problemas
-
-### Archivos Estáticos
-
-Los archivos estáticos se sirven automáticamente con WhiteNoise en producción.
 
 ## Contribución
 
