@@ -16,6 +16,7 @@
         <tr>
           <th>Nombre</th>
           <th>Descripción</th>
+          <th>Cantidad</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -24,6 +25,7 @@
         <tr data-id="{{ maquina.id }}">
           <td>{{ maquina.nombre }}</td>
           <td>{{ maquina.descripcion }}</td>
+          <td>{{ maquina.cantidad }}</td>
           <td>
             <button class="filtro-btn" name="btn-editar-maquina" data-id="{{ maquina.id }}">Actualizar</button>
             <button class="filtro-btn" name="btn-eliminar-maquina" data-id="{{ maquina.id }}">Eliminar</button>
@@ -43,6 +45,9 @@
             
               <label class="form-label" for="maquina-descripcion">Descripción:</label>
               <input class="form-input" type="text" name="maquina-descripcion" value="{{ maquina.descripcion }}" required>
+              
+              <label class="form-label" for="maquina-cantidad">Cantidad:</label>
+              <input class="form-input" type="number" name="maquina-cantidad" value="{{ maquina.cantidad }}" required>
               
               <button class="filtro-btn" type="submit">Guardar</button>
               <button class="filtro-btn" type="button" onclick="ocultarFormularioEdicion('{{ maquina.id }}')">Cancelar</button>
@@ -67,7 +72,16 @@
     
       <label class="form-label" for="maquina-descripcion">Descripción:</label>
       <input class="form-input" type="text" id="maquina-descripcion" name="maquina-descripcion" maxlength="50" required>
+      
+      <label class="form-label" for="maquina-cantidad">Cantidad:</label>
+      <input class="form-input" type="number" id="maquina-cantidad" name="maquina-cantidad" min="1" required>
+      <select class="select-establecimiento" data-cliente-id="{{ cliente.id }}" required>
 
+        <option value="" disabled selected>Selecciona establecimiento</option>
+        {% for est in establecimientos %}
+          <option value="{{ est.id }}">{{ est.nombre }}</option>
+        {% endfor %}
+      </select>
       <button class="filtro-btn" type="submit">Agregar máquina</button>
     </form>
   </section>
@@ -76,5 +90,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="../../static/js/maquinas.js"></script>
+<script src="{% static 'js/admin_maquinas.js' %}"></script>
 {% endblock %}

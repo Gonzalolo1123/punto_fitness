@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 import json
+import re
 from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor
 from django.contrib.auth.hashers import check_password
 from .decorators import requiere_admin, requiere_superadmin
@@ -183,19 +184,57 @@ def usuarios(request):
 def admin_usuario_crear(request):
     try:
         data = json.loads(request.body)
-
+        
+        # Validaciones de campos requeridos
+        campos_requeridos = ['nombre', 'apellido', 'correo', 'telefono']
+        for campo in campos_requeridos:
+            if not data.get(campo) or not str(data.get(campo)).strip():
+                return JsonResponse({'error': f'El campo {campo} es requerido'}, status=400)
+        
+        # Validación de formato de email
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, data['correo']):
+            return JsonResponse({'error': 'El formato del correo electrónico no es válido'}, status=400)
+        
+        # Validaciones adicionales de email
+        email_clean = data['correo'].strip()
+        if email_clean.startswith('.') or email_clean.endswith('.'):
+            return JsonResponse({'error': 'El correo electrónico no puede comenzar o terminar con punto'}, status=400)
+        
+        if '..' in email_clean:
+            return JsonResponse({'error': 'El correo electrónico no puede contener puntos consecutivos'}, status=400)
+        
+        if email_clean.count('@') != 1:
+            return JsonResponse({'error': 'El correo electrónico debe contener exactamente un símbolo @'}, status=400)
+        
+        # Validación de formato de teléfono (solo números, 9-11 dígitos)
+        telefono_str = str(data['telefono']).replace(' ', '').replace('-', '').replace('+', '')
+        if not telefono_str.isdigit() or len(telefono_str) < 9 or len(telefono_str) > 11:
+            return JsonResponse({'error': 'El teléfono debe contener entre 9 y 11 dígitos numéricos'}, status=400)
+        
+        # Validación de longitud de nombres
+        if len(data['nombre'].strip()) < 2:
+            return JsonResponse({'error': 'El nombre debe tener al menos 2 caracteres'}, status=400)
+        
+        if len(data['apellido'].strip()) < 2:
+            return JsonResponse({'error': 'El apellido debe tener al menos 2 caracteres'}, status=400)
+        
+        # Validación de unicidad de email (case-insensitive)
         if Cliente.objects.filter(email__iexact=data['correo']).exists():
             return JsonResponse({'error': '¡Ya existe un usuario con este correo!'}, status=400)
 
-        if Cliente.objects.filter(telefono__iexact=data['telefono']).exists():
+        # Validación de unicidad de teléfono (case-insensitive)
+        if Cliente.objects.filter(telefono__iexact=telefono_str).exists():
             return JsonResponse({'error': '¡Ya existe un usuario con este teléfono!'}, status=400)
         
+        # Crear el usuario con datos limpios
         usuario = Cliente.objects.create(
-            nombre=data['nombre'],
-            apellido=data['apellido'],
-            email=data['correo'],
-            telefono=data['telefono']
+            nombre=data['nombre'].strip().title(),
+            apellido=data['apellido'].strip().title(),
+            email=data['correo'].lower().strip(),
+            telefono=int(telefono_str)
         )
+        
         return JsonResponse({
             'id': usuario.id,
             'nombre': usuario.nombre,
@@ -203,25 +242,67 @@ def admin_usuario_crear(request):
             'correo': usuario.email,
             'telefono': usuario.telefono
         }, status=201)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'JSON inválido'}, status=400)
+    except ValueError as e:
+        return JsonResponse({'error': f'Error en el formato de datos: {str(e)}'}, status=400)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'error': f'Error interno del servidor: {str(e)}'}, status=500)
 
 @csrf_exempt
 def admin_usuario_actualizar(request, usuario_id):
     try:
         usuario = get_object_or_404(Cliente, pk=usuario_id)
         data = json.loads(request.body)
+        
+        # Validaciones de campos requeridos
+        campos_requeridos = ['nombre', 'apellido', 'correo', 'telefono']
+        for campo in campos_requeridos:
+            if not data.get(campo) or not str(data.get(campo)).strip():
+                return JsonResponse({'error': f'El campo {campo} es requerido'}, status=400)
+        
+        # Validación de formato de email
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, data['correo']):
+            return JsonResponse({'error': 'El formato del correo electrónico no es válido'}, status=400)
+        
+        # Validaciones adicionales de email
+        email_clean = data['correo'].strip()
+        if email_clean.startswith('.') or email_clean.endswith('.'):
+            return JsonResponse({'error': 'El correo electrónico no puede comenzar o terminar con punto'}, status=400)
+        
+        if '..' in email_clean:
+            return JsonResponse({'error': 'El correo electrónico no puede contener puntos consecutivos'}, status=400)
+        
+        if email_clean.count('@') != 1:
+            return JsonResponse({'error': 'El correo electrónico debe contener exactamente un símbolo @'}, status=400)
+        
+        # Validación de formato de teléfono (solo números, 9-11 dígitos)
+        telefono_str = str(data['telefono']).replace(' ', '').replace('-', '').replace('+', '')
+        if not telefono_str.isdigit() or len(telefono_str) < 9 or len(telefono_str) > 11:
+            return JsonResponse({'error': 'El teléfono debe contener entre 9 y 11 dígitos numéricos'}, status=400)
+        
+        # Validación de longitud de nombres
+        if len(data['nombre'].strip()) < 2:
+            return JsonResponse({'error': 'El nombre debe tener al menos 2 caracteres'}, status=400)
+        
+        if len(data['apellido'].strip()) < 2:
+            return JsonResponse({'error': 'El apellido debe tener al menos 2 caracteres'}, status=400)
 
-        if Cliente.objects.filter(email__iexact=data['correo']).exists():
+        # Verificar si existe otro usuario con el mismo correo (excluyendo al usuario actual)
+        if Cliente.objects.filter(email__iexact=data['correo']).exclude(pk=usuario_id).exists():
             return JsonResponse({'error': '¡Ya existe un usuario con este correo!'}, status=400)
 
-        if Cliente.objects.filter(telefono__iexact=data['telefono']).exists():
+        # Verificar si existe otro usuario con el mismo teléfono (excluyendo al usuario actual)
+        if Cliente.objects.filter(telefono__iexact=telefono_str).exclude(pk=usuario_id).exists():
             return JsonResponse({'error': '¡Ya existe un usuario con este teléfono!'}, status=400)
         
-        usuario.nombre = data.get('nombre', usuario.nombre)
-        usuario.apellido = data.get('apellido', usuario.apellido)
-        usuario.email = data.get('correo', usuario.email)
-        usuario.telefono = data.get('telefono', usuario.telefono)
+        # Actualizar el usuario con datos limpios
+        usuario.nombre = data['nombre'].strip().title()
+        usuario.apellido = data['apellido'].strip().title()
+        usuario.email = data['correo'].lower().strip()
+        usuario.telefono = int(telefono_str)
         usuario.save()
         
         return JsonResponse({
@@ -231,8 +312,13 @@ def admin_usuario_actualizar(request, usuario_id):
             'correo': usuario.email,
             'telefono': usuario.telefono
         })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'JSON inválido'}, status=400)
+    except ValueError as e:
+        return JsonResponse({'error': f'Error en el formato de datos: {str(e)}'}, status=400)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'error': f'Error interno del servidor: {str(e)}'}, status=500)
     
 @csrf_exempt
 @requiere_admin
@@ -294,6 +380,25 @@ def verificar_correo(request):
 def admin_producto_crear(request):
     try:
         data = json.loads(request.body)
+        print(f"📤 Datos recibidos para crear producto: {data}")
+        
+        # Validaciones de unicidad
+        if Producto.objects.filter(nombre__iexact=data['nombre']).exists():
+            return JsonResponse({'error': '¡Ya existe un producto con este nombre!'}, status=400)
+        
+        if Producto.objects.filter(descripcion__iexact=data['descripcion']).exists():
+            return JsonResponse({'error': '¡Ya existe un producto con esta descripción!'}, status=400)
+        
+        # Validar que los IDs no sean nulos o vacíos
+        if not data.get('categoria_id') or data['categoria_id'] == '':
+            return JsonResponse({'error': 'Debe seleccionar una categoría'}, status=400)
+        
+        if not data.get('compra_id') or data['compra_id'] == '':
+            return JsonResponse({'error': 'Debe seleccionar una compra'}, status=400)
+        
+        if not data.get('establecimiento_id') or data['establecimiento_id'] == '':
+            return JsonResponse({'error': 'Debe seleccionar un establecimiento'}, status=400)
+        
         producto = Producto.objects.create(
             nombre=data['nombre'],
             descripcion=data['descripcion'],
@@ -304,6 +409,8 @@ def admin_producto_crear(request):
             categoria_id=data['categoria_id'],
             establecimiento_id=data['establecimiento_id']
         )
+        
+        print(f"✅ Producto creado exitosamente: {producto.id}")
         
         # Obtener los datos con las relaciones
         producto_con_relaciones = Producto.objects.select_related('compra', 'categoria', 'establecimiento').get(id=producto.id)
@@ -324,6 +431,7 @@ def admin_producto_crear(request):
             'establecimiento__nombre': producto_con_relaciones.establecimiento.nombre
         }, status=201)
     except Exception as e:
+        print(f"💥 Error al crear producto: {str(e)}")
         return JsonResponse({'error': str(e)}, status=400)
 
 @csrf_exempt
@@ -331,6 +439,15 @@ def admin_producto_actualizar(request, producto_id):
     try:
         producto = get_object_or_404(Producto, pk=producto_id)
         data = json.loads(request.body)
+        
+        # Validaciones de unicidad excluyendo al producto actual
+        if 'nombre' in data and data['nombre'] != producto.nombre:
+            if Producto.objects.filter(nombre__iexact=data['nombre']).exclude(id=producto_id).exists():
+                return JsonResponse({'error': '¡Ya existe un producto con este nombre!'}, status=400)
+        
+        if 'descripcion' in data and data['descripcion'] != producto.descripcion:
+            if Producto.objects.filter(descripcion__iexact=data['descripcion']).exclude(id=producto_id).exists():
+                return JsonResponse({'error': '¡Ya existe un producto con esta descripción!'}, status=400)
         
         producto.nombre = data.get('nombre', producto.nombre)
         producto.descripcion = data.get('descripcion', producto.descripcion)
@@ -397,11 +514,14 @@ def admin_categoria_actualizar(request, categoria_id):
         categoria = get_object_or_404(CategoriaProducto, pk=categoria_id)
         data = json.loads(request.body)
 
-        if CategoriaProducto.objects.filter(nombre__iexact=data['nombre']).exists():
-            return JsonResponse({'error': '¡Ya existe una categoría con este nombre!'}, status=400)
+        # Validaciones de unicidad excluyendo a la categoría actual
+        if 'nombre' in data and data['nombre'] != categoria.nombre:
+            if CategoriaProducto.objects.filter(nombre__iexact=data['nombre']).exclude(id=categoria_id).exists():
+                return JsonResponse({'error': '¡Ya existe una categoría con este nombre!'}, status=400)
 
-        if CategoriaProducto.objects.filter(descripcion__iexact=data['descripcion']).exists():
-            return JsonResponse({'error': '¡Ya existe una categoría con esta descripción!'}, status=400)
+        if 'descripcion' in data and data['descripcion'] != categoria.descripcion:
+            if CategoriaProducto.objects.filter(descripcion__iexact=data['descripcion']).exclude(id=categoria_id).exists():
+                return JsonResponse({'error': '¡Ya existe una categoría con esta descripción!'}, status=400)
         
         categoria.nombre = data.get('nombre', categoria.nombre)
         categoria.descripcion = data.get('descripcion', categoria.descripcion)
@@ -409,6 +529,7 @@ def admin_categoria_actualizar(request, categoria_id):
         
         return JsonResponse({
             'id': categoria.id,
+            'nombre': categoria.nombre,
             'descripcion': categoria.descripcion,
         })
     except Exception as e:
@@ -495,8 +616,12 @@ def maquinas(request):
 
 @requiere_admin
 def admin_maquinas(request):
-    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion')
-    return render(request, 'punto_app/admin_maquinas.html', {'maquinas': maquinas})
+    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id')
+    establecimientos = Establecimiento.objects.values('id', 'nombre')
+    return render(request, 'punto_app/admin_maquinas.html', {
+        'maquinas': maquinas,
+        'establecimientos': establecimientos
+    })
 
 @csrf_exempt
 def admin_maquina_crear(request):
@@ -512,12 +637,14 @@ def admin_maquina_crear(request):
         maquina = Maquina.objects.create(
             nombre=data['nombre'],
             descripcion=data['descripcion'],
-            establecimiento_id=1
+            cantidad=data.get('cantidad', 1),
+            establecimiento_id=data['establecimiento_id']
         )
         return JsonResponse({
             'id': maquina.id,
             'nombre': maquina.nombre,
-            'descripcion': maquina.descripcion
+            'descripcion': maquina.descripcion,
+            'cantidad': maquina.cantidad
         }, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -528,20 +655,25 @@ def admin_maquina_actualizar(request, maquina_id):
         maquina = get_object_or_404(Maquina, pk=maquina_id)
         data = json.loads(request.body)
 
-        if Maquina.objects.filter(nombre__iexact=data['nombre']).exists():
-            return JsonResponse({'error': '¡Ya existe una máquina con este nombre!'}, status=400)
+        # Validaciones de unicidad excluyendo a la máquina actual
+        if 'nombre' in data and data['nombre'] != maquina.nombre:
+            if Maquina.objects.filter(nombre__iexact=data['nombre']).exclude(id=maquina_id).exists():
+                return JsonResponse({'error': '¡Ya existe una máquina con este nombre!'}, status=400)
 
-        if Maquina.objects.filter(descripcion__iexact=data['descripcion']).exists():
-            return JsonResponse({'error': '¡Ya existe una máquina con esta descripción!'}, status=400)
+        if 'descripcion' in data and data['descripcion'] != maquina.descripcion:
+            if Maquina.objects.filter(descripcion__iexact=data['descripcion']).exclude(id=maquina_id).exists():
+                return JsonResponse({'error': '¡Ya existe una máquina con esta descripción!'}, status=400)
         
         maquina.nombre = data.get('nombre', maquina.nombre)
         maquina.descripcion = data.get('descripcion', maquina.descripcion)
+        maquina.cantidad = data.get('cantidad', maquina.cantidad)
         maquina.save()
         
         return JsonResponse({
             'id': maquina.id,
             'nombre': maquina.nombre,
             'descripcion': maquina.descripcion,
+            'cantidad': maquina.cantidad,
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -815,8 +947,8 @@ def admin_proveedor_borrar(request, proveedor_id):
 
 @requiere_admin
 def cursos(request):
-    cursos = Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado', 'establecimiento')
-    inscripciones = Inscripcion.objects.values('id', 'usuario', 'curso', 'fecha_inscripcion', 'fecha_realizacion')
+    cursos = Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado', 'establecimiento_id')
+    inscripciones = Inscripcion.objects.values('id', 'usuario_id', 'curso_id', 'fecha_inscripcion','fecha_realizacion')
     usuarios = Cliente.objects.values('id', 'nombre', 'apellido', 'email', 'telefono')
     establecimientos = Establecimiento.objects.values('id', 'nombre')
     return render(request, 'punto_app/admin_cursos.html', {'cursos': cursos, 'usuarios': usuarios, 'inscripciones': inscripciones, 'establecimientos': establecimientos})
@@ -830,7 +962,6 @@ def admin_curso_crear(request):
             nombre=data['nombre'],
             cupos=data['cupos'],
             fecha_realizacion=data['fecha_realizacion'],
-            estado=data['estado'],
             establecimiento_id=data['establecimiento_id']
         )
         return JsonResponse({
@@ -838,7 +969,6 @@ def admin_curso_crear(request):
             'nombre': curso.nombre,
             'cupos': curso.cupos,
             'fecha_realizacion': curso.fecha_realizacion,
-            'estado': curso.estado,
             'establecimiento_id': curso.establecimiento_id
         }, status=201)
     except Exception as e:
@@ -854,7 +984,7 @@ def admin_curso_actualizar(request, curso_id):
         curso.cupos = data.get('cupos', curso.cupos)
         curso.fecha_realizacion = data.get('fecha_realizacion', curso.fecha_realizacion)
         curso.estado = data.get('estado', curso.estado)
-        curso.establecimiento = data.get('establecimiento', curso.establecimiento)
+        curso.establecimiento_id = data.get('establecimiento_id', curso.establecimiento_id)
         curso.save()
         
         return JsonResponse({
@@ -863,7 +993,7 @@ def admin_curso_actualizar(request, curso_id):
             'cupos': curso.cupos,
             'fecha_realizacion': curso.fecha_realizacion,
             'estado': curso.estado,
-            'establecimiento': curso.establecimiento
+            'establecimiento_id': curso.establecimiento_id
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -903,16 +1033,14 @@ def admin_inscripcion_actualizar(request, inscripcion_id):
         inscripcion = get_object_or_404(Inscripcion, pk=inscripcion_id)
         data = json.loads(request.body)
         
-        inscripcion.usuario = data.get('usuario', inscripcion.usuario)
-        inscripcion.curso = data.get('curso', inscripcion.curso)
-        inscripcion.fecha_inscripcion = data.get('fecha_inscripcion', inscripcion.fecha_inscripcion)
+        inscripcion.usuario_id = data.get('usuario_id', inscripcion.usuario_id)
+        inscripcion.curso_id = data.get('curso_id', inscripcion.curso_id)
         inscripcion.save()
         
         return JsonResponse({
             'id': inscripcion.id,
-            'usuario': inscripcion.usuario,
-            'curso': inscripcion.curso,
-            'fecha_inscripcion': inscripcion.fecha_inscripcion
+            'usuario_id': inscripcion.usuario_id,
+            'curso_id': inscripcion.curso_id
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)

@@ -329,7 +329,7 @@ function eliminarProveedor(id) {
 function manejoCrearProducto(e) {
   e.preventDefault();
   
-  console.log('Iniciando creación de producto...');
+  console.log('🔧 Iniciando creación de producto...');
   
   const nombreElement = document.getElementById('producto-nombre');
   const descripcionElement = document.getElementById('producto-descripcion');
@@ -340,15 +340,15 @@ function manejoCrearProducto(e) {
   const categoriaElement = document.getElementById('producto-categoria');
   const establecimientoElement = document.getElementById('producto-establecimiento');
   
-  console.log('Elementos encontrados:', {
-    nombre: nombreElement,
-    descripcion: descripcionElement,
-    precio: precioElement,
-    stockActual: stockActualElement,
-    stockMinimo: stockMinimoElement,
-    compra: compraElement,
-    categoria: categoriaElement,
-    establecimiento: establecimientoElement
+  console.log('🔍 Elementos encontrados:', {
+    nombre: nombreElement ? 'SÍ' : 'NO',
+    descripcion: descripcionElement ? 'SÍ' : 'NO',
+    precio: precioElement ? 'SÍ' : 'NO',
+    stockActual: stockActualElement ? 'SÍ' : 'NO',
+    stockMinimo: stockMinimoElement ? 'SÍ' : 'NO',
+    compra: compraElement ? 'SÍ' : 'NO',
+    categoria: categoriaElement ? 'SÍ' : 'NO',
+    establecimiento: establecimientoElement ? 'SÍ' : 'NO'
   });
 
   const formData = {
@@ -362,16 +362,58 @@ function manejoCrearProducto(e) {
     establecimiento_id: establecimientoElement ? establecimientoElement.value : ''
   };
 
-  console.log('Datos del formulario:', formData);
+  console.log('📋 Datos del formulario:', formData);
+  
+  // Verificar opciones disponibles en los selects
+  if (categoriaElement) {
+    const opcionesCategoria = categoriaElement.querySelectorAll('option');
+    console.log('🏷️ Opciones de categoría disponibles:', opcionesCategoria.length - 1); // -1 por la opción por defecto
+    opcionesCategoria.forEach((opcion, index) => {
+      if (opcion.value) { // Solo las opciones con valor (no la opción por defecto)
+        console.log(`  - Categoría ${index}: ID=${opcion.value}, Nombre="${opcion.textContent}"`);
+      }
+    });
+  }
+  
+  if (compraElement) {
+    const opcionesCompra = compraElement.querySelectorAll('option');
+    console.log('🛒 Opciones de compra disponibles:', opcionesCompra.length - 1);
+    opcionesCompra.forEach((opcion, index) => {
+      if (opcion.value) {
+        console.log(`  - Compra ${index}: ID=${opcion.value}, Fecha="${opcion.textContent}"`);
+      }
+    });
+  }
+  
+  if (establecimientoElement) {
+    const opcionesEstablecimiento = establecimientoElement.querySelectorAll('option');
+    console.log('🏢 Opciones de establecimiento disponibles:', opcionesEstablecimiento.length - 1);
+    opcionesEstablecimiento.forEach((opcion, index) => {
+      if (opcion.value) {
+        console.log(`  - Establecimiento ${index}: ID=${opcion.value}, Nombre="${opcion.textContent}"`);
+      }
+    });
+  }
+  
+  // Validar campos requeridos
+  const camposVacios = Object.entries(formData).filter(([key, value]) => !value || value === '');
+  if (camposVacios.length > 0) {
+    console.warn('⚠️ Campos vacíos detectados:', camposVacios.map(([key]) => key));
+    console.warn('⚠️ Valores actuales:', formData);
+    alert('Por favor, complete todos los campos incluyendo categoría, compra y establecimiento');
+    return;
+  }
 
+  console.log('🚀 Enviando datos para crear producto...');
   crearProducto(formData)
     .then(data => {
+      console.log('✅ Respuesta del servidor:', data);
       if (data.error) throw new Error(data.error);
       alert('Producto creado exitosamente');
       window.location.reload();
     })
     .catch(error => {
-      console.error('Error:', error);
+      console.error('💥 Error al crear producto:', error);
       alert('Error al crear producto: ' + error.message);
     });
 };
@@ -940,23 +982,23 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Mostrar/ocultar formularios de creación en el flujo normal de la página (sin modal)
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.btn-toggle-form').forEach(btn => {
-    btn.addEventListener('click', function () {
-      const formId = this.getAttribute('data-form');
-      const modal = document.getElementById(formId);
-      const estado = this.getAttribute('data-estado') || 'cerrado';
-      if (!modal) return;
-
-      if (estado === 'cerrado') {
-        modal.style.display = 'block';
-        this.setAttribute('data-estado', 'abierto');
-        this.textContent = '-';
-      } else {
-        modal.style.display = 'none';
-        this.setAttribute('data-estado', 'cerrado');
-        this.textContent = '+';
-      }
-    });
+document.querySelectorAll('.btn-toggle-form').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const formId = this.getAttribute('data-form');
+    const modal = document.getElementById(formId);
+    if (modal) {
+      modal.style.display = 'block';
+      // Espera a que el modal esté visible y el DOM actualizado
+      setTimeout(() => {
+        const formCrearProducto = document.getElementById('form-crear-producto');
+        if (formCrearProducto) {
+          formCrearProducto.removeEventListener('submit', manejoCrearProducto); // Evita duplicados
+          formCrearProducto.addEventListener('submit', manejoCrearProducto);
+          console.log('✅ Event listener agregado a form-crear-producto (modal abierto)');
+        } else {
+          console.warn('⚠️ No se encontró el formulario de crear producto al abrir el modal');
+        }
+      }, 100);
+    }
   });
 });

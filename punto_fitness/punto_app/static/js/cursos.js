@@ -33,19 +33,16 @@ function actualizarVista(objeto, id_tipo) {
   if (id_tipo=='curso') {
     if (row) {
       const cells = row.cells;
-      cells[0].textContent = objeto.nombre;
+      cells[1].textContent = objeto.nombre;
       cells[2].textContent = objeto.cupos;
-      cells[3].textContent = objeto.fecha_realizacion;
+      cells[3].textContent = new Date(objeto.fecha_realizacion).toLocaleDateString('es-ES');
       cells[4].textContent = objeto.estado;
-      cells[5].textContent = objeto.establecimiento_id;
+      // La celda del establecimiento se actualizará con window.location.reload()
     }
   }
   if (id_tipo=='inscripcion') {
     if (row) {
-      const cells = row.cells;
-      cells[0].textContent = objeto.cliente_id;
-      cells[2].textContent = objeto.curso_id;
-      cells[3].textContent = objeto.fecha_inscripcion;
+      // Las celdas de inscripción se actualizarán con window.location.reload()
     }
   }
 }
@@ -144,7 +141,6 @@ function manejoCrearCurso(e) {
     nombre: document.getElementById('curso-nombre').value,
     cupos: document.getElementById('curso-cupos').value,
     fecha_realizacion: document.getElementById('curso-fecha_realizacion').value,
-    estado: document.getElementById('curso-estado').value,
     establecimiento_id: document.getElementById('curso-establecimiento').value,
   };
 
@@ -167,7 +163,6 @@ function manejoCrearInscripcion(e) {
   const formData = {
     usuario_id: document.getElementById('inscripcion-usuario').value,
     curso_id: document.getElementById('inscripcion-curso').value,
-    fecha_inscripcion: document.getElementById('inscripcion-fecha_inscripcion').value,
   };
   
   crearInscripcion(formData)
@@ -240,8 +235,7 @@ document.querySelectorAll('[name="form-editar-inscripcion"]').forEach(form => {
     const inscripcionId = this.dataset.id;
     const formData = {
       usuario_id: this.querySelector('[name="inscripcion-usuario"]').value,
-      curso_id: this.querySelector('[name="inscripcion-curso"]').value,
-      fecha_inscripcion: this.querySelector('[name="inscripcion-fecha_inscripcion"]').value
+      curso_id: this.querySelector('[name="inscripcion-curso"]').value
     };
     
     actualizarInscripcion(inscripcionId, formData)
