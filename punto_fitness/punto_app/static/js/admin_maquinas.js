@@ -49,26 +49,34 @@ function getCSRFToken() {
   return csrfInput ? csrfInput.value : '';
 }
 
-// Función para mostrar formulario de edición
-function mostrarFormularioEdicion(maquinaId) {
-  console.log('📝 Mostrando formulario para máquina ID:', maquinaId);
-  document.querySelectorAll('.form-edicion-maquina').forEach(form => {
-    form.style.display = 'none';
-  });
-  const formEditar = document.getElementById(`form-editar-maquina-${maquinaId}`);
-  console.log('📋 Formulario de edición encontrado:', formEditar ? 'SÍ' : 'NO');
-  if (formEditar) {
-    formEditar.style.display = 'table-row';
+// Función para mostrar formulario de edición (ahora abre el modal)
+function mostrarFormularioEdicion(id, id_tipo) {
+  console.log(`🎯 Abriendo modal de edición para ${id_tipo} con ID: ${id}`);
+  console.log(`🔍 Buscando modal con ID: modal-fondo-editar-${id_tipo}-${id}`);
+  const modalFondo = document.getElementById(`modal-fondo-editar-${id_tipo}-${id}`);
+  if (modalFondo) {
+    modalFondo.style.display = 'flex';
+    setTimeout(() => {
+      const primerInput = modalFondo.querySelector('input, select');
+      if (primerInput) {
+        primerInput.focus();
+      }
+    }, 100);
+  } else {
+    console.error(`❌ No se encontró el modal de edición para ${id_tipo} con ID: ${id}`);
   }
 }
 
-// Función para ocultar formulario de edición
-function ocultarFormularioEdicion(maquinaId) {
-  console.log('🙈 Ocultando formulario para máquina ID:', maquinaId);
-  const formEditar = document.getElementById(`form-editar-maquina-${maquinaId}`);
-  console.log('📋 Formulario de edición encontrado:', formEditar ? 'SÍ' : 'NO');
-  if (formEditar) {
-    formEditar.style.display = 'none';
+// Función para ocultar formulario de edición (ahora cierra el modal)
+function cerrarModalEdicion(id_tipo, id) {
+  console.log(`🔒 Cerrando modal de edición para ${id_tipo} con ID: ${id}`);
+  const modalFondo = document.getElementById(`modal-fondo-editar-${id_tipo}-${id}`);
+  if (modalFondo) {
+    modalFondo.style.display = 'none';
+    const form = modalFondo.querySelector('form');
+    if (form) {
+      form.reset();
+    }
   }
 }
 
@@ -134,10 +142,10 @@ function inicializarEventListeners() {
       e.preventDefault();
       console.log('🎯 Evento submit del formulario crear máquina');
       
-      const nombreInput = document.getElementById('maquina-nombre');
-      const descripcionInput = document.getElementById('maquina-descripcion');
-      const cantidadInput = document.getElementById('maquina-cantidad');
-      const establecimientoSelect = document.querySelector('.select-establecimiento');
+      const nombreInput = document.getElementById('maquina-nombre-modal');
+      const descripcionInput = document.getElementById('maquina-descripcion-modal');
+      const cantidadInput = document.getElementById('maquina-cantidad-modal');
+      const establecimientoSelect = document.getElementById('maquina-establecimiento-modal');
       
       console.log('🔍 Campos del formulario:');
       console.log('  - Nombre input:', nombreInput ? 'SÍ' : 'NO', nombreInput?.value);
@@ -167,6 +175,7 @@ function inicializarEventListeners() {
           console.log('✅ Respuesta del servidor:', data);
           if (data.error) throw new Error(data.error);
           alert('Máquina creada exitosamente');
+          cerrarModal('maquina');
           window.location.reload();
         })
         .catch(error => {
@@ -176,115 +185,182 @@ function inicializarEventListeners() {
     });
   }
 
-  // Formularios de actualización de datos
-  const formsEditar = document.querySelectorAll('[name="form-editar-maquina"]');
-  console.log('📝 Formularios de edición encontrados:', formsEditar.length);
-  
-  formsEditar.forEach(form => {
-    const maquinaId = form.dataset.id;
-    console.log('🔧 Agregando event listener al formulario de edición ID:', maquinaId);
-    
+  // Event listeners para formularios de edición
+  document.querySelectorAll('[name="form-editar-maquina"]').forEach(form => {
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-      console.log('🎯 Evento submit del formulario de edición para máquina ID:', maquinaId);
-      
-      const nombreInput = this.querySelector('[name="maquina-nombre"]');
-      const descripcionInput = this.querySelector('[name="maquina-descripcion"]');
-      const cantidadInput = this.querySelector('[name="maquina-cantidad"]');
-      
-      console.log('🔍 Campos del formulario de edición:');
-      console.log('  - Nombre input:', nombreInput ? 'SÍ' : 'NO', nombreInput?.value);
-      console.log('  - Descripción input:', descripcionInput ? 'SÍ' : 'NO', descripcionInput?.value);
-      console.log('  - Cantidad input:', cantidadInput ? 'SÍ' : 'NO', cantidadInput?.value);
-      
+      const id = this.getAttribute('data-id');
       const formData = {
-        nombre: nombreInput?.value || '',
-        descripcion: descripcionInput?.value || '',
-        cantidad: cantidadInput?.value || '',
+        nombre: this.querySelector('[name="maquina-nombre"]').value,
+        descripcion: this.querySelector('[name="maquina-descripcion"]').value,
+        cantidad: this.querySelector('[name="maquina-cantidad"]').value,
+        establecimiento_id: this.querySelector('[name="maquina-establecimiento"]').value
       };
       
-      console.log('📋 Datos del formulario de edición:', formData);
-      
-      actualizarMaquina(maquinaId, formData)
+      actualizarMaquina(id, formData)
         .then(data => {
-          console.log('✅ Respuesta del servidor:', data);
           if (data.error) throw new Error(data.error);
           actualizarVista(data);
-          ocultarFormularioEdicion(maquinaId);
+          cerrarModalEdicion('maquina', id);
           alert('Máquina actualizada correctamente');
           window.location.reload();
         })
         .catch(error => {
-          console.error('💥 Error al actualizar máquina:', error);
+          console.error('Error:', error);
           alert('Error al actualizar: ' + error.message);
         });
     });
   });
 
-  // Boton editar
-  const btnsEditar = document.querySelectorAll('[name="btn-editar-maquina"]');
-  console.log('🔘 Botones editar encontrados:', btnsEditar.length);
-  
-  btnsEditar.forEach(btn => {
-    const maquinaId = btn.getAttribute('data-id');
-    console.log('🔧 Agregando event listener al botón editar ID:', maquinaId);
-    
+  // Event listeners para botones de edición
+  document.querySelectorAll('[name="btn-editar-maquina"]').forEach(btn => {
     btn.addEventListener('click', function() {
-      console.log('🎯 Botón editar clickeado para máquina ID:', maquinaId);
-      mostrarFormularioEdicion(maquinaId);
+      const id = this.getAttribute('data-id');
+      mostrarFormularioEdicion(id, 'maquina');
     });
   });
 
-  // Boton eliminar
-  const btnsEliminar = document.querySelectorAll('[name="btn-eliminar-maquina"]');
-  console.log('🔘 Botones eliminar encontrados:', btnsEliminar.length);
-  
-  btnsEliminar.forEach(btn => {
-    const maquinaId = btn.getAttribute('data-id');
-    console.log('🔧 Agregando event listener al botón eliminar ID:', maquinaId);
-    
+  // Event listeners para botones de eliminación
+  document.querySelectorAll('[name="btn-eliminar-maquina"]').forEach(btn => {
     btn.addEventListener('click', function() {
-      console.log('🎯 Botón eliminar clickeado para máquina ID:', maquinaId);
+      const id = this.getAttribute('data-id');
+
       if (confirm('¿Eliminar esta máquina?')) {
-        eliminarMaquina(maquinaId)
+        eliminarMaquina(id)
           .then(data => {
-            console.log('✅ Respuesta del servidor:', data);
             if (data.error) throw new Error(data.error);
-            const row = document.querySelector(`tr[data-id="${maquinaId}"]`);
-            const formRow = document.querySelector(`#form-editar-maquina-${maquinaId}`);
-            if (row) {
-              row.remove();
-              console.log('✅ Fila eliminada del DOM');
-            }
-            if (formRow) {
-              formRow.remove();
-              console.log('✅ Formulario de edición eliminado del DOM');
-            }
+            document.querySelector(`tr[data-id="${id}"]`).remove();
+            document.querySelector(`#modal-fondo-editar-maquina-${id}`)?.remove();
             window.location.reload();
           })
-          .catch(error => {
-            console.error('💥 Error al eliminar máquina:', error);
-          });
-      } else {
-        console.log('❌ Eliminación cancelada por el usuario');
+          .catch(console.error);
       }
     });
   });
 
-  // Boton cancelar
-  const btnsCancelar = document.querySelectorAll('.btn-cancelar');
-  console.log('🔘 Botones cancelar encontrados:', btnsCancelar.length);
+  // Modal Functionality
+  inicializarModales();
   
-  btnsCancelar.forEach(btn => {
-    const maquinaId = btn.getAttribute('data-id');
-    console.log('🔧 Agregando event listener al botón cancelar ID:', maquinaId);
-    
-    btn.addEventListener('click', function() {
-      console.log('🎯 Botón cancelar clickeado para máquina ID:', maquinaId);
-      ocultarFormularioEdicion(maquinaId);
+  console.log('✅ Event listeners de máquinas inicializados correctamente');
+}
+
+///////////////////////////
+// FUNCIONALIDAD MODALES //
+///////////////////////////
+
+function inicializarModales() {
+  console.log('🎭 Inicializando modales de máquinas...');
+
+  // Botón para abrir modal
+  const botonAbrirModal = document.getElementById('abrir-form-maquina');
+  
+  if (botonAbrirModal) {
+    botonAbrirModal.addEventListener('click', function() {
+      console.log('🎯 Botón abrir modal máquina clickeado');
+      const estado = this.getAttribute('data-estado');
+      
+      if (estado === 'cerrado') {
+        abrirModal('maquina', this);
+      } else {
+        cerrarModal('maquina', this);
+      }
+    });
+  }
+
+  // Event listener para cerrar modal con click en fondo
+  const modalFondo = document.getElementById('modal-fondo-maquina');
+  if (modalFondo) {
+    modalFondo.addEventListener('click', function(event) {
+      if (event.target === modalFondo) {
+        console.log('🖱️ Click en fondo del modal máquina, cerrando...');
+        cerrarModal('maquina');
+      }
+    });
+  }
+
+  // Event listeners para cerrar modales de edición con click en fondo
+  document.querySelectorAll('.modal-fondo[id^="modal-fondo-editar-"]').forEach(modalFondo => {
+    modalFondo.addEventListener('click', function(event) {
+      if (event.target === modalFondo) {
+        console.log(`🖱️ Click en fondo del modal de edición, cerrando...`);
+        const id_parts = modalFondo.id.split('-');
+        const id_tipo = id_parts[2];
+        const id = id_parts[id_parts.length - 1];
+        cerrarModalEdicion(id_tipo, id);
+      }
     });
   });
 
-  console.log('✅ Event listeners de máquinas inicializados correctamente');
+  // Event listener para cerrar modales con ESC
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      const modalAbiertoCreacion = document.querySelector('.modal-fondo[id^="modal-fondo-"][style*="flex"]');
+      const modalAbiertoEdicion = document.querySelector('.modal-fondo[id^="modal-fondo-editar-"][style*="flex"]');
+
+      if (modalAbiertoCreacion) {
+        const tipo = modalAbiertoCreacion.id.replace('modal-fondo-', '');
+        console.log(`⌨️ Tecla ESC presionada, cerrando modal ${tipo}...`);
+        cerrarModal(tipo);
+      } else if (modalAbiertoEdicion) {
+        const id_parts = modalAbiertoEdicion.id.split('-');
+        const id_tipo = id_parts[2];
+        const id = id_parts[id_parts.length - 1];
+        console.log(`⌨️ Tecla ESC presionada, cerrando modal de edición ${id_tipo} con ID: ${id}...`);
+        cerrarModalEdicion(id_tipo, id);
+      }
+    }
+  });
+
+  console.log('✅ Modales de máquinas inicializados correctamente');
+}
+
+// Función para abrir modal
+function abrirModal(tipo, boton = null) {
+  console.log(`🔓 Abriendo modal ${tipo}...`);
+  
+  const modalFondo = document.getElementById(`modal-fondo-${tipo}`);
+  const botonAbrir = boton || document.getElementById(`abrir-form-${tipo}`);
+  
+  if (modalFondo && botonAbrir) {
+    modalFondo.style.display = 'flex';
+    botonAbrir.setAttribute('data-estado', 'abierto');
+    botonAbrir.textContent = '-';
+    
+    // Enfocar el primer input
+    setTimeout(() => {
+      const primerInput = modalFondo.querySelector('input, select');
+      if (primerInput) {
+        primerInput.focus();
+      }
+    }, 100);
+    
+    console.log(`✅ Modal ${tipo} abierto correctamente`);
+  } else {
+    console.error(`❌ No se encontró el modal o botón para ${tipo}`);
+  }
+}
+
+// Función para cerrar modal
+function cerrarModal(tipo, boton = null) {
+  console.log(`🔒 Cerrando modal ${tipo}...`);
+  
+  const modalFondo = document.getElementById(`modal-fondo-${tipo}`);
+  const botonAbrir = boton || document.getElementById(`abrir-form-${tipo}`);
+  
+  if (modalFondo && botonAbrir) {
+    modalFondo.style.display = 'none';
+    botonAbrir.setAttribute('data-estado', 'cerrado');
+    botonAbrir.textContent = '+';
+    
+    // Limpiar el formulario
+    const form = modalFondo.querySelector('form');
+    if (form) {
+      form.reset();
+    }
+    
+    console.log(`✅ Modal ${tipo} cerrado correctamente`);
+  } else {
+    console.error(`❌ No se encontró el modal o botón para ${tipo}`);
+  }
 }
 
