@@ -230,20 +230,43 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
     if (e.target && e.target.matches('[name="form-editar-curso"]')) {
       e.preventDefault();
       const form = e.target; // Referencia al formulario que disparó el evento
-      const id = form.getAttribute('data-id');
+      const id = form.dataset.id;
       
-      console.log('Evento submit disparado para el formulario con data-id:', id); // Console.log simplificado
+      // Debug: verificar que el ID se obtiene correctamente
+      console.log('Curso ID obtenido:', id);
+      console.log('Tipo de id:', typeof id);
+      
+      if (!id || id === '') {
+        alert('Error: No se pudo obtener el ID del curso. Por favor, recarga la página.');
+        return;
+      }
+      
+      console.log('Evento submit disparado para el formulario con data-id:', id);
+      
       const nombreInput = document.getElementById(`curso-nombre-editar-modal-${id}`);
-      const nombre = nombreInput ? nombreInput.value : '';
       const cuposInput = document.getElementById(`curso-cupos-editar-modal-${id}`);
-      const cupos = cuposInput ? cuposInput.value : '';
-      // Obtener la fecha de realización directamente por su ID construido
       const fechaInput = document.getElementById(`curso-fecha_realizacion-editar-modal-${id}`);
-      const fecha_realizacion = fechaInput ? fechaInput.value : '';
-      const EstacionamientoInput = document.getElementById(`curso-establecimiento-editar-modal-${id}`);
-      const establecimiento_id = EstacionamientoInput ? EstacionamientoInput.value : '';
+      const establecimientoInput = document.getElementById(`curso-establecimiento-editar-modal-${id}`);
       
-      console.log('Valor de establecimiento_id a enviar:', establecimiento_id); // Nuevo console.log para depuración
+      // Debug: verificar que los campos se encuentran
+      console.log('Campos encontrados:', {
+        nombre: nombreInput,
+        cupos: cuposInput,
+        fecha: fechaInput,
+        establecimiento: establecimientoInput
+      });
+      
+      if (!nombreInput || !cuposInput || !fechaInput || !establecimientoInput) {
+        alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
+        return;
+      }
+      
+      const nombre = nombreInput.value;
+      const cupos = cuposInput.value;
+      const fecha_realizacion = fechaInput.value;
+      const establecimiento_id = establecimientoInput.value;
+      
+      console.log('Valor de establecimiento_id a enviar:', establecimiento_id);
 
       // Reintroducimos la validación de la fecha
       if (!fecha_realizacion) {
@@ -260,6 +283,9 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
         establecimiento_id: establecimiento_id
       };
       
+      // Debug: verificar los datos del formulario
+      console.log('Datos del formulario de curso:', formData);
+      
       actualizarCurso(id, formData)
         .then(data => {
           if (data.error) throw new Error(data.error);
@@ -273,16 +299,64 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
           alert('Error al actualizar: ' + error.message);
         });
     }
-  });
-
-  document.querySelectorAll('[name="form-editar-inscripcion"]').forEach(form => {
-    form.addEventListener('submit', function(e) {
+    
+    // Event listener para formularios de edición de inscripciones
+    if (e.target && e.target.matches('[name="form-editar-inscripcion"]')) {
       e.preventDefault();
-      const id = this.getAttribute('data-id');
+      const form = e.target; // Referencia al formulario que disparó el evento
+      const id = form.dataset.id;
+      
+      // Debug: verificar que el ID se obtiene correctamente
+      console.log('🎯 Inscripción ID obtenido:', id);
+      console.log('🎯 Tipo de id:', typeof id);
+      console.log('🎯 Formulario completo:', form);
+      
+      if (!id || id === '') {
+        alert('Error: No se pudo obtener el ID de la inscripción. Por favor, recarga la página.');
+        return;
+      }
+      
+      console.log('🎯 Evento submit disparado para el formulario de inscripción con data-id:', id);
+      
+      // Usar los nombres correctos de los campos del modal de edición
+      const usuarioSelect = document.getElementById(`inscripcion-usuario-editar-modal-${id}`);
+      const cursoSelect = document.getElementById(`inscripcion-curso-editar-modal-${id}`);
+      
+      // Debug: verificar que los campos se encuentran
+      console.log('🎯 Campos encontrados:', {
+        usuario: usuarioSelect,
+        curso: cursoSelect
+      });
+      
+      if (!usuarioSelect || !cursoSelect) {
+        console.error('❌ No se pudieron encontrar los campos del formulario');
+        console.error('❌ Buscando campos con IDs:');
+        console.error(`❌ inscripcion-usuario-editar-modal-${id}`);
+        console.error(`❌ inscripcion-curso-editar-modal-${id}`);
+        alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
+        return;
+      }
+      
+      const usuario_id = usuarioSelect.value;
+      const curso_id = cursoSelect.value;
+      
+      console.log('🎯 Valores obtenidos:', {
+        usuario_id: usuario_id,
+        curso_id: curso_id
+      });
+      
+      if (!usuario_id || !curso_id) {
+        alert('Error: Debe seleccionar tanto el usuario como el curso.');
+        return;
+      }
+      
       const formData = {
-        usuario_id: this.querySelector('[name="inscripcion-usuario"]')?.value ?? '',
-        curso_id: this.querySelector('[name="inscripcion-curso"]')?.value ?? ''
+        usuario_id: usuario_id,
+        curso_id: curso_id
       };
+      
+      // Debug: verificar los datos del formulario
+      console.log('🎯 Datos del formulario de inscripción:', formData);
       
       actualizarInscripcion(id, formData)
         .then(data => {
@@ -296,7 +370,7 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
           console.error('Error:', error);
           alert('Error al actualizar: ' + error.message);
         });
-    });
+    }
   });
 
   // Modal Functionality

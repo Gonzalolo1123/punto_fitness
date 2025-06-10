@@ -10,16 +10,33 @@ function getCSRFToken() {
     return csrfInput ? csrfInput.value : '';
 }
 
-// Funciones para mostrar/ocultar formulario
-function mostrarFormularioEdicion(adminId) {
-    document.querySelectorAll('.form-edicion-admin').forEach(form => {
-        form.style.display = 'none';
-    });
-    document.getElementById(`form-editar-admin-${adminId}`).style.display = 'table-row';
+// Funciones para modal
+function abrirModal(tipo) {
+    document.getElementById(`modal-fondo-${tipo}`).style.display = 'flex';
 }
 
-function ocultarFormularioEdicion(adminId) {
-    document.getElementById(`form-editar-admin-${adminId}`).style.display = 'none';
+function cerrarModal(tipo) {
+    document.getElementById(`modal-fondo-${tipo}`).style.display = 'none';
+}
+
+function abrirModalEdicion(tipo, id) {
+    document.getElementById(`modal-fondo-editar-${tipo}-${id}`).style.display = 'flex';
+}
+
+function cerrarModalEdicion(tipo, id) {
+    document.getElementById(`modal-fondo-editar-${tipo}-${id}`).style.display = 'none';
+}
+
+function mostrarModalConfirmacion(mensaje, onConfirm) {
+    document.getElementById('mensaje-confirmacion').textContent = mensaje;
+    document.getElementById('modal-fondo-confirmacion').style.display = 'flex';
+    
+    // Configurar el botón de confirmar
+    const btnConfirmar = document.getElementById('confirmar-accion');
+    btnConfirmar.onclick = function() {
+        onConfirm();
+        cerrarModal('confirmacion');
+    };
 }
 
 // Función para actualizar vista
@@ -100,100 +117,36 @@ function otorgarRolAdmin(clienteId, establecimientoId) {
 }
 
 function inicializarEventListeners() {
-    // Reemplaza el event listener del modal
-    const btnToggleForm = document.getElementById('abrir-form-admin');
-    const clientesNoAdminWrapper = document.getElementById('clientes-no-admin-wrapper'); // Nueva referencia
-
-    if (btnToggleForm) {
-        btnToggleForm.addEventListener('click', function () {
-            const estado = this.getAttribute('data-estado');
-            const modalFormContent = document.getElementById('modal-form-content');
-            const formCrearAdminContainer = document.getElementById('form-crear-admin-container');
-
-            if (estado === 'cerrado') {
-                // Abrir formulario y mostrar tabla de clientes no admin
-                if (formCrearAdminContainer && modalFormContent) {
-                    modalFormContent.innerHTML = formCrearAdminContainer.innerHTML; // Pasa el contenido del formulario al modal
-                }
-                document.getElementById('modal-fondo').style.display = 'block';
-                document.getElementById('modal-form').style.display = 'block';
-                if (clientesNoAdminWrapper) {
-                    clientesNoAdminWrapper.style.display = 'block'; // Mostrar la tabla
-                }
-                this.setAttribute('data-estado', 'abierto');
-                this.textContent = '-';
-                // Re-inicializar event listeners para el nuevo formulario inyectado en el modal
-                inicializarFormularioCrearAdmin();
-            } else {
-                // Cerrar formulario y ocultar tabla de clientes no admin
-                ocultarFormularioModal();
-            }
+    // Event listener para abrir modal de admin
+    const btnAbrirModal = document.getElementById('abrir-form-admin');
+    if (btnAbrirModal) {
+        btnAbrirModal.addEventListener('click', function () {
+            abrirModal('admin');
         });
     }
 
-    // También cierra el formulario al hacer clic en el fondo modal
-    document.getElementById('modal-fondo')?.addEventListener('click', function () {
-        ocultarFormularioModal();
+    // Event listener para cancelar en modal de confirmación
+    const btnCancelarAccion = document.getElementById('cancelar-accion');
+    if (btnCancelarAccion) {
+        btnCancelarAccion.addEventListener('click', function () {
+            cerrarModal('confirmacion');
+        });
+    }
+
+    // Cerrar modales al hacer clic en el fondo
+    document.querySelectorAll('.modal-fondo').forEach(overlay => {
+        overlay.addEventListener('click', function (e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
     });
-
-    // Función auxiliar para cerrar el modal y la tabla de clientes no admin
-    function ocultarFormularioModal() {
-        document.getElementById('modal-fondo').style.display = 'none';
-        document.getElementById('modal-form').style.display = 'none';
-        document.getElementById('modal-form-content').innerHTML = '';
-        if (clientesNoAdminWrapper) {
-            clientesNoAdminWrapper.style.display = 'none'; // Ocultar la tabla
-        }
-        const btn = document.getElementById('abrir-form-admin');
-        if (btn) {
-            btn.setAttribute('data-estado', 'cerrado');
-            btn.textContent = '+';
-        }
-    }
-
-    // Nueva función para inicializar el formulario de crear admin (para cuando se inyecta en el modal)
-    function inicializarFormularioCrearAdmin() {
-        const formCrearAdminModal = document.getElementById('form-crear-admin-modal');
-        if (formCrearAdminModal) {
-            formCrearAdminModal.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                const clienteId = this.querySelector('#cliente-select').value;
-                const nivelAcceso = this.querySelector('#admin-nivel').value;
-
-                if (!clienteId) {
-                    alert('Por favor, selecciona un cliente.');
-                    return;
-                }
-
-                const formData = {
-                    cliente_id: clienteId,
-                    nivel_acceso: nivelAcceso
-                };
-
-                console.log('Enviando datos para crear/actualizar admin:', formData);
-
-                crearAdmin(formData)
-                    .then(data => {
-                        if (data.error) {
-                            throw new Error(data.error);
-                        }
-                        alert('Administrador agregado/actualizado correctamente.');
-                        ocultarFormularioModal();
-                        window.location.reload();
-                    })
-                    .catch(error => {
-                        console.error('Error al agregar/actualizar administrador:', error);
-                        alert('Error: ' + error.message);
-                    });
-            });
-        }
-    }
 
     // Botones de edición
     document.querySelectorAll('[name="btn-editar-admin"]').forEach(btn => {
         btn.addEventListener('click', function () {
-            mostrarFormularioEdicion(this.getAttribute('data-id'));
+            const adminId = this.getAttribute('data-id');
+            abrirModalEdicion('admin', adminId);
         });
     });
 
@@ -202,19 +155,53 @@ function inicializarEventListeners() {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             const adminId = this.dataset.id;
+            
+            // Debug: verificar que el ID se obtiene correctamente
+            console.log('Admin ID obtenido:', adminId);
+            console.log('Tipo de adminId:', typeof adminId);
+            
+            if (!adminId || adminId === '') {
+                alert('Error: No se pudo obtener el ID del administrador. Por favor, recarga la página.');
+                return;
+            }
+            
+            // Verificar que todos los campos existen antes de obtener sus valores
+            const nombreField = this.querySelector(`[name="admin-nombre-editar-${adminId}"]`);
+            const apellidoField = this.querySelector(`[name="admin-apellido-editar-${adminId}"]`);
+            const correoField = this.querySelector(`[name="admin-correo-editar-${adminId}"]`);
+            const telefonoField = this.querySelector(`[name="admin-telefono-editar-${adminId}"]`);
+            const nivelField = this.querySelector(`[name="admin-nivel-editar-${adminId}"]`);
+            
+            // Debug: verificar que los campos se encuentran
+            console.log('Campos encontrados:', {
+                nombre: nombreField,
+                apellido: apellidoField,
+                correo: correoField,
+                telefono: telefonoField,
+                nivel: nivelField
+            });
+            
+            if (!nombreField || !apellidoField || !correoField || !telefonoField || !nivelField) {
+                alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
+                return;
+            }
+            
             const formData = {
-                nombre: this.querySelector('[name="admin-nombre"]').value,
-                apellido: this.querySelector('[name="admin-apellido"]').value,
-                correo: this.querySelector('[name="admin-correo"]').value,
-                telefono: this.querySelector('[name="admin-telefono"]').value,
-                nivel_acceso: this.querySelector('[name="admin-nivel"]').value
+                nombre: nombreField.value,
+                apellido: apellidoField.value,
+                correo: correoField.value,
+                telefono: telefonoField.value,
+                nivel_acceso: nivelField.value
             };
+            
+            // Debug: verificar los datos del formulario
+            console.log('Datos del formulario de administrador:', formData);
 
             actualizarAdmin(adminId, formData)
                 .then(data => {
                     if (data.error) throw new Error(data.error);
                     actualizarVista(data);
-                    ocultarFormularioEdicion(adminId);
+                    cerrarModalEdicion('admin', adminId);
                     alert('Administrador actualizado correctamente');
                     window.location.reload();
                 })
@@ -229,28 +216,28 @@ function inicializarEventListeners() {
     document.querySelectorAll('[name="btn-eliminar-admin"]').forEach(btn => {
         btn.addEventListener('click', function () {
             const id = this.getAttribute('data-id');
-            if (confirm('¿Eliminar a este administrador?')) {
+            mostrarModalConfirmacion('¿Estás seguro de que quieres eliminar a este administrador?', function() {
                 eliminarAdmin(id)
                     .then(data => {
                         if (data.error) throw new Error(data.error);
                         document.querySelector(`tr[data-id="${id}"]`).remove();
-                        document.querySelector(`#form-editar-admin-${id}`)?.remove();
+                        document.querySelector(`#modal-fondo-editar-admin-${id}`)?.remove();
                         window.location.reload();
                     })
                     .catch(error => {
                         console.error('Error:', error);
                         alert('Error al eliminar administrador: ' + error.message);
                     });
-            }
+            });
         });
     });
 
-    // Botones para hacer admin a un cliente
-    document.querySelectorAll('.btn-hacer-admin').forEach(btn => {
+    // Botones para hacer admin a un cliente (en el modal)
+    document.querySelectorAll('.btn-hacer-admin-modal').forEach(btn => {
         btn.addEventListener('click', function() {
             const clienteId = this.getAttribute('data-cliente-id');
             // Obtener el select correspondiente a este cliente
-            const selectEst = document.querySelector('.select-establecimiento[data-cliente-id="' + clienteId + '"]');
+            const selectEst = document.querySelector('.select-establecimiento-modal[data-cliente-id="' + clienteId + '"]');
             const establecimientoId = selectEst ? selectEst.value : '';
 
             if (!establecimientoId) {
@@ -258,9 +245,9 @@ function inicializarEventListeners() {
                 return;
             }
 
-            if (confirm(`¿Estás seguro de que quieres hacer a este cliente (ID: ${clienteId}) administrador?`)) {
+            mostrarModalConfirmacion(`¿Estás seguro de que quieres hacer a este cliente (ID: ${clienteId}) administrador?`, function() {
                 otorgarRolAdmin(clienteId, establecimientoId);
-            }
+            });
         });
     });
 }

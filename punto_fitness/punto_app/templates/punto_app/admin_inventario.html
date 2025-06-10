@@ -423,6 +423,10 @@
                    title="Mínimo 5 caracteres, máximo 50"
                    required>
           </div>
+          <div class="modal-actions">
+            <button class="filtro-btn" type="submit">Agregar Categoría</button>
+            <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModal('categoria')">Cancelar</button>
+          </div>
         </form>
       </div>
     </div>
@@ -443,9 +447,10 @@
             <input type="date" 
                    id="compra-fecha" 
                    name="compra-fecha" 
+                   min="2000-01-01"
                    max="{{ now|date:'Y-m-d' }}"
                    required
-                   title="Seleccione una fecha válida">
+                   title="Seleccione una fecha válida entre 2000 y hoy">
           </div>
           
           <div class="form-fila">
@@ -508,6 +513,10 @@
               {% endfor %}
             </select>
           </div>
+          <div class="modal-actions">
+            <button class="filtro-btn" type="submit">Agregar Compra</button>
+            <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModal('compra')">Cancelar</button>
+          </div>
         </form>
       </div>
     </div>
@@ -569,6 +578,10 @@
               <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
               {% endfor %}
             </select>
+          </div>
+          <div class="modal-actions">
+            <button class="filtro-btn" type="submit">Agregar Vendedor</button>
+            <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModal('vendedor')">Cancelar</button>
           </div>
         </form>
       </div>
@@ -726,27 +739,59 @@
           <input type="hidden" id="producto-id-editar" name="producto-id">
           <div class="form-fila">
             <label for="producto-nombre-editar">Nombre:</label>
-            <input type="text" id="producto-nombre-editar" name="producto-nombre" maxlength="30" required>
+            <input type="text" 
+                   id="producto-nombre-editar" 
+                   name="producto-nombre" 
+                   maxlength="30" 
+                   minlength="3"
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-.,()&]+"
+                   title="Solo letras, números y los caracteres especiales: -.,()&"
+                   required>
           </div>
           <div class="form-fila">
             <label for="producto-descripcion-editar">Descripción:</label>
-            <input type="text" id="producto-descripcion-editar" name="producto-descripcion" maxlength="50" required>
+            <input type="text" 
+                   id="producto-descripcion-editar" 
+                   name="producto-descripcion" 
+                   maxlength="50"
+                   minlength="5"
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-.,()&]+"
+                   title="Mínimo 5 caracteres, máximo 50"
+                   required>
           </div>
           <div class="form-fila">
             <label for="producto-precio-editar">Precio:</label>
-            <input type="number" id="producto-precio-editar" name="producto-precio" min="0" required>
+            <input type="number" 
+                   id="producto-precio-editar" 
+                   name="producto-precio" 
+                   min="0.01" 
+                   step="0.01"
+                   title="Debe ser mayor a 0"
+                   required>
           </div>
           <div class="form-fila">
             <label for="producto-stock-actual-editar">Stock actual:</label>
-            <input type="number" id="producto-stock-actual-editar" name="producto-stock-actual" min="0" required>
+            <input type="number" 
+                   id="producto-stock-actual-editar" 
+                   name="producto-stock-actual" 
+                   min="0"
+                   title="No puede ser negativo"
+                   required>
           </div>
           <div class="form-fila">
             <label for="producto-stock-minimo-editar">Stock mínimo:</label>
-            <input type="number" id="producto-stock-minimo-editar" name="producto-stock-minimo" min="0" required>
+            <input type="number" 
+                   id="producto-stock-minimo-editar" 
+                   name="producto-stock-minimo" 
+                   min="0"
+                   title="No puede ser negativo"
+                   required>
           </div>
           <div class="form-fila">
             <label for="producto-compra-editar">Compra:</label>
-            <select id="producto-compra-editar" name="producto-compra">
+            <select id="producto-compra-editar" 
+                    name="producto-compra"
+                    title="Seleccione una compra (opcional)">
               <option value="">Seleccione</option>
               {% for compra in compras %}
               <option value="{{ compra.id }}">{{ compra.fecha|date:"Y-m-d" }} - {{ compra.total }}</option>
@@ -755,7 +800,10 @@
           </div>
           <div class="form-fila">
             <label for="producto-categoria-editar">Categoría:</label>
-            <select id="producto-categoria-editar" name="producto-categoria" required>
+            <select id="producto-categoria-editar" 
+                    name="producto-categoria" 
+                    required
+                    title="Seleccione una categoría">
               <option value="">Seleccione</option>
               {% for categoria in categorias %}
               <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
@@ -764,7 +812,10 @@
           </div>
           <div class="form-fila">
             <label for="producto-establecimiento-editar">Establecimiento:</label>
-            <select id="producto-establecimiento-editar" name="producto-establecimiento" required>
+            <select id="producto-establecimiento-editar" 
+                    name="producto-establecimiento" 
+                    required
+                    title="Seleccione un establecimiento">
               <option value="">Seleccione</option>
               {% for establecimiento in establecimientos %}
               <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
@@ -793,11 +844,25 @@
           <input type="hidden" id="categoria-id-editar" name="categoria-id">
           <div class="form-fila">
             <label for="categoria-nombre-editar">Nombre:</label>
-            <input type="text" id="categoria-nombre-editar" name="categoria-nombre" maxlength="30" required>
+            <input type="text" 
+                   id="categoria-nombre-editar" 
+                   name="categoria-nombre" 
+                   maxlength="30"
+                   minlength="3"
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s\-]+"
+                   title="Solo letras, espacios y guiones"
+                   required>
           </div>
           <div class="form-fila">
             <label for="categoria-descripcion-editar">Descripción:</label>
-            <input type="text" id="categoria-descripcion-editar" name="categoria-descripcion" maxlength="50" required>
+            <input type="text" 
+                   id="categoria-descripcion-editar" 
+                   name="categoria-descripcion" 
+                   maxlength="50"
+                   minlength="5"
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-.,()&]+"
+                   title="Mínimo 5 caracteres, máximo 50"
+                   required>
           </div>
           <div class="modal-actions">
             <button class="filtro-btn" type="submit">Actualizar Categoría</button>
@@ -821,19 +886,41 @@
           <input type="hidden" id="compra-id-editar" name="compra-id">
           <div class="form-fila">
             <label for="compra-fecha-editar">Fecha:</label>
-            <input type="date" id="compra-fecha-editar" name="compra-fecha" required>
+            <input type="date" 
+                   id="compra-fecha-editar" 
+                   name="compra-fecha" 
+                   min="2000-01-01"
+                   max="{{ now|date:'Y-m-d' }}"
+                   required
+                   title="Seleccione una fecha válida entre 2000 y hoy">
           </div>
           <div class="form-fila">
             <label for="compra-total-editar">Total:</label>
-            <input type="number" id="compra-total-editar" name="compra-total" min="0" required>
+            <input type="number" 
+                   id="compra-total-editar" 
+                   name="compra-total" 
+                   min="0.01" 
+                   step="0.01"
+                   required
+                   title="Debe ser mayor a 0">
           </div>
           <div class="form-fila">
             <label for="compra-iva-editar">IVA:</label>
-            <input type="number" id="compra-iva-editar" name="compra-iva" min="0" required>
+            <input type="number" 
+                   id="compra-iva-editar" 
+                   name="compra-iva" 
+                   min="0" 
+                   max="100"
+                   step="0.01"
+                   required
+                   title="Entre 0% y 100%">
           </div>
           <div class="form-fila">
             <label for="compra-estado-editar">Estado:</label>
-            <select id="compra-estado-editar" name="compra-estado" required>
+            <select id="compra-estado-editar" 
+                    name="compra-estado" 
+                    required
+                    title="Seleccione un estado">
               <option value="">Seleccione</option>
               <option value="True">Hecho</option>
               <option value="False">No hecho</option>
@@ -841,7 +928,10 @@
           </div>
           <div class="form-fila">
             <label for="compra-establecimiento-editar">Establecimiento:</label>
-            <select id="compra-establecimiento-editar" name="compra-establecimiento" required>
+            <select id="compra-establecimiento-editar" 
+                    name="compra-establecimiento" 
+                    required
+                    title="Seleccione un establecimiento">
               <option value="">Seleccione</option>
               {% for establecimiento in establecimientos %}
               <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
@@ -850,7 +940,10 @@
           </div>
           <div class="form-fila">
             <label for="compra-vendedor-editar">Vendedor:</label>
-            <select id="compra-vendedor-editar" name="compra-vendedor" required>
+            <select id="compra-vendedor-editar" 
+                    name="compra-vendedor" 
+                    required
+                    title="Seleccione un vendedor">
               <option value="">Seleccione</option>
               {% for vendedor in vendedores %}
               <option value="{{ vendedor.id }}">{{ vendedor.nombre }}</option>
@@ -879,19 +972,42 @@
           <input type="hidden" id="vendedor-id-editar" name="vendedor-id">
           <div class="form-fila">
             <label for="vendedor-nombre-editar">Nombre:</label>
-            <input type="text" id="vendedor-nombre-editar" name="vendedor-nombre" maxlength="30" required>
+            <input type="text" 
+                   id="vendedor-nombre-editar" 
+                   name="vendedor-nombre" 
+                   maxlength="30"
+                   minlength="3"
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s\-]+"
+                   title="Solo letras, espacios y guiones"
+                   required>
           </div>
           <div class="form-fila">
             <label for="vendedor-telefono-editar">Teléfono:</label>
-            <input type="tel" id="vendedor-telefono-editar" name="vendedor-telefono" maxlength="30" required>
+            <input type="tel" 
+                   id="vendedor-telefono-editar" 
+                   name="vendedor-telefono" 
+                   maxlength="15"
+                   minlength="7"
+                   pattern="[\d\s\+\-\(\)]{7,15}"
+                   title="7-15 dígitos, puede incluir +, -, (, )"
+                   required>
           </div>
           <div class="form-fila">
             <label for="vendedor-email-editar">Correo electrónico:</label>
-            <input type="email" id="vendedor-email-editar" name="vendedor-email" maxlength="30" required>
+            <input type="email" 
+                   id="vendedor-email-editar" 
+                   name="vendedor-email" 
+                   maxlength="50"
+                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                   title="Ingrese un email válido"
+                   required>
           </div>
           <div class="form-fila">
             <label for="vendedor-proveedor-editar">Proveedor:</label>
-            <select id="vendedor-proveedor-editar" name="vendedor-proveedor" required>
+            <select id="vendedor-proveedor-editar" 
+                    name="vendedor-proveedor" 
+                    required
+                    title="Seleccione un proveedor">
               <option value="">Seleccione</option>
               {% for proveedor in proveedores %}
               <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
@@ -920,31 +1036,76 @@
           <input type="hidden" id="establecimiento-id-editar" name="establecimiento-id">
           <div class="form-fila">
             <label for="establecimiento-nombre-editar">Nombre:</label>
-            <input type="text" id="establecimiento-nombre-editar" name="establecimiento-nombre" maxlength="30" required>
+            <input type="text" 
+                   id="establecimiento-nombre-editar" 
+                   name="establecimiento-nombre" 
+                   minlength="3"
+                   maxlength="30" 
+                   required
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-'.,()&]+"
+                   title="Solo letras, números, espacios y los caracteres especiales: -'.,()&"
+                   placeholder="Ej: GYM Osorno">
           </div>
           <div class="form-fila">
             <label for="establecimiento-direccion-editar">Dirección:</label>
-            <input type="text" id="establecimiento-direccion-editar" name="establecimiento-direccion" maxlength="30" required>
+            <input type="text" 
+                   id="establecimiento-direccion-editar" 
+                   name="establecimiento-direccion" 
+                   maxlength="100"
+                   minlength="5"
+                   required
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-\#\,\.]+"
+                   title="La dirección debe contener entre 5 y 100 caracteres (letras, números, espacios y los caracteres especiales: -#.,)"
+                   placeholder="Ej: Av. Principal 123">
           </div>
           <div class="form-fila">
             <label for="establecimiento-telefono-editar">Teléfono:</label>
-            <input type="tel" id="establecimiento-telefono-editar" name="establecimiento-telefono" maxlength="30" required>
+            <input type="tel" 
+                   id="establecimiento-telefono-editar" 
+                   name="establecimiento-telefono" 
+                   maxlength="20"
+                   minlength="7"
+                   required
+                   pattern="[\d\s\+\-\(\)]{7,20}"
+                   title="El teléfono debe tener entre 7 y 20 dígitos (puede incluir +, -, (, ) o espacios)"
+                   placeholder="Ej: +51 123 456 789">
           </div>
           <div class="form-fila">
             <label for="establecimiento-email-editar">Correo electrónico:</label>
-            <input type="email" id="establecimiento-email-editar" name="establecimiento-email" maxlength="30" required>
+            <input type="email" 
+                   id="establecimiento-email-editar" 
+                   name="establecimiento-email" 
+                   maxlength="50"
+                   required
+                   title="Ingrese un correo electrónico válido"
+                   placeholder="ejemplo@dominio.com">
           </div>
           <div class="form-fila">
             <label for="establecimiento-horario_apertura-editar">Horario de apertura:</label>
-            <input type="time" id="establecimiento-horario_apertura-editar" name="establecimiento-horario_apertura" required>
+            <input type="time" 
+                   id="establecimiento-horario_apertura-editar" 
+                   name="establecimiento-horario_apertura"
+                   required
+                   min="06:00"
+                   max="12:00"
+                   title="El horario de apertura debe ser entre las 6:00 AM y 12:00 PM">
           </div>
           <div class="form-fila">
             <label for="establecimiento-horario_cierre-editar">Horario de cierre:</label>
-            <input type="time" id="establecimiento-horario_cierre-editar" name="establecimiento-horario_cierre" required>
+            <input type="time" 
+                   id="establecimiento-horario_cierre-editar" 
+                   name="establecimiento-horario_cierre" 
+                   required
+                   min="12:00"
+                   max="23:59"
+                   title="El horario de cierre debe ser entre las 12:00 PM y 11:59 PM">
           </div>
           <div class="form-fila">
             <label for="establecimiento-proveedor-editar">Proveedor:</label>
-            <select id="establecimiento-proveedor-editar" name="establecimiento-proveedor" required>
+            <select id="establecimiento-proveedor-editar" 
+                    name="establecimiento-proveedor" 
+                    required
+                    title="Debe seleccionar un proveedor">
               <option value="">Seleccione</option>
               {% for proveedor in proveedores %}
               <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
@@ -973,15 +1134,35 @@
           <input type="hidden" id="proveedor-id-editar" name="proveedor-id">
           <div class="form-fila">
             <label for="proveedor-nombre-editar">Nombre:</label>
-            <input type="text" id="proveedor-nombre-editar" name="proveedor-nombre" maxlength="30" required>
+            <input type="text" 
+                   id="proveedor-nombre-editar" 
+                   name="proveedor-nombre" 
+                   maxlength="30"
+                   minlength="3"
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-'.,()&]+"
+                   title="Solo letras, números, espacios y los caracteres especiales: -'.,()&"
+                   required>
           </div>
           <div class="form-fila">
             <label for="proveedor-telefono-editar">Teléfono:</label>
-            <input type="tel" id="proveedor-telefono-editar" name="proveedor-telefono" maxlength="30" required>
+            <input type="tel" 
+                   id="proveedor-telefono-editar" 
+                   name="proveedor-telefono" 
+                   minlength="9" 
+                   maxlength="11"
+                   pattern="[\d]{9,11}"
+                   title="9-11 dígitos numéricos"
+                   required>
           </div>
           <div class="form-fila">
             <label for="proveedor-email-editar">Correo electrónico:</label>
-            <input type="email" id="proveedor-email-editar" name="proveedor-email" maxlength="30" required>
+            <input type="email" 
+                   id="proveedor-email-editar" 
+                   name="proveedor-email" 
+                   maxlength="30"
+                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                   title="Ingrese un email válido"
+                   required>
           </div>
           <div class="modal-actions">
             <button class="filtro-btn" type="submit">Actualizar Proveedor</button>

@@ -64,24 +64,47 @@
 
                 <div class="form-fila">
                   <label for="curso-nombre-editar-modal-{{ curso.id }}">Nombre:</label>
-                  <input type="text" id="curso-nombre-editar-modal-{{ curso.id }}" name="curso-nombre"
-                    value="{{ curso.nombre }}" required>
+                  <input type="text" 
+                         id="curso-nombre-editar-modal-{{ curso.id }}" 
+                         name="curso-nombre"
+                         value="{{ curso.nombre }}" 
+                         maxlength="30"
+                         minlength="3"
+                         pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-.,()&]+"
+                         title="Solo letras, números y los caracteres especiales: -.,()&"
+                         required>
                 </div>
 
                 <div class="form-fila">
                   <label for="curso-cupos-editar-modal-{{ curso.id }}">Cupos:</label>
-                  <input type="number" id="curso-cupos-editar-modal-{{ curso.id }}" name="curso-cupos"
-                    value="{{ curso.cupos }}" min="0" required>
+                  <input type="number" 
+                         id="curso-cupos-editar-modal-{{ curso.id }}" 
+                         name="curso-cupos"
+                         value="{{ curso.cupos }}" 
+                         min="1"
+                         max="100"
+                         title="Entre 1 y 100 cupos"
+                         required>
                 </div>
 
                 <div class="form-fila">
                   <label for="curso-fecha_realizacion-editar-modal-{{ curso.id }}">Fecha:</label>
-                  <input type="date" id="curso-fecha_realizacion-editar-modal-{{ curso.id }}" name="curso-fecha_realizacion" value="{{ curso.fecha_realizacion|date:'Y-m-d' }}">
+                  <input type="date" 
+                         id="curso-fecha_realizacion-editar-modal-{{ curso.id }}" 
+                         name="curso-fecha_realizacion" 
+                         value="{{ curso.fecha_realizacion|date:'Y-m-d' }}"
+                         min="2000-01-01"
+                         max="2030-12-31"
+                         title="Seleccione una fecha válida entre 2000 y 2030"
+                         required>
                 </div>
 
                 <div class="form-fila">
                   <label for="curso-establecimiento-editar-modal-{{ curso.id }}">Establecimiento:</label>
-                  <select id="curso-establecimiento-editar-modal-{{ curso.id }}" name="curso-establecimiento" required>
+                  <select id="curso-establecimiento-editar-modal-{{ curso.id }}" 
+                          name="curso-establecimiento" 
+                          required
+                          title="Seleccione un establecimiento">
                     <option value="" disabled>Seleccione</option>
                     {% for establecimiento in establecimientos %}
                     <option value="{{ establecimiento.id }}" {% if establecimiento.id == curso.establecimiento_id %}selected{% endif %}>{{ establecimiento.nombre }}</option>
@@ -171,7 +194,10 @@
 
                 <div class="form-fila">
                   <label for="inscripcion-curso-editar-modal-{{ inscripcion.id }}">Curso:</label>
-                  <select id="inscripcion-curso-editar-modal-{{ inscripcion.id }}" name="inscripcion-curso" required>
+                  <select id="inscripcion-curso-editar-modal-{{ inscripcion.id }}" 
+                          name="inscripcion-curso-editar-modal-{{ inscripcion.id }}" 
+                          required
+                          title="Seleccione un curso">
                     <option value="" disabled>Seleccione</option>
                     {% for curso in cursos %}
                     <option value="{{ curso.id }}" {% if curso.id == inscripcion.curso_id %}selected{% endif %}>{{curso.nombre }}</option>
@@ -181,8 +207,10 @@
 
                 <div class="form-fila">
                   <label for="inscripcion-usuario-editar-modal-{{ inscripcion.id }}">Usuario:</label>
-                  <select id="inscripcion-usuario-editar-modal-{{ inscripcion.id }}" name="inscripcion-usuario"
-                    required>
+                  <select id="inscripcion-usuario-editar-modal-{{ inscripcion.id }}" 
+                          name="inscripcion-usuario-editar-modal-{{ inscripcion.id }}"
+                          required
+                          title="Seleccione un usuario">
                     <option value="" disabled>Seleccione</option>
                     {% for usuario in usuarios %}
                     <option value="{{ usuario.id }}" {% if usuario.id == inscripcion.usuario_id %}selected{% endif %}>{{usuario.nombre }} {{ usuario.apellido }}</option>
@@ -223,22 +251,46 @@
 
           <div class="form-fila">
             <label for="curso-nombre-modal">Nombre:</label>
-            <input type="text" id="curso-nombre-modal" name="curso-nombre" maxlength="30" required>
+            <input type="text" 
+                   id="curso-nombre-modal" 
+                   name="curso-nombre" 
+                   maxlength="30"
+                   minlength="3"
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-.,()&]+"
+                   title="Solo letras, números y los caracteres especiales: -.,()&"
+                   placeholder="Ej: Yoga para principiantes"
+                   required>
           </div>
 
           <div class="form-fila">
             <label for="curso-cupos-modal">Cupos:</label>
-            <input type="number" id="curso-cupos-modal" name="curso-cupos" min="0" required>
+            <input type="number" 
+                   id="curso-cupos-modal" 
+                   name="curso-cupos" 
+                   min="1"
+                   max="100"
+                   title="Entre 1 y 100 cupos"
+                   placeholder="Ej: 20"
+                   required>
           </div>
 
           <div class="form-fila">
             <label for="curso-fecha_realizacion-modal">Fecha:</label>
-            <input type="date" id="curso-fecha_realizacion-modal" name="curso-fecha_realizacion" required>
+            <input type="date" 
+                   id="curso-fecha_realizacion-modal" 
+                   name="curso-fecha_realizacion" 
+                   min="2000-01-01"
+                   max="2030-12-31"
+                   title="Seleccione una fecha válida entre 2000 y 2030"
+                   required>
           </div>
 
           <div class="form-fila">
             <label for="curso-establecimiento-modal">Establecimiento:</label>
-            <select id="curso-establecimiento-modal" name="curso-establecimiento" required>
+            <select id="curso-establecimiento-modal" 
+                    name="curso-establecimiento" 
+                    required
+                    title="Seleccione un establecimiento">
               <option value="" selected disabled>Seleccione</option>
               {% for establecimiento in establecimientos %}
               <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
@@ -268,7 +320,10 @@
 
           <div class="form-fila">
             <label for="inscripcion-curso-modal">Curso:</label>
-            <select id="inscripcion-curso-modal" name="inscripcion-curso" required>
+            <select id="inscripcion-curso-modal" 
+                    name="inscripcion-curso" 
+                    required
+                    title="Seleccione un curso">
               <option value="" selected disabled>Seleccione</option>
               {% for curso in cursos %}
               <option value="{{ curso.id }}">{{ curso.nombre }}</option>
@@ -278,7 +333,10 @@
 
           <div class="form-fila">
             <label for="inscripcion-usuario-modal">Usuario:</label>
-            <select id="inscripcion-usuario-modal" name="inscripcion-usuario" required>
+            <select id="inscripcion-usuario-modal" 
+                    name="inscripcion-usuario" 
+                    required
+                    title="Seleccione un usuario">
               <option value="" selected disabled>Seleccione</option>
               {% for usuario in usuarios %}
               <option value="{{ usuario.id }}">{{ usuario.nombre }} {{ usuario.apellido }}</option>

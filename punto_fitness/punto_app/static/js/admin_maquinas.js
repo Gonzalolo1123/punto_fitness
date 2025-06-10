@@ -270,13 +270,41 @@ function inicializarEventListeners() {
   document.querySelectorAll('[name="form-editar-maquina"]').forEach(form => {
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-      const id = this.getAttribute('data-id');
+      const id = this.dataset.id;
+      
+      // Debug: verificar que el ID se obtiene correctamente
+      console.log('Máquina ID obtenido:', id);
+      console.log('Tipo de id:', typeof id);
+      
+      if (!id || id === '') {
+        alert('Error: No se pudo obtener el ID de la máquina. Por favor, recarga la página.');
+        return;
+      }
+      
+      // Verificar que todos los campos existen antes de obtener sus valores
+      const nombreInput = document.getElementById(`maquina-nombre-editar-${id}`);
+      const descripcionInput = document.getElementById(`maquina-descripcion-editar-${id}`);
+      const cantidadInput = document.getElementById(`maquina-cantidad-editar-${id}`);
+      const establecimientoInput = document.getElementById(`maquina-establecimiento-editar-${id}`);
+      
+      // Debug: verificar que los campos se encuentran
+      console.log('Campos encontrados:', {
+        nombre: nombreInput,
+        descripcion: descripcionInput,
+        cantidad: cantidadInput,
+        establecimiento: establecimientoInput
+      });
+      
+      if (!nombreInput || !descripcionInput || !cantidadInput || !establecimientoInput) {
+        alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
+        return;
+      }
       
       // Obtener y limpiar valores
-      const nombre = document.getElementById(`maquina-nombre-editar-${id}`).value.trim();
-      const descripcion = document.getElementById(`maquina-descripcion-editar-${id}`).value.trim();
-      const cantidad = document.getElementById(`maquina-cantidad-editar-${id}`).value.trim();
-      const establecimientoId = document.getElementById(`maquina-establecimiento-editar-${id}`).value;
+      const nombre = nombreInput.value.trim();
+      const descripcion = descripcionInput.value.trim();
+      const cantidad = cantidadInput.value.trim();
+      const establecimientoId = establecimientoInput.value;
       
       // Validaciones
       const errores = [];
@@ -323,6 +351,9 @@ function inicializarEventListeners() {
         cantidad: parseInt(cantidad),
         establecimiento_id: establecimientoId
       };
+      
+      // Debug: verificar los datos del formulario
+      console.log('Datos del formulario de máquina:', formData);
       
       actualizarMaquina(id, formData)
         .then(data => {
