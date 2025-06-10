@@ -50,3 +50,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const buscador = document.getElementById('buscador');
+    const filas = document.querySelectorAll('.tabla-asistencias tbody tr');
+
+    buscador.addEventListener('input', function () {
+        const termino = buscador.value.toLowerCase();
+
+        filas.forEach(fila => {
+            const id = fila.children[0].textContent.toLowerCase();
+            const nombre = fila.children[1].textContent.toLowerCase();
+            const apellido = fila.children[2].textContent.toLowerCase();
+            const email = fila.children[3].textContent.toLowerCase();
+
+            const coincide = id.includes(termino)||nombre.includes(termino) || apellido.includes(termino) || email.includes(termino);
+            fila.style.display = coincide ? '' : 'none';
+        });
+    });
+});
