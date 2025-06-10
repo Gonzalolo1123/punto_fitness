@@ -30,64 +30,71 @@ function ocultarFormularioEdicion(id, id_tipo) {
 // Función para actualizar vista de datos (INCOMPLETO)
 function actualizarVista(objeto, id_tipo) {
   const row = document.querySelector(`tr[data-id="${objeto.id}"]`);
+  if (!row) {
+    console.warn(`No se encontró la fila con data-id="${objeto.id}"`);
+    return;
+  }
+  
+  const cells = row.cells;
+  
   if (id_tipo=='producto') {
-    if (row) {
-      const cells = row.cells;
-      cells[0].textContent = objeto.nombre;
-      cells[2].textContent = objeto.descripcion;
-      cells[3].textContent = objeto.precio;
-      cells[4].textContent = objeto.stock_actual;
-      cells[5].textContent = objeto.stock_minimo;
-      cells[6].textContent = objeto.compra_id;
-      cells[7].textContent = objeto.categoria_id;
-      cells[8].textContent = objeto.establecimiento_id;
+    if (cells.length >= 8) {
+      cells[0].textContent = objeto.nombre || '';
+      cells[1].textContent = objeto.descripcion || '';
+      cells[2].textContent = objeto.precio || '';
+      cells[3].textContent = objeto.stock_actual || '';
+      cells[4].textContent = objeto.stock_minimo || '';
+      cells[5].textContent = `${objeto.compra__fecha} - $${objeto.compra__total}` || '';
+      cells[6].textContent = objeto.categoria__nombre || '';
+      cells[7].textContent = objeto.establecimiento__nombre || '';
+      // cells[8] es la columna de acciones, no se actualiza
     }
   }
   if (id_tipo=='categoria') {
-    if (row) {
-      const cells = row.cells;
-      cells[0].textContent = objeto.nombre;
-      cells[2].textContent = objeto.descripcion;
+    if (cells.length >= 2) {
+      cells[0].textContent = objeto.nombre || '';
+      cells[1].textContent = objeto.descripcion || '';
+      // cells[2] es la columna de acciones, no se actualiza
     }
   }
   if (id_tipo=='compra') {
-    if (row) {
-      const cells = row.cells;
-      cells[0].textContent = objeto.fecha;
-      cells[2].textContent = objeto.total;
-      cells[3].textContent = objeto.iva;
-      cells[4].textContent = objeto.estado;
-      cells[5].textContent = objeto.establecimiento_id;
-      cells[6].textContent = objeto.vendedor_id;
+    if (cells.length >= 6) {
+      cells[0].textContent = objeto.fecha || '';
+      cells[1].textContent = objeto.total || '';
+      cells[2].textContent = objeto.iva || '';
+      cells[3].textContent = objeto.estado || '';
+      cells[4].textContent = objeto.establecimiento__nombre || '';
+      cells[5].textContent = objeto.vendedor__nombre || '';
+      // cells[6] es la columna de acciones, no se actualiza
     }
   }
   if (id_tipo=='vendedor') {
-    if (row) {
-      const cells = row.cells;
-      cells[0].textContent = objeto.nombre;
-      cells[2].textContent = objeto.telefono;
-      cells[3].textContent = objeto.email;
-      cells[4].textContent = objeto.proveedor_id;
+    if (cells.length >= 4) {
+      cells[0].textContent = objeto.nombre || '';
+      cells[1].textContent = objeto.telefono || '';
+      cells[2].textContent = objeto.email || '';
+      cells[3].textContent = objeto.proveedor__nombre || '';
+      // cells[4] es la columna de acciones, no se actualiza
     }
   }
   if (id_tipo=='establecimiento') {
-    if (row) {
-      const cells = row.cells;
-      cells[0].textContent = objeto.nombre;
-      cells[2].textContent = objeto.direccion;
-      cells[3].textContent = objeto.telefono;
-      cells[4].textContent = objeto.email;
-      cells[5].textContent = objeto.horario_apertura;
-      cells[6].textContent = objeto.horario_cierre;
-      cells[6].textContent = objeto.proveedor_id;
+    if (cells.length >= 7) {
+      cells[0].textContent = objeto.nombre || '';
+      cells[1].textContent = objeto.direccion || '';
+      cells[2].textContent = objeto.telefono || '';
+      cells[3].textContent = objeto.email || '';
+      cells[4].textContent = objeto.horario_apertura || '';
+      cells[5].textContent = objeto.horario_cierre || '';
+      cells[6].textContent = objeto.proveedor__nombre || '';
+      // cells[7] es la columna de acciones, no se actualiza
     }
   }
   if (id_tipo=='proveedor') {
-    if (row) {
-      const cells = row.cells;
-      cells[0].textContent = objeto.nombre;
-      cells[2].textContent = objeto.telefono;
-      cells[3].textContent = objeto.email;
+    if (cells.length >= 3) {
+      cells[0].textContent = objeto.nombre || '';
+      cells[1].textContent = objeto.telefono || '';
+      cells[2].textContent = objeto.email || '';
+      // cells[3] es la columna de acciones, no se actualiza
     }
   }
 }
@@ -321,26 +328,92 @@ function eliminarProveedor(id) {
 // Creación de productos de event listeners
 function manejoCrearProducto(e) {
   e.preventDefault();
+  
+  console.log('🔧 Iniciando creación de producto...');
+  
+  const nombreElement = document.getElementById('producto-nombre');
+  const descripcionElement = document.getElementById('producto-descripcion');
+  const precioElement = document.getElementById('producto-precio');
+  const stockActualElement = document.getElementById('producto-stock-actual');
+  const stockMinimoElement = document.getElementById('producto-stock-minimo');
+  const compraElement = document.getElementById('producto-compra');
+  const categoriaElement = document.getElementById('producto-categoria');
+  const establecimientoElement = document.getElementById('producto-establecimiento');
+  
+  console.log('🔍 Elementos encontrados:', {
+    nombre: nombreElement ? 'SÍ' : 'NO',
+    descripcion: descripcionElement ? 'SÍ' : 'NO',
+    precio: precioElement ? 'SÍ' : 'NO',
+    stockActual: stockActualElement ? 'SÍ' : 'NO',
+    stockMinimo: stockMinimoElement ? 'SÍ' : 'NO',
+    compra: compraElement ? 'SÍ' : 'NO',
+    categoria: categoriaElement ? 'SÍ' : 'NO',
+    establecimiento: establecimientoElement ? 'SÍ' : 'NO'
+  });
 
   const formData = {
-    nombre: document.getElementById('producto-nombre').value,
-    descripcion: document.getElementById('producto-descripcion').value,
-    precio: document.getElementById('producto-precio').value,
-    stock_actual: document.getElementById('producto-stock-actual').value,
-    stock_minimo: document.getElementById('producto-stock-minimo').value,
-    compra_id: document.getElementById('producto-compra').value,
-    categoria_id: document.getElementById('producto-categoria').value,
-    establecimiento_id: document.getElementById('producto-establecimiento').value
+    nombre: nombreElement ? nombreElement.value : '',
+    descripcion: descripcionElement ? descripcionElement.value : '',
+    precio: precioElement ? precioElement.value : '',
+    stock_actual: stockActualElement ? stockActualElement.value : '',
+    stock_minimo: stockMinimoElement ? stockMinimoElement.value : '',
+    compra_id: compraElement ? compraElement.value : '',
+    categoria_id: categoriaElement ? categoriaElement.value : '',
+    establecimiento_id: establecimientoElement ? establecimientoElement.value : ''
   };
 
+  console.log('📋 Datos del formulario:', formData);
+  
+  // Verificar opciones disponibles en los selects
+  if (categoriaElement) {
+    const opcionesCategoria = categoriaElement.querySelectorAll('option');
+    console.log('🏷️ Opciones de categoría disponibles:', opcionesCategoria.length - 1); // -1 por la opción por defecto
+    opcionesCategoria.forEach((opcion, index) => {
+      if (opcion.value) { // Solo las opciones con valor (no la opción por defecto)
+        console.log(`  - Categoría ${index}: ID=${opcion.value}, Nombre="${opcion.textContent}"`);
+      }
+    });
+  }
+  
+  if (compraElement) {
+    const opcionesCompra = compraElement.querySelectorAll('option');
+    console.log('🛒 Opciones de compra disponibles:', opcionesCompra.length - 1);
+    opcionesCompra.forEach((opcion, index) => {
+      if (opcion.value) {
+        console.log(`  - Compra ${index}: ID=${opcion.value}, Fecha="${opcion.textContent}"`);
+      }
+    });
+  }
+  
+  if (establecimientoElement) {
+    const opcionesEstablecimiento = establecimientoElement.querySelectorAll('option');
+    console.log('🏢 Opciones de establecimiento disponibles:', opcionesEstablecimiento.length - 1);
+    opcionesEstablecimiento.forEach((opcion, index) => {
+      if (opcion.value) {
+        console.log(`  - Establecimiento ${index}: ID=${opcion.value}, Nombre="${opcion.textContent}"`);
+      }
+    });
+  }
+  
+  // Validar campos requeridos
+  const camposVacios = Object.entries(formData).filter(([key, value]) => !value || value === '');
+  if (camposVacios.length > 0) {
+    console.warn('⚠️ Campos vacíos detectados:', camposVacios.map(([key]) => key));
+    console.warn('⚠️ Valores actuales:', formData);
+    alert('Por favor, complete todos los campos incluyendo categoría, compra y establecimiento');
+    return;
+  }
+
+  console.log('🚀 Enviando datos para crear producto...');
   crearProducto(formData)
     .then(data => {
+      console.log('✅ Respuesta del servidor:', data);
       if (data.error) throw new Error(data.error);
       alert('Producto creado exitosamente');
       window.location.reload();
     })
     .catch(error => {
-      console.error('Error:', error);
+      console.error('💥 Error al crear producto:', error);
       alert('Error al crear producto: ' + error.message);
     });
 };
@@ -467,13 +540,26 @@ function manejoCrearProveedor(e) {
 ////////////////////////////////////
 
 function inicializarEventListeners() {
+  console.log('Inicializando event listeners...');
+  
   const formCrearProducto = document.getElementById('form-crear-producto');
   const formCrearCategoria = document.getElementById('form-crear-categoria');
   const formCrearCompraVendedor = document.getElementById('form-crear-compra');
   const formCrearVendedor = document.getElementById('form-crear-vendedor');
   const formCrearEstablecimiento = document.getElementById('form-crear-establecimiento');
   const formCrearProveedor = document.getElementById('form-crear-proveedor');
+  
+  console.log('Formularios encontrados:', {
+    producto: formCrearProducto,
+    categoria: formCrearCategoria,
+    compra: formCrearCompraVendedor,
+    vendedor: formCrearVendedor,
+    establecimiento: formCrearEstablecimiento,
+    proveedor: formCrearProveedor
+  });
+  
   if (formCrearProducto) {
+    console.log('Agregando event listener a form-crear-producto');
     formCrearProducto.addEventListener('submit', manejoCrearProducto);
   }
   if (formCrearCategoria) {
@@ -509,6 +595,7 @@ document.querySelectorAll('[name="form-editar-producto"]').forEach(form => {
       nombre: this.querySelector('[name="producto-nombre"]').value,
       descripcion: this.querySelector('[name="producto-descripcion"]').value,
       precio: this.querySelector('[name="producto-precio"]').value,
+      stock_actual: this.querySelector('[name="producto-stock-actual"]').value,
       stock_minimo: this.querySelector('[name="producto-stock-minimo"]').value
     };
     
@@ -654,7 +741,7 @@ document.querySelectorAll('[name="form-editar-proveedor"]').forEach(form => {
       email: this.querySelector('[name="proveedor-email"]').value,
     };
     
-    actualizarProveedor(proveedor-Id, formData)
+    actualizarProveedor(proveedorId, formData)
       .then(data => {
         if (data.error) throw new Error(data.error);
         id_tipo='proveedor';
@@ -895,23 +982,23 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Mostrar/ocultar formularios de creación en el flujo normal de la página (sin modal)
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.btn-toggle-form').forEach(btn => {
-    btn.addEventListener('click', function () {
-      const formId = this.getAttribute('data-form');
-      const modal = document.getElementById(formId);
-      const estado = this.getAttribute('data-estado') || 'cerrado';
-      if (!modal) return;
-
-      if (estado === 'cerrado') {
-        modal.style.display = 'block';
-        this.setAttribute('data-estado', 'abierto');
-        this.textContent = '-';
-      } else {
-        modal.style.display = 'none';
-        this.setAttribute('data-estado', 'cerrado');
-        this.textContent = '+';
-      }
-    });
+document.querySelectorAll('.btn-toggle-form').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const formId = this.getAttribute('data-form');
+    const modal = document.getElementById(formId);
+    if (modal) {
+      modal.style.display = 'block';
+      // Espera a que el modal esté visible y el DOM actualizado
+      setTimeout(() => {
+        const formCrearProducto = document.getElementById('form-crear-producto');
+        if (formCrearProducto) {
+          formCrearProducto.removeEventListener('submit', manejoCrearProducto); // Evita duplicados
+          formCrearProducto.addEventListener('submit', manejoCrearProducto);
+          console.log('✅ Event listener agregado a form-crear-producto (modal abierto)');
+        } else {
+          console.warn('⚠️ No se encontró el formulario de crear producto al abrir el modal');
+        }
+      }, 100);
+    }
   });
 });

@@ -15,6 +15,7 @@ urlpatterns = [
     path('logout/', views.logout_cliente, name='logout'),
     path("verificar-correo/", views.verificar_correo, name="verificar_correo"),
     path("verificar-sesion/", views.verificar_sesion, name="verificar_sesion"),
+    path("recuperar-contrasena/", views.recuperar_contrasena, name="recuperar_contrasena"),
     
     path('inventario/', views.inventario, name='inventario'),
 

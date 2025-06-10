@@ -33,19 +33,16 @@ function actualizarVista(objeto, id_tipo) {
   if (id_tipo=='curso') {
     if (row) {
       const cells = row.cells;
-      cells[0].textContent = objeto.nombre;
+      cells[1].textContent = objeto.nombre;
       cells[2].textContent = objeto.cupos;
-      cells[3].textContent = objeto.fecha_realizacion;
+      cells[3].textContent = new Date(objeto.fecha_realizacion).toLocaleDateString('es-ES');
       cells[4].textContent = objeto.estado;
-      cells[5].textContent = objeto.establecimiento_id;
+      // La celda del establecimiento se actualizará con window.location.reload()
     }
   }
   if (id_tipo=='inscripcion') {
     if (row) {
-      const cells = row.cells;
-      cells[0].textContent = objeto.cliente_id;
-      cells[2].textContent = objeto.curso_id;
-      cells[3].textContent = objeto.fecha_inscripcion;
+      // Las celdas de inscripción se actualizarán con window.location.reload()
     }
   }
 }
