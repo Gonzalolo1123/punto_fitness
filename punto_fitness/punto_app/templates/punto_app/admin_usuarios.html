@@ -4,6 +4,7 @@
 {% block title %}Usuarios - Punto Fitness{% endblock %}
 
 {% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
 {% endblock %}
 
@@ -63,20 +64,20 @@
                 <form class="formulario" id="form-crear-usuario-modal">
                     {% csrf_token %}
                     <div class="form-fila">
-                        <label for="usuario-nombre-modal">Nombre:</label>
-                        <input type="text" id="usuario-nombre-modal" name="usuario-nombre" maxlength="30" required>
+                        <label for="usuario-nombre">Nombre:</label>
+                        <input type="text" id="usuario-nombre" name="usuario-nombre" maxlength="30" required>
                     </div>
                     <div class="form-fila">
-                        <label for="usuario-apellido-modal">Apellido:</label>
-                        <input type="text" id="usuario-apellido-modal" name="usuario-apellido" required>
+                        <label for="usuario-apellido">Apellido:</label>
+                        <input type="text" id="usuario-apellido" name="usuario-apellido" required>
                     </div>
                     <div class="form-fila">
-                        <label for="usuario-correo-modal">Correo electrónico:</label>
-                        <input type="email" id="usuario-correo-modal" name="usuario-correo" required>
+                        <label for="usuario-correo">Correo electrónico:</label>
+                        <input type="email" id="usuario-correo" name="usuario-correo" required>
                     </div>
                     <div class="form-fila">
-                        <label for="usuario-telefono-modal">Teléfono:</label>
-                        <input type="tel" id="usuario-telefono-modal" name="usuario-telefono" required>
+                        <label for="usuario-telefono">Teléfono:</label>
+                        <input type="tel" id="usuario-telefono" name="usuario-telefono" required>
                     </div>
                     <div class="modal-actions">
                         <button class="filtro-btn" type="submit">Agregar usuario</button>
@@ -97,22 +98,22 @@
             <div class="modal-body">
                 <form class="formulario" id="form-editar-usuario">
                     {% csrf_token %}
-                    <input type="hidden" id="usuario-id-editar" name="usuario-id">
+                    <input type="hidden" id="usuario-id-editar" name="usuario-id-editar">
                     <div class="form-fila">
                         <label for="usuario-nombre-editar">Nombre:</label>
-                        <input type="text" id="usuario-nombre-editar" name="usuario-nombre" maxlength="30" required>
+                        <input type="text" id="usuario-nombre-editar" name="usuario-nombre-editar" maxlength="30" required>
                     </div>
                     <div class="form-fila">
                         <label for="usuario-apellido-editar">Apellido:</label>
-                        <input type="text" id="usuario-apellido-editar" name="usuario-apellido" maxlength="30" required>
+                        <input type="text" id="usuario-apellido-editar" name="usuario-apellido-editar" maxlength="30" required>
                     </div>
                     <div class="form-fila">
                         <label for="usuario-correo-editar">Correo electrónico:</label>
-                        <input type="email" id="usuario-correo-editar" name="usuario-correo" maxlength="50" required>
+                        <input type="email" id="usuario-correo-editar" name="usuario-correo-editar" maxlength="50" required>
                     </div>
                     <div class="form-fila">
                         <label for="usuario-telefono-editar">Teléfono:</label>
-                        <input type="tel" id="usuario-telefono-editar" name="usuario-telefono" maxlength="20" required>
+                        <input type="tel" id="usuario-telefono-editar" name="usuario-telefono-editar" maxlength="20" required>
                     </div>
                     <div class="modal-actions">
                         <button class="filtro-btn" type="submit">Actualizar Usuario</button>

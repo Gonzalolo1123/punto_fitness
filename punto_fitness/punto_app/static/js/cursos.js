@@ -15,12 +15,22 @@ function getCSRFToken() {
 }
 
 // Función para mostrar formulario de edición (ahora abre el modal)
-function mostrarFormularioEdicion(id, id_tipo) {
+function mostrarFormularioEdicion(id, id_tipo, fecha_realizacion = null) {
   console.log(`🎯 Abriendo modal de edición para ${id_tipo} con ID: ${id}`);
   console.log(`🔍 Buscando modal con ID: modal-fondo-editar-${id_tipo}-${id}`);
   const modalFondo = document.getElementById(`modal-fondo-editar-${id_tipo}-${id}`);
   if (modalFondo) {
     modalFondo.style.display = 'flex';
+
+    // Si es un modal de curso y se pasó la fecha, establecer el valor del input de fecha
+    if (id_tipo === 'curso' && fecha_realizacion) {
+      const fechaInput = modalFondo.querySelector('[name="curso-fecha_realizacion"]');
+      if (fechaInput) {
+        fechaInput.value = fecha_realizacion;
+        console.log('Fecha establecida en el input del modal:', fecha_realizacion);
+      }
+    }
+
     setTimeout(() => {
       const primerInput = modalFondo.querySelector('input, select');
       if (primerInput) {
@@ -169,7 +179,8 @@ function inicializarEventListeners() {
 document.querySelectorAll('[name="btn-editar-curso"]').forEach(btn => {
   btn.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
-      mostrarFormularioEdicion(id, 'curso');
+      const fecha = this.getAttribute('data-fecha');
+      mostrarFormularioEdicion(id, 'curso', fecha);
   });
 });
 
@@ -214,16 +225,39 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
   });
 });
 
-  // Event listeners para formularios de edición
-  document.querySelectorAll('[name="form-editar-curso"]').forEach(form => {
-    form.addEventListener('submit', function(e) {
+  // Event listeners para formularios de edición (usando delegación de eventos)
+  document.addEventListener('submit', function(e) {
+    if (e.target && e.target.matches('[name="form-editar-curso"]')) {
       e.preventDefault();
-      const id = this.getAttribute('data-id');
+      const form = e.target; // Referencia al formulario que disparó el evento
+      const id = form.getAttribute('data-id');
+      
+      console.log('Evento submit disparado para el formulario con data-id:', id); // Console.log simplificado
+      const nombreInput = document.getElementById(`curso-nombre-editar-modal-${id}`);
+      const nombre = nombreInput ? nombreInput.value : '';
+      const cuposInput = document.getElementById(`curso-cupos-editar-modal-${id}`);
+      const cupos = cuposInput ? cuposInput.value : '';
+      // Obtener la fecha de realización directamente por su ID construido
+      const fechaInput = document.getElementById(`curso-fecha_realizacion-editar-modal-${id}`);
+      const fecha_realizacion = fechaInput ? fechaInput.value : '';
+      const EstacionamientoInput = document.getElementById(`curso-establecimiento-editar-modal-${id}`);
+      const establecimiento_id = EstacionamientoInput ? EstacionamientoInput.value : '';
+      
+      console.log('Valor de establecimiento_id a enviar:', establecimiento_id); // Nuevo console.log para depuración
+
+      // Reintroducimos la validación de la fecha
+      if (!fecha_realizacion) {
+        alert('La fecha de realización es obligatoria');
+        return;
+      }
+      
+      console.log('Valor de fecha_realizacion a enviar (después de validación):', fecha_realizacion);
+
       const formData = {
-        nombre: this.querySelector('[name="curso-nombre"]')?.value ?? '',
-        cupos: parseInt(this.querySelector('[name="curso-cupos"]')?.value) || 0,
-        fecha_realizacion: this.querySelector('[name="curso-fecha_realizacion"]')?.value ?? '',
-        establecimiento_id: this.querySelector('[name="curso-establecimiento"]')?.value ?? ''
+        nombre: nombre,
+        cupos: cupos,
+        fecha_realizacion: fecha_realizacion,
+        establecimiento_id: establecimiento_id
       };
       
       actualizarCurso(id, formData)
@@ -238,7 +272,7 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
           console.error('Error:', error);
           alert('Error al actualizar: ' + error.message);
         });
-    });
+    }
   });
 
   document.querySelectorAll('[name="form-editar-inscripcion"]').forEach(form => {

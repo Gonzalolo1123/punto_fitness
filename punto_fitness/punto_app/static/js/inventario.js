@@ -188,7 +188,25 @@ function actualizarProducto(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 // Función para actualizar categoria
@@ -200,7 +218,25 @@ function actualizarCategoria(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 // Función para actualizar compra
@@ -212,8 +248,25 @@ function actualizarCompraVendedor(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
-}
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });}
 
 // Función para actualizar vendedor
 function actualizarVendedor(id, data) {
@@ -224,7 +277,25 @@ function actualizarVendedor(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 // Función para actualizar establecimiento
@@ -236,7 +307,25 @@ function actualizarEstablecimiento(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 // Función para actualizar proveedor
@@ -248,7 +337,25 @@ function actualizarProveedor(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 //////////////////////////////
@@ -263,7 +370,27 @@ function eliminarProducto(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">El producto ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error al eliminar el producto');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el procduto: ' + error.message, 'error');
+  });
 }
 
 // Función para eliminar categoria
@@ -274,7 +401,27 @@ function eliminarCategoria(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">La categoria ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error al eliminar categoria');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el proveedor: ' + error.message, 'error');
+  });
 }
 
 // Función para eliminar compra
@@ -285,7 +432,27 @@ function eliminarCompraVendedor(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">La compra ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error al eliminar la compra');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar la compra: ' + error.message, 'error');
+  });
 }
 
 // Función para eliminar vendedor
@@ -296,8 +463,27 @@ function eliminarVendedor(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
-}
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">El vendedor ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error al eliminar el vendedor');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el vendedor: ' + error.message, 'error');
+  });}
 
 // Función para eliminar establecimiento
 function eliminarEstablecimiento(id) {
@@ -307,7 +493,25 @@ function eliminarEstablecimiento(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">Tu Eliminación ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 // Función para eliminar proveedor
@@ -318,7 +522,27 @@ function eliminarProveedor(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">El proveedor ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error al eliminar proveedor');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el proveedor: ' + error.message, 'error');
+  });
 }
 
 ////////////////////////////////////////////
@@ -328,8 +552,7 @@ function eliminarProveedor(id) {
 // Creación de productos de event listeners
 function manejoCrearProducto(e) {
   e.preventDefault();
-  
-  console.log('🔧 Iniciando creación de producto...');
+
   
   const nombreElement = document.getElementById('producto-nombre');
   const descripcionElement = document.getElementById('producto-descripcion');
@@ -339,17 +562,7 @@ function manejoCrearProducto(e) {
   const compraElement = document.getElementById('producto-compra');
   const categoriaElement = document.getElementById('producto-categoria');
   const establecimientoElement = document.getElementById('producto-establecimiento');
-  
-  console.log('🔍 Elementos encontrados:', {
-    nombre: nombreElement ? 'SÍ' : 'NO',
-    descripcion: descripcionElement ? 'SÍ' : 'NO',
-    precio: precioElement ? 'SÍ' : 'NO',
-    stockActual: stockActualElement ? 'SÍ' : 'NO',
-    stockMinimo: stockMinimoElement ? 'SÍ' : 'NO',
-    compra: compraElement ? 'SÍ' : 'NO',
-    categoria: categoriaElement ? 'SÍ' : 'NO',
-    establecimiento: establecimientoElement ? 'SÍ' : 'NO'
-  });
+
 
   const formData = {
     nombre: nombreElement ? nombreElement.value : '',
@@ -361,8 +574,6 @@ function manejoCrearProducto(e) {
     categoria_id: categoriaElement ? categoriaElement.value : '',
     establecimiento_id: establecimientoElement ? establecimientoElement.value : ''
   };
-
-  console.log('📋 Datos del formulario:', formData);
   
   // Verificar opciones disponibles en los selects
   if (categoriaElement) {
@@ -422,9 +633,38 @@ function manejoCrearProducto(e) {
 function manejoCrearCategoria(e) {
   e.preventDefault();
   
+  // Obtener y limpiar valores
+  const nombre = document.getElementById('categoria-nombre').value.trim();
+  const descripcion = document.getElementById('categoria-descripcion').value.trim();
+  
+  // Validaciones
+  const errores = [];
+  
+  // 1. Validar nombre (obligatorio, longitud, caracteres)
+  if (!nombre) {
+    errores.push('El nombre es obligatorio');
+  } else if (nombre.length > 30) {
+    errores.push('El nombre no puede exceder los 30 caracteres');
+  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-]/.test(nombre)) {
+    errores.push('El nombre solo puede contener letras, números, espacios y guiones');
+  }
+  
+  // 2. Validar descripción (obligatoria, longitud)
+  if (!descripcion) {
+    errores.push('La descripción es obligatoria');
+  } else if (descripcion.length > 50) {
+    errores.push('La descripción no puede exceder los 50 caracteres');
+  }
+  
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+    return;
+  }
+  
   const formData = {
-    nombre: document.getElementById('categoria-nombre').value,
-    descripcion: document.getElementById('categoria-descripcion').value,
+    nombre: nombre,
+    descripcion: descripcion,
   };
   
   crearCategoria(formData)
@@ -443,13 +683,74 @@ function manejoCrearCategoria(e) {
 function manejoCrearCompraVendedor(e) {
   e.preventDefault();
   
+  // Obtener y limpiar valores
+  const fecha = document.getElementById('compra-fecha').value;
+  const total = document.getElementById('compra-total').value.trim();
+  const iva = document.getElementById('compra-iva').value.trim();
+  const estado = document.getElementById('compra-estado').value;
+  const establecimientoId = document.getElementById('compra-establecimiento').value;
+  const vendedorId = document.getElementById('compra-vendedor').value;
+  
+  // Validaciones
+  const errores = [];
+  
+  // 1. Validar fecha (obligatoria, formato)
+  if (!fecha) {
+    errores.push('La fecha es obligatoria');
+  } else {
+    const fechaObj = new Date(fecha);
+    const hoy = new Date();
+    if (fechaObj > hoy) {
+      errores.push('La fecha no puede ser futura');
+    }
+  }
+  
+  // 2. Validar total (obligatorio, numérico, positivo)
+  if (!total) {
+    errores.push('El total es obligatorio');
+  } else if (isNaN(total) || parseFloat(total) <= 0) {
+    errores.push('El total debe ser un número positivo');
+  } else if (parseFloat(total) > 999999999) {
+    errores.push('El total no puede exceder 999,999,999');
+  }
+  
+  // 3. Validar IVA (obligatorio, numérico, no negativo)
+  if (!iva) {
+    errores.push('El IVA es obligatorio');
+  } else if (isNaN(iva) || parseFloat(iva) < 0) {
+    errores.push('El IVA debe ser un número no negativo');
+  } else if (parseFloat(iva) > 100) {
+    errores.push('El IVA no puede exceder el 100%');
+  }
+  
+  // 4. Validar estado (obligatorio)
+  if (!estado) {
+    errores.push('Debe seleccionar un estado');
+  }
+  
+  // 5. Validar establecimiento (obligatorio)
+  if (!establecimientoId || establecimientoId === "") {
+    errores.push('Debe seleccionar un establecimiento');
+  }
+  
+  // 6. Validar vendedor (obligatorio)
+  if (!vendedorId || vendedorId === "") {
+    errores.push('Debe seleccionar un vendedor');
+  }
+  
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+    return;
+  }
+  
   const formData = {
-    fecha: document.getElementById('compra-fecha').value,
-    total: document.getElementById('compra-total').value,
-    iva: document.getElementById('compra-iva').value,
-    estado: document.getElementById('compra-estado').value,
-    establecimiento_id: document.getElementById('compra-establecimiento').value,
-    vendedor_id: document.getElementById('compra-vendedor').value,
+    fecha: fecha,
+    total: parseFloat(total),
+    iva: parseFloat(iva),
+    estado: estado === 'True',
+    establecimiento_id: establecimientoId,
+    vendedor_id: vendedorId,
   };
   
   crearCompraVendedor(formData)
@@ -468,11 +769,59 @@ function manejoCrearCompraVendedor(e) {
 function manejoCrearVendedor(e) {
   e.preventDefault();
   
+  // Obtener y limpiar valores
+  const nombre = document.getElementById('vendedor-nombre').value.trim();
+  const telefono = document.getElementById('vendedor-telefono').value.trim();
+  const email = document.getElementById('vendedor-email').value.trim();
+  const proveedorId = document.getElementById('vendedor-proveedor').value;
+  
+  // Validaciones
+  const errores = [];
+  
+  // 1. Validar nombre (obligatorio, longitud, caracteres)
+  if (!nombre) {
+    errores.push('El nombre es obligatorio');
+  } else if (nombre.length > 30) {
+    errores.push('El nombre no puede exceder los 30 caracteres');
+  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]/.test(nombre)) {
+    errores.push('El nombre solo puede contener letras, espacios y guiones');
+  }
+  
+  // 2. Validar teléfono (obligatorio, formato)
+  if (!telefono) {
+    errores.push('El teléfono es obligatorio');
+  } else if (!/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
+    errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
+  }
+  
+  // 3. Validar email (obligatorio, formato)
+  if (!email) {
+    errores.push('El email es obligatorio');
+  } else {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errores.push('El email no tiene un formato válido');
+    } else if (email.length > 30) {
+      errores.push('El email no puede exceder los 30 caracteres');
+    }
+  }
+  
+  // 4. Validar proveedor (obligatorio)
+  if (!proveedorId || proveedorId === "") {
+    errores.push('Debe seleccionar un proveedor');
+  }
+  
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+    return;
+  }
+  
   const formData = {
-    nombre: document.getElementById('vendedor-nombre').value,
-    telefono: document.getElementById('vendedor-telefono').value,
-    email: document.getElementById('vendedor-email').value,
-    proveedor_id: document.getElementById('vendedor-proveedor').value,
+    nombre: nombre,
+    telefono: telefono,
+    email: email,
+    proveedor_id: proveedorId,
   };
   
   crearVendedor(formData)
@@ -487,20 +836,86 @@ function manejoCrearVendedor(e) {
     });
 };
 
-// Creación de establecimiento de event listeners
 function manejoCrearEstablecimiento(e) {
   e.preventDefault();
   
-  const formData = {
-    nombre: document.getElementById('establecimiento-nombre').value,
-    direccion: document.getElementById('establecimiento-direccion').value,
-    telefono: document.getElementById('establecimiento-telefono').value,
-    email: document.getElementById('establecimiento-email').value,
-    horario_apertura: document.getElementById('establecimiento-horario_apertura').value,
-    horario_cierre: document.getElementById('establecimiento-horario_cierre').value,
-    proveedor_id: document.getElementById('establecimiento-proveedor').value,
-  };
+  // Obtener y limpiar valores
+  const nombre = document.getElementById('establecimiento-nombre').value.trim();
+  const direccion = document.getElementById('establecimiento-direccion').value.trim();
+  const telefono = document.getElementById('establecimiento-telefono').value.trim();
+  const email = document.getElementById('establecimiento-email').value.trim();
+  const apertura = document.getElementById('establecimiento-horario_apertura').value;
+  const cierre = document.getElementById('establecimiento-horario_cierre').value;
+  const proveedorId = document.getElementById('establecimiento-proveedor').value;
+
+  // Validaciones
+  const errores = [];
   
+  // 1. Validar nombre (obligatorio, longitud, caracteres)
+  if (!nombre) {
+    errores.push('El nombre es obligatorio');
+  } else if (nombre.length > 100) {
+    errores.push('El nombre no puede exceder los 100 caracteres');
+  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.,]/.test(nombre)) {
+    errores.push('El nombre contiene caracteres no permitidos');
+  }
+
+  // 2. Validar dirección (obligatoria, longitud)
+  if (!direccion) {
+    errores.push('La dirección es obligatoria');
+  } else if (direccion.length > 200) {
+    errores.push('La dirección no puede exceder los 200 caracteres');
+  }
+
+  // 3. Validar teléfono (formato opcional)
+  if (telefono && !/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
+    errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
+  }
+
+  // 4. Validar email (formato)
+  if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errores.push('El email no tiene un formato válido');
+    } else if (email.length > 100) {
+      errores.push('El email no puede exceder los 100 caracteres');
+    }
+  }
+
+  // 5. Validar horarios
+  if (!apertura) {
+    errores.push('El horario de apertura es obligatorio');
+  }
+  if (!cierre) {
+    errores.push('El horario de cierre es obligatorio');
+  }
+  if (apertura && cierre && apertura >= cierre) {
+    errores.push('El horario de apertura debe ser anterior al de cierre');
+  }
+
+  // 6. Validar proveedor (obligatorio)
+  if (!proveedorId || proveedorId === "0") {
+    errores.push('Debe seleccionar un proveedor válido');
+  }
+
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+    return;
+  }
+
+  // Preparar datos para enviar
+  const formData = {
+    nombre: nombre,
+    direccion: direccion,
+    telefono: telefono,
+    email: email,
+    horario_apertura: apertura,
+    horario_cierre: cierre,
+    proveedor_id: proveedorId
+  };
+
+  // Enviar datos
   crearEstablecimiento(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
@@ -511,18 +926,61 @@ function manejoCrearEstablecimiento(e) {
       console.error('Error:', error);
       alert('Error al crear establecimiento: ' + error.message);
     });
-};
+}
 
-// Creación de proveedor de event listeners
 function manejoCrearProveedor(e) {
   e.preventDefault();
   
+  // Obtener valores del formulario
+  const nombre = document.getElementById('proveedor-nombre').value.trim();
+  const telefono = document.getElementById('proveedor-telefono').value.trim();
+  const email = document.getElementById('proveedor-email').value.trim();
+  
+  // Validaciones
+  const errores = [];
+  
+  // 1. Validar nombre
+  if (!nombre) {
+    errores.push('El nombre es obligatorio');
+  } else if (nombre.length > 100) {
+    errores.push('El nombre no puede exceder los 100 caracteres');
+  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]/.test(nombre)) {
+    errores.push('El nombre solo puede contener letras, espacios y guiones');
+  }
+  
+  // 2. Validar teléfono
+  if (telefono) {
+    if (!/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
+      errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
+    }
+  }
+  
+  // 3. Validar email
+  if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errores.push('El email no tiene un formato válido');
+    } else if (email.length > 100) {
+      errores.push('El email no puede exceder los 100 caracteres');
+    }
+  } else {
+    errores.push('El email es obligatorio');
+  }
+  
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+    return;
+  }
+  
+  // Preparar datos para enviar
   const formData = {
-    nombre: document.getElementById('proveedor-nombre').value,
-    telefono: document.getElementById('proveedor-telefono').value,
-    email: document.getElementById('proveedor-email').value,
+    nombre: nombre,
+    telefono: telefono,
+    email: email
   };
   
+  // Enviar datos
   crearProveedor(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
@@ -533,8 +991,7 @@ function manejoCrearProveedor(e) {
       console.error('Error:', error);
       alert('Error al crear proveedor: ' + error.message);
     });
-};
-
+}
 ////////////////////////////////////
 // INICIALIZACIÓN EVENT LISTENERS //
 ////////////////////////////////////
@@ -599,6 +1056,7 @@ function inicializarEventListeners() {
   document.querySelectorAll('[name="btn-eliminar-proveedor"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
+      console.log('Intentando eliminar proveedor con ID:', id);
       if (confirm('¿Está seguro de que desea eliminar este proveedor?')) {
         eliminarProveedor(id);
       }

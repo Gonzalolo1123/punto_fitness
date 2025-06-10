@@ -116,7 +116,31 @@ function actualizarMaquina(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      return response.json().then(responseData => {
+        Swal.fire({
+          title: 'Actualización Exitosa!',
+          html: `<p style="color: #555;">La máquina ha sido actualizada correctamente.</p>`,
+          icon: 'success',
+          confirmButtonColor: '#28a745'
+        }).then(() => {
+          // Recarga la página cuando se cierra el SweetAlert
+          location.reload();
+        });
+        return responseData; // Devolver los datos para que el event listener los pueda usar
+      });
+    } else {
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al actualizar la máquina');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al actualizar máquina:', error);
+    Swal.fire('Error', 'Ocurrió un error al actualizar la máquina: ' + error.message, 'error');
+    throw error; // Re-lanzar el error para que el event listener lo pueda manejar
+  });
 }
 
 // Función para eliminar maquina
@@ -128,7 +152,27 @@ function eliminarMaquina(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">La maquina ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error al eliminar la maquina');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar la maquina: ' + error.message, 'error');
+  });
 }
 
 function inicializarEventListeners() {
@@ -142,10 +186,10 @@ function inicializarEventListeners() {
       e.preventDefault();
       console.log('🎯 Evento submit del formulario crear máquina');
       
-      const nombreInput = document.getElementById('maquina-nombre-modal');
-      const descripcionInput = document.getElementById('maquina-descripcion-modal');
-      const cantidadInput = document.getElementById('maquina-cantidad-modal');
-      const establecimientoSelect = document.getElementById('maquina-establecimiento-modal');
+      const nombreInput = document.getElementById('maquina-nombre');
+      const descripcionInput = document.getElementById('maquina-descripcion');
+      const cantidadInput = document.getElementById('maquina-cantidad');
+      const establecimientoSelect = document.getElementById('maquina-establecimiento');
       
       console.log('🔍 Campos del formulario:');
       console.log('  - Nombre input:', nombreInput ? 'SÍ' : 'NO', nombreInput?.value);
@@ -153,22 +197,59 @@ function inicializarEventListeners() {
       console.log('  - Cantidad input:', cantidadInput ? 'SÍ' : 'NO', cantidadInput?.value);
       console.log('  - Establecimiento select:', establecimientoSelect ? 'SÍ' : 'NO', establecimientoSelect?.value);
       
+      // Obtener y limpiar valores
+      const nombre = nombreInput?.value.trim() || '';
+      const descripcion = descripcionInput?.value.trim() || '';
+      const cantidad = cantidadInput?.value.trim() || '';
+      const establecimientoId = establecimientoSelect?.value || '';
+      
+      // Validaciones
+      const errores = [];
+      
+      // 1. Validar nombre (obligatorio, longitud, caracteres)
+      if (!nombre) {
+        errores.push('El nombre es obligatorio');
+      } else if (nombre.length > 30) {
+        errores.push('El nombre no puede exceder los 30 caracteres');
+      } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-]/.test(nombre)) {
+        errores.push('El nombre solo puede contener letras, números, espacios y guiones');
+      }
+      
+      // 2. Validar descripción (obligatoria, longitud)
+      if (!descripcion) {
+        errores.push('La descripción es obligatoria');
+      } else if (descripcion.length > 50) {
+        errores.push('La descripción no puede exceder los 50 caracteres');
+      }
+      
+      // 3. Validar cantidad (obligatoria, numérica, positiva)
+      if (!cantidad) {
+        errores.push('La cantidad es obligatoria');
+      } else if (isNaN(cantidad) || parseInt(cantidad) < 0) {
+        errores.push('La cantidad debe ser un número no negativo');
+      } else if (parseInt(cantidad) > 999) {
+        errores.push('La cantidad no puede exceder 999');
+      }
+      
+      // 4. Validar establecimiento (obligatorio)
+      if (!establecimientoId || establecimientoId === "") {
+        errores.push('Debe seleccionar un establecimiento');
+      }
+      
+      // Mostrar errores si existen
+      if (errores.length > 0) {
+        alert('Errores en el formulario:\n\n' + errores.join('\n'));
+        return;
+      }
+      
       const formData = {
-        nombre: nombreInput?.value || '',
-        descripcion: descripcionInput?.value || '',
-        cantidad: cantidadInput?.value || '',
-        establecimiento_id: establecimientoSelect?.value || 1
+        nombre: nombre,
+        descripcion: descripcion,
+        cantidad: parseInt(cantidad),
+        establecimiento_id: establecimientoId
       };
       
       console.log('📋 Datos del formulario:', formData);
-      
-      // Validar que todos los campos tengan datos
-      const camposVacios = Object.entries(formData).filter(([key, value]) => !value || value === '');
-      if (camposVacios.length > 0) {
-        console.warn('⚠️ Campos vacíos detectados:', camposVacios.map(([key]) => key));
-        alert('Por favor, complete todos los campos incluyendo el establecimiento');
-        return;
-      }
       
       crearMaquina(formData)
         .then(data => {
@@ -190,24 +271,67 @@ function inicializarEventListeners() {
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       const id = this.getAttribute('data-id');
+      
+      // Obtener y limpiar valores
+      const nombre = document.getElementById(`maquina-nombre-editar-${id}`).value.trim();
+      const descripcion = document.getElementById(`maquina-descripcion-editar-${id}`).value.trim();
+      const cantidad = document.getElementById(`maquina-cantidad-editar-${id}`).value.trim();
+      const establecimientoId = document.getElementById(`maquina-establecimiento-editar-${id}`).value;
+      
+      // Validaciones
+      const errores = [];
+      
+      // 1. Validar nombre (obligatorio, longitud, caracteres)
+      if (!nombre) {
+        errores.push('El nombre es obligatorio');
+      } else if (nombre.length > 30) {
+        errores.push('El nombre no puede exceder los 30 caracteres');
+      } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-]/.test(nombre)) {
+        errores.push('El nombre solo puede contener letras, números, espacios y guiones');
+      }
+      
+      // 2. Validar descripción (obligatoria, longitud)
+      if (!descripcion) {
+        errores.push('La descripción es obligatoria');
+      } else if (descripcion.length > 50) {
+        errores.push('La descripción no puede exceder los 50 caracteres');
+      }
+      
+      // 3. Validar cantidad (obligatoria, numérica, positiva)
+      if (!cantidad) {
+        errores.push('La cantidad es obligatoria');
+      } else if (isNaN(cantidad) || parseInt(cantidad) < 0) {
+        errores.push('La cantidad debe ser un número no negativo');
+      } else if (parseInt(cantidad) > 999) {
+        errores.push('La cantidad no puede exceder 999');
+      }
+      
+      // 4. Validar establecimiento (obligatorio)
+      if (!establecimientoId || establecimientoId === "") {
+        errores.push('Debe seleccionar un establecimiento');
+      }
+      
+      // Mostrar errores si existen
+      if (errores.length > 0) {
+        alert('Errores en el formulario:\n\n' + errores.join('\n'));
+        return;
+      }
+      
       const formData = {
-        nombre: this.querySelector('[name="maquina-nombre"]').value,
-        descripcion: this.querySelector('[name="maquina-descripcion"]').value,
-        cantidad: this.querySelector('[name="maquina-cantidad"]').value,
-        establecimiento_id: this.querySelector('[name="maquina-establecimiento"]').value
+        nombre: nombre,
+        descripcion: descripcion,
+        cantidad: parseInt(cantidad),
+        establecimiento_id: establecimientoId
       };
       
       actualizarMaquina(id, formData)
         .then(data => {
-          if (data.error) throw new Error(data.error);
+          console.log('✅ Máquina actualizada exitosamente:', data);
           actualizarVista(data);
           cerrarModalEdicion('maquina', id);
-          alert('Máquina actualizada correctamente');
-          window.location.reload();
         })
         .catch(error => {
-          console.error('Error:', error);
-          alert('Error al actualizar: ' + error.message);
+          console.error('Error al actualizar máquina:', error);
         });
     });
   });

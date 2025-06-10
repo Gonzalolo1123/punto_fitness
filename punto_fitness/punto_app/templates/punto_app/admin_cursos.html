@@ -34,7 +34,7 @@
           <td>{{ curso.id }}</td>
           <td>{{ curso.nombre }}</td>
           <td>{{ curso.cupos }}</td>
-          <td>{{ curso.fecha_realizacion|date:'Y/m/d' }}</td>
+          <td>{{ curso.fecha_realizacion|date:'Y-m-d' }}</td>
           <td>{{ curso.estado }}</td>
           <td>
             {% for establecimiento in establecimientos %}
@@ -45,7 +45,7 @@
           </td>
           <td>
             <div class="action-buttons-container">
-              <button class="filtro-btn" name="btn-editar-curso" data-id="{{ curso.id }}">Actualizar</button>
+              <button class="filtro-btn" name="btn-editar-curso" data-id="{{ curso.id }}" data-fecha="{{ curso.fecha_realizacion|date:'Y-m-d' }}">Actualizar</button>
               <button class="filtro-btn" name="btn-eliminar-curso" data-id="{{ curso.id }}">Eliminar</button>
             </div>
           </td>
@@ -76,7 +76,7 @@
 
                 <div class="form-fila">
                   <label for="curso-fecha_realizacion-editar-modal-{{ curso.id }}">Fecha:</label>
-                  <input type="date" id="curso-fecha_realizacion-editar-modal-{{ curso.id }}" name="curso-fecha_realizacion" value="{{ curso.fecha_realizacion|date:'Y-m-d' }}" required>
+                  <input type="date" id="curso-fecha_realizacion-editar-modal-{{ curso.id }}" name="curso-fecha_realizacion" value="{{ curso.fecha_realizacion|date:'Y-m-d' }}">
                 </div>
 
                 <div class="form-fila">
@@ -119,7 +119,6 @@
         <tr>
           <th>Usuario</th>
           <th>Curso</th>
-          <th>Fecha inscripción</th>
           <th>Fecha curso</th>
           <th>Acciones</th>
         </tr>
@@ -141,11 +140,10 @@
             {% endif %}
             {% endfor %}
           </td>
-          <td>{{ inscripcion.fecha_inscripcion|date:'Y/m/d' }}</td>
           <td>
             {% for curso in cursos %}
             {% if curso.id == inscripcion.curso_id %}
-            {{ curso.fecha_realizacion|date:'Y/m/d' }}
+            {{ curso.fecha_realizacion|date:'Y-m-d' }}
             {% endif %}
             {% endfor %}
           </td>

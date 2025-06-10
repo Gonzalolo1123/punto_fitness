@@ -1,6 +1,7 @@
 {% extends 'punto_app/base_admin.html' %}
 {% load static %}
 {% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
 {% endblock %}
 
@@ -50,23 +51,23 @@
                 {% csrf_token %}
                 
                 <div class="form-fila">
-                  <label for="maquina-nombre-editar-modal-{{ maquina.id }}">Nombre:</label>
-                  <input type="text" id="maquina-nombre-editar-modal-{{ maquina.id }}" name="maquina-nombre" value="{{ maquina.nombre }}" maxlength="30" required>
+                  <label for="maquina-nombre-editar-{{ maquina.id }}">Nombre:</label>
+                  <input type="text" id="maquina-nombre-editar-{{ maquina.id }}" name="maquina-nombre-editar-{{ maquina.id }}" value="{{ maquina.nombre }}" maxlength="30" required>
                 </div>
               
                 <div class="form-fila">
-                  <label for="maquina-descripcion-editar-modal-{{ maquina.id }}">Descripción:</label>
-                  <input type="text" id="maquina-descripcion-editar-modal-{{ maquina.id }}" name="maquina-descripcion" value="{{ maquina.descripcion }}" maxlength="50" required>
+                  <label for="maquina-descripcion-editar-{{ maquina.id }}">Descripción:</label>
+                  <input type="text" id="maquina-descripcion-editar-{{ maquina.id }}" name="maquina-descripcion-editar-{{ maquina.id }}" value="{{ maquina.descripcion }}" maxlength="50" required>
                 </div>
               
                 <div class="form-fila">
-                  <label for="maquina-cantidad-editar-modal-{{ maquina.id }}">Cantidad:</label>
-                  <input type="number" id="maquina-cantidad-editar-modal-{{ maquina.id }}" name="maquina-cantidad" value="{{ maquina.cantidad }}" min="0" required>
+                  <label for="maquina-cantidad-editar-{{ maquina.id }}">Cantidad:</label>
+                  <input type="number" id="maquina-cantidad-editar-{{ maquina.id }}" name="maquina-cantidad-editar-{{ maquina.id }}" value="{{ maquina.cantidad }}" min="0" required>
                 </div>
               
                 <div class="form-fila">
-                  <label for="maquina-establecimiento-editar-modal-{{ maquina.id }}">Establecimiento:</label>
-                  <select id="maquina-establecimiento-editar-modal-{{ maquina.id }}" name="maquina-establecimiento" required>
+                  <label for="maquina-establecimiento-editar-{{ maquina.id }}">Establecimiento:</label>
+                  <select id="maquina-establecimiento-editar-{{ maquina.id }}" name="maquina-establecimiento-editar-{{ maquina.id }}" required>
                     <option value="" disabled>Seleccione</option>
                     {% for est in establecimientos %}
                     <option value="{{ est.id }}" {% if est.id == maquina.establecimiento_id %}selected{% endif %}>{{ est.nombre }}</option>
@@ -104,23 +105,23 @@
           {% csrf_token %}
           
           <div class="form-fila">
-            <label for="maquina-nombre-modal">Nombre:</label>
-            <input type="text" id="maquina-nombre-modal" name="maquina-nombre" maxlength="30" required>
+            <label for="maquina-nombre">Nombre:</label>
+            <input type="text" id="maquina-nombre" name="maquina-nombre" maxlength="30" required>
           </div>
         
           <div class="form-fila">
-            <label for="maquina-descripcion-modal">Descripción:</label>
-            <input type="text" id="maquina-descripcion-modal" name="maquina-descripcion" maxlength="50" required>
+            <label for="maquina-descripcion">Descripción:</label>
+            <input type="text" id="maquina-descripcion" name="maquina-descripcion" maxlength="50" required>
           </div>
           
           <div class="form-fila">
-            <label for="maquina-cantidad-modal">Cantidad:</label>
-            <input type="number" id="maquina-cantidad-modal" name="maquina-cantidad" min="0" required>
+            <label for="maquina-cantidad">Cantidad:</label>
+            <input type="number" id="maquina-cantidad" name="maquina-cantidad" min="0" required>
           </div>
 
           <div class="form-fila">
-            <label for="maquina-establecimiento-modal">Establecimiento:</label>
-            <select id="maquina-establecimiento-modal" name="maquina-establecimiento" required>
+            <label for="maquina-establecimiento">Establecimiento:</label>
+            <select id="maquina-establecimiento" name="maquina-establecimiento" required>
               <option value="">Seleccione establecimiento</option>
               {% for est in establecimientos %}
                 <option value="{{ est.id }}">{{ est.nombre }}</option>
