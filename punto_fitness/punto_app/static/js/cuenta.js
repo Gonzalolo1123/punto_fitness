@@ -11,15 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Cerrar modal al hacer click fuera del contenido
-  if (userModal && modalContent) {
-    userModal.addEventListener('click', function(e) {
-      if (!modalContent.contains(e.target)) {
-        userModal.classList.add('hidden');
-      }
-    });
-  }
-
   // Si quieres también cerrar con el botón (si lo dejas en el HTML)
   if (closeUserModal && userModal) {
     closeUserModal.addEventListener('click', function() {

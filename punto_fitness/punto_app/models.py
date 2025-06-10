@@ -70,7 +70,7 @@ class RegistroAcceso(models.Model):
     usuario = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
     fecha_hora_entrada = models.DateTimeField()
-    fecha_hora_salida = models.DateTimeField()
+    fecha_hora_salida = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         db_table = 'registro_acceso'
@@ -183,8 +183,9 @@ class ClienteMembresia(models.Model):
 class Maquina(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
+    cantidad = models.IntegerField()
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
-
+    
     class Meta:
         db_table = 'maquina'
         
