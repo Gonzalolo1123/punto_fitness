@@ -4,6 +4,7 @@
 {% block title %}Usuarios - Punto Fitness{% endblock %}
 
 {% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
 {% endblock %}
 
@@ -12,7 +13,7 @@
     <h1>Administración de usuarios</h1>
     <div class="header-content">
         <h2>Usuarios</h2>
-        <!-- Botón para agregar nuevo administrador -->
+        <!-- Botón para agregar nuevo usuario -->
         <button id="abrir-form-usuario" class="filtro-btn" data-estado="cerrado" data-texto-original="+">
             +
         </button>
@@ -36,40 +37,14 @@
                 <td>{{ usuario.apellido }}</td>
                 <td>{{ usuario.email }}</td>
                 <td>{{ usuario.telefono }}</td>
-                <td>
+                <td><div class="action-buttons-container">
                     <button class="filtro-btn" name="btn-editar-usuario" data-id="{{ usuario.id }}">Actualizar</button>
                     <button class="filtro-btn" name="btn-eliminar-usuario" data-id="{{ usuario.id }}">Eliminar</button>
-                </td>
+                </div></td>
             </tr>
 
-            <!-- Formulario de edición (aparece al querer actualizar un usuario) -->
-            <tr id="form-editar-usuario-{{ usuario.id }}" class="form-edicion-usuario" style="display: none;">
-                <td colspan="5">
-                    <h3>Actualizar datos</h3>
-                    <form class="formulario" name="form-editar-usuario" data-id="{{ usuario.id }}">
-                        {% csrf_token %}
-                        <div class="form-fila">
-                            <label for="usuario-nombre">Nombre:</label>
-                            <input type="text" name="usuario-nombre" value="{{ usuario.nombre }}" required>
-                        </div>
-                        <div class="form-fila">
-                            <label for="usuario-apellido">Apellido:</label>
-                            <input type="text" name="usuario-apellido" value="{{ usuario.apellido }}" required>
-                        </div>
-                        <div class="form-fila">
-                            <label for="usuario-correo">Correo electrónico:</label>
-                            <input type="email" name="usuario-correo" value="{{ usuario.email }}" required>
-                        </div>
-                        <div class="form-fila">
-                            <label for="usuario-telefono">Teléfono:</label>
-                            <input type="tel" name="usuario-telefono" value="{{ usuario.telefono }}" required>
-                        </div>
-                        <button class="filtro-btn" type="submit">Guardar</button>
-                        <button class="filtro-btn" type="button"
-                            onclick="ocultarFormularioEdicion('{{ usuario.id }}')">Cancelar</button>
-                    </form>
-                </td>
-            </tr>
+            <!-- Formulario de edición -->
+            <!-- Modal de edición se maneja con JavaScript -->
             {% empty %}
             <tr>
                 <td colspan="5">No hay usuarios</td>
@@ -77,36 +52,78 @@
             {% endfor %}
         </tbody>
     </table>
-    <!-- Formulario para agregar nuevos usuarios -->
-    <div class="form-container" id="form-crear-usuario-container" style="display:none;">
-        <h3>Agregar nuevo usuario</h3>
-        <form class="formulario" id="form-crear-usuario-modal">
-            {% csrf_token %}
-            <div class="form-fila">
-                <label for="usuario-nombre">Nombre:</label>
-                <input type="text" id="usuario-nombre" name="usuario-nombre" maxlength="30" required>
+
+    <!-- Modal para agregar nuevos usuarios -->
+    <div id="modal-fondo" class="modal-fondo" style="display:none;">
+        <div id="modal-form" class="modal-form">
+            <div class="modal-header">
+                <h3>Agregar nuevo usuario</h3>
+                <button id="cerrar-modal" class="cerrar-modal">×</button>
             </div>
-            <div class="form-fila">
-                <label for="usuario-apellido">Apellido:</label>
-                <input type="text" id="usuario-apellido" name="usuario-apellido" required>
+            <div class="modal-body">
+                <form class="formulario" id="form-crear-usuario-modal">
+                    {% csrf_token %}
+                    <div class="form-fila">
+                        <label for="usuario-nombre">Nombre:</label>
+                        <input type="text" id="usuario-nombre" name="usuario-nombre" maxlength="30" required>
+                    </div>
+                    <div class="form-fila">
+                        <label for="usuario-apellido">Apellido:</label>
+                        <input type="text" id="usuario-apellido" name="usuario-apellido" required>
+                    </div>
+                    <div class="form-fila">
+                        <label for="usuario-correo">Correo electrónico:</label>
+                        <input type="email" id="usuario-correo" name="usuario-correo" required>
+                    </div>
+                    <div class="form-fila">
+                        <label for="usuario-telefono">Teléfono:</label>
+                        <input type="tel" id="usuario-telefono" name="usuario-telefono" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="filtro-btn" type="submit">Agregar usuario</button>
+                        <button class="filtro-btn btn-cancelar" type="button" id="cancelar-modal">Cancelar</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-fila">
-                <label for="usuario-correo">Correo electrónico:</label>
-                <input type="email" id="usuario-correo" name="usuario-correo" required>
-            </div>
-            <div class="form-fila">
-                <label for="usuario-telefono">Teléfono:</label>
-                <input type="tel" id="usuario-telefono" name="usuario-telefono" required>
-            </div>
-            <button class="filtro-btn" type="submit">Agregar usuario</button>
-        </form>
+        </div>
     </div>
 
-    <!-- Modal reutilizable -->
-    <div id="modal-fondo" class="modal-fondo" style="display:none;"></div>
-    <div id="modal-form" class="modal-form" style="display:none;">
-        <div id="modal-form-content"></div>
+    <!-- Modal para editar usuarios -->
+    <div id="modal-fondo-editar-usuario" class="modal-fondo" style="display:none;">
+        <div id="modal-form-editar-usuario" class="modal-form">
+            <div class="modal-header">
+                <h3>Actualizar usuario</h3>
+                <button class="cerrar-modal" onclick="cerrarModalEdicion('usuario')">×</button>
+            </div>
+            <div class="modal-body">
+                <form class="formulario" id="form-editar-usuario">
+                    {% csrf_token %}
+                    <input type="hidden" id="usuario-id-editar" name="usuario-id-editar">
+                    <div class="form-fila">
+                        <label for="usuario-nombre-editar">Nombre:</label>
+                        <input type="text" id="usuario-nombre-editar" name="usuario-nombre-editar" maxlength="30" required>
+                    </div>
+                    <div class="form-fila">
+                        <label for="usuario-apellido-editar">Apellido:</label>
+                        <input type="text" id="usuario-apellido-editar" name="usuario-apellido-editar" maxlength="30" required>
+                    </div>
+                    <div class="form-fila">
+                        <label for="usuario-correo-editar">Correo electrónico:</label>
+                        <input type="email" id="usuario-correo-editar" name="usuario-correo-editar" maxlength="50" required>
+                    </div>
+                    <div class="form-fila">
+                        <label for="usuario-telefono-editar">Teléfono:</label>
+                        <input type="tel" id="usuario-telefono-editar" name="usuario-telefono-editar" maxlength="20" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="filtro-btn" type="submit">Actualizar Usuario</button>
+                        <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModalEdicion('usuario')">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+
 </div>
 {% endblock %}
 

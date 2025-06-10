@@ -188,7 +188,25 @@ function actualizarProducto(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 // Función para actualizar categoria
@@ -200,7 +218,25 @@ function actualizarCategoria(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 // Función para actualizar compra
@@ -212,8 +248,25 @@ function actualizarCompraVendedor(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
-}
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });}
 
 // Función para actualizar vendedor
 function actualizarVendedor(id, data) {
@@ -224,7 +277,25 @@ function actualizarVendedor(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 // Función para actualizar establecimiento
@@ -236,7 +307,25 @@ function actualizarEstablecimiento(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 // Función para actualizar proveedor
@@ -248,7 +337,25 @@ function actualizarProveedor(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 //////////////////////////////
@@ -263,7 +370,27 @@ function eliminarProducto(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">El producto ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error al eliminar el producto');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el procduto: ' + error.message, 'error');
+  });
 }
 
 // Función para eliminar categoria
@@ -274,7 +401,27 @@ function eliminarCategoria(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">La categoria ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error al eliminar categoria');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el proveedor: ' + error.message, 'error');
+  });
 }
 
 // Función para eliminar compra
@@ -285,7 +432,27 @@ function eliminarCompraVendedor(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">La compra ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error al eliminar la compra');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar la compra: ' + error.message, 'error');
+  });
 }
 
 // Función para eliminar vendedor
@@ -296,8 +463,27 @@ function eliminarVendedor(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
-}
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">El vendedor ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error al eliminar el vendedor');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el vendedor: ' + error.message, 'error');
+  });}
 
 // Función para eliminar establecimiento
 function eliminarEstablecimiento(id) {
@@ -307,7 +493,25 @@ function eliminarEstablecimiento(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">Tu Eliminación ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });
 }
 
 // Función para eliminar proveedor
@@ -318,7 +522,27 @@ function eliminarProveedor(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">El proveedor ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
+      });
+    } else {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Error al eliminar proveedor');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el proveedor: ' + error.message, 'error');
+  });
 }
 
 ////////////////////////////////////////////
@@ -328,8 +552,7 @@ function eliminarProveedor(id) {
 // Creación de productos de event listeners
 function manejoCrearProducto(e) {
   e.preventDefault();
-  
-  console.log('🔧 Iniciando creación de producto...');
+
   
   const nombreElement = document.getElementById('producto-nombre');
   const descripcionElement = document.getElementById('producto-descripcion');
@@ -339,17 +562,7 @@ function manejoCrearProducto(e) {
   const compraElement = document.getElementById('producto-compra');
   const categoriaElement = document.getElementById('producto-categoria');
   const establecimientoElement = document.getElementById('producto-establecimiento');
-  
-  console.log('🔍 Elementos encontrados:', {
-    nombre: nombreElement ? 'SÍ' : 'NO',
-    descripcion: descripcionElement ? 'SÍ' : 'NO',
-    precio: precioElement ? 'SÍ' : 'NO',
-    stockActual: stockActualElement ? 'SÍ' : 'NO',
-    stockMinimo: stockMinimoElement ? 'SÍ' : 'NO',
-    compra: compraElement ? 'SÍ' : 'NO',
-    categoria: categoriaElement ? 'SÍ' : 'NO',
-    establecimiento: establecimientoElement ? 'SÍ' : 'NO'
-  });
+
 
   const formData = {
     nombre: nombreElement ? nombreElement.value : '',
@@ -361,8 +574,6 @@ function manejoCrearProducto(e) {
     categoria_id: categoriaElement ? categoriaElement.value : '',
     establecimiento_id: establecimientoElement ? establecimientoElement.value : ''
   };
-
-  console.log('📋 Datos del formulario:', formData);
   
   // Verificar opciones disponibles en los selects
   if (categoriaElement) {
@@ -422,9 +633,38 @@ function manejoCrearProducto(e) {
 function manejoCrearCategoria(e) {
   e.preventDefault();
   
+  // Obtener y limpiar valores
+  const nombre = document.getElementById('categoria-nombre').value.trim();
+  const descripcion = document.getElementById('categoria-descripcion').value.trim();
+  
+  // Validaciones
+  const errores = [];
+  
+  // 1. Validar nombre (obligatorio, longitud, caracteres)
+  if (!nombre) {
+    errores.push('El nombre es obligatorio');
+  } else if (nombre.length > 30) {
+    errores.push('El nombre no puede exceder los 30 caracteres');
+  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-]/.test(nombre)) {
+    errores.push('El nombre solo puede contener letras, números, espacios y guiones');
+  }
+  
+  // 2. Validar descripción (obligatoria, longitud)
+  if (!descripcion) {
+    errores.push('La descripción es obligatoria');
+  } else if (descripcion.length > 50) {
+    errores.push('La descripción no puede exceder los 50 caracteres');
+  }
+  
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+    return;
+  }
+  
   const formData = {
-    nombre: document.getElementById('categoria-nombre').value,
-    descripcion: document.getElementById('categoria-descripcion').value,
+    nombre: nombre,
+    descripcion: descripcion,
   };
   
   crearCategoria(formData)
@@ -443,13 +683,74 @@ function manejoCrearCategoria(e) {
 function manejoCrearCompraVendedor(e) {
   e.preventDefault();
   
+  // Obtener y limpiar valores
+  const fecha = document.getElementById('compra-fecha').value;
+  const total = document.getElementById('compra-total').value.trim();
+  const iva = document.getElementById('compra-iva').value.trim();
+  const estado = document.getElementById('compra-estado').value;
+  const establecimientoId = document.getElementById('compra-establecimiento').value;
+  const vendedorId = document.getElementById('compra-vendedor').value;
+  
+  // Validaciones
+  const errores = [];
+  
+  // 1. Validar fecha (obligatoria, formato)
+  if (!fecha) {
+    errores.push('La fecha es obligatoria');
+  } else {
+    const fechaObj = new Date(fecha);
+    const hoy = new Date();
+    if (fechaObj > hoy) {
+      errores.push('La fecha no puede ser futura');
+    }
+  }
+  
+  // 2. Validar total (obligatorio, numérico, positivo)
+  if (!total) {
+    errores.push('El total es obligatorio');
+  } else if (isNaN(total) || parseFloat(total) <= 0) {
+    errores.push('El total debe ser un número positivo');
+  } else if (parseFloat(total) > 999999999) {
+    errores.push('El total no puede exceder 999,999,999');
+  }
+  
+  // 3. Validar IVA (obligatorio, numérico, no negativo)
+  if (!iva) {
+    errores.push('El IVA es obligatorio');
+  } else if (isNaN(iva) || parseFloat(iva) < 0) {
+    errores.push('El IVA debe ser un número no negativo');
+  } else if (parseFloat(iva) > 100) {
+    errores.push('El IVA no puede exceder el 100%');
+  }
+  
+  // 4. Validar estado (obligatorio)
+  if (!estado) {
+    errores.push('Debe seleccionar un estado');
+  }
+  
+  // 5. Validar establecimiento (obligatorio)
+  if (!establecimientoId || establecimientoId === "") {
+    errores.push('Debe seleccionar un establecimiento');
+  }
+  
+  // 6. Validar vendedor (obligatorio)
+  if (!vendedorId || vendedorId === "") {
+    errores.push('Debe seleccionar un vendedor');
+  }
+  
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+    return;
+  }
+  
   const formData = {
-    fecha: document.getElementById('compra-fecha').value,
-    total: document.getElementById('compra-total').value,
-    iva: document.getElementById('compra-iva').value,
-    estado: document.getElementById('compra-estado').value,
-    establecimiento_id: document.getElementById('compra-establecimiento').value,
-    vendedor_id: document.getElementById('compra-vendedor').value,
+    fecha: fecha,
+    total: parseFloat(total),
+    iva: parseFloat(iva),
+    estado: estado === 'True',
+    establecimiento_id: establecimientoId,
+    vendedor_id: vendedorId,
   };
   
   crearCompraVendedor(formData)
@@ -468,11 +769,59 @@ function manejoCrearCompraVendedor(e) {
 function manejoCrearVendedor(e) {
   e.preventDefault();
   
+  // Obtener y limpiar valores
+  const nombre = document.getElementById('vendedor-nombre').value.trim();
+  const telefono = document.getElementById('vendedor-telefono').value.trim();
+  const email = document.getElementById('vendedor-email').value.trim();
+  const proveedorId = document.getElementById('vendedor-proveedor').value;
+  
+  // Validaciones
+  const errores = [];
+  
+  // 1. Validar nombre (obligatorio, longitud, caracteres)
+  if (!nombre) {
+    errores.push('El nombre es obligatorio');
+  } else if (nombre.length > 30) {
+    errores.push('El nombre no puede exceder los 30 caracteres');
+  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]/.test(nombre)) {
+    errores.push('El nombre solo puede contener letras, espacios y guiones');
+  }
+  
+  // 2. Validar teléfono (obligatorio, formato)
+  if (!telefono) {
+    errores.push('El teléfono es obligatorio');
+  } else if (!/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
+    errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
+  }
+  
+  // 3. Validar email (obligatorio, formato)
+  if (!email) {
+    errores.push('El email es obligatorio');
+  } else {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errores.push('El email no tiene un formato válido');
+    } else if (email.length > 30) {
+      errores.push('El email no puede exceder los 30 caracteres');
+    }
+  }
+  
+  // 4. Validar proveedor (obligatorio)
+  if (!proveedorId || proveedorId === "") {
+    errores.push('Debe seleccionar un proveedor');
+  }
+  
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+    return;
+  }
+  
   const formData = {
-    nombre: document.getElementById('vendedor-nombre').value,
-    telefono: document.getElementById('vendedor-telefono').value,
-    email: document.getElementById('vendedor-email').value,
-    proveedor_id: document.getElementById('vendedor-proveedor').value,
+    nombre: nombre,
+    telefono: telefono,
+    email: email,
+    proveedor_id: proveedorId,
   };
   
   crearVendedor(formData)
@@ -487,20 +836,86 @@ function manejoCrearVendedor(e) {
     });
 };
 
-// Creación de establecimiento de event listeners
 function manejoCrearEstablecimiento(e) {
   e.preventDefault();
   
-  const formData = {
-    nombre: document.getElementById('establecimiento-nombre').value,
-    direccion: document.getElementById('establecimiento-direccion').value,
-    telefono: document.getElementById('establecimiento-telefono').value,
-    email: document.getElementById('establecimiento-email').value,
-    horario_apertura: document.getElementById('establecimiento-horario_apertura').value,
-    horario_cierre: document.getElementById('establecimiento-horario_cierre').value,
-    proveedor_id: document.getElementById('establecimiento-proveedor').value,
-  };
+  // Obtener y limpiar valores
+  const nombre = document.getElementById('establecimiento-nombre').value.trim();
+  const direccion = document.getElementById('establecimiento-direccion').value.trim();
+  const telefono = document.getElementById('establecimiento-telefono').value.trim();
+  const email = document.getElementById('establecimiento-email').value.trim();
+  const apertura = document.getElementById('establecimiento-horario_apertura').value;
+  const cierre = document.getElementById('establecimiento-horario_cierre').value;
+  const proveedorId = document.getElementById('establecimiento-proveedor').value;
+
+  // Validaciones
+  const errores = [];
   
+  // 1. Validar nombre (obligatorio, longitud, caracteres)
+  if (!nombre) {
+    errores.push('El nombre es obligatorio');
+  } else if (nombre.length > 100) {
+    errores.push('El nombre no puede exceder los 100 caracteres');
+  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.,]/.test(nombre)) {
+    errores.push('El nombre contiene caracteres no permitidos');
+  }
+
+  // 2. Validar dirección (obligatoria, longitud)
+  if (!direccion) {
+    errores.push('La dirección es obligatoria');
+  } else if (direccion.length > 200) {
+    errores.push('La dirección no puede exceder los 200 caracteres');
+  }
+
+  // 3. Validar teléfono (formato opcional)
+  if (telefono && !/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
+    errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
+  }
+
+  // 4. Validar email (formato)
+  if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errores.push('El email no tiene un formato válido');
+    } else if (email.length > 100) {
+      errores.push('El email no puede exceder los 100 caracteres');
+    }
+  }
+
+  // 5. Validar horarios
+  if (!apertura) {
+    errores.push('El horario de apertura es obligatorio');
+  }
+  if (!cierre) {
+    errores.push('El horario de cierre es obligatorio');
+  }
+  if (apertura && cierre && apertura >= cierre) {
+    errores.push('El horario de apertura debe ser anterior al de cierre');
+  }
+
+  // 6. Validar proveedor (obligatorio)
+  if (!proveedorId || proveedorId === "0") {
+    errores.push('Debe seleccionar un proveedor válido');
+  }
+
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+    return;
+  }
+
+  // Preparar datos para enviar
+  const formData = {
+    nombre: nombre,
+    direccion: direccion,
+    telefono: telefono,
+    email: email,
+    horario_apertura: apertura,
+    horario_cierre: cierre,
+    proveedor_id: proveedorId
+  };
+
+  // Enviar datos
   crearEstablecimiento(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
@@ -511,18 +926,61 @@ function manejoCrearEstablecimiento(e) {
       console.error('Error:', error);
       alert('Error al crear establecimiento: ' + error.message);
     });
-};
+}
 
-// Creación de proveedor de event listeners
 function manejoCrearProveedor(e) {
   e.preventDefault();
   
+  // Obtener valores del formulario
+  const nombre = document.getElementById('proveedor-nombre').value.trim();
+  const telefono = document.getElementById('proveedor-telefono').value.trim();
+  const email = document.getElementById('proveedor-email').value.trim();
+  
+  // Validaciones
+  const errores = [];
+  
+  // 1. Validar nombre
+  if (!nombre) {
+    errores.push('El nombre es obligatorio');
+  } else if (nombre.length > 100) {
+    errores.push('El nombre no puede exceder los 100 caracteres');
+  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]/.test(nombre)) {
+    errores.push('El nombre solo puede contener letras, espacios y guiones');
+  }
+  
+  // 2. Validar teléfono
+  if (telefono) {
+    if (!/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
+      errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
+    }
+  }
+  
+  // 3. Validar email
+  if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errores.push('El email no tiene un formato válido');
+    } else if (email.length > 100) {
+      errores.push('El email no puede exceder los 100 caracteres');
+    }
+  } else {
+    errores.push('El email es obligatorio');
+  }
+  
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+    return;
+  }
+  
+  // Preparar datos para enviar
   const formData = {
-    nombre: document.getElementById('proveedor-nombre').value,
-    telefono: document.getElementById('proveedor-telefono').value,
-    email: document.getElementById('proveedor-email').value,
+    nombre: nombre,
+    telefono: telefono,
+    email: email
   };
   
+  // Enviar datos
   crearProveedor(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
@@ -533,472 +991,567 @@ function manejoCrearProveedor(e) {
       console.error('Error:', error);
       alert('Error al crear proveedor: ' + error.message);
     });
-};
-
+}
 ////////////////////////////////////
 // INICIALIZACIÓN EVENT LISTENERS //
 ////////////////////////////////////
 
 function inicializarEventListeners() {
-  console.log('Inicializando event listeners...');
-  
-  const formCrearProducto = document.getElementById('form-crear-producto');
-  const formCrearCategoria = document.getElementById('form-crear-categoria');
-  const formCrearCompraVendedor = document.getElementById('form-crear-compra');
-  const formCrearVendedor = document.getElementById('form-crear-vendedor');
-  const formCrearEstablecimiento = document.getElementById('form-crear-establecimiento');
-  const formCrearProveedor = document.getElementById('form-crear-proveedor');
-  
-  console.log('Formularios encontrados:', {
-    producto: formCrearProducto,
-    categoria: formCrearCategoria,
-    compra: formCrearCompraVendedor,
-    vendedor: formCrearVendedor,
-    establecimiento: formCrearEstablecimiento,
-    proveedor: formCrearProveedor
+  console.log('🎯 Inicializando event listeners...');
+
+  // Event listeners para formularios de creación
+  document.getElementById('form-crear-producto').addEventListener('submit', manejoCrearProducto);
+  document.getElementById('form-crear-categoria').addEventListener('submit', manejoCrearCategoria);
+  document.getElementById('form-crear-compra').addEventListener('submit', manejoCrearCompraVendedor);
+  document.getElementById('form-crear-vendedor').addEventListener('submit', manejoCrearVendedor);
+  document.getElementById('form-crear-establecimiento').addEventListener('submit', manejoCrearEstablecimiento);
+  document.getElementById('form-crear-proveedor').addEventListener('submit', manejoCrearProveedor);
+
+  // Event listeners para botones de eliminación
+  document.querySelectorAll('[name="btn-eliminar-producto"]').forEach(boton => {
+    boton.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      if (confirm('¿Está seguro de que desea eliminar este producto?')) {
+        eliminarProducto(id);
+      }
+    });
   });
+
+  document.querySelectorAll('[name="btn-eliminar-categoria"]').forEach(boton => {
+    boton.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      if (confirm('¿Está seguro de que desea eliminar esta categoría?')) {
+        eliminarCategoria(id);
+      }
+    });
+  });
+
+  document.querySelectorAll('[name="btn-eliminar-compra"]').forEach(boton => {
+    boton.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      if (confirm('¿Está seguro de que desea eliminar esta compra?')) {
+        eliminarCompraVendedor(id);
+      }
+    });
+  });
+
+  document.querySelectorAll('[name="btn-eliminar-vendedor"]').forEach(boton => {
+    boton.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      if (confirm('¿Está seguro de que desea eliminar este vendedor?')) {
+        eliminarVendedor(id);
+      }
+    });
+  });
+
+  document.querySelectorAll('[name="btn-eliminar-establecimiento"]').forEach(boton => {
+    boton.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      if (confirm('¿Está seguro de que desea eliminar este establecimiento?')) {
+        eliminarEstablecimiento(id);
+      }
+    });
+  });
+
+  document.querySelectorAll('[name="btn-eliminar-proveedor"]').forEach(boton => {
+    boton.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      console.log('Intentando eliminar proveedor con ID:', id);
+      if (confirm('¿Está seguro de que desea eliminar este proveedor?')) {
+        eliminarProveedor(id);
+      }
+    });
+  });
+
+  // Event listeners para botones de edición (modales)
+  inicializarBotonesEdicion();
+
+  // Modal Functionality
+  inicializarModales();
   
-  if (formCrearProducto) {
-    console.log('Agregando event listener a form-crear-producto');
-    formCrearProducto.addEventListener('submit', manejoCrearProducto);
-  }
-  if (formCrearCategoria) {
-    formCrearCategoria.addEventListener('submit', manejoCrearCategoria);
-  }
-  if (formCrearCompraVendedor) {
-    formCrearCompraVendedor.addEventListener('submit', manejoCrearCompraVendedor);
-  }
-  if (formCrearVendedor) {
-    formCrearVendedor.addEventListener('submit', manejoCrearVendedor);
-  }
-  if (formCrearEstablecimiento) {
-    formCrearEstablecimiento.addEventListener('submit', manejoCrearEstablecimiento);
-  }
-  if (formCrearProveedor) {
-    formCrearProveedor.addEventListener('submit', manejoCrearProveedor);
+  console.log('✅ Event listeners inicializados correctamente');
+}
+
+///////////////////////////
+// FUNCIONALIDAD MODALES //
+///////////////////////////
+
+function inicializarModales() {
+  console.log('🎭 Inicializando modales...');
+
+  // Botones para abrir modales
+  const botonesModales = {
+    'producto': document.getElementById('abrir-form-producto'),
+    'categoria': document.getElementById('abrir-form-categoria'),
+    'compra': document.getElementById('abrir-form-compra'),
+    'vendedor': document.getElementById('abrir-form-vendedor'),
+    'establecimiento': document.getElementById('abrir-form-establecimiento'),
+    'proveedor': document.getElementById('abrir-form-proveedor')
+  };
+
+  // Event listeners para botones de abrir modal
+  Object.entries(botonesModales).forEach(([tipo, boton]) => {
+    if (boton) {
+      boton.addEventListener('click', function() {
+        console.log(`🎯 Botón abrir modal ${tipo} clickeado`);
+        const estado = this.getAttribute('data-estado');
+        
+        if (estado === 'cerrado') {
+          abrirModal(tipo, this);
+        } else {
+          cerrarModal(tipo, this);
+        }
+      });
+    }
+  });
+
+  // Event listeners para cerrar modales con click en fondo (modales de creación)
+  Object.keys(botonesModales).forEach(tipo => {
+    const modalFondo = document.getElementById(`modal-fondo-${tipo}`);
+    if (modalFondo) {
+      modalFondo.addEventListener('click', function(event) {
+        if (event.target === modalFondo) {
+          console.log(`🖱️ Click en fondo del modal ${tipo}, cerrando...`);
+          cerrarModal(tipo);
+        }
+      });
+    }
+  });
+
+  // Event listeners para cerrar modales de edición con click en fondo
+  const tiposEdicion = ['producto', 'categoria', 'compra', 'vendedor', 'establecimiento', 'proveedor'];
+  tiposEdicion.forEach(tipo => {
+    const modalFondo = document.getElementById(`modal-fondo-editar-${tipo}`);
+    if (modalFondo) {
+      modalFondo.addEventListener('click', function(event) {
+        if (event.target === modalFondo) {
+          console.log(`🖱️ Click en fondo del modal de edición ${tipo}, cerrando...`);
+          cerrarModalEdicion(tipo);
+        }
+      });
+    }
+  });
+
+  // Event listener para cerrar modales con ESC
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      const modalAbierto = document.querySelector('.modal-fondo[style*="flex"]');
+      if (modalAbierto) {
+        const tipo = modalAbierto.id.replace('modal-fondo-', '');
+        if (tipo.includes('editar-')) {
+          const tipoEdicion = tipo.replace('editar-', '');
+          console.log(`⌨️ Tecla ESC presionada, cerrando modal de edición ${tipoEdicion}...`);
+          cerrarModalEdicion(tipoEdicion);
+        } else {
+          console.log(`⌨️ Tecla ESC presionada, cerrando modal ${tipo}...`);
+          cerrarModal(tipo);
+        }
+      }
+    }
+  });
+
+  console.log('✅ Modales inicializados correctamente');
+}
+
+// Función para abrir modal
+function abrirModal(tipo, boton = null) {
+  console.log(`🔓 Abriendo modal ${tipo}...`);
+  
+  const modalFondo = document.getElementById(`modal-fondo-${tipo}`);
+  const botonAbrir = boton || document.getElementById(`abrir-form-${tipo}`);
+  
+  if (modalFondo && botonAbrir) {
+    modalFondo.style.display = 'flex';
+    botonAbrir.setAttribute('data-estado', 'abierto');
+    botonAbrir.textContent = '-';
+    
+    // Enfocar el primer input
+    setTimeout(() => {
+      const primerInput = modalFondo.querySelector('input, select');
+      if (primerInput) {
+        primerInput.focus();
+      }
+    }, 100);
+    
+    console.log(`✅ Modal ${tipo} abierto correctamente`);
+  } else {
+    console.error(`❌ No se encontró el modal o botón para ${tipo}`);
   }
 }
 
-///////////////////////////////////////////////
-// FUNCIONES DE FORMULARIOS DE ACTUALIZACIÓN //
-///////////////////////////////////////////////
-
-// Variable para identificar entre diferentes tablas
-let id_tipo;
-
-// Formularios de actualización de datos de producto
-document.querySelectorAll('[name="form-editar-producto"]').forEach(form => {
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const productoId = this.dataset.id;
-    const formData = {
-      nombre: this.querySelector('[name="producto-nombre"]').value,
-      descripcion: this.querySelector('[name="producto-descripcion"]').value,
-      precio: this.querySelector('[name="producto-precio"]').value,
-      stock_actual: this.querySelector('[name="producto-stock-actual"]').value,
-      stock_minimo: this.querySelector('[name="producto-stock-minimo"]').value
-    };
+// Función para cerrar modal
+function cerrarModal(tipo, boton = null) {
+  console.log(`🔒 Cerrando modal ${tipo}...`);
+  
+  const modalFondo = document.getElementById(`modal-fondo-${tipo}`);
+  const botonAbrir = boton || document.getElementById(`abrir-form-${tipo}`);
+  
+  if (modalFondo && botonAbrir) {
+    modalFondo.style.display = 'none';
+    botonAbrir.setAttribute('data-estado', 'cerrado');
+    botonAbrir.textContent = '+';
     
-    actualizarProducto(productoId, formData)
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        id_tipo='producto';
-        actualizarVista(data, id_tipo);
-        ocultarFormularioEdicion(productoId, id_tipo);
-        alert('Producto actualizado correctamente');
-        window.location.reload();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error al actualizar: ' + error.message);
-      });
-  });
-});
-
-// Formularios de actualización de datos de categoria
-document.querySelectorAll('[name="form-editar-categoria"]').forEach(form => {
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const categoriaId = this.dataset.id;
-    const formData = {
-      nombre: this.querySelector('[name="categoria-nombre"]').value,
-      descripcion: this.querySelector('[name="categoria-descripcion"]').value,
-    };
+    // Limpiar el formulario
+    const form = modalFondo.querySelector('form');
+    if (form) {
+      form.reset();
+    }
     
-    actualizarCategoria(categoriaId, formData)
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        id_tipo='categoria';
-        actualizarVista(data, id_tipo);
-        ocultarFormularioEdicion(categoriaId, id_tipo);
-        alert('categoria actualizado correctamente');
-        window.location.reload();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error al actualizar: ' + error.message);
-      });
-  });
-});
-
-// Formularios de actualización de datos de compra
-document.querySelectorAll('[name="form-editar-compra"]').forEach(form => {
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const compraId = this.dataset.id;
-    const formData = {
-      fecha: this.querySelector('[name="compra-fecha"]').value,
-      total: this.querySelector('[name="compra-total"]').value,
-      iva: this.querySelector('[name="compra-iva"]').value,
-      estado: this.querySelector('[name="compra-estado"]').value,
-      establecimiento_id: this.querySelector('[name="compra-establecimiento"]').value,
-      vendedor_id: this.querySelector('[name="compra-vendedor"]').value,
-    };
-    
-    actualizarCompraVendedor(compraId, formData)
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        id_tipo='compra';
-        actualizarVista(data, id_tipo);
-        ocultarFormularioEdicion(compraId, id_tipo);
-        alert('Compra actualizada correctamente');
-        window.location.reload();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error al actualizar: ' + error.message);
-      });
-  });
-});
-
-// Formularios de actualización de datos de vendedor
-document.querySelectorAll('[name="form-editar-vendedor"]').forEach(form => {
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const vendedorId = this.dataset.id;
-    const formData = {
-      nombre: this.querySelector('[name="vendedor-nombre"]').value,
-      telefono: this.querySelector('[name="vendedor-telefono"]').value,
-      email: this.querySelector('[name="vendedor-email"]').value,
-      proveedor_id: this.querySelector('[name="vendedor-proveedor"]').value,
-    };
-    
-    actualizarVendedor(vendedorId, formData)
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        id_tipo='vendedor';
-        actualizarVista(data, id_tipo);
-        ocultarFormularioEdicion(vendedorId, id_tipo);
-        alert('Vendedor actualizado correctamente');
-        window.location.reload();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error al actualizar: ' + error.message);
-      });
-  });
-});
-
-// Formularios de actualización de datos de establecimiento
-document.querySelectorAll('[name="form-editar-establecimiento"]').forEach(form => {
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const establecimientoId = this.dataset.id;
-    const formData = {
-      nombre: this.querySelector('[name="establecimiento-nombre"]').value,
-      direccion: this.querySelector('[name="establecimiento-direccion"]').value,
-      telefono: this.querySelector('[name="establecimiento-telefono"]').value,
-      email: this.querySelector('[name="establecimiento-email"]').value,
-      horario_apertura: this.querySelector('[name="establecimiento-horario_apertura"]').value,
-      horario_cierre: this.querySelector('[name="establecimiento-horario_cierre"]').value,
-      proveedor_id: this.querySelector('[name="establecimiento-proveedor"]').value,
-    };
-    
-    actualizarEstablecimiento(establecimientoId, formData)
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        id_tipo='establecimiento';
-        actualizarVista(data, id_tipo);
-        ocultarFormularioEdicion(establecimientoId, id_tipo);
-        alert('Establecimiento actualizado correctamente');
-        window.location.reload();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error al actualizar: ' + error.message);
-      });
-  });
-});
-
-// Formularios de actualización de datos de proveedor
-document.querySelectorAll('[name="form-editar-proveedor"]').forEach(form => {
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const proveedorId = this.dataset.id;
-    const formData = {
-      nombre: this.querySelector('[name="proveedor-nombre"]').value,
-      telefono: this.querySelector('[name="proveedor-telefono"]').value,
-      email: this.querySelector('[name="proveedor-email"]').value,
-    };
-    
-    actualizarProveedor(proveedorId, formData)
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        id_tipo='proveedor';
-        actualizarVista(data, id_tipo);
-        ocultarFormularioEdicion(proveedorId, id_tipo);
-        alert('Proveedor actualizado correctamente');
-        window.location.reload();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error al actualizar: ' + error.message);
-      });
-  });
-});
-
-////////////////////////
-// BOTONES DE EDICIÓN //
-////////////////////////
-
-// Boton editar producto
-document.querySelectorAll('[name="btn-editar-producto"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    id_tipo='producto';
-    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
-  });
-});
-
-// Boton editar categoria
-document.querySelectorAll('[name="btn-editar-categoria"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    id_tipo='categoria';
-    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
-  });
-});
-
-// Boton editar compra
-document.querySelectorAll('[name="btn-editar-compra"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    id_tipo='compra';
-    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
-  });
-});
-
-// Boton editar vendedor
-document.querySelectorAll('[name="btn-editar-vendedor"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    id_tipo='vendedor';
-    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
-  });
-});
-
-// Boton editar establecimiento
-document.querySelectorAll('[name="btn-editar-establecimiento"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    id_tipo='establecimiento';
-    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
-  });
-});
-
-// Boton editar proveedor
-document.querySelectorAll('[name="btn-editar-proveedor"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    id_tipo='proveedor';
-    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
-  });
-});
-
-////////////////////////////
-// BOTONES DE ELIMINACIÓN //
-////////////////////////////
-
-// Boton eliminar producto
-document.querySelectorAll('[name="btn-eliminar-producto"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const id = this.getAttribute('data-id');
-
-    if (confirm('¿Eliminar este producto?')) {
-      eliminarProducto(id)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          document.querySelector(`tr[data-id="${id}"]`).remove();
-          document.querySelector(`#form-editar-producto-${id}`)?.remove();
-          window.location.reload();
-        })
-        .catch(console.error);
-    }
-  });
-});
-
-// Boton eliminar categoría
-document.querySelectorAll('[name="btn-eliminar-categoria"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const id = this.getAttribute('data-id');
-    if (confirm('¿Eliminar esta categoria?')) {
-      eliminarCategoria(id)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          document.querySelector(`tr[data-id="${id}"]`).remove();
-          document.querySelector(`#form-editar-categoria-${id}`)?.remove();
-          window.location.reload();
-        })
-        .catch(console.error);
-    }
-  });
-});
-
-// Boton eliminar compra
-document.querySelectorAll('[name="btn-eliminar-compra"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const id = this.getAttribute('data-id');
-    if (confirm('¿Eliminar esta compra?')) {
-      eliminarCompraVendedor(id)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          document.querySelector(`tr[data-id="${id}"]`).remove();
-          document.querySelector(`#form-editar-compra-${id}`)?.remove();
-          window.location.reload();
-        })
-        .catch(console.error);
-    }
-  });
-});
-
-// Boton eliminar vendedor
-document.querySelectorAll('[name="btn-eliminar-vendedor"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const id = this.getAttribute('data-id');
-    if (confirm('¿Eliminar este vendedor?')) {
-      eliminarVendedor(id)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          document.querySelector(`tr[data-id="${id}"]`).remove();
-          document.querySelector(`#form-editar-vendedor-${id}`)?.remove();
-          window.location.reload();
-        })
-        .catch(console.error);
-    }
-  });
-});
-
-// Boton eliminar establecimiento
-document.querySelectorAll('[name="btn-eliminar-establecimiento"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const id = this.getAttribute('data-id');
-    if (confirm('¿Eliminar este establecimiento?')) {
-      eliminarEstablecimiento(id)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          document.querySelector(`tr[data-id="${id}"]`).remove();
-          document.querySelector(`#form-editar-establecimiento-${id}`)?.remove();
-          window.location.reload();
-        })
-        .catch(console.error);
-    }
-  });
-});
-
-// Boton eliminar proveedor
-document.querySelectorAll('[name="btn-eliminar-proveedor"]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const id = this.getAttribute('data-id');
-    if (confirm('¿Eliminar este proveedor?')) {
-      eliminarProveedor(id)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          document.querySelector(`tr[data-id="${id}"]`).remove();
-          document.querySelector(`#form-editar-proveedor-${id}`)?.remove();
-          window.location.reload();
-        })
-        .catch(console.error);
-    }
-  });
-});
-
-/////////////////////////////////////
-// BOTÓN DE CANCELACIÓN DE EDICIÓN //
-/////////////////////////////////////
-
-// Boton cancelar
-document.querySelectorAll('.btn-cancelar').forEach(btn => {
-  btn.addEventListener('click', function() {
-    ocultarFormularioEdicion(this.getAttribute('data-id'));
-  });
-});
-
-// MODAL FUNCIONAL PARA TODOS LOS FORMULARIOS DE CREACIÓN
-document.addEventListener('DOMContentLoaded', function () {
-  // Modal reutilizable
-  const modalFondo = document.getElementById('modal-fondo');
-  const modalForm = document.getElementById('modal-form');
-  const modalFormContent = document.getElementById('modal-form-content');
-
-  // Botones "+" al lado de cada h2 para abrir el modal
-  document.querySelectorAll('.btn-modal-abrir').forEach(btn => {
-    btn.addEventListener('click', function () {
-      const formId = this.getAttribute('data-form');
-      const formContainer = document.getElementById(formId);
-      if (formContainer) {
-        // Clonar el nodo para evitar conflictos de IDs y eventos
-        const clone = formContainer.cloneNode(true);
-        clone.style.display = 'block';
-        modalFormContent.innerHTML = '';
-        modalFormContent.appendChild(clone);
-
-        modalFondo.style.display = 'block';
-        modalForm.style.display = 'block';
-
-        // Agregar event listener al form dentro del modal
-        const formInModal = modalFormContent.querySelector('form');
-        if (formInModal) {
-          formInModal.addEventListener('submit', function (e) {
-            e.preventDefault();
-            // Ejemplo para vendedor
-            const nombre = this.querySelector('[name="vendedor-nombre"]').value;
-            // ...otros campos...
-            // Realiza el fetch aquí o llama a tu función de creación
-            // Al finalizar:
-            modalFondo.style.display = 'none';
-            modalForm.style.display = 'none';
-            modalFormContent.innerHTML = '';
-            window.location.reload();
-          });
-        }
-      }
-    });
-  });
-
-  // Cerrar modal al hacer click en el fondo
-  if (modalFondo) {
-    modalFondo.addEventListener('click', function (event) {
-      if (event.target === modalFondo) {
-        modalFondo.style.display = 'none';
-        modalForm.style.display = 'none';
-        modalFormContent.innerHTML = '';
-      }
-    });
+    console.log(`✅ Modal ${tipo} cerrado correctamente`);
+  } else {
+    console.error(`❌ No se encontró el modal o botón para ${tipo}`);
   }
-});
+}
 
-// Mostrar/ocultar formularios de creación en el flujo normal de la página (sin modal)
-document.querySelectorAll('.btn-toggle-form').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const formId = this.getAttribute('data-form');
-    const modal = document.getElementById(formId);
-    if (modal) {
-      modal.style.display = 'block';
-      // Espera a que el modal esté visible y el DOM actualizado
-      setTimeout(() => {
-        const formCrearProducto = document.getElementById('form-crear-producto');
-        if (formCrearProducto) {
-          formCrearProducto.removeEventListener('submit', manejoCrearProducto); // Evita duplicados
-          formCrearProducto.addEventListener('submit', manejoCrearProducto);
-          console.log('✅ Event listener agregado a form-crear-producto (modal abierto)');
+///////////////////////////////
+// FUNCIONALIDAD MODALES EDICIÓN //
+///////////////////////////////
+
+// Función para abrir modal de edición
+function abrirModalEdicion(tipo, id, datos) {
+  console.log(`🔓 Abriendo modal de edición ${tipo} para ID ${id}...`);
+  
+  const modalFondo = document.getElementById(`modal-fondo-editar-${tipo}`);
+  
+  if (modalFondo) {
+    // Llenar el formulario con los datos actuales
+    llenarFormularioEdicion(tipo, datos);
+    
+    // Mostrar el modal
+    modalFondo.style.display = 'flex';
+    
+    // Enfocar el primer input
+    setTimeout(() => {
+      const primerInput = modalFondo.querySelector('input, select');
+      if (primerInput) {
+        primerInput.focus();
+      }
+    }, 100);
+    
+    console.log(`✅ Modal de edición ${tipo} abierto correctamente`);
+  } else {
+    console.error(`❌ No se encontró el modal de edición para ${tipo}`);
+  }
+}
+
+// Función para cerrar modal de edición
+function cerrarModalEdicion(tipo) {
+  console.log(`🔒 Cerrando modal de edición ${tipo}...`);
+  
+  const modalFondo = document.getElementById(`modal-fondo-editar-${tipo}`);
+  
+  if (modalFondo) {
+    modalFondo.style.display = 'none';
+    
+    // Limpiar el formulario
+    const form = modalFondo.querySelector('form');
+    if (form) {
+      form.reset();
+    }
+    
+    console.log(`✅ Modal de edición ${tipo} cerrado correctamente`);
+  } else {
+    console.error(`❌ No se encontró el modal de edición para ${tipo}`);
+  }
+}
+
+// Función para llenar el formulario de edición con datos
+function llenarFormularioEdicion(tipo, datos) {
+  const modalFondo = document.getElementById(`modal-fondo-editar-${tipo}`);
+  if (!modalFondo) return;
+  
+  const form = modalFondo.querySelector('form');
+  if (!form) return;
+  
+  // Llenar el campo ID oculto
+  const idInput = form.querySelector(`input[name="${tipo}-id"]`);
+  if (idInput) {
+    idInput.value = datos.id;
+  }
+  
+  // Llenar los campos según el tipo
+  switch (tipo) {
+    case 'producto':
+      form.querySelector('#producto-nombre-editar').value = datos.nombre || '';
+      form.querySelector('#producto-descripcion-editar').value = datos.descripcion || '';
+      form.querySelector('#producto-precio-editar').value = datos.precio || '';
+      form.querySelector('#producto-stock-actual-editar').value = datos.stock_actual || '';
+      form.querySelector('#producto-stock-minimo-editar').value = datos.stock_minimo || '';
+      form.querySelector('#producto-compra-editar').value = datos.compra_id || '';
+      form.querySelector('#producto-categoria-editar').value = datos.categoria_id || '';
+      form.querySelector('#producto-establecimiento-editar').value = datos.establecimiento_id || '';
+      break;
+      
+    case 'categoria':
+      form.querySelector('#categoria-nombre-editar').value = datos.nombre || '';
+      form.querySelector('#categoria-descripcion-editar').value = datos.descripcion || '';
+      break;
+      
+    case 'compra':
+      form.querySelector('#compra-fecha-editar').value = datos.fecha || '';
+      form.querySelector('#compra-total-editar').value = datos.total || '';
+      form.querySelector('#compra-iva-editar').value = datos.iva || '';
+      form.querySelector('#compra-estado-editar').value = datos.estado ? 'True' : 'False';
+      form.querySelector('#compra-establecimiento-editar').value = datos.establecimiento_id || '';
+      form.querySelector('#compra-vendedor-editar').value = datos.vendedor_id || '';
+      break;
+      
+    case 'vendedor':
+      form.querySelector('#vendedor-nombre-editar').value = datos.nombre || '';
+      form.querySelector('#vendedor-telefono-editar').value = datos.telefono || '';
+      form.querySelector('#vendedor-email-editar').value = datos.email || '';
+      form.querySelector('#vendedor-proveedor-editar').value = datos.proveedor_id || '';
+      break;
+      
+    case 'establecimiento':
+      form.querySelector('#establecimiento-nombre-editar').value = datos.nombre || '';
+      form.querySelector('#establecimiento-direccion-editar').value = datos.direccion || '';
+      form.querySelector('#establecimiento-telefono-editar').value = datos.telefono || '';
+      form.querySelector('#establecimiento-email-editar').value = datos.email || '';
+      form.querySelector('#establecimiento-horario_apertura-editar').value = datos.horario_apertura || '';
+      form.querySelector('#establecimiento-horario_cierre-editar').value = datos.horario_cierre || '';
+      form.querySelector('#establecimiento-proveedor-editar').value = datos.proveedor_id || '';
+      break;
+      
+    case 'proveedor':
+      form.querySelector('#proveedor-nombre-editar').value = datos.nombre || '';
+      form.querySelector('#proveedor-telefono-editar').value = datos.telefono || '';
+      form.querySelector('#proveedor-email-editar').value = datos.email || '';
+      break;
+  }
+}
+
+// Función para manejar el envío de formularios de edición
+function manejarFormularioEdicion(tipo, formData) {
+  const id = formData[`${tipo}-id`];
+  
+  // Eliminar el campo ID del formData
+  delete formData[`${tipo}-id`];
+  
+  // Mapear los nombres de campos según el tipo
+  let dataToSend = {};
+  
+  switch (tipo) {
+    case 'producto':
+      dataToSend = {
+        nombre: formData['producto-nombre'],
+        descripcion: formData['producto-descripcion'],
+        precio: formData['producto-precio'],
+        stock_actual: formData['producto-stock-actual'],
+        stock_minimo: formData['producto-stock-minimo'],
+        compra: formData['producto-compra'],
+        categoria: formData['producto-categoria'],
+        establecimiento: formData['producto-establecimiento']
+      };
+      break;
+      
+    case 'categoria':
+      dataToSend = {
+        nombre: formData['categoria-nombre'],
+        descripcion: formData['categoria-descripcion']
+      };
+      break;
+      
+    case 'compra':
+      dataToSend = {
+        fecha: formData['compra-fecha'],
+        total: formData['compra-total'],
+        iva: formData['compra-iva'],
+        estado: formData['compra-estado'],
+        establecimiento: formData['compra-establecimiento'],
+        vendedor: formData['compra-vendedor']
+      };
+      break;
+      
+    case 'vendedor':
+      dataToSend = {
+        nombre: formData['vendedor-nombre'],
+        telefono: formData['vendedor-telefono'],
+        email: formData['vendedor-email'],
+        proveedor: formData['vendedor-proveedor']
+      };
+      break;
+      
+    case 'establecimiento':
+      dataToSend = {
+        nombre: formData['establecimiento-nombre'],
+        direccion: formData['establecimiento-direccion'],
+        telefono: formData['establecimiento-telefono'],
+        email: formData['establecimiento-email'],
+        horario_apertura: formData['establecimiento-horario_apertura'],
+        horario_cierre: formData['establecimiento-horario_cierre'],
+        proveedor: formData['establecimiento-proveedor']
+      };
+      break;
+      
+    case 'proveedor':
+      dataToSend = {
+        nombre: formData['proveedor-nombre'],
+        telefono: formData['proveedor-telefono'],
+        email: formData['proveedor-email']
+      };
+      break;
+  }
+  
+  // Llamar a la función de actualización correspondiente
+  const funcionesActualizacion = {
+    'producto': actualizarProducto,
+    'categoria': actualizarCategoria,
+    'compra': actualizarCompraVendedor,
+    'vendedor': actualizarVendedor,
+    'establecimiento': actualizarEstablecimiento,
+    'proveedor': actualizarProveedor
+  };
+  
+  const funcionActualizacion = funcionesActualizacion[tipo];
+  if (funcionActualizacion) {
+    funcionActualizacion(id, dataToSend)
+      .then(response => {
+        if (response.success) {
+          console.log(`✅ ${tipo} actualizado correctamente`);
+          actualizarVista(response.data, tipo);
+          cerrarModalEdicion(tipo);
         } else {
-          console.warn('⚠️ No se encontró el formulario de crear producto al abrir el modal');
+          console.error(`❌ Error al actualizar ${tipo}:`, response.error);
         }
-      }, 100);
+      })
+      .catch(error => {
+        console.error(`❌ Error en la petición de actualización de ${tipo}:`, error);
+      });
+  }
+}
+
+// Función para obtener datos de una fila de la tabla
+function obtenerDatosFila(tipo, id) {
+  const row = document.querySelector(`tr[data-id="${id}"]`);
+  if (!row) return null;
+  
+  const cells = row.cells;
+  let datos = { id: id };
+  
+  switch (tipo) {
+    case 'producto':
+      if (cells.length >= 8) {
+        datos = {
+          id: id,
+          nombre: cells[0].textContent,
+          descripcion: cells[1].textContent,
+          precio: cells[2].textContent,
+          stock_actual: cells[3].textContent,
+          stock_minimo: cells[4].textContent,
+          // Los IDs se obtendrán del backend
+        };
+      }
+      break;
+      
+    case 'categoria':
+      if (cells.length >= 2) {
+        datos = {
+          id: id,
+          nombre: cells[0].textContent,
+          descripcion: cells[1].textContent
+        };
+      }
+      break;
+      
+    case 'compra':
+      if (cells.length >= 6) {
+        datos = {
+          id: id,
+          fecha: cells[0].textContent,
+          total: cells[1].textContent,
+          iva: cells[2].textContent,
+          estado: cells[3].textContent === 'True',
+          // Los IDs se obtendrán del backend
+        };
+      }
+      break;
+      
+    case 'vendedor':
+      if (cells.length >= 4) {
+        datos = {
+          id: id,
+          nombre: cells[0].textContent,
+          telefono: cells[1].textContent,
+          email: cells[2].textContent,
+          // Los IDs se obtendrán del backend
+        };
+      }
+      break;
+      
+    case 'establecimiento':
+      if (cells.length >= 7) {
+        datos = {
+          id: id,
+          nombre: cells[0].textContent,
+          direccion: cells[1].textContent,
+          telefono: cells[2].textContent,
+          email: cells[3].textContent,
+          horario_apertura: cells[4].textContent,
+          horario_cierre: cells[5].textContent,
+          // Los IDs se obtendrán del backend
+        };
+      }
+      break;
+      
+    case 'proveedor':
+      if (cells.length >= 3) {
+        datos = {
+          id: id,
+          nombre: cells[0].textContent,
+          telefono: cells[1].textContent,
+          email: cells[2].textContent
+        };
+      }
+      break;
+  }
+  
+  return datos;
+}
+
+// Función para inicializar los event listeners de los botones de edición
+function inicializarBotonesEdicion() {
+  console.log('🎯 Inicializando botones de edición...');
+  
+  // Botones de edición para cada tipo
+  const tipos = ['producto', 'categoria', 'compra', 'vendedor', 'establecimiento', 'proveedor'];
+  
+  tipos.forEach(tipo => {
+    const botones = document.querySelectorAll(`[name="btn-editar-${tipo}"]`);
+    botones.forEach(boton => {
+      boton.addEventListener('click', function() {
+        const id = this.getAttribute('data-id');
+        console.log(`🖱️ Botón editar ${tipo} clickeado para ID ${id}`);
+        
+        // Obtener datos básicos de la fila
+        const datos = obtenerDatosFila(tipo, id);
+        if (datos) {
+          abrirModalEdicion(tipo, id, datos);
+        } else {
+          console.error(`❌ No se pudieron obtener los datos para ${tipo} con ID ${id}`);
     }
   });
 });
+  });
+  
+  // Event listeners para formularios de edición
+  tipos.forEach(tipo => {
+    const form = document.getElementById(`form-editar-${tipo}`);
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log(`📝 Formulario de edición ${tipo} enviado`);
+        
+        const formData = new FormData(this);
+        const data = {};
+        formData.forEach((value, key) => {
+          data[key] = value;
+        });
+        
+        manejarFormularioEdicion(tipo, data);
+      });
+    }
+  });
+  
+  console.log('✅ Botones de edición inicializados correctamente');
+}

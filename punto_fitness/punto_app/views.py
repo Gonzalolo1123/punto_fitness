@@ -228,12 +228,13 @@ def admin_usuario_crear(request):
         if Cliente.objects.filter(telefono__iexact=telefono_str).exists():
             return JsonResponse({'error': '¡Ya existe un usuario con este teléfono!'}, status=400)
         
-        # Crear el usuario con datos limpios
+        # Crear el usuario con datos limpios y contraseña por defecto
         usuario = Cliente.objects.create(
             nombre=data['nombre'].strip().title(),
             apellido=data['apellido'].strip().title(),
             email=data['correo'].lower().strip(),
-            telefono=int(telefono_str)
+            telefono=int(telefono_str),
+            contrasena=make_password('123456')  # Contraseña por defecto
         )
         
         return JsonResponse({
@@ -307,11 +308,14 @@ def admin_usuario_actualizar(request, usuario_id):
         usuario.save()
         
         return JsonResponse({
-            'id': usuario.id,
-            'nombre': usuario.nombre,
-            'apellido': usuario.apellido,
-            'correo': usuario.email,
-            'telefono': usuario.telefono
+            'success': True,
+            'data': {
+                'id': usuario.id,
+                'nombre': usuario.nombre,
+                'apellido': usuario.apellido,
+                'correo': usuario.email,
+                'telefono': usuario.telefono
+            }
         })
         
     except json.JSONDecodeError:
@@ -668,6 +672,7 @@ def admin_maquina_actualizar(request, maquina_id):
         maquina.nombre = data.get('nombre', maquina.nombre)
         maquina.descripcion = data.get('descripcion', maquina.descripcion)
         maquina.cantidad = data.get('cantidad', maquina.cantidad)
+        maquina.establecimiento_id = data.get('establecimiento_id', maquina.establecimiento_id)
         maquina.save()
         
         return JsonResponse({
@@ -675,6 +680,7 @@ def admin_maquina_actualizar(request, maquina_id):
             'nombre': maquina.nombre,
             'descripcion': maquina.descripcion,
             'cantidad': maquina.cantidad,
+            'establecimiento_id': maquina.establecimiento_id
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -870,22 +876,22 @@ def admin_establecimiento_actualizar(request, establecimiento_id):
         establecimiento.proveedor_id = data.get('proveedor_id', establecimiento.proveedor_id)
         establecimiento.save()
         
-        # Obtener los datos con las relaciones
-        establecimiento_con_relaciones = Establecimiento.objects.select_related('proveedor').get(id=establecimiento.id)
-        
         return JsonResponse({
-            'id': establecimiento.id,
-            'nombre': establecimiento.nombre,
-            'direccion': establecimiento.direccion,
-            'telefono': establecimiento.telefono,
-            'email': establecimiento.email,
-            'horario_apertura': establecimiento.horario_apertura,
-            'horario_cierre': establecimiento.horario_cierre,
-            'proveedor_id': establecimiento.proveedor_id,
-            'proveedor__nombre': establecimiento_con_relaciones.proveedor.nombre
+            'success': True,
+            'data': {
+                'id': establecimiento.id,
+                'nombre': establecimiento.nombre,
+                'direccion': establecimiento.direccion,
+                'telefono': establecimiento.telefono,
+                'email': establecimiento.email,
+                'horario_apertura': establecimiento.horario_apertura,
+                'horario_cierre': establecimiento.horario_cierre,
+                'proveedor_id': establecimiento.proveedor_id,
+                'proveedor__nombre': establecimiento.proveedor.nombre
+            }
         })
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
     
 @csrf_exempt   
 def admin_establecimiento_borrar(request, establecimiento_id):
@@ -928,13 +934,16 @@ def admin_proveedor_actualizar(request, proveedor_id):
         proveedor.save()
         
         return JsonResponse({
-            'id': proveedor.id,
-            'nombre': proveedor.nombre,
-            'telefono': proveedor.telefono,
-            'email': proveedor.email,
+            'success': True,
+            'data': {
+                'id': proveedor.id,
+                'nombre': proveedor.nombre,
+                'telefono': proveedor.telefono,
+                'email': proveedor.email,
+            }
         })
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
    
     
 @csrf_exempt   
@@ -981,9 +990,14 @@ def admin_curso_actualizar(request, curso_id):
         curso = get_object_or_404(Curso, pk=curso_id)
         data = json.loads(request.body)
         
+        # Validar que la fecha de realización no esté vacía
+        fecha_realizacion = data.get('fecha_realizacion')
+        if not fecha_realizacion:
+            return JsonResponse({'error': 'La fecha de realización es obligatoria'}, status=400)
+        
         curso.nombre = data.get('nombre', curso.nombre)
         curso.cupos = data.get('cupos', curso.cupos)
-        curso.fecha_realizacion = data.get('fecha_realizacion', curso.fecha_realizacion)
+        curso.fecha_realizacion = fecha_realizacion
         curso.estado = data.get('estado', curso.estado)
         curso.establecimiento_id = data.get('establecimiento_id', curso.establecimiento_id)
         curso.save()
@@ -1045,7 +1059,7 @@ def admin_inscripcion_actualizar(request, inscripcion_id):
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-    
+
 @csrf_exempt
 @requiere_admin
 def admin_inscripcion_borrar(request, inscripcion_id):
