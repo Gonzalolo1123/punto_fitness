@@ -179,3 +179,15 @@ body {
     flex-direction: column;
     gap: 5px;
 }
+
+.buscador-usuario {
+    margin: 20px 0;
+    text-align: right;
+}
+
+#buscador {
+    padding: 8px 12px;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}

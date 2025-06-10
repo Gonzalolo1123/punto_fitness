@@ -295,14 +295,18 @@ document.getElementById('btnMostrarCursos').addEventListener('click', () => {
                 </span>
               </td>
               <td>
-                ${curso.estado === 'activo' ?
-        (curso.inscrito ?
+                ${curso.estado === 'activo' ? (
+        curso.inscrito ?
           `<button class="btn-cancelar" onclick="cancelarInscripcion(${curso.id})">
-          <i class="fas fa-user-minus"></i> Cancelar
-        </button>` :
-          `<button class="btn-inscribir" onclick="inscribirCurso(${curso.id})">
-          <i class="fas fa-user-plus"></i> Inscribir
-        </button>`) :
+         <i class="fas fa-user-minus"></i> Cancelar
+       </button>` :
+          (cuposDisponibles > 0 ?
+            `<button class="btn-inscribir" onclick="inscribirCurso(${curso.id})">
+           <i class="fas fa-user-plus"></i> Inscribir
+         </button>` :
+            '<span class="badge badge-completo">Lleno</span>'
+          )
+      ) :
         '<span class="badge badge-completo">Lleno</span>'}
               </td>
             </tr>

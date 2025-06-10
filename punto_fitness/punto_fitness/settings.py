@@ -47,7 +47,7 @@ DATABASES = {
        'ENGINE': 'django.db.backends.postgresql',
        'NAME': 'punto_fitness',
        'USER': 'postgres',
-       'PASSWORD': 'compuvi',
+       'PASSWORD': 'hola1234',
        'HOST': 'localhost',
        'PORT': '5432',
    }
@@ -124,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Santiago'
 
 USE_I18N = True
 

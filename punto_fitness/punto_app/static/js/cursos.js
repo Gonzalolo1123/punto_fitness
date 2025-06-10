@@ -141,6 +141,7 @@ function manejoCrearCurso(e) {
     nombre: document.getElementById('curso-nombre').value,
     cupos: document.getElementById('curso-cupos').value,
     fecha_realizacion: document.getElementById('curso-fecha_realizacion').value,
+    estado: document.getElementById('curso-estado').value,
     establecimiento_id: document.getElementById('curso-establecimiento').value,
   };
 
@@ -163,6 +164,7 @@ function manejoCrearInscripcion(e) {
   const formData = {
     usuario_id: document.getElementById('inscripcion-usuario').value,
     curso_id: document.getElementById('inscripcion-curso').value,
+    fecha_inscripcion: document.getElementById('inscripcion-fecha_inscripcion').value,
   };
   
   crearInscripcion(formData)
@@ -235,7 +237,8 @@ document.querySelectorAll('[name="form-editar-inscripcion"]').forEach(form => {
     const inscripcionId = this.dataset.id;
     const formData = {
       usuario_id: this.querySelector('[name="inscripcion-usuario"]').value,
-      curso_id: this.querySelector('[name="inscripcion-curso"]').value
+      curso_id: this.querySelector('[name="inscripcion-curso"]').value,
+      fecha_inscripcion: this.querySelector('[name="inscripcion-fecha_inscripcion"]').value
     };
     
     actualizarInscripcion(inscripcionId, formData)

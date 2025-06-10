@@ -16,6 +16,7 @@ from django.utils import timezone
 import logging
 from django.db.models import Count, OuterRef, Subquery, IntegerField, Exists
 from django.db.models.functions import Coalesce
+from django.utils.timezone import localtime
 logger = logging.getLogger('punto_app')
 
 # Create your views here.
@@ -962,6 +963,7 @@ def admin_curso_crear(request):
             nombre=data['nombre'],
             cupos=data['cupos'],
             fecha_realizacion=data['fecha_realizacion'],
+            estado=data['estado'],
             establecimiento_id=data['establecimiento_id']
         )
         return JsonResponse({
@@ -969,6 +971,7 @@ def admin_curso_crear(request):
             'nombre': curso.nombre,
             'cupos': curso.cupos,
             'fecha_realizacion': curso.fecha_realizacion,
+            'estado': curso.estado,
             'establecimiento_id': curso.establecimiento_id
         }, status=201)
     except Exception as e:
@@ -1035,12 +1038,14 @@ def admin_inscripcion_actualizar(request, inscripcion_id):
         
         inscripcion.usuario_id = data.get('usuario_id', inscripcion.usuario_id)
         inscripcion.curso_id = data.get('curso_id', inscripcion.curso_id)
+        inscripcion.fecha_inscripcion = data.get('fecha_inscripcion', inscripcion.fecha_inscripcion)
         inscripcion.save()
         
         return JsonResponse({
             'id': inscripcion.id,
             'usuario_id': inscripcion.usuario_id,
-            'curso_id': inscripcion.curso_id
+            'curso_id': inscripcion.curso_id,
+            'fecha_inscripcion': inscripcion.fecha_inscripcion
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -1086,10 +1091,11 @@ def confirmar_asistencia(request):
                 fecha_hora_entrada=timezone.now(),
                 fecha_hora_salida=None  # Salida inicialmente nula
             )
-            
+            hora_local = localtime(asistencia.fecha_hora_entrada)
+            mensaje = hora_local.strftime('%H:%M:%S')
             messages.success(request, 
                 f"Asistencia registrada: {cliente.nombre} en {establecimiento.nombre} "
-                f"a las {asistencia.fecha_hora_entrada.strftime('%H:%M:%S')}"
+                f"a las {mensaje}"
             )
             
         except Cliente.DoesNotExist:
@@ -1123,11 +1129,12 @@ def confirmar_salida(request):
             # Registrar la hora de salida
             registro.fecha_hora_salida = timezone.now()
             registro.save()
-            
+            hora_local = localtime(registro.fecha_hora_salida)
+            mensaje = hora_local.strftime('%H:%M:%S')
             messages.success(request, 
                 f"Salida registrada para {registro.usuario.nombre} {registro.usuario.apellido} "
                 f"en {registro.establecimiento.nombre} "
-                f"a las {registro.fecha_hora_salida.strftime('%H:%M:%S')}"
+                f"a las {mensaje}"
             )
             
         except RegistroAcceso.DoesNotExist:
