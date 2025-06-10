@@ -15,7 +15,9 @@
   <header>
     <div class="logo">Punto Fitness</div>
     <nav>
-      <a href="{% url 'pagina_admin' %}">Admin dashboard</a>
+      <ul>
+        <li><a href="{% url 'pagina_admin' %}">Admin dashboard</a></li>
+      </ul>
     </nav>
   </header>
 
@@ -49,47 +51,61 @@
           <td>{{ admin.cliente.telefono }}</td>
           <td>{{ admin.nivel_acceso }}</td>
           <td>
-            <button class="filtro-btn" name="btn-editar-admin" data-id="{{ admin.id }}">Actualizar</button>
-            <button class="filtro-btn" name="btn-eliminar-admin" data-id="{{ admin.id }}">Eliminar</button>
+            <div class="action-buttons-container">
+              <button class="filtro-btn" name="btn-editar-admin" data-id="{{ admin.id }}">Actualizar</button>
+              <button class="filtro-btn" name="btn-eliminar-admin" data-id="{{ admin.id }}">Eliminar</button>
+            </div>
           </td>
         </tr>
 
-        <!-- Formulario de edición para cada admin -->
-        <tr id="form-editar-admin-{{ admin.id }}" class="form-edicion-admin" style="display: none;">
-          <td colspan="6">
-            <h3>Actualizar administrador</h3>
-            <form class="formulario" name="form-editar-admin" data-id="{{ admin.id }}">
-              {% csrf_token %}
-              <div class="form-fila">
-                <label for="admin-nombre-{{ admin.id }}">Nombre:</label>
-                <input type="text" name="admin-nombre" value="{{ admin.cliente.nombre }}" required>
-              </div>
-              <div class="form-fila">
-                <label for="admin-apellido-{{ admin.id }}">Apellido:</label>
-                <input type="text" name="admin-apellido" value="{{ admin.cliente.apellido }}" required>
-              </div>
-              <div class="form-fila">
-                <label for="admin-correo-{{ admin.id }}">Correo electrónico:</label>
-                <input type="email" name="admin-correo" value="{{ admin.cliente.email }}" required>
-              </div>
-              <div class="form-fila">
-                <label for="admin-telefono-{{ admin.id }}">Teléfono:</label>
-                <input type="tel" name="admin-telefono" value="{{ admin.cliente.telefono }}" required>
-              </div>
-              <div class="form-fila">
-                <label for="admin-nivel-{{ admin.id }}">Nivel de acceso:</label>
-                <select name="admin-nivel" required>
-                  <option value="admin" {% if admin.nivel_acceso == 'admin' %}selected{% endif %}>Admin</option>
-                  <option value="superadmin" {% if admin.nivel_acceso == 'superadmin' %}selected{% endif %}>Super Admin
-                  </option>
-                </select>
-              </div>
-              <button class="filtro-btn" type="submit">Guardar</button>
-              <button class="filtro-btn" type="button"
-                onclick="ocultarFormularioEdicion('{{ admin.id }}')">Cancelar</button>
-            </form>
-          </td>
-        </tr>
+        <!-- Modal para editar administrador -->
+        <div id="modal-fondo-editar-admin-{{ admin.id }}" class="modal-fondo" style="display:none;">
+          <div id="modal-form-editar-admin-{{ admin.id }}" class="modal-form">
+            <div class="modal-header">
+              <h3>Actualizar administrador</h3>
+              <button class="cerrar-modal" onclick="cerrarModalEdicion('admin', '{{ admin.id }}')">×</button>
+            </div>
+            <div class="modal-body">
+              <form class="formulario" name="form-editar-admin" data-id="{{ admin.id }}">
+                {% csrf_token %}
+                
+                <div class="form-fila">
+                  <label for="admin-nombre-editar-{{ admin.id }}">Nombre:</label>
+                  <input type="text" id="admin-nombre-editar-{{ admin.id }}" name="admin-nombre-editar-{{ admin.id }}" value="{{ admin.cliente.nombre }}" required>
+                </div>
+              
+                <div class="form-fila">
+                  <label for="admin-apellido-editar-{{ admin.id }}">Apellido:</label>
+                  <input type="text" id="admin-apellido-editar-{{ admin.id }}" name="admin-apellido-editar-{{ admin.id }}" value="{{ admin.cliente.apellido }}" required>
+                </div>
+              
+                <div class="form-fila">
+                  <label for="admin-correo-editar-{{ admin.id }}">Correo electrónico:</label>
+                  <input type="email" id="admin-correo-editar-{{ admin.id }}" name="admin-correo-editar-{{ admin.id }}" value="{{ admin.cliente.email }}" required>
+                </div>
+              
+                <div class="form-fila">
+                  <label for="admin-telefono-editar-{{ admin.id }}">Teléfono:</label>
+                  <input type="tel" id="admin-telefono-editar-{{ admin.id }}" name="admin-telefono-editar-{{ admin.id }}" value="{{ admin.cliente.telefono }}" required>
+                </div>
+              
+                <div class="form-fila">
+                  <label for="admin-nivel-editar-{{ admin.id }}">Nivel de acceso:</label>
+                  <select id="admin-nivel-editar-{{ admin.id }}" name="admin-nivel-editar-{{ admin.id }}" required>
+                    <option value="admin" {% if admin.nivel_acceso == 'admin' %}selected{% endif %}>Admin</option>
+                    <option value="superadmin" {% if admin.nivel_acceso == 'superadmin' %}selected{% endif %}>Super Admin</option>
+                  </select>
+                </div>
+                
+                <div class="modal-actions">
+                  <button class="filtro-btn" type="submit">Guardar</button>
+                  <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModalEdicion('admin', '{{ admin.id }}')">Cancelar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
         {% endif %}
         {% empty %}
         <tr>
@@ -99,50 +115,60 @@
       </tbody>
     </table>
 
-    <div id="clientes-no-admin-wrapper" style="display: none;"> {# Nuevo wrapper para la tabla de clientes #}
-      <div class="header-content" style="margin-top: 40px;">
-        <h2>Clientes sin rol de Administrador</h2>
+    <!-- Modal para otorgar rol de administrador -->
+    <div id="modal-fondo-admin" class="modal-fondo" style="display:none;">
+      <div id="modal-form-admin" class="modal-form">
+        <div class="modal-header">
+          <h3>Otorgar Rol de Administrador</h3>
+          <button class="cerrar-modal" onclick="cerrarModal('admin')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-content">
+            <h4>Selecciona un cliente para otorgarle el rol de administrador:</h4>
+            <div class="clientes-lista">
+              {% for cliente in clientes %}
+              <div class="cliente-item" data-cliente-id="{{ cliente.id }}">
+                <div class="cliente-info">
+                  <strong>{{ cliente.nombre }} {{ cliente.apellido }}</strong>
+                  <span class="cliente-email">{{ cliente.email }}</span>
+                  <span class="cliente-telefono">{{ cliente.telefono }}</span>
+                </div>
+                <div class="cliente-acciones">
+                  <select class="select-establecimiento-modal" data-cliente-id="{{ cliente.id }}" required>
+                    <option value="" disabled selected>Selecciona establecimiento</option>
+                    {% for est in establecimientos %}
+                      <option value="{{ est.id }}">{{ est.nombre }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="filtro-btn btn-hacer-admin-modal" data-cliente-id="{{ cliente.id }}">Hacer Admin</button>
+                </div>
+              </div>
+              {% empty %}
+              <p class="no-clientes">No hay clientes disponibles para otorgar rol de administrador.</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>ID Cliente</th>
-            <th>Nombre Completo</th>
-            <th>Correo Electrónico</th>
-            <th>Teléfono</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for cliente in clientes %}
-          <tr data-cliente-id="{{ cliente.id }}">
-            <td>{{ cliente.id }}</td>
-            <td>{{ cliente.nombre }} {{ cliente.apellido }}</td>
-            <td>{{ cliente.email }}</td>
-            <td>{{ cliente.telefono }}</td>
-            <td>
-              <select class="select-establecimiento" data-cliente-id="{{ cliente.id }}" required>
-                <option value="" disabled selected>Selecciona establecimiento</option>
-                {% for est in establecimientos %}
-                  <option value="{{ est.id }}">{{ est.nombre }}</option>
-                {% endfor %}
-              </select>
-              <button class="filtro-btn btn-hacer-admin" data-cliente-id="{{ cliente.id }}">Hacer Admin</button>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="5">No hay clientes sin rol de administrador.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div> {# Cierre del wrapper #}
+    </div>
 
-    <!-- Modal reutilizable -->
-    <div id="modal-fondo" class="modal-fondo" style="display:none;"></div>
-    <div id="modal-form" class="modal-form" style="display:none;">
-      <div id="modal-form-content"></div>
+    <!-- Modal de confirmación -->
+    <div id="modal-fondo-confirmacion" class="modal-fondo" style="display:none;">
+      <div id="modal-form-confirmacion" class="modal-form">
+        <div class="modal-header">
+          <h3>Confirmar Acción</h3>
+          <button class="cerrar-modal" onclick="cerrarModal('confirmacion')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-content">
+            <p id="mensaje-confirmacion"></p>
+            <div class="modal-actions">
+              <button class="filtro-btn" id="confirmar-accion">Confirmar</button>
+              <button class="filtro-btn btn-cancelar" id="cancelar-accion">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

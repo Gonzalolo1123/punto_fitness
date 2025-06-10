@@ -171,7 +171,7 @@
 
                 <div class="form-fila">
                   <label for="inscripcion-curso-editar-modal-{{ inscripcion.id }}">Curso:</label>
-                  <select id="inscripcion-curso-editar-modal-{{ inscripcion.id }}" name="inscripcion-curso" required>
+                  <select id="inscripcion-curso-editar-modal-{{ inscripcion.id }}" name="inscripcion-curso-editar-modal-{{ inscripcion.id }}" required>
                     <option value="" disabled>Seleccione</option>
                     {% for curso in cursos %}
                     <option value="{{ curso.id }}" {% if curso.id == inscripcion.curso_id %}selected{% endif %}>{{curso.nombre }}</option>
@@ -181,7 +181,7 @@
 
                 <div class="form-fila">
                   <label for="inscripcion-usuario-editar-modal-{{ inscripcion.id }}">Usuario:</label>
-                  <select id="inscripcion-usuario-editar-modal-{{ inscripcion.id }}" name="inscripcion-usuario"
+                  <select id="inscripcion-usuario-editar-modal-{{ inscripcion.id }}" name="inscripcion-usuario-editar-modal-{{ inscripcion.id }}"
                     required>
                     <option value="" disabled>Seleccione</option>
                     {% for usuario in usuarios %}

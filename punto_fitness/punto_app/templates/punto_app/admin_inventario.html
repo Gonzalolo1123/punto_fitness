@@ -423,6 +423,10 @@
                    title="Mínimo 5 caracteres, máximo 50"
                    required>
           </div>
+          <div class="modal-actions">
+            <button class="filtro-btn" type="submit">Agregar Categoría</button>
+            <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModal('categoria')">Cancelar</button>
+          </div>
         </form>
       </div>
     </div>
@@ -508,6 +512,10 @@
               {% endfor %}
             </select>
           </div>
+          <div class="modal-actions">
+            <button class="filtro-btn" type="submit">Agregar Compra</button>
+            <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModal('compra')">Cancelar</button>
+          </div>
         </form>
       </div>
     </div>
@@ -569,6 +577,10 @@
               <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
               {% endfor %}
             </select>
+          </div>
+          <div class="modal-actions">
+            <button class="filtro-btn" type="submit">Agregar Vendedor</button>
+            <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModal('vendedor')">Cancelar</button>
           </div>
         </form>
       </div>

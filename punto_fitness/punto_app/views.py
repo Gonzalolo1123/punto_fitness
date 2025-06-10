@@ -802,7 +802,7 @@ def admin_vendedor_actualizar(request, vendedor_id):
         vendedor.nombre = data.get('nombre', vendedor.nombre)
         vendedor.telefono = data.get('telefono', vendedor.telefono)
         vendedor.email = data.get('email', vendedor.email)
-        vendedor.proveedor_id = data.get('proveedor_id', vendedor.proveedor_id)
+        vendedor.proveedor_id = data.get('proveedor', vendedor.proveedor_id)
         vendedor.save()
         
         # Obtener los datos con las relaciones
@@ -873,7 +873,7 @@ def admin_establecimiento_actualizar(request, establecimiento_id):
         establecimiento.email = data.get('email', establecimiento.email)
         establecimiento.horario_apertura = data.get('horario_apertura', establecimiento.horario_apertura)
         establecimiento.horario_cierre = data.get('horario_cierre', establecimiento.horario_cierre)
-        establecimiento.proveedor_id = data.get('proveedor_id', establecimiento.proveedor_id)
+        establecimiento.proveedor_id = data.get('proveedor', establecimiento.proveedor_id)
         establecimiento.save()
         
         return JsonResponse({
@@ -1048,6 +1048,43 @@ def admin_inscripcion_actualizar(request, inscripcion_id):
         inscripcion = get_object_or_404(Inscripcion, pk=inscripcion_id)
         data = json.loads(request.body)
         
+        # Validar que los campos requeridos no estén vacíos
+        if 'usuario_id' in data:
+            if not data['usuario_id']:
+                return JsonResponse({'error': 'El usuario es requerido'}, status=400)
+        else:
+            return JsonResponse({'error': 'El usuario es requerido'}, status=400)
+        
+        if 'curso_id' in data:
+            if not data['curso_id']:
+                return JsonResponse({'error': 'El curso es requerido'}, status=400)
+        else:
+            return JsonResponse({'error': 'El curso es requerido'}, status=400)
+        
+        # Validar que el usuario existe
+        if 'usuario_id' in data:
+            try:
+                Cliente.objects.get(id=data['usuario_id'])
+            except Cliente.DoesNotExist:
+                return JsonResponse({'error': 'El usuario seleccionado no existe'}, status=400)
+        
+        # Validar que el curso existe
+        if 'curso_id' in data:
+            try:
+                Curso.objects.get(id=data['curso_id'])
+            except Curso.DoesNotExist:
+                return JsonResponse({'error': 'El curso seleccionado no existe'}, status=400)
+        
+        # Validar que no existe otra inscripción del mismo usuario al mismo curso
+        if 'usuario_id' in data and 'curso_id' in data:
+            inscripcion_existente = Inscripcion.objects.filter(
+                usuario_id=data['usuario_id'],
+                curso_id=data['curso_id']
+            ).exclude(id=inscripcion_id).first()
+            
+            if inscripcion_existente:
+                return JsonResponse({'error': 'El usuario ya está inscrito en este curso'}, status=400)
+        
         inscripcion.usuario_id = data.get('usuario_id', inscripcion.usuario_id)
         inscripcion.curso_id = data.get('curso_id', inscripcion.curso_id)
         inscripcion.save()
@@ -1055,7 +1092,8 @@ def admin_inscripcion_actualizar(request, inscripcion_id):
         return JsonResponse({
             'id': inscripcion.id,
             'usuario_id': inscripcion.usuario_id,
-            'curso_id': inscripcion.curso_id
+            'curso_id': inscripcion.curso_id,
+            'fecha_inscripcion': inscripcion.fecha_inscripcion
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)

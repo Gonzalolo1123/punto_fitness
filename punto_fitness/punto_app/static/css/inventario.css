@@ -516,3 +516,90 @@ td:last-child .filtro-btn {
   width: 120px; /* Ancho fijo para todos los botones */
   margin: 0; /* Eliminar el margen predeterminado para usar 'gap' en el contenedor flex */
 }
+
+/* Estilos específicos para el modal de administradores */
+.modal-content h4 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 1.2em;
+}
+
+.clientes-lista {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.cliente-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.cliente-item:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cliente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cliente-info strong {
+  color: #2c3e50;
+  font-size: 1.1em;
+}
+
+.cliente-email,
+.cliente-telefono {
+  color: #6c757d;
+  font-size: 0.9em;
+}
+
+.cliente-acciones {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.select-establecimiento-modal {
+  padding: 8px 12px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: #fff;
+  min-width: 200px;
+}
+
+.no-clientes {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 20px;
+}
+
+/* Responsive para modal de administradores */
+@media (max-width: 768px) {
+  .cliente-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .cliente-acciones {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .select-establecimiento-modal {
+    width: 100%;
+    min-width: auto;
+  }
+}
