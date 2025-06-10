@@ -52,22 +52,48 @@
                 
                 <div class="form-fila">
                   <label for="maquina-nombre-editar-{{ maquina.id }}">Nombre:</label>
-                  <input type="text" id="maquina-nombre-editar-{{ maquina.id }}" name="maquina-nombre-editar-{{ maquina.id }}" value="{{ maquina.nombre }}" maxlength="30" required>
+                  <input type="text" 
+                         id="maquina-nombre-editar-{{ maquina.id }}" 
+                         name="maquina-nombre-editar-{{ maquina.id }}" 
+                         value="{{ maquina.nombre }}" 
+                         maxlength="30"
+                         minlength="3"
+                         pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-.,()&]+"
+                         title="Solo letras, números y los caracteres especiales: -.,()&"
+                         required>
                 </div>
               
                 <div class="form-fila">
                   <label for="maquina-descripcion-editar-{{ maquina.id }}">Descripción:</label>
-                  <input type="text" id="maquina-descripcion-editar-{{ maquina.id }}" name="maquina-descripcion-editar-{{ maquina.id }}" value="{{ maquina.descripcion }}" maxlength="50" required>
+                  <input type="text" 
+                         id="maquina-descripcion-editar-{{ maquina.id }}" 
+                         name="maquina-descripcion-editar-{{ maquina.id }}" 
+                         value="{{ maquina.descripcion }}" 
+                         maxlength="50"
+                         minlength="5"
+                         pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-.,()&]+"
+                         title="Mínimo 5 caracteres, máximo 50"
+                         required>
                 </div>
               
                 <div class="form-fila">
                   <label for="maquina-cantidad-editar-{{ maquina.id }}">Cantidad:</label>
-                  <input type="number" id="maquina-cantidad-editar-{{ maquina.id }}" name="maquina-cantidad-editar-{{ maquina.id }}" value="{{ maquina.cantidad }}" min="0" required>
+                  <input type="number" 
+                         id="maquina-cantidad-editar-{{ maquina.id }}" 
+                         name="maquina-cantidad-editar-{{ maquina.id }}" 
+                         value="{{ maquina.cantidad }}" 
+                         min="1"
+                         max="50"
+                         title="Entre 1 y 50 máquinas"
+                         required>
                 </div>
               
                 <div class="form-fila">
                   <label for="maquina-establecimiento-editar-{{ maquina.id }}">Establecimiento:</label>
-                  <select id="maquina-establecimiento-editar-{{ maquina.id }}" name="maquina-establecimiento-editar-{{ maquina.id }}" required>
+                  <select id="maquina-establecimiento-editar-{{ maquina.id }}" 
+                          name="maquina-establecimiento-editar-{{ maquina.id }}" 
+                          required
+                          title="Seleccione un establecimiento">
                     <option value="" disabled>Seleccione</option>
                     {% for est in establecimientos %}
                     <option value="{{ est.id }}" {% if est.id == maquina.establecimiento_id %}selected{% endif %}>{{ est.nombre }}</option>
@@ -106,22 +132,48 @@
           
           <div class="form-fila">
             <label for="maquina-nombre">Nombre:</label>
-            <input type="text" id="maquina-nombre" name="maquina-nombre" maxlength="30" required>
+            <input type="text" 
+                   id="maquina-nombre" 
+                   name="maquina-nombre" 
+                   maxlength="30"
+                   minlength="3"
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-.,()&]+"
+                   title="Solo letras, números y los caracteres especiales: -.,()&"
+                   placeholder="Ej: Treadmill Pro 2000"
+                   required>
           </div>
         
           <div class="form-fila">
             <label for="maquina-descripcion">Descripción:</label>
-            <input type="text" id="maquina-descripcion" name="maquina-descripcion" maxlength="50" required>
+            <input type="text" 
+                   id="maquina-descripcion" 
+                   name="maquina-descripcion" 
+                   maxlength="50"
+                   minlength="5"
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-.,()&]+"
+                   title="Mínimo 5 caracteres, máximo 50"
+                   placeholder="Ej: Cinta de correr profesional"
+                   required>
           </div>
           
           <div class="form-fila">
             <label for="maquina-cantidad">Cantidad:</label>
-            <input type="number" id="maquina-cantidad" name="maquina-cantidad" min="0" required>
+            <input type="number" 
+                   id="maquina-cantidad" 
+                   name="maquina-cantidad" 
+                   min="1"
+                   max="50"
+                   title="Entre 1 y 50 máquinas"
+                   placeholder="Ej: 5"
+                   required>
           </div>
 
           <div class="form-fila">
             <label for="maquina-establecimiento">Establecimiento:</label>
-            <select id="maquina-establecimiento" name="maquina-establecimiento" required>
+            <select id="maquina-establecimiento" 
+                    name="maquina-establecimiento" 
+                    required
+                    title="Seleccione un establecimiento">
               <option value="">Seleccione establecimiento</option>
               {% for est in establecimientos %}
                 <option value="{{ est.id }}">{{ est.nombre }}</option>

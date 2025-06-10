@@ -65,19 +65,50 @@
                     {% csrf_token %}
                     <div class="form-fila">
                         <label for="usuario-nombre">Nombre:</label>
-                        <input type="text" id="usuario-nombre" name="usuario-nombre" maxlength="30" required>
+                        <input type="text" 
+                               id="usuario-nombre" 
+                               name="usuario-nombre" 
+                               maxlength="30"
+                               minlength="2"
+                               pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s\-]+"
+                               title="Solo letras, espacios y guiones"
+                               placeholder="Ej: Juan Carlos"
+                               required>
                     </div>
                     <div class="form-fila">
                         <label for="usuario-apellido">Apellido:</label>
-                        <input type="text" id="usuario-apellido" name="usuario-apellido" required>
+                        <input type="text" 
+                               id="usuario-apellido" 
+                               name="usuario-apellido" 
+                               maxlength="30"
+                               minlength="2"
+                               pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s\-]+"
+                               title="Solo letras, espacios y guiones"
+                               placeholder="Ej: Pérez García"
+                               required>
                     </div>
                     <div class="form-fila">
                         <label for="usuario-correo">Correo electrónico:</label>
-                        <input type="email" id="usuario-correo" name="usuario-correo" required>
+                        <input type="email" 
+                               id="usuario-correo" 
+                               name="usuario-correo" 
+                               maxlength="50"
+                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                               title="Ingrese un email válido"
+                               placeholder="ejemplo@dominio.com"
+                               required>
                     </div>
                     <div class="form-fila">
                         <label for="usuario-telefono">Teléfono:</label>
-                        <input type="tel" id="usuario-telefono" name="usuario-telefono" required>
+                        <input type="tel" 
+                               id="usuario-telefono" 
+                               name="usuario-telefono" 
+                               maxlength="15"
+                               minlength="7"
+                               pattern="[\d\s\+\-\(\)]{7,15}"
+                               title="7-15 dígitos, puede incluir +, -, (, )"
+                               placeholder="Ej: +569 12345678"
+                               required>
                     </div>
                     <div class="modal-actions">
                         <button class="filtro-btn" type="submit">Agregar usuario</button>
@@ -101,19 +132,46 @@
                     <input type="hidden" id="usuario-id-editar" name="usuario-id-editar">
                     <div class="form-fila">
                         <label for="usuario-nombre-editar">Nombre:</label>
-                        <input type="text" id="usuario-nombre-editar" name="usuario-nombre-editar" maxlength="30" required>
+                        <input type="text" 
+                               id="usuario-nombre-editar" 
+                               name="usuario-nombre-editar" 
+                               maxlength="30"
+                               minlength="2"
+                               pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s\-]+"
+                               title="Solo letras, espacios y guiones"
+                               required>
                     </div>
                     <div class="form-fila">
                         <label for="usuario-apellido-editar">Apellido:</label>
-                        <input type="text" id="usuario-apellido-editar" name="usuario-apellido-editar" maxlength="30" required>
+                        <input type="text" 
+                               id="usuario-apellido-editar" 
+                               name="usuario-apellido-editar" 
+                               maxlength="30"
+                               minlength="2"
+                               pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s\-]+"
+                               title="Solo letras, espacios y guiones"
+                               required>
                     </div>
                     <div class="form-fila">
                         <label for="usuario-correo-editar">Correo electrónico:</label>
-                        <input type="email" id="usuario-correo-editar" name="usuario-correo-editar" maxlength="50" required>
+                        <input type="email" 
+                               id="usuario-correo-editar" 
+                               name="usuario-correo-editar" 
+                               maxlength="50"
+                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                               title="Ingrese un email válido"
+                               required>
                     </div>
                     <div class="form-fila">
                         <label for="usuario-telefono-editar">Teléfono:</label>
-                        <input type="tel" id="usuario-telefono-editar" name="usuario-telefono-editar" maxlength="20" required>
+                        <input type="tel" 
+                               id="usuario-telefono-editar" 
+                               name="usuario-telefono-editar" 
+                               maxlength="15"
+                               minlength="7"
+                               pattern="[\d\s\+\-\(\)]{7,15}"
+                               title="7-15 dígitos, puede incluir +, -, (, )"
+                               required>
                     </div>
                     <div class="modal-actions">
                         <button class="filtro-btn" type="submit">Actualizar Usuario</button>
