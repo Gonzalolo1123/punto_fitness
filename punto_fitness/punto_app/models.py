@@ -193,7 +193,7 @@ class Curso(models.Model):
     nombre = models.CharField(max_length=30)
     cupos = models.IntegerField()
     fecha_realizacion = models.DateField()
-    estado = models.CharField(max_length=30, default='Pendiente')
+    estado = models.CharField(max_length=30, default='Activo')
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
 
     class Meta:
