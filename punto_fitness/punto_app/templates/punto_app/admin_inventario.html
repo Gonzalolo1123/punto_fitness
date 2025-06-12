@@ -120,7 +120,7 @@
       <tbody>
         {% for compra in compras %}
         <tr data-id="{{ compra.id }}">
-          <td>{{ compra.fecha|date:"Y-m-d" }}</td>
+          <td>{{ compra.fecha|date:"d-m-Y" }}</td>
           <td>{{ compra.total }}</td>
           <td>{{ compra.iva }}</td>
           <td>{{ compra.estado }}</td>
@@ -318,9 +318,9 @@
             <input type="number" 
                    id="producto-precio" 
                    name="producto-precio" 
-                   min="0.01" 
-                   step="0.01"
-                   title="Debe ser mayor a 0"
+                   min="1" 
+                   step="1"
+                   title="Debe ser un número entero mayor a 0"
                    required>
           </div>
           
@@ -351,7 +351,7 @@
                     title="Seleccione una compra (opcional)">
               <option value="">Seleccione</option>
               {% for compra in compras %}
-              <option value="{{ compra.id }}">{{ compra.fecha|date:"Y-m-d" }} - {{ compra.total }}</option>
+              <option value="{{ compra.id }}">{{ compra.fecha|date:"d-m-Y" }} - {{ compra.total }}</option>
               {% endfor %}
             </select>
           </div>
@@ -448,7 +448,7 @@
                    id="compra-fecha" 
                    name="compra-fecha" 
                    min="2000-01-01"
-                   max="{{ now|date:'Y-m-d' }}"
+                   max="{{ now|date:'d-m-Y' }}"
                    required
                    title="Seleccione una fecha válida entre 2000 y hoy">
           </div>
@@ -458,10 +458,10 @@
             <input type="number" 
                    id="compra-total" 
                    name="compra-total" 
-                   min="0.01" 
-                   step="0.01"
+                   min="1" 
+                   step="1"
                    required
-                   title="Debe ser mayor a 0">
+                   title="Debe ser un número entero mayor a 0">
           </div>
           
           <div class="form-fila">
@@ -764,9 +764,9 @@
             <input type="number" 
                    id="producto-precio-editar" 
                    name="producto-precio" 
-                   min="0.01" 
-                   step="0.01"
-                   title="Debe ser mayor a 0"
+                   min="1" 
+                   step="1"
+                   title="Debe ser un número entero mayor a 0"
                    required>
           </div>
           <div class="form-fila">
@@ -899,10 +899,10 @@
             <input type="number" 
                    id="compra-total-editar" 
                    name="compra-total" 
-                   min="0.01" 
-                   step="0.01"
+                   min="1" 
+                   step="1"
                    required
-                   title="Debe ser mayor a 0">
+                   title="Debe ser un número entero mayor a 0">
           </div>
           <div class="form-fila">
             <label for="compra-iva-editar">IVA:</label>
@@ -1177,5 +1177,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="{% static 'js/validaciones.js' %}"></script>
 <script src="{% static 'js/inventario.js' %}"></script>
 {% endblock %}

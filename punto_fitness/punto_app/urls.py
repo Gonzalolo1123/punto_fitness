@@ -16,6 +16,8 @@ urlpatterns = [
     path("verificar-correo/", views.verificar_correo, name="verificar_correo"),
     path("verificar-sesion/", views.verificar_sesion, name="verificar_sesion"),
     path("recuperar-contrasena/", views.recuperar_contrasena, name="recuperar_contrasena"),
+    path("enviar-codigo-verificacion/", views.enviar_codigo_verificacion, name="enviar_codigo_verificacion"),
+    path("verificar-codigo/", views.verificar_codigo, name="verificar_codigo"),
     
     path('inventario/', views.inventario, name='inventario'),
 

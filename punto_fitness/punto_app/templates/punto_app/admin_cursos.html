@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
 {% endblock %}
 
@@ -93,7 +94,7 @@
                          id="curso-fecha_realizacion-editar-modal-{{ curso.id }}" 
                          name="curso-fecha_realizacion" 
                          value="{{ curso.fecha_realizacion|date:'Y-m-d' }}"
-                         min="2000-01-01"
+                         min="{{ now|date:'d-m-Y' }}"
                          max="2030-12-31"
                          title="Seleccione una fecha válida entre 2000 y 2030"
                          required>
@@ -356,5 +357,6 @@
 
 {% endblock %}
 {% block extra_scripts %}
+<script src="{% static 'js/validaciones.js' %}"></script>
 <script src="{% static 'js/cursos.js' %}"></script>
 {% endblock %}

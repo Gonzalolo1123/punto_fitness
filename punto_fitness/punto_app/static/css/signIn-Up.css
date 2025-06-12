@@ -495,3 +495,202 @@ a {
   align-items: stretch;
   overflow: hidden;
 }
+
+#authModal .container {
+  margin: 0;
+  box-shadow: none;
+}
+
+/* Estilos para el modal de verificación de correo */
+#emailVerificationModal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+}
+
+#emailVerificationModal:not(.hidden) {
+  display: block !important;
+}
+
+#emailVerificationModal.hidden {
+  display: none !important;
+}
+
+/* Estilos forzados para asegurar visibilidad */
+#emailVerificationModal[style*="display: block"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 9999 !important;
+}
+
+#emailVerificationModal.show {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#emailVerificationModal .modal-content {
+  background-color: #fefefe;
+  margin: 5% auto;
+  padding: 0;
+  border: none;
+  border-radius: 20px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#emailVerificationModal .form-container {
+  padding: 40px 30px;
+  text-align: center;
+  position: relative;
+}
+
+#emailVerificationModal h1 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+#emailVerificationModal p {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
+#emailVerificationModal #verificationEmail {
+  color: #007bff;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+#emailVerificationModal input[type="text"] {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 15px 20px;
+  font-size: 16px;
+  text-align: center;
+  letter-spacing: 2px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+#emailVerificationModal input[type="text"]:focus {
+  outline: none;
+  border-color: #007bff;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+#emailVerificationModal button[type="submit"] {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 15px 30px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 10px;
+}
+
+#emailVerificationModal button[type="submit"]:hover {
+  background: linear-gradient(135deg, #0056b3, #004085);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+#emailVerificationModal button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+#emailVerificationModal #resendCode {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+#emailVerificationModal #resendCode:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+#emailVerificationModal #backToSignUp {
+  color: #6c757d;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+#emailVerificationModal #backToSignUp:hover {
+  color: #495057;
+  text-decoration: underline;
+}
+
+#emailVerificationModal .close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  z-index: 10;
+}
+
+#emailVerificationModal .close:hover {
+  color: #333;
+}
+
+/* Responsive design para el modal de verificación */
+@media (max-width: 480px) {
+  #emailVerificationModal .modal-content {
+    width: 95%;
+    margin: 10% auto;
+  }
+  
+  #emailVerificationModal .form-container {
+    padding: 30px 20px;
+  }
+  
+  #emailVerificationModal h1 {
+    font-size: 20px;
+  }
+  
+  #emailVerificationModal input[type="text"] {
+    font-size: 14px;
+    padding: 12px 15px;
+  }
+  
+  #emailVerificationModal button[type="submit"] {
+    font-size: 14px;
+    padding: 12px 20px;
+  }
+}

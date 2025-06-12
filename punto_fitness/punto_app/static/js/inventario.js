@@ -5,6 +5,26 @@ const BASE_URL = '/inventario/';
 ////////////////////////////////
 
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔧 Inicializando módulo de inventario...');
+  
+  // Verificar que las funciones de validación estén disponibles
+  if (typeof validarNombre === 'undefined' || typeof validarFormulario === 'undefined') {
+    console.error('❌ ERROR: Las funciones de validación no están disponibles. Verifique que validaciones.js se cargue antes que inventario.js');
+    Swal.fire('Error', 'Error de configuración: Las validaciones no están disponibles. Por favor, recarga la página.', 'error');
+    return;
+  }
+  
+  console.log('✅ Funciones de validación disponibles:', {
+    validarNombre: typeof validarNombre,
+    validarDescripcion: typeof validarDescripcion,
+    validarPrecioChileno: typeof validarPrecioChileno,
+    validarNumeroEntero: typeof validarNumeroEntero,
+    validarEmail: typeof validarEmail,
+    validarTelefonoChileno: typeof validarTelefonoChileno,
+    validarFormulario: typeof validarFormulario,
+    mostrarExitoValidacion: typeof mostrarExitoValidacion
+  });
+  
   inicializarEventListeners();
 });
 
@@ -99,6 +119,15 @@ function actualizarVista(objeto, id_tipo) {
   }
 }
 
+////////////////////////////////
+// FUNCIONES DE VALIDACIÓN //
+////////////////////////////////
+
+// IMPORTAR FUNCIONES DE VALIDACIÓN
+// Si usas módulos ES6, descomenta la siguiente línea y asegúrate de servir los JS como type="module":
+// import { validarNombre, validarDescripcion, validarPrecioChileno, validarNumeroDecimal, validarNumeroEntero, validarEmail, validarTelefonoChileno, validarTelefonoNumericoChileno, validarFecha, validarHorario, validarSeleccion, validarDireccionChilena, validarPorcentaje } from './validaciones.js';
+// Si no usas módulos, simplemente incluye <script src="/static/js/validaciones.js"></script> antes de este archivo en tu HTML.
+
 ///////////////////////////
 // FUNCIONES DE CREACIÓN //
 ///////////////////////////
@@ -190,22 +219,20 @@ function actualizarProducto(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: '¡Actualizacion Exitosa!',
-        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('El producto ha sido actualizado correctamente.', '¡Actualización Exitosa!');
+        return responseData;
       });
     } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al actualizar el producto');
+      });
     }
   })
   .catch(error => {
-    console.error(error);
-    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+    console.error('Error al actualizar producto:', error);
+    Swal.fire('Error', 'Ocurrió un error al actualizar el producto: ' + error.message, 'error');
+    throw error;
   });
 }
 
@@ -220,22 +247,20 @@ function actualizarCategoria(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: '¡Actualizacion Exitosa!',
-        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('La categoría ha sido actualizada correctamente.', '¡Actualización Exitosa!');
+        return responseData;
       });
     } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al actualizar la categoría');
+      });
     }
   })
   .catch(error => {
-    console.error(error);
-    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+    console.error('Error al actualizar categoría:', error);
+    Swal.fire('Error', 'Ocurrió un error al actualizar la categoría: ' + error.message, 'error');
+    throw error;
   });
 }
 
@@ -250,23 +275,22 @@ function actualizarCompraVendedor(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: '¡Actualizacion Exitosa!',
-        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('La compra ha sido actualizada correctamente.', '¡Actualización Exitosa!');
+        return responseData;
       });
     } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al actualizar la compra');
+      });
     }
   })
   .catch(error => {
-    console.error(error);
-    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
-  });}
+    console.error('Error al actualizar compra:', error);
+    Swal.fire('Error', 'Ocurrió un error al actualizar la compra: ' + error.message, 'error');
+    throw error;
+  });
+}
 
 // Función para actualizar vendedor
 function actualizarVendedor(id, data) {
@@ -279,22 +303,20 @@ function actualizarVendedor(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: '¡Actualizacion Exitosa!',
-        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('El vendedor ha sido actualizado correctamente.', '¡Actualización Exitosa!');
+        return responseData;
       });
     } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al actualizar el vendedor');
+      });
     }
   })
   .catch(error => {
-    console.error(error);
-    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+    console.error('Error al actualizar vendedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al actualizar el vendedor: ' + error.message, 'error');
+    throw error;
   });
 }
 
@@ -309,22 +331,20 @@ function actualizarEstablecimiento(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: '¡Actualizacion Exitosa!',
-        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('El establecimiento ha sido actualizado correctamente.', '¡Actualización Exitosa!');
+        return responseData;
       });
     } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al actualizar el establecimiento');
+      });
     }
   })
   .catch(error => {
-    console.error(error);
-    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+    console.error('Error al actualizar establecimiento:', error);
+    Swal.fire('Error', 'Ocurrió un error al actualizar el establecimiento: ' + error.message, 'error');
+    throw error;
   });
 }
 
@@ -339,22 +359,20 @@ function actualizarProveedor(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: '¡Actualizacion Exitosa!',
-        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('El proveedor ha sido actualizado correctamente.', '¡Actualización Exitosa!');
+        return responseData;
       });
     } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al actualizar el proveedor');
+      });
     }
   })
   .catch(error => {
-    console.error(error);
-    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+    console.error('Error al actualizar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al actualizar el proveedor: ' + error.message, 'error');
+    throw error;
   });
 }
 
@@ -372,14 +390,9 @@ function eliminarProducto(id) {
     }
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: 'Eliminación Exitosa!',
-        html: `<p style="color: #555;">El producto ha sido eliminado correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('El producto ha sido eliminado correctamente.', '¡Eliminación Exitosa!');
+        return responseData;
       });
     } else {
       return response.json().then(data => {
@@ -388,8 +401,9 @@ function eliminarProducto(id) {
     }
   })
   .catch(error => {
-    console.error('Error al eliminar proveedor:', error);
-    Swal.fire('Error', 'Ocurrió un error al eliminar el procduto: ' + error.message, 'error');
+    console.error('Error al eliminar producto:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el producto: ' + error.message, 'error');
+    throw error;
   });
 }
 
@@ -403,24 +417,20 @@ function eliminarCategoria(id) {
     }
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: 'Eliminación Exitosa!',
-        html: `<p style="color: #555;">La categoria ha sido eliminado correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('La categoría ha sido eliminada correctamente.', '¡Eliminación Exitosa!');
+        return responseData;
       });
     } else {
       return response.json().then(data => {
-        throw new Error(data.error || 'Error al eliminar categoria');
+        throw new Error(data.error || 'Error al eliminar la categoría');
       });
     }
   })
   .catch(error => {
-    console.error('Error al eliminar proveedor:', error);
-    Swal.fire('Error', 'Ocurrió un error al eliminar el proveedor: ' + error.message, 'error');
+    console.error('Error al eliminar categoría:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar la categoría: ' + error.message, 'error');
+    throw error;
   });
 }
 
@@ -434,14 +444,9 @@ function eliminarCompraVendedor(id) {
     }
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: 'Eliminación Exitosa!',
-        html: `<p style="color: #555;">La compra ha sido eliminado correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('La compra ha sido eliminada correctamente.', '¡Eliminación Exitosa!');
+        return responseData;
       });
     } else {
       return response.json().then(data => {
@@ -450,8 +455,9 @@ function eliminarCompraVendedor(id) {
     }
   })
   .catch(error => {
-    console.error('Error al eliminar proveedor:', error);
+    console.error('Error al eliminar compra:', error);
     Swal.fire('Error', 'Ocurrió un error al eliminar la compra: ' + error.message, 'error');
+    throw error;
   });
 }
 
@@ -465,14 +471,9 @@ function eliminarVendedor(id) {
     }
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: 'Eliminación Exitosa!',
-        html: `<p style="color: #555;">El vendedor ha sido eliminado correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('El vendedor ha sido eliminado correctamente.', '¡Eliminación Exitosa!');
+        return responseData;
       });
     } else {
       return response.json().then(data => {
@@ -481,9 +482,11 @@ function eliminarVendedor(id) {
     }
   })
   .catch(error => {
-    console.error('Error al eliminar proveedor:', error);
+    console.error('Error al eliminar vendedor:', error);
     Swal.fire('Error', 'Ocurrió un error al eliminar el vendedor: ' + error.message, 'error');
-  });}
+    throw error;
+  });
+}
 
 // Función para eliminar establecimiento
 function eliminarEstablecimiento(id) {
@@ -495,22 +498,20 @@ function eliminarEstablecimiento(id) {
     }
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: 'Eliminación Exitosa!',
-        html: `<p style="color: #555;">Tu Eliminación ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('El establecimiento ha sido eliminado correctamente.', '¡Eliminación Exitosa!');
+        return responseData;
       });
     } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al eliminar el establecimiento');
+      });
     }
   })
   .catch(error => {
-    console.error(error);
-    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+    console.error('Error al eliminar establecimiento:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el establecimiento: ' + error.message, 'error');
+    throw error;
   });
 }
 
@@ -524,24 +525,20 @@ function eliminarProveedor(id) {
     }
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: 'Eliminación Exitosa!',
-        html: `<p style="color: #555;">El proveedor ha sido eliminado correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('El proveedor ha sido eliminado correctamente.', '¡Eliminación Exitosa!');
+        return responseData;
       });
     } else {
       return response.json().then(data => {
-        throw new Error(data.error || 'Error al eliminar proveedor');
+        throw new Error(data.error || 'Error al eliminar el proveedor');
       });
     }
   })
   .catch(error => {
     console.error('Error al eliminar proveedor:', error);
     Swal.fire('Error', 'Ocurrió un error al eliminar el proveedor: ' + error.message, 'error');
+    throw error;
   });
 }
 
@@ -553,79 +550,58 @@ function eliminarProveedor(id) {
 function manejoCrearProducto(e) {
   e.preventDefault();
 
-  
-  const nombreElement = document.getElementById('producto-nombre');
-  const descripcionElement = document.getElementById('producto-descripcion');
-  const precioElement = document.getElementById('producto-precio');
-  const stockActualElement = document.getElementById('producto-stock-actual');
-  const stockMinimoElement = document.getElementById('producto-stock-minimo');
-  const compraElement = document.getElementById('producto-compra');
-  const categoriaElement = document.getElementById('producto-categoria');
-  const establecimientoElement = document.getElementById('producto-establecimiento');
+  // Obtener y limpiar valores
+  const nombre = document.getElementById('producto-nombre').value.trim();
+  const descripcion = document.getElementById('producto-descripcion').value.trim();
+  const precio = document.getElementById('producto-precio').value.trim();
+  const stockActual = document.getElementById('producto-stock-actual').value.trim();
+  const stockMinimo = document.getElementById('producto-stock-minimo').value.trim();
+  const compraId = document.getElementById('producto-compra').value;
+  const categoriaId = document.getElementById('producto-categoria').value;
+  const establecimientoId = document.getElementById('producto-establecimiento').value;
 
+  // Validaciones usando la nueva función validarFormulario
+  const validaciones = [
+    () => validarNombre(nombre, 'nombre del producto', 3, 30, true),
+    () => validarDescripcion(descripcion, 'descripción del producto', 5, 50),
+    () => validarPrecioChileno(precio, 'precio', 1, 999999999, true),
+    () => validarNumeroEntero(stockActual, 'stock actual', 0, 99999, true),
+    () => validarNumeroEntero(stockMinimo, 'stock mínimo', 0, 99999, true),
+    () => validarSeleccion(categoriaId, 'categoría', true),
+    () => validarSeleccion(establecimientoId, 'establecimiento', true)
+  ];
 
-  const formData = {
-    nombre: nombreElement ? nombreElement.value : '',
-    descripcion: descripcionElement ? descripcionElement.value : '',
-    precio: precioElement ? precioElement.value : '',
-    stock_actual: stockActualElement ? stockActualElement.value : '',
-    stock_minimo: stockMinimoElement ? stockMinimoElement.value : '',
-    compra_id: compraElement ? compraElement.value : '',
-    categoria_id: categoriaElement ? categoriaElement.value : '',
-    establecimiento_id: establecimientoElement ? establecimientoElement.value : ''
-  };
-  
-  // Verificar opciones disponibles en los selects
-  if (categoriaElement) {
-    const opcionesCategoria = categoriaElement.querySelectorAll('option');
-    console.log('🏷️ Opciones de categoría disponibles:', opcionesCategoria.length - 1); // -1 por la opción por defecto
-    opcionesCategoria.forEach((opcion, index) => {
-      if (opcion.value) { // Solo las opciones con valor (no la opción por defecto)
-        console.log(`  - Categoría ${index}: ID=${opcion.value}, Nombre="${opcion.textContent}"`);
-      }
-    });
+  // Validación adicional: stock mínimo no puede ser mayor que stock actual
+  if (stockActual && stockMinimo && parseInt(stockMinimo) > parseInt(stockActual)) {
+    validaciones.push(() => ['El stock mínimo no puede ser mayor que el stock actual']);
   }
-  
-  if (compraElement) {
-    const opcionesCompra = compraElement.querySelectorAll('option');
-    console.log('🛒 Opciones de compra disponibles:', opcionesCompra.length - 1);
-    opcionesCompra.forEach((opcion, index) => {
-      if (opcion.value) {
-        console.log(`  - Compra ${index}: ID=${opcion.value}, Fecha="${opcion.textContent}"`);
-      }
-    });
-  }
-  
-  if (establecimientoElement) {
-    const opcionesEstablecimiento = establecimientoElement.querySelectorAll('option');
-    console.log('🏢 Opciones de establecimiento disponibles:', opcionesEstablecimiento.length - 1);
-    opcionesEstablecimiento.forEach((opcion, index) => {
-      if (opcion.value) {
-        console.log(`  - Establecimiento ${index}: ID=${opcion.value}, Nombre="${opcion.textContent}"`);
-      }
-    });
-  }
-  
-  // Validar campos requeridos
-  const camposVacios = Object.entries(formData).filter(([key, value]) => !value || value === '');
-  if (camposVacios.length > 0) {
-    console.warn('⚠️ Campos vacíos detectados:', camposVacios.map(([key]) => key));
-    console.warn('⚠️ Valores actuales:', formData);
-    alert('Por favor, complete todos los campos incluyendo categoría, compra y establecimiento');
+
+  // Validar formulario y mostrar errores si existen
+  if (!validarFormulario(validaciones, 'Errores en el Formulario de Producto')) {
     return;
   }
+
+  const formData = {
+    nombre: nombre,
+    descripcion: descripcion,
+    precio: parseInt(precio), // Cambiar a entero para Chile
+    stock_actual: parseInt(stockActual),
+    stock_minimo: parseInt(stockMinimo),
+    compra_id: compraId || null,
+    categoria_id: categoriaId,
+    establecimiento_id: establecimientoId
+  };
 
   console.log('🚀 Enviando datos para crear producto...');
   crearProducto(formData)
     .then(data => {
       console.log('✅ Respuesta del servidor:', data);
       if (data.error) throw new Error(data.error);
-      alert('Producto creado exitosamente');
-      window.location.reload();
+      mostrarExitoValidacion('Producto creado exitosamente', '¡Producto Creado!');
     })
     .catch(error => {
       console.error('💥 Error al crear producto:', error);
-      alert('Error al crear producto: ' + error.message);
+      Swal.fire('Error', 'Error al crear producto: ' + error.message, 'error');
     });
 };
 
@@ -637,31 +613,17 @@ function manejoCrearCategoria(e) {
   const nombre = document.getElementById('categoria-nombre').value.trim();
   const descripcion = document.getElementById('categoria-descripcion').value.trim();
   
-  // Validaciones
-  const errores = [];
+  // Validaciones usando la nueva función validarFormulario
+  const validaciones = [
+    () => validarNombre(nombre, 'nombre de la categoría', 3, 30, false),
+    () => validarDescripcion(descripcion, 'descripción de la categoría', 5, 50)
+  ];
   
-  // 1. Validar nombre (obligatorio, longitud, caracteres)
-  if (!nombre) {
-    errores.push('El nombre es obligatorio');
-  } else if (nombre.length > 30) {
-    errores.push('El nombre no puede exceder los 30 caracteres');
-  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-]/.test(nombre)) {
-    errores.push('El nombre solo puede contener letras, números, espacios y guiones');
-  }
-  
-  // 2. Validar descripción (obligatoria, longitud)
-  if (!descripcion) {
-    errores.push('La descripción es obligatoria');
-  } else if (descripcion.length > 50) {
-    errores.push('La descripción no puede exceder los 50 caracteres');
-  }
-  
-  // Mostrar errores si existen
-  if (errores.length > 0) {
-    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+  // Validar formulario y mostrar errores si existen
+  if (!validarFormulario(validaciones, 'Errores en el Formulario de Producto')) {
     return;
   }
-  
+
   const formData = {
     nombre: nombre,
     descripcion: descripcion,
@@ -670,12 +632,11 @@ function manejoCrearCategoria(e) {
   crearCategoria(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      alert('Categoría creada exitosamente');
-      window.location.reload();
+      mostrarExitoValidacion('Categoría creada exitosamente', '¡Categoría Creada!');
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error al crear categoría: ' + error.message);
+      Swal.fire('Error', 'Error al crear categoría: ' + error.message, 'error');
     });
 };
 
@@ -691,62 +652,24 @@ function manejoCrearCompraVendedor(e) {
   const establecimientoId = document.getElementById('compra-establecimiento').value;
   const vendedorId = document.getElementById('compra-vendedor').value;
   
-  // Validaciones
-  const errores = [];
+  // Validaciones usando la nueva función validarFormulario
+  const validaciones = [
+    () => validarFecha(fecha, 'fecha', true),
+    () => validarPrecioChileno(total, 'total', 1, 999999999, true),
+    () => validarPorcentaje(iva, 'IVA', 0, 100, true),
+    () => validarSeleccion(estado, 'estado', true),
+    () => validarSeleccion(establecimientoId, 'establecimiento', true),
+    () => validarSeleccion(vendedorId, 'vendedor', true)
+  ];
   
-  // 1. Validar fecha (obligatoria, formato)
-  if (!fecha) {
-    errores.push('La fecha es obligatoria');
-  } else {
-    const fechaObj = new Date(fecha);
-    const hoy = new Date();
-    if (fechaObj > hoy) {
-      errores.push('La fecha no puede ser futura');
-    }
-  }
-  
-  // 2. Validar total (obligatorio, numérico, positivo)
-  if (!total) {
-    errores.push('El total es obligatorio');
-  } else if (isNaN(total) || parseFloat(total) <= 0) {
-    errores.push('El total debe ser un número positivo');
-  } else if (parseFloat(total) > 999999999) {
-    errores.push('El total no puede exceder 999,999,999');
-  }
-  
-  // 3. Validar IVA (obligatorio, numérico, no negativo)
-  if (!iva) {
-    errores.push('El IVA es obligatorio');
-  } else if (isNaN(iva) || parseFloat(iva) < 0) {
-    errores.push('El IVA debe ser un número no negativo');
-  } else if (parseFloat(iva) > 100) {
-    errores.push('El IVA no puede exceder el 100%');
-  }
-  
-  // 4. Validar estado (obligatorio)
-  if (!estado) {
-    errores.push('Debe seleccionar un estado');
-  }
-  
-  // 5. Validar establecimiento (obligatorio)
-  if (!establecimientoId || establecimientoId === "") {
-    errores.push('Debe seleccionar un establecimiento');
-  }
-  
-  // 6. Validar vendedor (obligatorio)
-  if (!vendedorId || vendedorId === "") {
-    errores.push('Debe seleccionar un vendedor');
-  }
-  
-  // Mostrar errores si existen
-  if (errores.length > 0) {
-    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+  // Validar formulario y mostrar errores si existen
+  if (!validarFormulario(validaciones, 'Errores en el Formulario de Compra')) {
     return;
   }
   
   const formData = {
     fecha: fecha,
-    total: parseFloat(total),
+    total: parseInt(total), // Cambiar a entero para Chile
     iva: parseFloat(iva),
     estado: estado === 'True',
     establecimiento_id: establecimientoId,
@@ -756,12 +679,11 @@ function manejoCrearCompraVendedor(e) {
   crearCompraVendedor(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      alert('Compra creada exitosamente');
-      window.location.reload();
+      mostrarExitoValidacion('Compra creada exitosamente', '¡Compra Creada!');
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error al crear compra: ' + error.message);
+      Swal.fire('Error', 'Error al crear compra: ' + error.message, 'error');
     });
 };
 
@@ -775,45 +697,16 @@ function manejoCrearVendedor(e) {
   const email = document.getElementById('vendedor-email').value.trim();
   const proveedorId = document.getElementById('vendedor-proveedor').value;
   
-  // Validaciones
-  const errores = [];
+  // Validaciones usando la nueva función validarFormulario
+  const validaciones = [
+    () => validarNombre(nombre, 'nombre del vendedor', 3, 30, false),
+    () => validarTelefonoChileno(telefono, 'teléfono del vendedor', true),
+    () => validarEmail(email, 'email del vendedor', 50, true),
+    () => validarSeleccion(proveedorId, 'proveedor', true)
+  ];
   
-  // 1. Validar nombre (obligatorio, longitud, caracteres)
-  if (!nombre) {
-    errores.push('El nombre es obligatorio');
-  } else if (nombre.length > 30) {
-    errores.push('El nombre no puede exceder los 30 caracteres');
-  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]/.test(nombre)) {
-    errores.push('El nombre solo puede contener letras, espacios y guiones');
-  }
-  
-  // 2. Validar teléfono (obligatorio, formato)
-  if (!telefono) {
-    errores.push('El teléfono es obligatorio');
-  } else if (!/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
-    errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
-  }
-  
-  // 3. Validar email (obligatorio, formato)
-  if (!email) {
-    errores.push('El email es obligatorio');
-  } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      errores.push('El email no tiene un formato válido');
-    } else if (email.length > 30) {
-      errores.push('El email no puede exceder los 30 caracteres');
-    }
-  }
-  
-  // 4. Validar proveedor (obligatorio)
-  if (!proveedorId || proveedorId === "") {
-    errores.push('Debe seleccionar un proveedor');
-  }
-  
-  // Mostrar errores si existen
-  if (errores.length > 0) {
-    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+  // Validar formulario y mostrar errores si existen
+  if (!validarFormulario(validaciones, 'Errores en el Formulario de Vendedor')) {
     return;
   }
   
@@ -827,12 +720,11 @@ function manejoCrearVendedor(e) {
   crearVendedor(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      alert('Vendedor creado exitosamente');
-      window.location.reload();
+      mostrarExitoValidacion('Vendedor creado exitosamente', '¡Vendedor Creado!');
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error al crear vendedor: ' + error.message);
+      Swal.fire('Error', 'Error al crear vendedor: ' + error.message, 'error');
     });
 };
 
@@ -848,59 +740,24 @@ function manejoCrearEstablecimiento(e) {
   const cierre = document.getElementById('establecimiento-horario_cierre').value;
   const proveedorId = document.getElementById('establecimiento-proveedor').value;
 
-  // Validaciones
-  const errores = [];
-  
-  // 1. Validar nombre (obligatorio, longitud, caracteres)
-  if (!nombre) {
-    errores.push('El nombre es obligatorio');
-  } else if (nombre.length > 100) {
-    errores.push('El nombre no puede exceder los 100 caracteres');
-  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.,]/.test(nombre)) {
-    errores.push('El nombre contiene caracteres no permitidos');
-  }
+  // Validaciones usando la nueva función validarFormulario
+  const validaciones = [
+    () => validarNombre(nombre, 'nombre del establecimiento', 3, 100, true),
+    () => validarDireccionChilena(direccion, 'dirección del establecimiento', 5, 200),
+    () => validarTelefonoChileno(telefono, 'teléfono del establecimiento', false),
+    () => validarEmail(email, 'email del establecimiento', 100, false),
+    () => validarHorario(apertura, 'horario de apertura', 6, 12, true),
+    () => validarHorario(cierre, 'horario de cierre', 12, 23, true),
+    () => validarSeleccion(proveedorId, 'proveedor', true)
+  ];
 
-  // 2. Validar dirección (obligatoria, longitud)
-  if (!direccion) {
-    errores.push('La dirección es obligatoria');
-  } else if (direccion.length > 200) {
-    errores.push('La dirección no puede exceder los 200 caracteres');
-  }
-
-  // 3. Validar teléfono (formato opcional)
-  if (telefono && !/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
-    errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
-  }
-
-  // 4. Validar email (formato)
-  if (email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      errores.push('El email no tiene un formato válido');
-    } else if (email.length > 100) {
-      errores.push('El email no puede exceder los 100 caracteres');
-    }
-  }
-
-  // 5. Validar horarios
-  if (!apertura) {
-    errores.push('El horario de apertura es obligatorio');
-  }
-  if (!cierre) {
-    errores.push('El horario de cierre es obligatorio');
-  }
+  // Validación adicional: horario de apertura debe ser anterior al de cierre
   if (apertura && cierre && apertura >= cierre) {
-    errores.push('El horario de apertura debe ser anterior al de cierre');
+    validaciones.push(() => ['El horario de apertura debe ser anterior al de cierre']);
   }
 
-  // 6. Validar proveedor (obligatorio)
-  if (!proveedorId || proveedorId === "0") {
-    errores.push('Debe seleccionar un proveedor válido');
-  }
-
-  // Mostrar errores si existen
-  if (errores.length > 0) {
-    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+  // Validar formulario y mostrar errores si existen
+  if (!validarFormulario(validaciones, 'Errores en el Formulario de Establecimiento')) {
     return;
   }
 
@@ -908,8 +765,8 @@ function manejoCrearEstablecimiento(e) {
   const formData = {
     nombre: nombre,
     direccion: direccion,
-    telefono: telefono,
-    email: email,
+    telefono: telefono || '',
+    email: email || '',
     horario_apertura: apertura,
     horario_cierre: cierre,
     proveedor_id: proveedorId
@@ -919,12 +776,11 @@ function manejoCrearEstablecimiento(e) {
   crearEstablecimiento(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      alert('Establecimiento creado exitosamente');
-      window.location.reload();
+      mostrarExitoValidacion('Establecimiento creado exitosamente', '¡Establecimiento Creado!');
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error al crear establecimiento: ' + error.message);
+      Swal.fire('Error', 'Error al crear establecimiento: ' + error.message, 'error');
     });
 }
 
@@ -936,40 +792,15 @@ function manejoCrearProveedor(e) {
   const telefono = document.getElementById('proveedor-telefono').value.trim();
   const email = document.getElementById('proveedor-email').value.trim();
   
-  // Validaciones
-  const errores = [];
+  // Validaciones usando la nueva función validarFormulario
+  const validaciones = [
+    () => validarNombre(nombre, 'nombre del proveedor', 3, 100, false),
+    () => validarTelefonoNumericoChileno(telefono, 'teléfono del proveedor', true),
+    () => validarEmail(email, 'email del proveedor', 100, true)
+  ];
   
-  // 1. Validar nombre
-  if (!nombre) {
-    errores.push('El nombre es obligatorio');
-  } else if (nombre.length > 100) {
-    errores.push('El nombre no puede exceder los 100 caracteres');
-  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]/.test(nombre)) {
-    errores.push('El nombre solo puede contener letras, espacios y guiones');
-  }
-  
-  // 2. Validar teléfono
-  if (telefono) {
-    if (!/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
-      errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
-    }
-  }
-  
-  // 3. Validar email
-  if (email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      errores.push('El email no tiene un formato válido');
-    } else if (email.length > 100) {
-      errores.push('El email no puede exceder los 100 caracteres');
-    }
-  } else {
-    errores.push('El email es obligatorio');
-  }
-  
-  // Mostrar errores si existen
-  if (errores.length > 0) {
-    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+  // Validar formulario y mostrar errores si existen
+  if (!validarFormulario(validaciones, 'Errores en el Formulario de Proveedor')) {
     return;
   }
   
@@ -984,14 +815,14 @@ function manejoCrearProveedor(e) {
   crearProveedor(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      alert('Proveedor creado exitosamente');
-      window.location.reload();
+      mostrarExitoValidacion('Proveedor creado exitosamente', '¡Proveedor Creado!');
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error al crear proveedor: ' + error.message);
+      Swal.fire('Error', 'Error al crear proveedor: ' + error.message, 'error');
     });
 }
+
 ////////////////////////////////////
 // INICIALIZACIÓN EVENT LISTENERS //
 ////////////////////////////////////
@@ -1011,45 +842,100 @@ function inicializarEventListeners() {
   document.querySelectorAll('[name="btn-eliminar-producto"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
-      if (confirm('¿Está seguro de que desea eliminar este producto?')) {
-        eliminarProducto(id);
-      }
+      Swal.fire({
+        title: '¿Está seguro?',
+        text: '¿Está seguro de que desea eliminar este producto?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          eliminarProducto(id);
+        }
+      });
     });
   });
 
   document.querySelectorAll('[name="btn-eliminar-categoria"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
-      if (confirm('¿Está seguro de que desea eliminar esta categoría?')) {
-        eliminarCategoria(id);
-      }
+      Swal.fire({
+        title: '¿Está seguro?',
+        text: '¿Está seguro de que desea eliminar esta categoría?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          eliminarCategoria(id);
+        }
+      });
     });
   });
 
   document.querySelectorAll('[name="btn-eliminar-compra"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
-      if (confirm('¿Está seguro de que desea eliminar esta compra?')) {
-        eliminarCompraVendedor(id);
-      }
+      Swal.fire({
+        title: '¿Está seguro?',
+        text: '¿Está seguro de que desea eliminar esta compra?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          eliminarCompraVendedor(id);
+        }
+      });
     });
   });
 
   document.querySelectorAll('[name="btn-eliminar-vendedor"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
-      if (confirm('¿Está seguro de que desea eliminar este vendedor?')) {
-        eliminarVendedor(id);
-      }
+      Swal.fire({
+        title: '¿Está seguro?',
+        text: '¿Está seguro de que desea eliminar este vendedor?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          eliminarVendedor(id);
+        }
+      });
     });
   });
 
   document.querySelectorAll('[name="btn-eliminar-establecimiento"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
-      if (confirm('¿Está seguro de que desea eliminar este establecimiento?')) {
-        eliminarEstablecimiento(id);
-      }
+      Swal.fire({
+        title: '¿Está seguro?',
+        text: '¿Está seguro de que desea eliminar este establecimiento?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          eliminarEstablecimiento(id);
+        }
+      });
     });
   });
 
@@ -1057,9 +943,20 @@ function inicializarEventListeners() {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
       console.log('Intentando eliminar proveedor con ID:', id);
-      if (confirm('¿Está seguro de que desea eliminar este proveedor?')) {
-        eliminarProveedor(id);
-      }
+      Swal.fire({
+        title: '¿Está seguro?',
+        text: '¿Está seguro de que desea eliminar este proveedor?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          eliminarProveedor(id);
+        }
+      });
     });
   });
 
@@ -1529,9 +1426,9 @@ function inicializarBotonesEdicion() {
           abrirModalEdicion(tipo, id, datos);
         } else {
           console.error(`❌ No se pudieron obtener los datos para ${tipo} con ID ${id}`);
-    }
-  });
-});
+        }
+      });
+    });
   });
   
   // Event listeners para formularios de edición

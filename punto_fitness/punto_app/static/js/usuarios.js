@@ -1,7 +1,23 @@
 const BASE_URL = '/usuarios/';
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('🚀 DOM cargado, inicializando event listeners...');
+    console.log('🚀 DOM cargado, inicializando módulo de usuarios...');
+    
+    // Verificar que las funciones de validación estén disponibles
+    if (typeof validarNombre === 'undefined' || typeof validarFormulario === 'undefined') {
+        console.error('❌ ERROR: Las funciones de validación no están disponibles. Verifique que validaciones.js se cargue antes que usuarios.js');
+        Swal.fire('Error', 'Error de configuración: Las validaciones no están disponibles. Por favor, recarga la página.', 'error');
+        return;
+    }
+    
+    console.log('✅ Funciones de validación disponibles:', {
+        validarNombre: typeof validarNombre,
+        validarEmail: typeof validarEmail,
+        validarTelefonoChileno: typeof validarTelefonoChileno,
+        validarFormulario: typeof validarFormulario,
+        mostrarExitoValidacion: typeof mostrarExitoValidacion
+    });
+    
     inicializarEventListeners();
 });
 
@@ -175,7 +191,7 @@ function eliminarUsuario(id) {
     })
     .catch(error => {
         console.error('💥 Error en eliminarUsuario:', error);
-        throw error;
+        throw error; // Re-lanzar el error para que se maneje en la función de manejo
     });
 }
 
@@ -286,11 +302,41 @@ function manejarFormularioEdicion(tipo, formData) {
     
     switch (tipo) {
         case 'usuario':
+            const nombre = formData['usuario-nombre-editar']?.trim() || '';
+            const apellido = formData['usuario-apellido-editar']?.trim() || '';
+            const correo = formData['usuario-correo-editar']?.trim() || '';
+            const telefono = formData['usuario-telefono-editar']?.trim() || '';
+
+            console.log('📋 Valores obtenidos para edición:', {
+                nombre: nombre,
+                apellido: apellido,
+                correo: correo,
+                telefono: telefono
+            });
+
+            // Validaciones usando la nueva función validarFormulario
+            const validaciones = [
+                () => validarNombre(nombre, 'nombre', 2, 30, false),
+                () => validarNombre(apellido, 'apellido', 2, 30, false),
+                () => validarEmail(correo, 'correo electrónico', 50, true),
+                () => validarTelefonoChileno(telefono, 'teléfono', true)
+            ];
+
+            console.log('✅ Validaciones configuradas para edición, ejecutando validarFormulario...');
+
+            // Validar formulario y mostrar errores si existen
+            if (!validarFormulario(validaciones, 'Errores en el Formulario de Edición de Usuario')) {
+                console.log('❌ Validaciones fallaron, deteniendo envío');
+                return;
+            }
+
+            console.log('✅ Validaciones pasaron, enviando datos...');
+
             dataToSend = {
-                nombre: formData['usuario-nombre-editar'],
-                apellido: formData['usuario-apellido-editar'],
-                correo: formData['usuario-correo-editar'],
-                telefono: formData['usuario-telefono-editar']
+                nombre: nombre,
+                apellido: apellido,
+                correo: correo,
+                telefono: telefono
             };
             break;
     }
@@ -309,16 +355,11 @@ function manejarFormularioEdicion(tipo, formData) {
                 if (response.success) {
                     console.log(`✅ ${tipo} actualizado correctamente`);
                     
-                    // Usar SweetAlert2 para mostrar éxito
-                    Swal.fire({
-                        title: '¡Usuario Actualizado!',
-                        html: `<p style="color: #555;">El usuario <strong>${response.data.nombre} ${response.data.apellido}</strong> ha sido actualizado exitosamente.</p>`,
-                        icon: 'success',
-                        confirmButtonColor: '#28a745',
-                        confirmButtonText: 'Aceptar'
-                    }).then(() => {
+                    // Usar mostrarExitoValidacion para consistencia
+                    mostrarExitoValidacion(`El usuario ${response.data.nombre} ${response.data.apellido} ha sido actualizado exitosamente.`, '¡Usuario Actualizado!').then(() => {
                         actualizarVista(response.data);
                         cerrarModalEdicion(tipo);
+                        window.location.reload();
                     });
                 } else {
                     console.error(`❌ Error al actualizar ${tipo}:`, response.error);
@@ -466,30 +507,46 @@ function inicializarEventListeners() {
         console.log('  - Correo input:', correoInput ? 'SÍ' : 'NO', correoInput?.value);
         console.log('  - Teléfono input:', telefonoInput ? 'SÍ' : 'NO', telefonoInput?.value);
 
-        const formData = {
-            nombre: nombreInput?.value || '',
-            apellido: apellidoInput?.value || '',
-            correo: correoInput?.value || '',
-            telefono: telefonoInput?.value || ''
-        };
+        // Obtener y limpiar valores
+        const nombre = nombreInput?.value.trim() || '';
+        const apellido = apellidoInput?.value.trim() || '';
+        const correo = correoInput?.value.trim() || '';
+        const telefono = telefonoInput?.value.trim() || '';
 
-        console.log('📋 Datos del formulario preparados:', formData);
-        
-        // Validar que todos los campos tengan datos
-        const camposVacios = Object.entries(formData).filter(([key, value]) => !value.trim());
-        if (camposVacios.length > 0) {
-            console.warn('⚠️ Campos vacíos detectados:', camposVacios.map(([key]) => key));
-            console.warn('⚠️ Valores actuales:', formData);
-            Swal.fire({
-                title: 'Campos Incompletos',
-                html: '<p style="color: #555;">Por favor, complete todos los campos requeridos.</p>',
-                icon: 'warning',
-                confirmButtonColor: '#ffc107',
-                confirmButtonText: 'Entendido'
-            });
+        console.log('📋 Valores obtenidos:', {
+            nombre: nombre,
+            apellido: apellido,
+            correo: correo,
+            telefono: telefono
+        });
+
+        // Validaciones usando la nueva función validarFormulario
+        const validaciones = [
+            () => validarNombre(nombre, 'nombre', 2, 30, false),
+            () => validarNombre(apellido, 'apellido', 2, 30, false),
+            () => validarEmail(correo, 'correo electrónico', 50, true),
+            () => validarTelefonoChileno(telefono, 'teléfono', true)
+        ];
+
+        console.log('✅ Validaciones configuradas, ejecutando validarFormulario...');
+
+        // Validar formulario y mostrar errores si existen
+        if (!validarFormulario(validaciones, 'Errores en el Formulario de Usuario')) {
+            console.log('❌ Validaciones fallaron, deteniendo envío');
             return;
         }
 
+        console.log('✅ Validaciones pasaron, enviando datos...');
+
+        const formData = {
+            nombre: nombre,
+            apellido: apellido,
+            correo: correo,
+            telefono: telefono
+        };
+
+        console.log('📤 Enviando datos:', formData);
+        
         console.log('🚀 Iniciando proceso de creación de usuario...');
         crearUsuario(formData)
             .then(data => {
@@ -499,14 +556,8 @@ function inicializarEventListeners() {
                     throw new Error(data.error);
                 }
                 
-                // Usar SweetAlert2 para mostrar éxito
-                Swal.fire({
-                    title: '¡Usuario Creado!',
-                    html: `<p style="color: #555;">El usuario <strong>${data.nombre} ${data.apellido}</strong> ha sido creado exitosamente.</p><p style="color: #888; font-size: 0.9em;">Contraseña por defecto: <strong>123456</strong></p>`,
-                    icon: 'success',
-                    confirmButtonColor: '#28a745',
-                    confirmButtonText: 'Aceptar'
-                }).then(() => {
+                // Usar mostrarExitoValidacion para consistencia
+                mostrarExitoValidacion(`El usuario ${data.nombre} ${data.apellido} ha sido creado exitosamente. Contraseña por defecto: 123456`, '¡Usuario Creado!').then(() => {
                     // Si es el formulario del modal, cerrarlo
                     if (formularioActual.id === 'form-crear-usuario-modal') {
                         cerrarModal();
@@ -563,13 +614,7 @@ function inicializarEventListeners() {
                         .then(response => {
                             if (response.message) {
                                 console.log('✅ Usuario eliminado correctamente');
-                                Swal.fire({
-                                    title: '¡Usuario Eliminado!',
-                                    html: '<p style="color: #555;">El usuario ha sido eliminado exitosamente.</p>',
-                                    icon: 'success',
-                                    confirmButtonColor: '#28a745',
-                                    confirmButtonText: 'Aceptar'
-                                }).then(() => {
+                                mostrarExitoValidacion('El usuario ha sido eliminado exitosamente.', '¡Usuario Eliminado!').then(() => {
                                     window.location.reload();
                                 });
                             } else {

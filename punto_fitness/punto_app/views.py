@@ -6,7 +6,9 @@ from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 import json
 import re
-from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor
+import random
+import string
+from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor, VerificacionCorreo
 from django.contrib.auth.hashers import check_password
 from .decorators import requiere_admin, requiere_superadmin
 # Funcionamiento CRUD
@@ -17,6 +19,8 @@ import logging
 from django.db.models import Count, OuterRef, Subquery, IntegerField, Exists
 from django.db.models.functions import Coalesce
 from django.utils.timezone import localtime
+from django.core.mail import send_mail
+from django.conf import settings
 logger = logging.getLogger('punto_app')
 
 # Create your views here.
@@ -36,26 +40,45 @@ def register_view(request):
             telefono = data.get('telefono')
             estado = data.get('estado', 'Activo')
 
+            logger.info(f"🔍 Registro solicitado para: {correo}")
+
             if not all([nombre, apellido, correo, contrasena]):
+                logger.error("❌ Faltan campos requeridos en registro")
                 return JsonResponse({'error': 'Faltan campos requeridos'}, status=400)
 
             try:
-                # Verificar si el correo ya existe en Cliente
-                if Cliente.objects.filter(email=correo).exists():
+                # Verificar si el correo ya existe en Cliente (excluyendo temporales)
+                if Cliente.objects.filter(email=correo, estado__in=['Activo', 'Inactivo']).exists():
+                    logger.warning(f"⚠️ Correo ya registrado: {correo}")
                     return JsonResponse({'error': 'Correo ya registrado'}, status=400)
+
+                # Verificar que el correo haya sido verificado previamente
+                try:
+                    verificacion = VerificacionCorreo.objects.filter(
+                        id_usuario__email=correo,
+                        utilizado=True,
+                        fecha_expiracion__gt=timezone.now() - timezone.timedelta(minutes=10)
+                    ).latest('fecha_creacion')
+                    
+                    logger.info(f"✅ Verificación encontrada para registro: {verificacion.id_verificacion}")
+                    
+                except VerificacionCorreo.DoesNotExist:
+                    logger.warning(f"❌ Correo no verificado: {correo}")
+                    return JsonResponse({'error': 'El correo debe ser verificado antes de crear la cuenta'}, status=400)
 
                 # Encriptar la contraseña
                 contrasena_encriptada = make_password(contrasena)
 
-                # Crear el cliente
-                cliente = Cliente.objects.create(
-                    nombre=nombre,
-                    apellido=apellido,
-                    email=correo,
-                    contrasena=contrasena_encriptada,
-                    telefono=telefono,
-                    estado=estado
-                )
+                # Actualizar el cliente temporal con los datos reales
+                cliente_temp = verificacion.id_usuario
+                cliente_temp.nombre = nombre
+                cliente_temp.apellido = apellido
+                cliente_temp.contrasena = contrasena_encriptada
+                cliente_temp.telefono = telefono
+                cliente_temp.estado = estado
+                cliente_temp.save()
+                
+                logger.info(f"✅ Cliente actualizado: {cliente_temp.id}")
 
                 # Intentar crear el usuario de Django si es posible
                 try:
@@ -64,26 +87,38 @@ def register_view(request):
                         email=correo,
                         password=contrasena
                     )
+                    logger.info(f"✅ Usuario Django creado para: {correo}")
                 except Exception as e:
-                    logger.warning(f"No se pudo crear usuario de Django: {str(e)}")
+                    logger.warning(f"⚠️ No se pudo crear usuario de Django: {str(e)}")
                     # Continuamos aunque falle la creación del usuario de Django
                     pass
 
+                # Limpiar verificaciones antiguas para este correo
+                verificaciones_antiguas = VerificacionCorreo.objects.filter(
+                    id_usuario__email=correo
+                ).exclude(id_verificacion=verificacion.id_verificacion)
+                
+                logger.info(f"🗑️ Eliminando {verificaciones_antiguas.count()} verificaciones antiguas")
+                verificaciones_antiguas.delete()
+
+                logger.info(f"🎉 Usuario registrado exitosamente: {cliente_temp.id}")
                 return JsonResponse({
                     'message': 'Usuario creado correctamente',
-                    'id': cliente.id,
-                    'nombre': cliente.nombre,
-                    'email': cliente.email
+                    'id': cliente_temp.id,
+                    'nombre': cliente_temp.nombre,
+                    'apellido': cliente_temp.apellido,
+                    'email': cliente_temp.email
                 }, status=201)
 
             except Exception as e:
-                logger.error(f"Error al crear usuario: {str(e)}")
+                logger.error(f"💥 Error al crear usuario: {str(e)}")
                 return JsonResponse({'error': 'Error al crear el usuario'}, status=500)
 
         except json.JSONDecodeError:
+            logger.error("❌ JSON inválido en register_view")
             return JsonResponse({'error': 'JSON inválido'}, status=400)
         except Exception as e:
-            logger.error(f"Error inesperado en registro: {str(e)}")
+            logger.error(f"💥 Error inesperado en registro: {str(e)}")
             return JsonResponse({'error': 'Error interno del servidor'}, status=500)
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
@@ -1427,5 +1462,216 @@ def recuperar_contrasena(request):
             return JsonResponse({'error': 'JSON inválido'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+# Funciones auxiliares para verificación de correo
+def generar_codigo_verificacion():
+    """Genera un código de verificación de 6 dígitos"""
+    return ''.join(random.choices(string.digits, k=6))
+
+def limpiar_datos_temporales():
+    """Limpia clientes temporales y verificaciones expiradas"""
+    try:
+        # Eliminar verificaciones expiradas
+        verificaciones_expiradas = VerificacionCorreo.objects.filter(
+            fecha_expiracion__lt=timezone.now()
+        )
+        
+        # Obtener los clientes temporales asociados a verificaciones expiradas
+        clientes_temporales = Cliente.objects.filter(
+            verificacioncorreo__in=verificaciones_expiradas,
+            nombre='Temporal',
+            apellido='Usuario',
+            estado='Pendiente'
+        ).distinct()
+        
+        # Eliminar verificaciones expiradas
+        verificaciones_expiradas.delete()
+        
+        # Eliminar clientes temporales sin verificaciones
+        clientes_sin_verificacion = Cliente.objects.filter(
+            nombre='Temporal',
+            apellido='Usuario',
+            estado='Pendiente'
+        ).exclude(
+            verificacioncorreo__isnull=False
+        )
+        
+        clientes_sin_verificacion.delete()
+        
+        logger.info(f"Limpieza completada: {verificaciones_expiradas.count()} verificaciones y {clientes_temporales.count()} clientes temporales eliminados")
+        
+    except Exception as e:
+        logger.error(f"Error en limpieza de datos temporales: {str(e)}")
+
+def enviar_email_verificacion(correo, codigo):
+    """Envía un email con el código de verificación"""
+    try:
+        subject = 'Código de Verificación - Punto Fitness'
+        message = f"""
+        Hola,
+
+        Tu código de verificación para crear tu cuenta en Punto Fitness es:
+
+        {codigo}
+
+        Este código expira en 10 minutos.
+
+        Si no solicitaste este código, puedes ignorar este mensaje.
+
+        Saludos,
+        Equipo Punto Fitness
+        """
+        
+        # En un entorno de producción, aquí se configuraría el envío real de emails
+        # Por ahora, solo simulamos el envío exitoso
+        print(f"📧 Email enviado a {correo} con código: {codigo}")
+        
+        # Si tienes configurado el envío de emails en settings.py, descomenta estas líneas:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [correo],
+            fail_silently=False,
+        )
+        
+        return True
+    except Exception as e:
+        logger.error(f"Error al enviar email: {str(e)}")
+        return False
+
+@csrf_exempt
+def enviar_codigo_verificacion(request):
+    """Endpoint para enviar código de verificación por email"""
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            correo = data.get('correo')
+            
+            logger.info(f"🔍 Enviando código de verificación para: {correo}")
+            
+            if not correo:
+                logger.error("❌ Correo no proporcionado")
+                return JsonResponse({'error': 'Correo no proporcionado'}, status=400)
+            
+            # Verificar formato de email
+            email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            if not re.match(email_regex, correo):
+                logger.error(f"❌ Formato de correo inválido: {correo}")
+                return JsonResponse({'error': 'Formato de correo inválido'}, status=400)
+            
+            # Verificar si el correo ya está registrado
+            if Cliente.objects.filter(email=correo, estado__in=['Activo', 'Inactivo']).exists():
+                logger.warning(f"⚠️ Correo ya registrado: {correo}")
+                return JsonResponse({'error': 'Este correo ya está registrado'}, status=400)
+            
+            # Limpiar datos temporales expirados
+            limpiar_datos_temporales()
+            
+            # Generar código de verificación
+            codigo = generar_codigo_verificacion()
+            logger.info(f"📧 Código generado: {codigo}")
+            
+            # Calcular fecha de expiración (10 minutos)
+            fecha_expiracion = timezone.now() + timezone.timedelta(minutes=10)
+            
+            # Eliminar códigos anteriores para este correo
+            verificaciones_anteriores = VerificacionCorreo.objects.filter(
+                id_usuario__email=correo,
+                utilizado=False
+            )
+            logger.info(f"🗑️ Eliminando {verificaciones_anteriores.count()} verificaciones anteriores")
+            verificaciones_anteriores.delete()
+            
+            # Crear un cliente temporal para la verificación
+            cliente_temp = Cliente.objects.create(
+                nombre='Temporal',
+                apellido='Usuario',
+                email=correo,
+                contrasena='temp_password',
+                telefono=0,
+                estado='Pendiente'
+            )
+            logger.info(f"👤 Cliente temporal creado: {cliente_temp.id}")
+            
+            # Guardar el código de verificación
+            verificacion = VerificacionCorreo.objects.create(
+                id_usuario=cliente_temp,
+                codigo=codigo,
+                fecha_expiracion=fecha_expiracion
+            )
+            logger.info(f"✅ Verificación creada: {verificacion.id_verificacion}")
+            
+            # Enviar email
+            if enviar_email_verificacion(correo, codigo):
+                logger.info(f"📤 Email enviado exitosamente a: {correo}")
+                return JsonResponse({
+                    'message': 'Código de verificación enviado exitosamente',
+                    'correo': correo
+                }, status=200)
+            else:
+                # Si falla el envío, eliminar el cliente temporal y la verificación
+                logger.error(f"❌ Error al enviar email, eliminando datos temporales")
+                cliente_temp.delete()
+                return JsonResponse({'error': 'Error al enviar el código de verificación'}, status=500)
+                
+        except json.JSONDecodeError:
+            logger.error("❌ JSON inválido en enviar_codigo_verificacion")
+            return JsonResponse({'error': 'JSON inválido'}, status=400)
+        except Exception as e:
+            logger.error(f"💥 Error en enviar_codigo_verificacion: {str(e)}")
+            return JsonResponse({'error': 'Error interno del servidor'}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+def verificar_codigo(request):
+    """Endpoint para verificar el código de verificación"""
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            correo = data.get('correo')
+            codigo = data.get('codigo')
+            
+            logger.info(f"🔍 Verificando código para: {correo}, código: {codigo}")
+            
+            if not correo or not codigo:
+                logger.error("❌ Correo o código no proporcionados")
+                return JsonResponse({'error': 'Correo y código son requeridos'}, status=400)
+            
+            # Buscar la verificación más reciente para este correo
+            try:
+                verificacion = VerificacionCorreo.objects.filter(
+                    id_usuario__email=correo,
+                    codigo=codigo,
+                    utilizado=False,
+                    fecha_expiracion__gt=timezone.now()
+                ).latest('fecha_creacion')
+                
+                logger.info(f"✅ Verificación encontrada: {verificacion.id_verificacion}")
+                
+            except VerificacionCorreo.DoesNotExist:
+                logger.warning(f"❌ Código inválido o expirado para: {correo}")
+                return JsonResponse({'error': 'Código inválido o expirado'}, status=400)
+            
+            # Marcar el código como utilizado
+            verificacion.utilizado = True
+            verificacion.save()
+            logger.info(f"✅ Código marcado como utilizado: {verificacion.id_verificacion}")
+            
+            return JsonResponse({
+                'verificado': True,
+                'message': 'Código verificado exitosamente',
+                'correo': correo
+            }, status=200)
+            
+        except json.JSONDecodeError:
+            logger.error("❌ JSON inválido en verificar_codigo")
+            return JsonResponse({'error': 'JSON inválido'}, status=400)
+        except Exception as e:
+            logger.error(f"💥 Error en verificar_codigo: {str(e)}")
+            return JsonResponse({'error': 'Error interno del servidor'}, status=500)
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)

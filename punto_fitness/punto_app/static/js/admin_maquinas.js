@@ -5,7 +5,24 @@ const BASE_URL = '/maquinas/';
 ////////////////////
 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🔧 Inicializando máquinas...');
+  console.log('🔧 Inicializando módulo de máquinas...');
+  
+  // Verificar que las funciones de validación estén disponibles
+  if (typeof validarNombre === 'undefined' || typeof validarFormulario === 'undefined') {
+    console.error('❌ ERROR: Las funciones de validación no están disponibles. Verifique que validaciones.js se cargue antes que admin_maquinas.js');
+    Swal.fire('Error', 'Error de configuración: Las validaciones no están disponibles. Por favor, recarga la página.', 'error');
+    return;
+  }
+  
+  console.log('✅ Funciones de validación disponibles:', {
+    validarNombre: typeof validarNombre,
+    validarDescripcion: typeof validarDescripcion,
+    validarNumeroEntero: typeof validarNumeroEntero,
+    validarSeleccion: typeof validarSeleccion,
+    validarFormulario: typeof validarFormulario,
+    mostrarExitoValidacion: typeof mostrarExitoValidacion,
+    mostrarErroresValidacion: typeof mostrarErroresValidacion
+  });
   
   // Verificar datos del backend
   const maquinasRows = document.querySelectorAll('tr[data-id]');
@@ -119,16 +136,8 @@ function actualizarMaquina(id, data) {
   }).then(response => {
     if (response.ok) {
       return response.json().then(responseData => {
-        Swal.fire({
-          title: 'Actualización Exitosa!',
-          html: `<p style="color: #555;">La máquina ha sido actualizada correctamente.</p>`,
-          icon: 'success',
-          confirmButtonColor: '#28a745'
-        }).then(() => {
-          // Recarga la página cuando se cierra el SweetAlert
-          location.reload();
-        });
-        return responseData; // Devolver los datos para que el event listener los pueda usar
+        mostrarExitoValidacion('La máquina ha sido actualizada correctamente.', '¡Actualización Exitosa!');
+        return responseData;
       });
     } else {
       return response.json().then(errorData => {
@@ -154,24 +163,20 @@ function eliminarMaquina(id) {
     }
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: 'Eliminación Exitosa!',
-        html: `<p style="color: #555;">La maquina ha sido eliminado correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('La máquina ha sido eliminada correctamente.', '¡Eliminación Exitosa!');
+        return responseData;
       });
     } else {
       return response.json().then(data => {
-        throw new Error(data.error || 'Error al eliminar la maquina');
+        throw new Error(data.error || 'Error al eliminar la máquina');
       });
     }
   })
   .catch(error => {
-    console.error('Error al eliminar proveedor:', error);
-    Swal.fire('Error', 'Ocurrió un error al eliminar la maquina: ' + error.message, 'error');
+    console.error('Error al eliminar máquina:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar la máquina: ' + error.message, 'error');
+    throw error;
   });
 }
 
@@ -203,42 +208,16 @@ function inicializarEventListeners() {
       const cantidad = cantidadInput?.value.trim() || '';
       const establecimientoId = establecimientoSelect?.value || '';
       
-      // Validaciones
-      const errores = [];
+      // Validaciones usando la nueva función validarFormulario
+      const validaciones = [
+        () => validarNombre(nombre, 'nombre de la máquina', 3, 30, true),
+        () => validarDescripcion(descripcion, 'descripción de la máquina', 5, 50),
+        () => validarNumeroEntero(cantidad, 'cantidad', 0, 999, true),
+        () => validarSeleccion(establecimientoId, 'establecimiento', true)
+      ];
       
-      // 1. Validar nombre (obligatorio, longitud, caracteres)
-      if (!nombre) {
-        errores.push('El nombre es obligatorio');
-      } else if (nombre.length > 30) {
-        errores.push('El nombre no puede exceder los 30 caracteres');
-      } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-]/.test(nombre)) {
-        errores.push('El nombre solo puede contener letras, números, espacios y guiones');
-      }
-      
-      // 2. Validar descripción (obligatoria, longitud)
-      if (!descripcion) {
-        errores.push('La descripción es obligatoria');
-      } else if (descripcion.length > 50) {
-        errores.push('La descripción no puede exceder los 50 caracteres');
-      }
-      
-      // 3. Validar cantidad (obligatoria, numérica, positiva)
-      if (!cantidad) {
-        errores.push('La cantidad es obligatoria');
-      } else if (isNaN(cantidad) || parseInt(cantidad) < 0) {
-        errores.push('La cantidad debe ser un número no negativo');
-      } else if (parseInt(cantidad) > 999) {
-        errores.push('La cantidad no puede exceder 999');
-      }
-      
-      // 4. Validar establecimiento (obligatorio)
-      if (!establecimientoId || establecimientoId === "") {
-        errores.push('Debe seleccionar un establecimiento');
-      }
-      
-      // Mostrar errores si existen
-      if (errores.length > 0) {
-        alert('Errores en el formulario:\n\n' + errores.join('\n'));
+      // Validar formulario y mostrar errores si existen
+      if (!validarFormulario(validaciones, 'Errores en el Formulario de Máquina')) {
         return;
       }
       
@@ -255,13 +234,12 @@ function inicializarEventListeners() {
         .then(data => {
           console.log('✅ Respuesta del servidor:', data);
           if (data.error) throw new Error(data.error);
-          alert('Máquina creada exitosamente');
+          mostrarExitoValidacion('Máquina creada exitosamente', '¡Máquina Creada!');
           cerrarModal('maquina');
-          window.location.reload();
         })
         .catch(error => {
           console.error('💥 Error al crear máquina:', error);
-          alert('Error al crear máquina: ' + error.message);
+          Swal.fire('Error', 'Error al crear máquina: ' + error.message, 'error');
         });
     });
   }
@@ -277,7 +255,7 @@ function inicializarEventListeners() {
       console.log('Tipo de id:', typeof id);
       
       if (!id || id === '') {
-        alert('Error: No se pudo obtener el ID de la máquina. Por favor, recarga la página.');
+        Swal.fire('Error', 'No se pudo obtener el ID de la máquina. Por favor, recarga la página.', 'error');
         return;
       }
       
@@ -296,7 +274,7 @@ function inicializarEventListeners() {
       });
       
       if (!nombreInput || !descripcionInput || !cantidadInput || !establecimientoInput) {
-        alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
+        Swal.fire('Error', 'No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.', 'error');
         return;
       }
       
@@ -306,42 +284,16 @@ function inicializarEventListeners() {
       const cantidad = cantidadInput.value.trim();
       const establecimientoId = establecimientoInput.value;
       
-      // Validaciones
-      const errores = [];
+      // Validaciones usando la nueva función validarFormulario
+      const validaciones = [
+        () => validarNombre(nombre, 'nombre de la máquina', 3, 30, true),
+        () => validarDescripcion(descripcion, 'descripción de la máquina', 5, 50),
+        () => validarNumeroEntero(cantidad, 'cantidad', 0, 999, true),
+        () => validarSeleccion(establecimientoId, 'establecimiento', true)
+      ];
       
-      // 1. Validar nombre (obligatorio, longitud, caracteres)
-      if (!nombre) {
-        errores.push('El nombre es obligatorio');
-      } else if (nombre.length > 30) {
-        errores.push('El nombre no puede exceder los 30 caracteres');
-      } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-]/.test(nombre)) {
-        errores.push('El nombre solo puede contener letras, números, espacios y guiones');
-      }
-      
-      // 2. Validar descripción (obligatoria, longitud)
-      if (!descripcion) {
-        errores.push('La descripción es obligatoria');
-      } else if (descripcion.length > 50) {
-        errores.push('La descripción no puede exceder los 50 caracteres');
-      }
-      
-      // 3. Validar cantidad (obligatoria, numérica, positiva)
-      if (!cantidad) {
-        errores.push('La cantidad es obligatoria');
-      } else if (isNaN(cantidad) || parseInt(cantidad) < 0) {
-        errores.push('La cantidad debe ser un número no negativo');
-      } else if (parseInt(cantidad) > 999) {
-        errores.push('La cantidad no puede exceder 999');
-      }
-      
-      // 4. Validar establecimiento (obligatorio)
-      if (!establecimientoId || establecimientoId === "") {
-        errores.push('Debe seleccionar un establecimiento');
-      }
-      
-      // Mostrar errores si existen
-      if (errores.length > 0) {
-        alert('Errores en el formulario:\n\n' + errores.join('\n'));
+      // Validar formulario y mostrar errores si existen
+      if (!validarFormulario(validaciones, 'Errores en el Formulario de Edición de Máquina')) {
         return;
       }
       
@@ -380,16 +332,29 @@ function inicializarEventListeners() {
     btn.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
 
-      if (confirm('¿Eliminar esta máquina?')) {
-        eliminarMaquina(id)
-          .then(data => {
-            if (data.error) throw new Error(data.error);
-            document.querySelector(`tr[data-id="${id}"]`).remove();
-            document.querySelector(`#modal-fondo-editar-maquina-${id}`)?.remove();
-            window.location.reload();
-          })
-          .catch(console.error);
-      }
+      Swal.fire({
+        title: '¿Eliminar máquina?',
+        text: 'Esta acción no se puede deshacer',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          eliminarMaquina(id)
+            .then(data => {
+              if (data.error) throw new Error(data.error);
+              document.querySelector(`tr[data-id="${id}"]`).remove();
+              document.querySelector(`#modal-fondo-editar-maquina-${id}`)?.remove();
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              Swal.fire('Error', 'Error al eliminar máquina: ' + error.message, 'error');
+            });
+        }
+      });
     });
   });
 
@@ -518,4 +483,3 @@ function cerrarModal(tipo, boton = null) {
     console.error(`❌ No se encontró el modal o botón para ${tipo}`);
   }
 }
-

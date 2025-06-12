@@ -5,6 +5,24 @@ const BASE_URL = '/cursos/';
 ////////////////////////////////
 
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔧 Inicializando módulo de cursos...');
+  
+  // Verificar que las funciones de validación estén disponibles
+  if (typeof validarNombre === 'undefined' || typeof validarFormulario === 'undefined') {
+    console.error('❌ ERROR: Las funciones de validación no están disponibles. Verifique que validaciones.js se cargue antes que cursos.js');
+    Swal.fire('Error', 'Error de configuración: Las validaciones no están disponibles. Por favor, recarga la página.', 'error');
+    return;
+  }
+  
+  console.log('✅ Funciones de validación disponibles:', {
+    validarNombre: typeof validarNombre,
+    validarNumeroEntero: typeof validarNumeroEntero,
+    validarFecha: typeof validarFecha,
+    validarSeleccion: typeof validarSeleccion,
+    validarFormulario: typeof validarFormulario,
+    mostrarExitoValidacion: typeof mostrarExitoValidacion
+  });
+  
   inicializarEventListeners();
 });
 
@@ -88,7 +106,22 @@ function crearCurso(formData) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(formData)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      return response.json().then(responseData => {
+        // No mostrar mensaje aquí, se maneja en manejoCrearCurso
+        return responseData;
+      });
+    } else {
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al crear el curso');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al crear curso:', error);
+    throw error; // Re-lanzar el error para que se maneje en manejoCrearCurso
+  });
 }
 
 // Función para crear inscripción
@@ -100,7 +133,22 @@ function crearInscripcion(formData) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(formData)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      return response.json().then(responseData => {
+        // No mostrar mensaje aquí, se maneja en manejoCrearInscripcion
+        return responseData;
+      });
+    } else {
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al crear la inscripción');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al crear inscripción:', error);
+    throw error; // Re-lanzar el error para que se maneje en manejoCrearInscripcion
+  });
 }
 
 ////////////////////////////////
@@ -116,7 +164,23 @@ function actualizarCurso(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('El curso ha sido actualizado correctamente.', '¡Actualización Exitosa!');
+        return responseData;
+      });
+    } else {
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al actualizar el curso');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al actualizar curso:', error);
+    Swal.fire('Error', 'Ocurrió un error al actualizar el curso: ' + error.message, 'error');
+    throw error;
+  });
 }
 
 // Función para actualizar inscripción
@@ -128,7 +192,23 @@ function actualizarInscripcion(id, data) {
       'X-CSRFToken': getCSRFToken()
     },
     body: JSON.stringify(data)
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('La inscripción ha sido actualizada correctamente.', '¡Actualización Exitosa!');
+        return responseData;
+      });
+    } else {
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al actualizar la inscripción');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al actualizar inscripción:', error);
+    Swal.fire('Error', 'Ocurrió un error al actualizar la inscripción: ' + error.message, 'error');
+    throw error;
+  });
 }
 
 //////////////////////////////
@@ -143,7 +223,23 @@ function eliminarCurso(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('El curso ha sido eliminado correctamente.', '¡Eliminación Exitosa!');
+        return responseData;
+      });
+    } else {
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al eliminar el curso');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar curso:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el curso: ' + error.message, 'error');
+    throw error;
+  });
 }
 
 // Función para eliminar inscripción
@@ -154,7 +250,23 @@ function eliminarInscripcion(id) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken()
     }
-  }).then(response => response.json());
+  }).then(response => {
+    if (response.ok) {
+      return response.json().then(responseData => {
+        mostrarExitoValidacion('La inscripción ha sido eliminada correctamente.', '¡Eliminación Exitosa!');
+        return responseData;
+      });
+    } else {
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al eliminar la inscripción');
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error al eliminar inscripción:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar la inscripción: ' + error.message, 'error');
+    throw error;
+  });
 }
 
 ////////////////////////////////////
@@ -196,32 +308,59 @@ document.querySelectorAll('[name="btn-eliminar-curso"]').forEach(btn => {
   btn.addEventListener('click', function() {
     const id = this.getAttribute('data-id');
 
-    if (confirm('¿Eliminar este curso?')) {
-      eliminarCurso(id)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          document.querySelector(`tr[data-id="${id}"]`).remove();
-          document.querySelector(`#form-editar-curso-${id}`)?.remove();
-          window.location.reload();
-        })
-        .catch(console.error);
-    }
+    Swal.fire({
+      title: '¿Eliminar curso?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        eliminarCurso(id)
+          .then(data => {
+            if (data.error) throw new Error(data.error);
+            document.querySelector(`tr[data-id="${id}"]`).remove();
+            document.querySelector(`#form-editar-curso-${id}`)?.remove();
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Error al eliminar curso: ' + error.message, 'error');
+          });
+      }
+    });
   });
 });
 
 document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
   btn.addEventListener('click', function() {
     const id = this.getAttribute('data-id');
-    if (confirm('¿Eliminar esta inscripción?')) {
-      eliminarInscripcion(id)
-        .then(data => {
-          if (data.error) throw new Error(data.error);
-          document.querySelector(`tr[data-id="${id}"]`).remove();
-          document.querySelector(`#form-editar-inscripcion-${id}`)?.remove();
-          window.location.reload();
-        })
-        .catch(console.error);
-    }
+    
+    Swal.fire({
+      title: '¿Eliminar inscripción?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        eliminarInscripcion(id)
+          .then(data => {
+            if (data.error) throw new Error(data.error);
+            document.querySelector(`tr[data-id="${id}"]`).remove();
+            document.querySelector(`#form-editar-inscripcion-${id}`)?.remove();
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Error al eliminar inscripción: ' + error.message, 'error');
+          });
+      }
+    });
   });
 });
 
@@ -237,7 +376,7 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
       console.log('Tipo de id:', typeof id);
       
       if (!id || id === '') {
-        alert('Error: No se pudo obtener el ID del curso. Por favor, recarga la página.');
+        Swal.fire('Error', 'No se pudo obtener el ID del curso. Por favor, recarga la página.', 'error');
         return;
       }
       
@@ -257,20 +396,28 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
       });
       
       if (!nombreInput || !cuposInput || !fechaInput || !establecimientoInput) {
-        alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
+        Swal.fire('Error', 'No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.', 'error');
         return;
       }
       
-      const nombre = nombreInput.value;
-      const cupos = cuposInput.value;
+      // Obtener y limpiar valores
+      const nombre = nombreInput.value.trim();
+      const cupos = cuposInput.value.trim();
       const fecha_realizacion = fechaInput.value;
       const establecimiento_id = establecimientoInput.value;
       
       console.log('Valor de establecimiento_id a enviar:', establecimiento_id);
 
-      // Reintroducimos la validación de la fecha
-      if (!fecha_realizacion) {
-        alert('La fecha de realización es obligatoria');
+      // Validaciones usando la nueva función validarFormulario
+      const validaciones = [
+        () => validarNombre(nombre, 'nombre del curso', 3, 30, true),
+        () => validarNumeroEntero(cupos, 'cupos', 1, 100, true),
+        () => validarFecha(fecha_realizacion, 'fecha de realización', true),
+        () => validarSeleccion(establecimiento_id, 'establecimiento', true)
+      ];
+
+      // Validar formulario y mostrar errores si existen
+      if (!validarFormulario(validaciones, 'Errores en el Formulario de Edición de Curso')) {
         return;
       }
       
@@ -278,7 +425,7 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
 
       const formData = {
         nombre: nombre,
-        cupos: cupos,
+        cupos: parseInt(cupos),
         fecha_realizacion: fecha_realizacion,
         establecimiento_id: establecimiento_id
       };
@@ -291,12 +438,10 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
           if (data.error) throw new Error(data.error);
           actualizarVista(data, 'curso');
           cerrarModalEdicion('curso', id);
-          alert('Curso actualizado correctamente');
-          window.location.reload();
         })
         .catch(error => {
           console.error('Error:', error);
-          alert('Error al actualizar: ' + error.message);
+          Swal.fire('Error', 'Error al actualizar: ' + error.message, 'error');
         });
     }
     
@@ -312,7 +457,7 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
       console.log('🎯 Formulario completo:', form);
       
       if (!id || id === '') {
-        alert('Error: No se pudo obtener el ID de la inscripción. Por favor, recarga la página.');
+        Swal.fire('Error', 'No se pudo obtener el ID de la inscripción. Por favor, recarga la página.', 'error');
         return;
       }
       
@@ -333,7 +478,7 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
         console.error('❌ Buscando campos con IDs:');
         console.error(`❌ inscripcion-usuario-editar-modal-${id}`);
         console.error(`❌ inscripcion-curso-editar-modal-${id}`);
-        alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
+        Swal.fire('Error', 'No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.', 'error');
         return;
       }
       
@@ -345,8 +490,14 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
         curso_id: curso_id
       });
       
-      if (!usuario_id || !curso_id) {
-        alert('Error: Debe seleccionar tanto el usuario como el curso.');
+      // Validaciones usando la nueva función validarFormulario
+      const validaciones = [
+        () => validarSeleccion(usuario_id, 'usuario', true),
+        () => validarSeleccion(curso_id, 'curso', true)
+      ];
+
+      // Validar formulario y mostrar errores si existen
+      if (!validarFormulario(validaciones, 'Errores en el Formulario de Edición de Inscripción')) {
         return;
       }
       
@@ -363,12 +514,10 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
           if (data.error) throw new Error(data.error);
           actualizarVista(data, 'inscripcion');
           cerrarModalEdicion('inscripcion', id);
-          alert('Inscripción actualizada correctamente');
-          window.location.reload();
         })
         .catch(error => {
           console.error('Error:', error);
-          alert('Error al actualizar: ' + error.message);
+          Swal.fire('Error', 'Error al actualizar: ' + error.message, 'error');
         });
     }
   });
@@ -514,45 +663,142 @@ function cerrarModal(tipo, boton = null) {
 // Creación de cursos de event listeners
 function manejoCrearCurso(e) {
   e.preventDefault();
+  console.log('🎯 Iniciando validación de creación de curso...');
+
+  const nombreInput = document.getElementById('curso-nombre-modal');
+  const cuposInput = document.getElementById('curso-cupos-modal');
+  const fechaInput = document.getElementById('curso-fecha_realizacion-modal');
+  const establecimientoSelect = document.getElementById('curso-establecimiento-modal');
+
+  console.log('🔍 Campos encontrados:', {
+    nombre: nombreInput,
+    cupos: cuposInput,
+    fecha: fechaInput,
+    establecimiento: establecimientoSelect
+  });
+
+  // Obtener y limpiar valores
+  const nombre = nombreInput?.value.trim() || '';
+  const cupos = cuposInput?.value.trim() || '';
+  const fecha_realizacion = fechaInput?.value || '';
+  const establecimiento_id = establecimientoSelect?.value || '';
+
+  console.log('📋 Valores obtenidos:', {
+    nombre: nombre,
+    cupos: cupos,
+    fecha_realizacion: fecha_realizacion,
+    establecimiento_id: establecimiento_id
+  });
+
+  // Verificar que las funciones de validación estén disponibles
+  console.log('🔍 Verificando funciones de validación:', {
+    validarNombre: typeof validarNombre,
+    validarNumeroEntero: typeof validarNumeroEntero,
+    validarFecha: typeof validarFecha,
+    validarSeleccion: typeof validarSeleccion,
+    validarFormulario: typeof validarFormulario
+  });
+
+  // Validaciones usando la nueva función validarFormulario
+  const validaciones = [
+    () => validarNombre(nombre, 'nombre del curso', 3, 30, true),
+    () => validarNumeroEntero(cupos, 'cupos', 1, 100, true),
+    () => validarFecha(fecha_realizacion, 'fecha de realización', true),
+    () => validarSeleccion(establecimiento_id, 'establecimiento', true)
+  ];
+
+  console.log('✅ Validaciones configuradas, ejecutando validarFormulario...');
+
+  // Validar formulario y mostrar errores si existen
+  if (!validarFormulario(validaciones, 'Errores en el Formulario de Curso')) {
+    console.log('❌ Validaciones fallaron, deteniendo envío');
+    return;
+  }
+
+  console.log('✅ Validaciones pasaron, enviando datos...');
 
   const formData = {
-    nombre: document.getElementById('curso-nombre-modal').value,
-    cupos: document.getElementById('curso-cupos-modal').value,
-    fecha_realizacion: document.getElementById('curso-fecha_realizacion-modal').value,
-    establecimiento_id: document.getElementById('curso-establecimiento-modal').value,
+    nombre: nombre,
+    cupos: parseInt(cupos),
+    fecha_realizacion: fecha_realizacion,
+    establecimiento_id: establecimiento_id
   };
+
+  console.log('📤 Enviando datos:', formData);
 
   crearCurso(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      alert('Curso creado exitosamente');
+      console.log('✅ Curso creado exitosamente');
       cerrarModal('curso');
-      window.location.reload();
+      mostrarExitoValidacion('Curso creado exitosamente', '¡Curso Creado!');
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error al crear curso: ' + error.message);
+      Swal.fire('Error', 'Error al crear curso: ' + error.message, 'error');
     });
 }
 
 // Creación de inscripciones de event listeners
 function manejoCrearInscripcion(e) {
   e.preventDefault();
+  console.log('🎯 Iniciando validación de creación de inscripción...');
+  
+  const usuarioSelect = document.getElementById('inscripcion-usuario-modal');
+  const cursoSelect = document.getElementById('inscripcion-curso-modal');
+
+  console.log('🔍 Campos encontrados:', {
+    usuario: usuarioSelect,
+    curso: cursoSelect
+  });
+
+  // Obtener valores
+  const usuario_id = usuarioSelect?.value || '';
+  const curso_id = cursoSelect?.value || '';
+
+  console.log('📋 Valores obtenidos:', {
+    usuario_id: usuario_id,
+    curso_id: curso_id
+  });
+
+  // Verificar que las funciones de validación estén disponibles
+  console.log('🔍 Verificando funciones de validación:', {
+    validarSeleccion: typeof validarSeleccion,
+    validarFormulario: typeof validarFormulario
+  });
+
+  // Validaciones usando la nueva función validarFormulario
+  const validaciones = [
+    () => validarSeleccion(usuario_id, 'usuario', true),
+    () => validarSeleccion(curso_id, 'curso', true)
+  ];
+
+  console.log('✅ Validaciones configuradas, ejecutando validarFormulario...');
+
+  // Validar formulario y mostrar errores si existen
+  if (!validarFormulario(validaciones, 'Errores en el Formulario de Inscripción')) {
+    console.log('❌ Validaciones fallaron, deteniendo envío');
+    return;
+  }
+
+  console.log('✅ Validaciones pasaron, enviando datos...');
   
   const formData = {
-    usuario_id: document.getElementById('inscripcion-usuario-modal').value,
-    curso_id: document.getElementById('inscripcion-curso-modal').value,
+    usuario_id: usuario_id,
+    curso_id: curso_id
   };
+
+  console.log('📤 Enviando datos:', formData);
   
   crearInscripcion(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      alert('Inscripción creada exitosamente');
+      console.log('✅ Inscripción creada exitosamente');
       cerrarModal('inscripcion');
-      window.location.reload();
+      mostrarExitoValidacion('Inscripción creada exitosamente', '¡Inscripción Creada!');
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error al crear inscripción: ' + error.message);
+      Swal.fire('Error', 'Error al crear inscripción: ' + error.message, 'error');
     });
 }

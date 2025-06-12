@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="{% static 'css/signIn-Up.css' %}">
   <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
 
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   {% block extra_head %}{% endblock %}
 </head>
 
@@ -134,6 +137,38 @@
           </div>
         </div>
       </section>
+    </div>
+  </div>
+
+  <!-- Modal de Verificación de Correo -->
+  <div id="emailVerificationModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" id="closeEmailVerificationModal">&times;</span>
+      <div class="form-container">
+        <h1>Verificar Correo Electrónico</h1>
+        <p style="margin-bottom: 20px; color: #555;">
+          Hemos enviado un código de verificación a: <br>
+          <strong id="verificationEmail"></strong>
+        </p>
+        <form id="emailVerificationForm">
+          {% csrf_token %}
+          <label>
+            <input type="text" id="verificationCode" placeholder="Ingrese el código de verificación" required maxlength="6" />
+          </label>
+          <button type="submit" style="margin-top: 15px; width: 100%;">Verificar y Crear Cuenta</button>
+        </form>
+        <div style="margin-top: 15px; text-align: center;">
+          <p style="font-size: 0.9em; color: #888;">
+            ¿No recibiste el código? 
+            <a href="#" id="resendCode" style="color: #007bff; text-decoration: none;">Reenviar código</a>
+          </p>
+        </div>
+        <div style="margin-top: 10px; text-align: center;">
+          <a href="#" id="backToSignUp" style="color: #6c757d; text-decoration: none; font-size: 0.9em;">
+            ← Volver al registro
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 

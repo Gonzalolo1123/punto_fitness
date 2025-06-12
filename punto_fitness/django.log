@@ -480,3 +480,18 @@ Traceback (most recent call last):
     )
 django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 26: ''principal''. Did you forget to register or load this tag?
 ERROR 2025-06-09 13:49:16,179 basehttp 13980 7508 "GET / HTTP/1.1" 500 188014
+ERROR 2025-06-11 23:57:30,764 exception 9348 17152 Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\Gonzalo\Desktop\punto_fitness\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Gonzalo\Desktop\punto_fitness\env\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "C:\Users\Gonzalo\Desktop\punto_fitness\env\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "C:\Users\Gonzalo\Desktop\punto_fitness\env\Lib\site-packages\django\http\request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+ERROR 2025-06-12 00:01:27,329 log 17348 14276 Internal Server Error: /enviar-codigo-verificacion/
+ERROR 2025-06-12 00:01:27,330 basehttp 17348 14276 "POST /enviar-codigo-verificacion/ HTTP/1.1" 500 39
+ERROR 2025-06-12 00:26:02,638 log 7336 13364 Internal Server Error: /registro/
+ERROR 2025-06-12 00:26:02,643 basehttp 7336 13364 "POST /registro/ HTTP/1.1" 500 38
