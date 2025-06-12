@@ -22,6 +22,7 @@
           <th>Nombre</th>
           <th>Descripción</th>
           <th>Cantidad</th>
+          <th>Imágen</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -31,6 +32,9 @@
           <td>{{ maquina.nombre }}</td>
           <td>{{ maquina.descripcion }}</td>
           <td>{{ maquina.cantidad }}</td>
+          <td>
+            <img src="{% static maquina.imagen %}" alt="{{ maquina.nombre }}" width="200">
+          </td>
           <td>
             <div class="action-buttons-container">
               <button class="filtro-btn" name="btn-editar-maquina" data-id="{{ maquina.id }}">Actualizar</button>
@@ -99,6 +103,17 @@
                     <option value="{{ est.id }}" {% if est.id == maquina.establecimiento_id %}selected{% endif %}>{{ est.nombre }}</option>
                     {% endfor %}
                   </select>
+                </div>
+
+                <div class="form-fila">
+                  <label for="maquina-imagen-editar-{{ maquina.id }}">Imágen:</label>
+                  <div class="imagen-selector">
+                    <input type="hidden" id="maquina-imagen-editar-{{ maquina.id }}" name="maquina-imagen-editar-{{ maquina.id }}" value="{{ maquina.imagen }}">
+                    <button type="button" class="filtro-btn" id="btn-seleccionar-imagen-editar-{{ maquina.id }}">Seleccionar Imagen</button>
+                  </div>
+                  <div id="vista-previa-imagen-editar-{{ maquina.id }}" class="vista-previa-imagen" style="display: {% if maquina.imagen %}block{% else %}none{% endif %};">
+                    <img src="{% if maquina.imagen %}{% static maquina.imagen %}{% endif %}" alt="Vista previa" style="max-width: 200px; max-height: 200px;">
+                  </div>
                 </div>
                 
                 <div class="modal-actions">
@@ -181,11 +196,37 @@
             </select>
           </div>
 
+          <div class="form-fila">
+            <label for="maquina-imagen">Imágen:</label>
+            <div class="imagen-selector">
+              <input type="hidden" id="maquina-imagen" name="maquina-imagen">
+              <button type="button" class="filtro-btn" id="btn-seleccionar-imagen">Seleccionar Imagen</button>
+            </div>
+            <div id="vista-previa-imagen" class="vista-previa-imagen" style="display: none;">
+              <img src="" alt="Vista previa" style="max-width: 200px; max-height: 200px;">
+            </div>
+          </div>
+
           <div class="modal-actions">
             <button class="filtro-btn" type="submit">Agregar máquina</button>
             <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModal('maquina')">Cancelar</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para selección de imágenes -->
+  <div id="modal-imagenes" class="modal-imagenes">
+    <div class="modal-imagenes-contenido">
+      <span class="cerrar-modal-imagenes">&times;</span>
+      <h3>Seleccionar Imagen</h3>
+      <div class="acciones-imagen">
+        <button type="button" class="filtro-btn" id="btn-subir-imagen">Subir Nueva Imagen</button>
+        <input type="file" id="input-subir-imagen" accept="image/*" style="display: none;">
+      </div>
+      <div class="galeria-imagenes" id="galeria-imagenes">
+        <!-- Las imágenes se cargarán dinámicamente con JavaScript -->
       </div>
     </div>
   </div>

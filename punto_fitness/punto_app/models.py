@@ -115,6 +115,7 @@ class Producto(models.Model):
     compra = models.ForeignKey(CompraVendedor, on_delete=models.CASCADE)
     categoria = models.ForeignKey(CategoriaProducto, on_delete=models.CASCADE)
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+    imagen = models.CharField(max_length=200, null=True, blank=True)
 
     class Meta:
         db_table = 'producto'
@@ -185,6 +186,7 @@ class Maquina(models.Model):
     descripcion = models.CharField(max_length=100)
     cantidad = models.IntegerField()
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+    imagen = models.CharField(max_length=200, null=True, blank=True)
     
     class Meta:
         db_table = 'maquina'

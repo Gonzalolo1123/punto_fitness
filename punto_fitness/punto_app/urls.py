@@ -71,4 +71,8 @@ urlpatterns = [
     path('confirmar_asistencia/', views.confirmar_asistencia, name='confirmar_asistencia'),
     path('confirmar-salida/', views.confirmar_salida, name='confirmar_salida'),
     path('cambiar-rol-admin/', views.cambiar_rol_admin, name='cambiar_rol_admin'),
+    path('obtener_imagenes_productos/', views.obtener_imagenes_productos, name='obtener_imagenes_productos'),
+    path('subir_imagen_producto/', views.subir_imagen_producto, name='subir_imagen_producto'),
+    path('obtener_imagenes_maquinas/', views.obtener_imagenes_maquinas, name='obtener_imagenes_maquinas'),
+    path('subir_imagen_maquina/', views.subir_imagen_maquina, name='subir_imagen_maquina'),
 ]

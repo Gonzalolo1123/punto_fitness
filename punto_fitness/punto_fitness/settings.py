@@ -47,7 +47,7 @@ DATABASES = {
        'ENGINE': 'django.db.backends.postgresql',
        'NAME': 'punto_fitness',
        'USER': 'postgres',
-       'PASSWORD': 'hola1234',
+       'PASSWORD': 'compuvi',
        'HOST': 'localhost',
        'PORT': '5432',
    }
@@ -140,6 +140,12 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'punto_app', 'static'),
 ]
 
+# Configuración para servir archivos estáticos en desarrollo
+if DEBUG:
+    STATICFILES_FINDERS = [
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

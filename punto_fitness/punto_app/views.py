@@ -17,6 +17,9 @@ import logging
 from django.db.models import Count, OuterRef, Subquery, IntegerField, Exists
 from django.db.models.functions import Coalesce
 from django.utils.timezone import localtime
+import os
+from django.conf import settings
+import time
 logger = logging.getLogger('punto_app')
 
 # Create your views here.
@@ -340,7 +343,7 @@ def inventario(request):
     productos = Producto.objects.select_related('compra', 'categoria', 'establecimiento').values(
         'id', 'nombre', 'descripcion', 'precio', 'stock_actual', 'stock_minimo', 
         'compra_id', 'categoria_id', 'establecimiento_id',
-        'compra__fecha', 'compra__total', 'categoria__nombre', 'establecimiento__nombre'
+        'compra__fecha', 'compra__total', 'categoria__nombre', 'establecimiento__nombre', 'imagen'
     )
     categorias = CategoriaProducto.objects.values('id', 'nombre', 'descripcion')
 
@@ -387,13 +390,6 @@ def admin_producto_crear(request):
         data = json.loads(request.body)
         print(f"📤 Datos recibidos para crear producto: {data}")
         
-        # Validaciones de unicidad
-        if Producto.objects.filter(nombre__iexact=data['nombre']).exists():
-            return JsonResponse({'error': '¡Ya existe un producto con este nombre!'}, status=400)
-        
-        if Producto.objects.filter(descripcion__iexact=data['descripcion']).exists():
-            return JsonResponse({'error': '¡Ya existe un producto con esta descripción!'}, status=400)
-        
         # Validar que los IDs no sean nulos o vacíos
         if not data.get('categoria_id') or data['categoria_id'] == '':
             return JsonResponse({'error': 'Debe seleccionar una categoría'}, status=400)
@@ -403,6 +399,12 @@ def admin_producto_crear(request):
         
         if not data.get('establecimiento_id') or data['establecimiento_id'] == '':
             return JsonResponse({'error': 'Debe seleccionar un establecimiento'}, status=400)
+
+        if not data.get('imagen') or data['imagen'] == '':
+            return JsonResponse({'error': 'Debe proporcionar una imagen'}, status=400)
+
+        if not data['imagen'].startswith('images/productos/'):
+            return JsonResponse({'error': 'La imagen debe estar en la carpeta images/productos/'}, status=400)
         
         producto = Producto.objects.create(
             nombre=data['nombre'],
@@ -412,7 +414,8 @@ def admin_producto_crear(request):
             stock_minimo=data['stock_minimo'],
             compra_id=data['compra_id'],
             categoria_id=data['categoria_id'],
-            establecimiento_id=data['establecimiento_id']
+            establecimiento_id=data['establecimiento_id'],
+            imagen=data['imagen']
         )
         
         print(f"✅ Producto creado exitosamente: {producto.id}")
@@ -445,20 +448,20 @@ def admin_producto_actualizar(request, producto_id):
         producto = get_object_or_404(Producto, pk=producto_id)
         data = json.loads(request.body)
         
-        # Validaciones de unicidad excluyendo al producto actual
-        if 'nombre' in data and data['nombre'] != producto.nombre:
-            if Producto.objects.filter(nombre__iexact=data['nombre']).exclude(id=producto_id).exists():
-                return JsonResponse({'error': '¡Ya existe un producto con este nombre!'}, status=400)
-        
-        if 'descripcion' in data and data['descripcion'] != producto.descripcion:
-            if Producto.objects.filter(descripcion__iexact=data['descripcion']).exclude(id=producto_id).exists():
-                return JsonResponse({'error': '¡Ya existe un producto con esta descripción!'}, status=400)
+        # Validar la imagen si se proporciona
+        if 'imagen' in data and data['imagen']:
+            if not data['imagen'].startswith('images/productos/'):
+                return JsonResponse({'error': 'La imagen debe estar en la carpeta images/productos/'}, status=400)
         
         producto.nombre = data.get('nombre', producto.nombre)
         producto.descripcion = data.get('descripcion', producto.descripcion)
         producto.precio = data.get('precio', producto.precio)
         producto.stock_actual = data.get('stock_actual', producto.stock_actual)
         producto.stock_minimo = data.get('stock_minimo', producto.stock_minimo)
+        producto.imagen = data.get('imagen', producto.imagen)
+        producto.categoria_id = data.get('categoria_id', producto.categoria_id)
+        producto.compra_id = data.get('compra', producto.compra_id)
+        producto.establecimiento_id = data.get('establecimiento_id', producto.establecimiento_id)
         producto.save()
         
         # Obtener los datos con las relaciones
@@ -474,6 +477,7 @@ def admin_producto_actualizar(request, producto_id):
             'compra_id': producto.compra_id,
             'categoria_id': producto.categoria_id,
             'establecimiento_id': producto.establecimiento_id,
+            'imagen': producto.imagen,
             'compra__fecha': producto_con_relaciones.compra.fecha.strftime('%Y-%m-%d'),
             'compra__total': producto_con_relaciones.compra.total,
             'categoria__nombre': producto_con_relaciones.categoria.nombre,
@@ -621,7 +625,7 @@ def maquinas(request):
 
 @requiere_admin
 def admin_maquinas(request):
-    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id')
+    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id', 'imagen')
     establecimientos = Establecimiento.objects.values('id', 'nombre')
     return render(request, 'punto_app/admin_maquinas.html', {
         'maquinas': maquinas,
@@ -643,13 +647,15 @@ def admin_maquina_crear(request):
             nombre=data['nombre'],
             descripcion=data['descripcion'],
             cantidad=data.get('cantidad', 1),
-            establecimiento_id=data['establecimiento_id']
+            establecimiento_id=data['establecimiento_id'],
+            imagen=data.get('imagen')
         )
         return JsonResponse({
             'id': maquina.id,
             'nombre': maquina.nombre,
             'descripcion': maquina.descripcion,
-            'cantidad': maquina.cantidad
+            'cantidad': maquina.cantidad,
+            'imagen': maquina.imagen
         }, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -673,6 +679,7 @@ def admin_maquina_actualizar(request, maquina_id):
         maquina.descripcion = data.get('descripcion', maquina.descripcion)
         maquina.cantidad = data.get('cantidad', maquina.cantidad)
         maquina.establecimiento_id = data.get('establecimiento_id', maquina.establecimiento_id)
+        maquina.imagen = data.get('imagen', maquina.imagen)
         maquina.save()
         
         return JsonResponse({
@@ -680,7 +687,8 @@ def admin_maquina_actualizar(request, maquina_id):
             'nombre': maquina.nombre,
             'descripcion': maquina.descripcion,
             'cantidad': maquina.cantidad,
-            'establecimiento_id': maquina.establecimiento_id
+            'establecimiento_id': maquina.establecimiento_id,
+            'imagen': maquina.imagen
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -1427,5 +1435,149 @@ def recuperar_contrasena(request):
             return JsonResponse({'error': 'JSON inválido'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+def obtener_imagenes_productos(request):
+    if request.method == "GET":
+        try:
+            # Ruta a la carpeta de imágenes de productos
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'productos')
+            
+            # Obtener lista de archivos de imagen
+            imagenes = []
+            if os.path.exists(ruta_imagenes):
+                for archivo in os.listdir(ruta_imagenes):
+                    if archivo.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                        # Asegurarnos de que la ruta sea relativa a static
+                        imagenes.append(f'images/productos/{archivo}')
+            
+            return JsonResponse({
+                'imagenes': imagenes
+            })
+        except Exception as e:
+            logger.error(f"Error al obtener imágenes: {str(e)}")
+            return JsonResponse({
+                'error': str(e)
+            }, status=500)
+    
+    return JsonResponse({
+        'error': 'Método no permitido'
+    }, status=405)
+
+@csrf_exempt
+def subir_imagen_producto(request):
+    if request.method == "POST":
+        try:
+            if 'imagen' not in request.FILES:
+                return JsonResponse({'error': 'No se ha proporcionado ninguna imagen'}, status=400)
+            
+            imagen = request.FILES['imagen']
+            
+            # Validar el tipo de archivo
+            if not imagen.content_type.startswith('image/'):
+                return JsonResponse({'error': 'El archivo debe ser una imagen'}, status=400)
+            
+            # Validar la extensión
+            extension = os.path.splitext(imagen.name)[1].lower()
+            if extension not in ['.png', '.jpg', '.jpeg', '.gif']:
+                return JsonResponse({'error': 'Formato de imagen no permitido'}, status=400)
+            
+            # Crear el directorio si no existe
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'productos')
+            os.makedirs(ruta_imagenes, exist_ok=True)
+            
+            # Generar un nombre único para el archivo
+            nombre_archivo = f"{int(time.time())}_{imagen.name}"
+            ruta_completa = os.path.join(ruta_imagenes, nombre_archivo)
+            
+            # Guardar la imagen
+            with open(ruta_completa, 'wb+') as destino:
+                for chunk in imagen.chunks():
+                    destino.write(chunk)
+            
+            # Devolver la ruta relativa de la imagen
+            ruta_relativa = f'images/productos/{nombre_archivo}'
+            return JsonResponse({
+                'success': True,
+                'ruta': ruta_relativa
+            })
+            
+        except Exception as e:
+            logger.error(f"Error al subir imagen: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+def obtener_imagenes_maquinas(request):
+    if request.method == "GET":
+        try:
+            # Ruta a la carpeta de imágenes de máquinas
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
+            
+            # Obtener lista de archivos de imagen
+            imagenes = []
+            if os.path.exists(ruta_imagenes):
+                for archivo in os.listdir(ruta_imagenes):
+                    if archivo.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                        # Asegurarnos de que la ruta sea relativa a static
+                        imagenes.append(f'images/maquinas/{archivo}')
+            
+            return JsonResponse({
+                'imagenes': imagenes
+            })
+        except Exception as e:
+            logger.error(f"Error al obtener imágenes: {str(e)}")
+            return JsonResponse({
+                'error': str(e)
+            }, status=500)
+    
+    return JsonResponse({
+        'error': 'Método no permitido'
+    }, status=405)
+
+@csrf_exempt
+def subir_imagen_maquina(request):
+    if request.method == "POST":
+        try:
+            if 'imagen' not in request.FILES:
+                return JsonResponse({'error': 'No se ha proporcionado ninguna imagen'}, status=400)
+            
+            imagen = request.FILES['imagen']
+            
+            # Validar el tipo de archivo
+            if not imagen.content_type.startswith('image/'):
+                return JsonResponse({'error': 'El archivo debe ser una imagen'}, status=400)
+            
+            # Validar la extensión
+            extension = os.path.splitext(imagen.name)[1].lower()
+            if extension not in ['.png', '.jpg', '.jpeg', '.gif']:
+                return JsonResponse({'error': 'Formato de imagen no permitido'}, status=400)
+            
+            # Crear el directorio si no existe
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
+            os.makedirs(ruta_imagenes, exist_ok=True)
+            
+            # Generar un nombre único para el archivo
+            nombre_archivo = f"{int(time.time())}_{imagen.name}"
+            ruta_completa = os.path.join(ruta_imagenes, nombre_archivo)
+            
+            # Guardar la imagen
+            with open(ruta_completa, 'wb+') as destino:
+                for chunk in imagen.chunks():
+                    destino.write(chunk)
+            
+            # Devolver la ruta relativa de la imagen
+            ruta_relativa = f'images/maquinas/{nombre_archivo}'
+            return JsonResponse({
+                'success': True,
+                'ruta': ruta_relativa
+            })
+            
+        except Exception as e:
+            logger.error(f"Error al subir imagen: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)

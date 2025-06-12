@@ -27,6 +27,7 @@
           <th>Stock mínimo</th>
           <th>Categoría</th>
           <th>Establecimiento</th>
+          <th>Imágen</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -40,6 +41,9 @@
           <td>{{ producto.stock_minimo }}</td>
           <td>{{ producto.categoria__nombre }}</td>
           <td>{{ producto.establecimiento__nombre }}</td>
+          <td>
+            <img src="{% static producto.imagen %}" alt="{{ producto.nombre }}" width="200">
+          </td>
           <td>
             <div class="action-buttons-container">
               <button class="filtro-btn" name="btn-editar-producto" data-id="{{ producto.id }}">Actualizar</button>
@@ -358,15 +362,18 @@
           
           <div class="form-fila">
             <label for="producto-categoria">Categoría:</label>
-            <select id="producto-categoria" 
-                    name="producto-categoria" 
-                    required
-                    title="Seleccione una categoría">
-              <option value="">Seleccione</option>
-              {% for categoria in categorias %}
-              <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
-              {% endfor %}
-            </select>
+            <div class="select-with-button">
+              <select id="producto-categoria" 
+                      name="producto-categoria" 
+                      required
+                      title="Seleccione una categoría">
+                <option value="">Seleccione</option>
+                {% for categoria in categorias %}
+                <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                {% endfor %}
+              </select>
+              <button type="button" class="filtro-btn" id="btn-nueva-categoria" onclick="abrirModalCategoriaDesdeProducto()">+</button>
+            </div>
           </div>
           
           <div class="form-fila">
@@ -381,6 +388,18 @@
               {% endfor %}
             </select>
           </div>
+
+          <div class="form-fila">
+            <label for="producto-imagen">Imágen:</label>
+            <div class="imagen-selector">
+              <input type="hidden" id="producto-imagen" name="producto-imagen">
+              <button type="button" class="filtro-btn" id="btn-seleccionar-imagen">Seleccionar Imagen</button>
+            </div>
+            <div id="vista-previa-imagen" class="vista-previa-imagen" style="display: none;">
+              <img src="" alt="Vista previa" style="max-width: 200px; max-height: 200px;">
+            </div>
+          </div>
+
           <div class="modal-actions">
             <button class="filtro-btn" type="submit">Agregar Producto</button>
             <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModal('producto')">Cancelar</button>
@@ -822,6 +841,18 @@
               {% endfor %}
             </select>
           </div>
+
+          <div class="form-fila">
+            <label for="producto-imagen-editar">Imágen:</label>
+            <div class="imagen-selector">
+              <input type="hidden" id="producto-imagen-editar" name="producto-imagen">
+              <button type="button" class="filtro-btn" id="btn-seleccionar-imagen-editar">Seleccionar Imagen</button>
+            </div>
+            <div id="vista-previa-imagen-editar" class="vista-previa-imagen" style="display: none;">
+              <img src="" alt="Vista previa" style="max-width: 200px; max-height: 200px;">
+            </div>
+          </div>
+          
           <div class="modal-actions">
             <button class="filtro-btn" type="submit">Actualizar Producto</button>
             <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModalEdicion('producto')">Cancelar</button>
@@ -1169,6 +1200,21 @@
             <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModalEdicion('proveedor')">Cancelar</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para selección de imágenes -->
+  <div id="modal-imagenes" class="modal-imagenes">
+    <div class="modal-imagenes-contenido">
+      <span class="cerrar-modal-imagenes">&times;</span>
+      <h3>Seleccionar Imagen</h3>
+      <div class="acciones-imagen">
+        <button type="button" class="filtro-btn" id="btn-subir-imagen">Subir Nueva Imagen</button>
+        <input type="file" id="input-subir-imagen" accept="image/*" style="display: none;">
+      </div>
+      <div class="galeria-imagenes" id="galeria-imagenes">
+        <!-- Las imágenes se cargarán dinámicamente con JavaScript -->
       </div>
     </div>
   </div>
