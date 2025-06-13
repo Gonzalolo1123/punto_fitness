@@ -810,7 +810,7 @@ def admin_vendedor_actualizar(request, vendedor_id):
         vendedor.nombre = data.get('nombre', vendedor.nombre)
         vendedor.telefono = data.get('telefono', vendedor.telefono)
         vendedor.email = data.get('email', vendedor.email)
-        vendedor.proveedor_id = data.get('proveedor', vendedor.proveedor_id)
+        vendedor.proveedor_id = data.get('proveedor_id', vendedor.proveedor_id)
         vendedor.save()
         
         # Obtener los datos con las relaciones

@@ -123,7 +123,9 @@
       </thead>
       <tbody>
         {% for compra in compras %}
-        <tr data-id="{{ compra.id }}">
+        <tr data-id="{{ compra.id }}" 
+            data-establecimiento-id="{{ compra.establecimiento_id }}"
+            data-vendedor-id="{{ compra.vendedor_id }}">
           <td>{{ compra.fecha|date:"Y-m-d" }}</td>
           <td>{{ compra.total }}</td>
           <td>{{ compra.iva }}</td>
@@ -167,7 +169,8 @@
       </thead>
       <tbody>
         {% for vendedor in vendedores %}
-        <tr data-id="{{ vendedor.id }}">
+        <tr data-id="{{ vendedor.id }}" 
+            data-proveedor-id="{{ vendedor.proveedor_id }}">
           <td>{{ vendedor.nombre }}</td>
           <td>{{ vendedor.telefono }}</td>
           <td>{{ vendedor.email }}</td>
@@ -212,7 +215,7 @@
       </thead>
       <tbody>
         {% for establecimiento in establecimientos %}
-        <tr data-id="{{ establecimiento.id }}">
+        <tr data-id="{{ establecimiento.id }}" data-proveedor-id="{{ establecimiento.proveedor_id }}">
           <td>{{ establecimiento.nombre }}</td>
           <td>{{ establecimiento.direccion }}</td>
           <td>{{ establecimiento.telefono }}</td>
@@ -819,15 +822,18 @@
           </div>
           <div class="form-fila">
             <label for="producto-categoria-editar">Categoría:</label>
-            <select id="producto-categoria-editar" 
-                    name="producto-categoria" 
-                    required
-                    title="Seleccione una categoría">
-              <option value="">Seleccione</option>
-              {% for categoria in categorias %}
-              <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
-              {% endfor %}
-            </select>
+            <div class="select-with-button">
+              <select id="producto-categoria-editar" 
+                      name="producto-categoria" 
+                      required
+                      title="Seleccione una categoría">
+                <option value="">Seleccione</option>
+                {% for categoria in categorias %}
+                <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                {% endfor %}
+              </select>
+              <button type="button" class="filtro-btn" id="btn-nueva-categoria-editar" onclick="abrirModalCategoriaDesdeProductoEditar()">+</button>
+            </div>
           </div>
           <div class="form-fila">
             <label for="producto-establecimiento-editar">Establecimiento:</label>
