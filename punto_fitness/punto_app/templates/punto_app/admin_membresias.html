@@ -1,0 +1,112 @@
+{% extends 'punto_app/base_admin.html' %}
+{% load static %}
+
+{% block title %}Membresías - Punto Fitness{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="{% static 'css/inventario.css' %}">
+<style>
+  .tabla-container {
+    margin: 20px;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
+  }
+  .boton-crear {
+    background-color: #e60000;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    margin: 20px;
+    cursor: pointer;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tabla-container">
+  <h2>Membresías</h2>
+  <button class="boton-crear" onclick="mostrarFormulario()">Crear Nueva Membresía</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Precio</th>
+        <th>Fecha Inicio</th>
+        <th>Fecha Fin</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for membresia in membresias %}
+      <tr>
+        <td>{{ membresia.nombre }}</td>
+        <td>{{ membresia.descripcion }}</td>
+        <td>${{ membresia.precio }}</td>
+        <td>{{ membresia.fecha_inicio }}</td>
+        <td>{{ membresia.fecha_fin }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal para crear membresía -->
+<div id="modalFormulario" style="display:none;">
+  <form id="formMembresia" method="POST" enctype="multipart/form-data" action="{% url 'admin_crear_membresia' %}">
+    {% csrf_token %}
+    <div style="padding: 20px;">
+      <label>Nombre:</label>
+      <input type="text" name="nombre" required><br><br>
+
+      <label>Descripción:</label>
+      <input type="text" name="descripcion" required><br><br>
+
+      <label>Precio:</label>
+      <input type="number" name="precio" required><br><br>
+
+      <label>Fecha Inicio:</label>
+      <input type="date" name="fecha_inicio" required><br><br>
+
+      <label>Fecha Fin:</label>
+      <input type="date" name="fecha_fin" required><br><br>
+
+      <label>Imagen:</label>
+      <input type="file" name="imagen" accept="image/*" required><br><br>
+
+      <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px;">Guardar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function mostrarFormulario() {
+    Swal.fire({
+      title: 'Crear Membresía',
+      html: document.getElementById('modalFormulario'),
+      showCancelButton: true,
+      focusConfirm: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        document.getElementById('modalFormulario').style.display = 'block';
+      },
+      willClose: () => {
+        document.getElementById('modalFormulario').style.display = 'none';
+      }
+    });
+  }
+</script>
+{% endblock %}

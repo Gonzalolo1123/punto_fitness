@@ -14,17 +14,45 @@ function getCSRFToken() {
   return csrfInput ? csrfInput.value : '';
 }
 
-// Función para mostrar formulario de edición
-function mostrarFormularioEdicion(id, id_tipo) {
-  document.querySelectorAll(`.form-edicion-${id_tipo}`).forEach(form => {
-    form.style.display = 'none';
-  });
-  document.getElementById(`form-editar-${id_tipo}-${id}`).style.display = 'table-row';
+// Función para mostrar formulario de edición (ahora abre el modal)
+function mostrarFormularioEdicion(id, id_tipo, fecha_realizacion = null) {
+  console.log(`🎯 Abriendo modal de edición para ${id_tipo} con ID: ${id}`);
+  console.log(`🔍 Buscando modal con ID: modal-fondo-editar-${id_tipo}-${id}`);
+  const modalFondo = document.getElementById(`modal-fondo-editar-${id_tipo}-${id}`);
+  if (modalFondo) {
+    modalFondo.style.display = 'flex';
+
+    // Si es un modal de curso y se pasó la fecha, establecer el valor del input de fecha
+    if (id_tipo === 'curso' && fecha_realizacion) {
+      const fechaInput = modalFondo.querySelector('[name="curso-fecha_realizacion"]');
+      if (fechaInput) {
+        fechaInput.value = fecha_realizacion;
+        console.log('Fecha establecida en el input del modal:', fecha_realizacion);
+      }
+    }
+
+    setTimeout(() => {
+      const primerInput = modalFondo.querySelector('input, select');
+      if (primerInput) {
+        primerInput.focus();
+      }
+    }, 100);
+  } else {
+    console.error(`❌ No se encontró el modal de edición para ${id_tipo} con ID: ${id}`);
+  }
 }
 
-// Función para ocultar formulario de edición
-function ocultarFormularioEdicion(id, id_tipo) {
-  document.getElementById(`form-editar-${id_tipo}-${id}`).style.display = 'none';
+// Función para ocultar formulario de edición (ahora cierra el modal)
+function cerrarModalEdicion(id_tipo, id) {
+  console.log(`🔒 Cerrando modal de edición para ${id_tipo} con ID: ${id}`);
+  const modalFondo = document.getElementById(`modal-fondo-editar-${id_tipo}-${id}`);
+  if (modalFondo) {
+    modalFondo.style.display = 'none';
+    const form = modalFondo.querySelector('form');
+    if (form) {
+      form.reset();
+    }
+  }
 }
 
 // Función para actualizar vista de datos
@@ -129,159 +157,41 @@ function eliminarInscripcion(id) {
   }).then(response => response.json());
 }
 
-////////////////////////////////////////////
-// FUNCIONES DE MANEJO DE EVENT LISTENERS //
-////////////////////////////////////////////
-
-// Creación de cursos de event listeners
-function manejoCrearCurso(e) {
-  e.preventDefault();
-
-  const formData = {
-    nombre: document.getElementById('curso-nombre').value,
-    cupos: document.getElementById('curso-cupos').value,
-    fecha_realizacion: document.getElementById('curso-fecha_realizacion').value,
-    estado: document.getElementById('curso-estado').value,
-    establecimiento_id: document.getElementById('curso-establecimiento').value,
-  };
-
-  crearCurso(formData)
-    .then(data => {
-      if (data.error) throw new Error(data.error);
-      alert('Curso creado exitosamente');
-      window.location.reload();
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Error al crear curso: ' + error.message);
-    });
-};
-
-// Creación de inscripciones de event listeners
-function manejoCrearInscripcion(e) {
-  e.preventDefault();
-  
-  const formData = {
-    usuario_id: document.getElementById('inscripcion-usuario').value,
-    curso_id: document.getElementById('inscripcion-curso').value,
-    fecha_inscripcion: document.getElementById('inscripcion-fecha_inscripcion').value,
-  };
-  
-  crearInscripcion(formData)
-    .then(data => {
-      if (data.error) throw new Error(data.error);
-      alert('Inscripción creada exitosamente');
-      window.location.reload();
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Error al crear inscripción: ' + error.message);
-    });
-};
-
 ////////////////////////////////////
 // INICIALIZACIÓN EVENT LISTENERS //
 ////////////////////////////////////
 
 function inicializarEventListeners() {
+  console.log('🔧 Inicializando event listeners de cursos...');
+
+  // Event listeners para formularios de creación
   const formCrearCurso = document.getElementById('form-crear-curso');
   const formCrearInscripcion = document.getElementById('form-crear-inscripcion');
+
   if (formCrearCurso) {
     formCrearCurso.addEventListener('submit', manejoCrearCurso);
   }
   if (formCrearInscripcion) {
     formCrearInscripcion.addEventListener('submit', manejoCrearInscripcion);
   }
-}
 
-///////////////////////////////////////////////
-// FUNCIONES DE FORMULARIOS DE ACTUALIZACIÓN //
-///////////////////////////////////////////////
-
-// Variable para identificar entre diferentes tablas
-let id_tipo;
-
-// Formularios de actualización de datos de curso
-document.querySelectorAll('[name="form-editar-curso"]').forEach(form => {
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const cursoId = this.dataset.id;
-    const formData = {
-      nombre: this.querySelector('[name="curso-nombre"]').value,
-      cupos: this.querySelector('[name="curso-cupos"]').value,
-      fecha_realizacion: this.querySelector('[name="curso-fecha_realizacion"]').value,
-      estado: this.querySelector('[name="curso-estado"]').value,
-      establecimiento_id: this.querySelector('[name="curso-establecimiento"]').value
-    };
-    
-    actualizarCurso(cursoId, formData)
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        id_tipo='curso';
-        actualizarVista(data, id_tipo);
-        ocultarFormularioEdicion(cursoId, id_tipo);
-        alert('Curso actualizado correctamente');
-        window.location.reload();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error al actualizar: ' + error.message);
-      });
-  });
-});
-
-// Formularios de actualización de datos de inscripción
-document.querySelectorAll('[name="form-editar-inscripcion"]').forEach(form => {
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const inscripcionId = this.dataset.id;
-    const formData = {
-      usuario_id: this.querySelector('[name="inscripcion-usuario"]').value,
-      curso_id: this.querySelector('[name="inscripcion-curso"]').value,
-      fecha_inscripcion: this.querySelector('[name="inscripcion-fecha_inscripcion"]').value
-    };
-    
-    actualizarInscripcion(inscripcionId, formData)
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        id_tipo='inscripcion';
-        actualizarVista(data, id_tipo);
-        ocultarFormularioEdicion(inscripcionId, id_tipo);
-        alert('Inscripción actualizado correctamente');
-        window.location.reload();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error al actualizar: ' + error.message);
-      });
-  });
-});
-
-////////////////////////
-// BOTONES DE EDICIÓN //
-////////////////////////
-
-// Boton editar curso
+  // Event listeners para botones de edición
 document.querySelectorAll('[name="btn-editar-curso"]').forEach(btn => {
   btn.addEventListener('click', function() {
-    id_tipo='curso';
-    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
+      const id = this.getAttribute('data-id');
+      const fecha = this.getAttribute('data-fecha');
+      mostrarFormularioEdicion(id, 'curso', fecha);
   });
 });
 
-// Boton editar inscripción
 document.querySelectorAll('[name="btn-editar-inscripcion"]').forEach(btn => {
   btn.addEventListener('click', function() {
-    id_tipo='inscripcion';
-    mostrarFormularioEdicion(this.getAttribute('data-id'), id_tipo);
+      const id = this.getAttribute('data-id');
+      mostrarFormularioEdicion(id, 'inscripcion');
   });
 });
 
-////////////////////////////
-// BOTONES DE ELIMINACIÓN //
-////////////////////////////
-
-// Boton eliminar curso
+  // Event listeners para botones de eliminación
 document.querySelectorAll('[name="btn-eliminar-curso"]').forEach(btn => {
   btn.addEventListener('click', function() {
     const id = this.getAttribute('data-id');
@@ -299,7 +209,6 @@ document.querySelectorAll('[name="btn-eliminar-curso"]').forEach(btn => {
   });
 });
 
-// Boton eliminar inscripción
 document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
   btn.addEventListener('click', function() {
     const id = this.getAttribute('data-id');
@@ -316,13 +225,334 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
   });
 });
 
-/////////////////////////////////////
-// BOTÓN DE CANCELACIÓN DE EDICIÓN //
-/////////////////////////////////////
+  // Event listeners para formularios de edición (usando delegación de eventos)
+  document.addEventListener('submit', function(e) {
+    if (e.target && e.target.matches('[name="form-editar-curso"]')) {
+      e.preventDefault();
+      const form = e.target; // Referencia al formulario que disparó el evento
+      const id = form.dataset.id;
+      
+      // Debug: verificar que el ID se obtiene correctamente
+      console.log('Curso ID obtenido:', id);
+      console.log('Tipo de id:', typeof id);
+      
+      if (!id || id === '') {
+        alert('Error: No se pudo obtener el ID del curso. Por favor, recarga la página.');
+        return;
+      }
+      
+      console.log('Evento submit disparado para el formulario con data-id:', id);
+      
+      const nombreInput = document.getElementById(`curso-nombre-editar-modal-${id}`);
+      const cuposInput = document.getElementById(`curso-cupos-editar-modal-${id}`);
+      const fechaInput = document.getElementById(`curso-fecha_realizacion-editar-modal-${id}`);
+      const establecimientoInput = document.getElementById(`curso-establecimiento-editar-modal-${id}`);
+      
+      // Debug: verificar que los campos se encuentran
+      console.log('Campos encontrados:', {
+        nombre: nombreInput,
+        cupos: cuposInput,
+        fecha: fechaInput,
+        establecimiento: establecimientoInput
+      });
+      
+      if (!nombreInput || !cuposInput || !fechaInput || !establecimientoInput) {
+        alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
+        return;
+      }
+      
+      const nombre = nombreInput.value;
+      const cupos = cuposInput.value;
+      const fecha_realizacion = fechaInput.value;
+      const establecimiento_id = establecimientoInput.value;
+      
+      console.log('Valor de establecimiento_id a enviar:', establecimiento_id);
 
-// Boton cancelar
-document.querySelectorAll('.btn-cancelar').forEach(btn => {
-  btn.addEventListener('click', function() {
-    ocultarFormularioEdicion(this.getAttribute('data-id'));
+      // Reintroducimos la validación de la fecha
+      if (!fecha_realizacion) {
+        alert('La fecha de realización es obligatoria');
+        return;
+      }
+      
+      console.log('Valor de fecha_realizacion a enviar (después de validación):', fecha_realizacion);
+
+      const formData = {
+        nombre: nombre,
+        cupos: cupos,
+        fecha_realizacion: fecha_realizacion,
+        establecimiento_id: establecimiento_id
+      };
+      
+      // Debug: verificar los datos del formulario
+      console.log('Datos del formulario de curso:', formData);
+      
+      actualizarCurso(id, formData)
+        .then(data => {
+          if (data.error) throw new Error(data.error);
+          actualizarVista(data, 'curso');
+          cerrarModalEdicion('curso', id);
+          alert('Curso actualizado correctamente');
+          window.location.reload();
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error al actualizar: ' + error.message);
+        });
+    }
+    
+    // Event listener para formularios de edición de inscripciones
+    if (e.target && e.target.matches('[name="form-editar-inscripcion"]')) {
+      e.preventDefault();
+      const form = e.target; // Referencia al formulario que disparó el evento
+      const id = form.dataset.id;
+      
+      // Debug: verificar que el ID se obtiene correctamente
+      console.log('🎯 Inscripción ID obtenido:', id);
+      console.log('🎯 Tipo de id:', typeof id);
+      console.log('🎯 Formulario completo:', form);
+      
+      if (!id || id === '') {
+        alert('Error: No se pudo obtener el ID de la inscripción. Por favor, recarga la página.');
+        return;
+      }
+      
+      console.log('🎯 Evento submit disparado para el formulario de inscripción con data-id:', id);
+      
+      // Usar los nombres correctos de los campos del modal de edición
+      const usuarioSelect = document.getElementById(`inscripcion-usuario-editar-modal-${id}`);
+      const cursoSelect = document.getElementById(`inscripcion-curso-editar-modal-${id}`);
+      
+      // Debug: verificar que los campos se encuentran
+      console.log('🎯 Campos encontrados:', {
+        usuario: usuarioSelect,
+        curso: cursoSelect
+      });
+      
+      if (!usuarioSelect || !cursoSelect) {
+        console.error('❌ No se pudieron encontrar los campos del formulario');
+        console.error('❌ Buscando campos con IDs:');
+        console.error(`❌ inscripcion-usuario-editar-modal-${id}`);
+        console.error(`❌ inscripcion-curso-editar-modal-${id}`);
+        alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
+        return;
+      }
+      
+      const usuario_id = usuarioSelect.value;
+      const curso_id = cursoSelect.value;
+      
+      console.log('🎯 Valores obtenidos:', {
+        usuario_id: usuario_id,
+        curso_id: curso_id
+      });
+      
+      if (!usuario_id || !curso_id) {
+        alert('Error: Debe seleccionar tanto el usuario como el curso.');
+        return;
+      }
+      
+      const formData = {
+        usuario_id: usuario_id,
+        curso_id: curso_id
+      };
+      
+      // Debug: verificar los datos del formulario
+      console.log('🎯 Datos del formulario de inscripción:', formData);
+      
+      actualizarInscripcion(id, formData)
+        .then(data => {
+          if (data.error) throw new Error(data.error);
+          actualizarVista(data, 'inscripcion');
+          cerrarModalEdicion('inscripcion', id);
+          alert('Inscripción actualizada correctamente');
+          window.location.reload();
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error al actualizar: ' + error.message);
+        });
+    }
   });
-});
+
+  // Modal Functionality
+  inicializarModales();
+  
+  console.log('✅ Event listeners de cursos inicializados correctamente');
+}
+
+///////////////////////////
+// FUNCIONALIDAD MODALES //
+///////////////////////////
+
+function inicializarModales() {
+  console.log('🎭 Inicializando modales de cursos...');
+
+  // Botones para abrir modales de creación
+  const botonesModalesCreacion = {
+    'curso': document.getElementById('abrir-form-curso'),
+    'inscripcion': document.getElementById('abrir-form-inscripcion')
+  };
+
+  // Event listeners para botones de abrir modal de creación
+  Object.entries(botonesModalesCreacion).forEach(([tipo, boton]) => {
+    if (boton) {
+      boton.addEventListener('click', function() {
+        console.log(`🎯 Botón abrir modal ${tipo} clickeado`);
+        const estado = this.getAttribute('data-estado');
+        
+        if (estado === 'cerrado') {
+          abrirModal(tipo, this);
+        } else {
+          cerrarModal(tipo, this);
+        }
+      });
+    }
+  });
+
+  // Event listeners para cerrar modales de creación con click en fondo
+  Object.keys(botonesModalesCreacion).forEach(tipo => {
+    const modalFondo = document.getElementById(`modal-fondo-${tipo}`);
+    if (modalFondo) {
+      modalFondo.addEventListener('click', function(event) {
+        if (event.target === modalFondo) {
+          console.log(`🖱️ Click en fondo del modal ${tipo}, cerrando...`);
+          cerrarModal(tipo);
+        }
+      });
+    }
+  });
+
+  // Event listeners para cerrar modales de edición con click en fondo
+  document.querySelectorAll('.modal-fondo[id^="modal-fondo-editar-"]').forEach(modalFondo => {
+    modalFondo.addEventListener('click', function(event) {
+      if (event.target === modalFondo) {
+        console.log(`🖱️ Click en fondo del modal de edición, cerrando...`);
+        const id_parts = modalFondo.id.split('-');
+        const id_tipo = id_parts[2];
+        const id = id_parts[id_parts.length - 1];
+        cerrarModalEdicion(id_tipo, id);
+      }
+    });
+  });
+
+  // Event listener para cerrar modales con ESC
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      const modalAbiertoCreacion = document.querySelector('.modal-fondo[id^="modal-fondo-"][style*="flex"]');
+      const modalAbiertoEdicion = document.querySelector('.modal-fondo[id^="modal-fondo-editar-"][style*="flex"]');
+
+      if (modalAbiertoCreacion) {
+        const tipo = modalAbiertoCreacion.id.replace('modal-fondo-', '');
+        console.log(`⌨️ Tecla ESC presionada, cerrando modal ${tipo}...`);
+        cerrarModal(tipo);
+      } else if (modalAbiertoEdicion) {
+        const id_parts = modalAbiertoEdicion.id.split('-');
+        const id_tipo = id_parts[2];
+        const id = id_parts[id_parts.length - 1];
+        console.log(`⌨️ Tecla ESC presionada, cerrando modal de edición ${id_tipo} con ID: ${id}...`);
+        cerrarModalEdicion(id_tipo, id);
+      }
+    }
+  });
+
+  console.log('✅ Modales de cursos inicializados correctamente');
+}
+
+// Función para abrir modal de creación
+function abrirModal(tipo, boton = null) {
+  console.log(`🔓 Abriendo modal ${tipo}...`);
+  
+  const modalFondo = document.getElementById(`modal-fondo-${tipo}`);
+  const botonAbrir = boton || document.getElementById(`abrir-form-${tipo}`);
+  
+  if (modalFondo && botonAbrir) {
+    modalFondo.style.display = 'flex';
+    botonAbrir.setAttribute('data-estado', 'abierto');
+    botonAbrir.textContent = '-';
+    
+    // Enfocar el primer input
+    setTimeout(() => {
+      const primerInput = modalFondo.querySelector('input, select');
+      if (primerInput) {
+        primerInput.focus();
+      }
+    }, 100);
+    
+    console.log(`✅ Modal ${tipo} abierto correctamente`);
+  } else {
+    console.error(`❌ No se encontró el modal o botón para ${tipo}`);
+  }
+}
+
+// Función para cerrar modal de creación
+function cerrarModal(tipo, boton = null) {
+  console.log(`🔒 Cerrando modal ${tipo}...`);
+  
+  const modalFondo = document.getElementById(`modal-fondo-${tipo}`);
+  const botonAbrir = boton || document.getElementById(`abrir-form-${tipo}`);
+  
+  if (modalFondo && botonAbrir) {
+    modalFondo.style.display = 'none';
+    botonAbrir.setAttribute('data-estado', 'cerrado');
+    botonAbrir.textContent = '+';
+    
+    // Limpiar el formulario
+    const form = modalFondo.querySelector('form');
+    if (form) {
+      form.reset();
+    }
+    
+    console.log(`✅ Modal ${tipo} cerrado correctamente`);
+  } else {
+    console.error(`❌ No se encontró el modal o botón para ${tipo}`);
+  }
+}
+
+////////////////////////////////////////////
+// FUNCIONES DE MANEJO DE EVENT LISTENERS //
+////////////////////////////////////////////
+
+// Creación de cursos de event listeners
+function manejoCrearCurso(e) {
+  e.preventDefault();
+
+  const formData = {
+    nombre: document.getElementById('curso-nombre-modal').value,
+    cupos: document.getElementById('curso-cupos-modal').value,
+    fecha_realizacion: document.getElementById('curso-fecha_realizacion-modal').value,
+    establecimiento_id: document.getElementById('curso-establecimiento-modal').value,
+  };
+
+  crearCurso(formData)
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      alert('Curso creado exitosamente');
+      cerrarModal('curso');
+      window.location.reload();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error al crear curso: ' + error.message);
+    });
+}
+
+// Creación de inscripciones de event listeners
+function manejoCrearInscripcion(e) {
+  e.preventDefault();
+  
+  const formData = {
+    usuario_id: document.getElementById('inscripcion-usuario-modal').value,
+    curso_id: document.getElementById('inscripcion-curso-modal').value,
+  };
+  
+  crearInscripcion(formData)
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      alert('Inscripción creada exitosamente');
+      cerrarModal('inscripcion');
+      window.location.reload();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error al crear inscripción: ' + error.message);
+    });
+}

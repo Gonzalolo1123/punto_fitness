@@ -115,6 +115,7 @@ class Producto(models.Model):
     compra = models.ForeignKey(CompraVendedor, on_delete=models.CASCADE)
     categoria = models.ForeignKey(CategoriaProducto, on_delete=models.CASCADE)
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+    imagen = models.CharField(max_length=200, null=True, blank=True)
 
     class Meta:
         db_table = 'producto'
@@ -157,12 +158,19 @@ class DetalleVenta(models.Model):
 
 
 class Membresia(models.Model):
+    DURACIONES = [
+        ('semanal', 'Semanal'),
+        ('mensual', 'Mensual'),
+        ('anual', 'Anual'),
+        ('personalizada', 'Personalizada'),
+    ]
+
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
     precio = models.IntegerField()
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
+    duracion = models.CharField(max_length=15, choices=DURACIONES)
+    dias_por_semana = models.IntegerField(null=True, blank=True)  # Para "3 veces por semana", etc.
 
     class Meta:
         db_table = 'membresia'
@@ -185,7 +193,7 @@ class Maquina(models.Model):
     descripcion = models.CharField(max_length=100)
     cantidad = models.IntegerField()
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
-    
+    imagen = models.CharField(max_length=200, null=True, blank=True)
     class Meta:
         db_table = 'maquina'
         
@@ -193,7 +201,7 @@ class Curso(models.Model):
     nombre = models.CharField(max_length=30)
     cupos = models.IntegerField()
     fecha_realizacion = models.DateField()
-    estado = models.CharField(max_length=30, default='Pendiente')
+    estado = models.CharField(max_length=30, default='Activo')
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
 
     class Meta:

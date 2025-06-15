@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 import json
 import re
-from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor
+from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor,DetalleVenta,VentaCliente,Membresia,ClienteMembresia
 from django.contrib.auth.hashers import check_password
 from .decorators import requiere_admin, requiere_superadmin
 # Funcionamiento CRUD
@@ -17,6 +17,9 @@ import logging
 from django.db.models import Count, OuterRef, Subquery, IntegerField, Exists
 from django.db.models.functions import Coalesce
 from django.utils.timezone import localtime
+import os
+from django.conf import settings
+import time
 logger = logging.getLogger('punto_app')
 
 # Create your views here.
@@ -228,12 +231,13 @@ def admin_usuario_crear(request):
         if Cliente.objects.filter(telefono__iexact=telefono_str).exists():
             return JsonResponse({'error': '¡Ya existe un usuario con este teléfono!'}, status=400)
         
-        # Crear el usuario con datos limpios
+        # Crear el usuario con datos limpios y contraseña por defecto
         usuario = Cliente.objects.create(
             nombre=data['nombre'].strip().title(),
             apellido=data['apellido'].strip().title(),
             email=data['correo'].lower().strip(),
-            telefono=int(telefono_str)
+            telefono=int(telefono_str),
+            contrasena=make_password('123456')  # Contraseña por defecto
         )
         
         return JsonResponse({
@@ -307,11 +311,14 @@ def admin_usuario_actualizar(request, usuario_id):
         usuario.save()
         
         return JsonResponse({
-            'id': usuario.id,
-            'nombre': usuario.nombre,
-            'apellido': usuario.apellido,
-            'correo': usuario.email,
-            'telefono': usuario.telefono
+            'success': True,
+            'data': {
+                'id': usuario.id,
+                'nombre': usuario.nombre,
+                'apellido': usuario.apellido,
+                'correo': usuario.email,
+                'telefono': usuario.telefono
+            }
         })
         
     except json.JSONDecodeError:
@@ -336,7 +343,7 @@ def inventario(request):
     productos = Producto.objects.select_related('compra', 'categoria', 'establecimiento').values(
         'id', 'nombre', 'descripcion', 'precio', 'stock_actual', 'stock_minimo', 
         'compra_id', 'categoria_id', 'establecimiento_id',
-        'compra__fecha', 'compra__total', 'categoria__nombre', 'establecimiento__nombre'
+        'compra__fecha', 'compra__total', 'categoria__nombre', 'establecimiento__nombre', 'imagen'
     )
     categorias = CategoriaProducto.objects.values('id', 'nombre', 'descripcion')
 
@@ -387,8 +394,8 @@ def admin_producto_crear(request):
         if Producto.objects.filter(nombre__iexact=data['nombre']).exists():
             return JsonResponse({'error': '¡Ya existe un producto con este nombre!'}, status=400)
         
-        if Producto.objects.filter(descripcion__iexact=data['descripcion']).exists():
-            return JsonResponse({'error': '¡Ya existe un producto con esta descripción!'}, status=400)
+        ##if Producto.objects.filter(descripcion__iexact=data['descripcion']).exists():
+            ##return JsonResponse({'error': '¡Ya existe un producto con esta descripción!'}, status=400)
         
         # Validar que los IDs no sean nulos o vacíos
         if not data.get('categoria_id') or data['categoria_id'] == '':
@@ -399,6 +406,12 @@ def admin_producto_crear(request):
         
         if not data.get('establecimiento_id') or data['establecimiento_id'] == '':
             return JsonResponse({'error': 'Debe seleccionar un establecimiento'}, status=400)
+
+        if not data.get('imagen') or data['imagen'] == '':
+            return JsonResponse({'error': 'Debe proporcionar una ruta de imagen'}, status=400)
+
+        if not data['imagen'].startswith('images/productos/'):
+            return JsonResponse({'error': 'La imagen debe estar en la carpeta images/productos/'}, status=400)
         
         producto = Producto.objects.create(
             nombre=data['nombre'],
@@ -408,7 +421,8 @@ def admin_producto_crear(request):
             stock_minimo=data['stock_minimo'],
             compra_id=data['compra_id'],
             categoria_id=data['categoria_id'],
-            establecimiento_id=data['establecimiento_id']
+            establecimiento_id=data['establecimiento_id'],
+            imagen=data['imagen']
         )
         
         print(f"✅ Producto creado exitosamente: {producto.id}")
@@ -435,26 +449,27 @@ def admin_producto_crear(request):
         print(f"💥 Error al crear producto: {str(e)}")
         return JsonResponse({'error': str(e)}, status=400)
 
+        
 @csrf_exempt
 def admin_producto_actualizar(request, producto_id):
     try:
         producto = get_object_or_404(Producto, pk=producto_id)
         data = json.loads(request.body)
         
-        # Validaciones de unicidad excluyendo al producto actual
-        if 'nombre' in data and data['nombre'] != producto.nombre:
-            if Producto.objects.filter(nombre__iexact=data['nombre']).exclude(id=producto_id).exists():
-                return JsonResponse({'error': '¡Ya existe un producto con este nombre!'}, status=400)
-        
-        if 'descripcion' in data and data['descripcion'] != producto.descripcion:
-            if Producto.objects.filter(descripcion__iexact=data['descripcion']).exclude(id=producto_id).exists():
-                return JsonResponse({'error': '¡Ya existe un producto con esta descripción!'}, status=400)
+        # Validar la imagen si se proporciona
+        if 'imagen' in data and data['imagen']:
+            if not data['imagen'].startswith('images/productos/'):
+                return JsonResponse({'error': 'La imagen debe estar en la carpeta images/productos/'}, status=400)
         
         producto.nombre = data.get('nombre', producto.nombre)
         producto.descripcion = data.get('descripcion', producto.descripcion)
         producto.precio = data.get('precio', producto.precio)
         producto.stock_actual = data.get('stock_actual', producto.stock_actual)
         producto.stock_minimo = data.get('stock_minimo', producto.stock_minimo)
+        producto.imagen = data.get('imagen', producto.imagen)
+        producto.categoria_id = data.get('categoria_id', producto.categoria_id)
+        producto.compra_id = data.get('compra', producto.compra_id)
+        producto.establecimiento_id = data.get('establecimiento_id', producto.establecimiento_id)
         producto.save()
         
         # Obtener los datos con las relaciones
@@ -470,6 +485,7 @@ def admin_producto_actualizar(request, producto_id):
             'compra_id': producto.compra_id,
             'categoria_id': producto.categoria_id,
             'establecimiento_id': producto.establecimiento_id,
+            'imagen': producto.imagen,
             'compra__fecha': producto_con_relaciones.compra.fecha.strftime('%Y-%m-%d'),
             'compra__total': producto_con_relaciones.compra.total,
             'categoria__nombre': producto_con_relaciones.categoria.nombre,
@@ -613,11 +629,16 @@ def cancelar_inscripcion(request):
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 def maquinas(request):
-    return render(request,'punto_app/maquinas.html', {'maquinas': range(1, 9)})
+    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id', 'imagen')
+    establecimientos = Establecimiento.objects.values('id', 'nombre')
+    return render(request, 'punto_app/maquinas.html', {
+        'maquinas': maquinas,
+        'establecimientos': establecimientos
+    })
 
 @requiere_admin
 def admin_maquinas(request):
-    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id')
+    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id', 'imagen')
     establecimientos = Establecimiento.objects.values('id', 'nombre')
     return render(request, 'punto_app/admin_maquinas.html', {
         'maquinas': maquinas,
@@ -639,13 +660,15 @@ def admin_maquina_crear(request):
             nombre=data['nombre'],
             descripcion=data['descripcion'],
             cantidad=data.get('cantidad', 1),
-            establecimiento_id=data['establecimiento_id']
+            establecimiento_id=data['establecimiento_id'],
+            imagen=data.get('imagen')
         )
         return JsonResponse({
             'id': maquina.id,
             'nombre': maquina.nombre,
             'descripcion': maquina.descripcion,
-            'cantidad': maquina.cantidad
+            'cantidad': maquina.cantidad,
+            'imagen': maquina.imagen
         }, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -668,6 +691,8 @@ def admin_maquina_actualizar(request, maquina_id):
         maquina.nombre = data.get('nombre', maquina.nombre)
         maquina.descripcion = data.get('descripcion', maquina.descripcion)
         maquina.cantidad = data.get('cantidad', maquina.cantidad)
+        maquina.establecimiento_id = data.get('establecimiento_id', maquina.establecimiento_id)
+        maquina.imagen = data.get('imagen', maquina.imagen)
         maquina.save()
         
         return JsonResponse({
@@ -675,6 +700,8 @@ def admin_maquina_actualizar(request, maquina_id):
             'nombre': maquina.nombre,
             'descripcion': maquina.descripcion,
             'cantidad': maquina.cantidad,
+            'establecimiento_id': maquina.establecimiento_id,
+            'imagen': maquina.imagen
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -688,7 +715,84 @@ def admin_maquina_borrar(request, maquina_id):
         return JsonResponse({'message': 'Máquina eliminada correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+
+@csrf_exempt
+def obtener_imagenes_maquinas(request):
+    if request.method == "GET":
+        try:
+            # Ruta a la carpeta de imágenes de máquinas
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
+            
+            # Obtener lista de archivos de imagen
+            imagenes = []
+            if os.path.exists(ruta_imagenes):
+                for archivo in os.listdir(ruta_imagenes):
+                    if archivo.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                        # Asegurarnos de que la ruta sea relativa a static
+                        imagenes.append(f'images/maquinas/{archivo}')
+            
+            return JsonResponse({
+                'imagenes': imagenes
+            })
+        except Exception as e:
+            logger.error(f"Error al obtener imágenes: {str(e)}")
+            return JsonResponse({
+                'error': str(e)
+            }, status=500)
+    
+    return JsonResponse({
+        'error': 'Método no permitido'
+    }, status=405)
+
+@csrf_exempt
+def subir_imagen_maquina(request):
+    if request.method == "POST":
+        try:
+            if 'imagen' not in request.FILES:
+                return JsonResponse({'error': 'No se ha proporcionado ninguna imagen'}, status=400)
+            
+            imagen = request.FILES['imagen']
+            
+            # Validar el tipo de archivo
+            if not imagen.content_type.startswith('image/'):
+                return JsonResponse({'error': 'El archivo debe ser una imagen'}, status=400)
+            
+            # Validar la extensión
+            extension = os.path.splitext(imagen.name)[1].lower()
+            if extension not in ['.png', '.jpg', '.jpeg', '.gif']:
+                return JsonResponse({'error': 'Formato de imagen no permitido'}, status=400)
+            
+            # Crear el directorio si no existe
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
+            os.makedirs(ruta_imagenes, exist_ok=True)
+            
+            # Generar un nombre único para el archivo
+            nombre_archivo = f"{int(time.time())}_{imagen.name}"
+            ruta_completa = os.path.join(ruta_imagenes, nombre_archivo)
+            
+            # Guardar la imagen
+            with open(ruta_completa, 'wb+') as destino:
+                for chunk in imagen.chunks():
+                    destino.write(chunk)
+            
+            # Devolver la ruta relativa de la imagen
+            ruta_relativa = f'images/maquinas/{nombre_archivo}'
+            return JsonResponse({
+                'success': True,
+                'ruta': ruta_relativa
+            })
+            
+        except Exception as e:
+            logger.error(f"Error al subir imagen: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
 def estadisticas(request):
+    clientes = Cliente.objects.all()
+    Venta_Cliente = VentaCliente.objects.all()
+    Detalle_Venta = DetalleVenta.objects.all()
     return render(request, 'punto_app/estadisticas.html')
 @csrf_exempt
 def admin_compra_vendedor_crear(request):
@@ -796,7 +900,7 @@ def admin_vendedor_actualizar(request, vendedor_id):
         vendedor.nombre = data.get('nombre', vendedor.nombre)
         vendedor.telefono = data.get('telefono', vendedor.telefono)
         vendedor.email = data.get('email', vendedor.email)
-        vendedor.proveedor_id = data.get('proveedor_id', vendedor.proveedor_id)
+        vendedor.proveedor_id = data.get('proveedor', vendedor.proveedor_id)
         vendedor.save()
         
         # Obtener los datos con las relaciones
@@ -867,25 +971,25 @@ def admin_establecimiento_actualizar(request, establecimiento_id):
         establecimiento.email = data.get('email', establecimiento.email)
         establecimiento.horario_apertura = data.get('horario_apertura', establecimiento.horario_apertura)
         establecimiento.horario_cierre = data.get('horario_cierre', establecimiento.horario_cierre)
-        establecimiento.proveedor_id = data.get('proveedor_id', establecimiento.proveedor_id)
+        establecimiento.proveedor_id = data.get('proveedor', establecimiento.proveedor_id)
         establecimiento.save()
         
-        # Obtener los datos con las relaciones
-        establecimiento_con_relaciones = Establecimiento.objects.select_related('proveedor').get(id=establecimiento.id)
-        
         return JsonResponse({
-            'id': establecimiento.id,
-            'nombre': establecimiento.nombre,
-            'direccion': establecimiento.direccion,
-            'telefono': establecimiento.telefono,
-            'email': establecimiento.email,
-            'horario_apertura': establecimiento.horario_apertura,
-            'horario_cierre': establecimiento.horario_cierre,
-            'proveedor_id': establecimiento.proveedor_id,
-            'proveedor__nombre': establecimiento_con_relaciones.proveedor.nombre
+            'success': True,
+            'data': {
+                'id': establecimiento.id,
+                'nombre': establecimiento.nombre,
+                'direccion': establecimiento.direccion,
+                'telefono': establecimiento.telefono,
+                'email': establecimiento.email,
+                'horario_apertura': establecimiento.horario_apertura,
+                'horario_cierre': establecimiento.horario_cierre,
+                'proveedor_id': establecimiento.proveedor_id,
+                'proveedor__nombre': establecimiento.proveedor.nombre
+            }
         })
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
     
 @csrf_exempt   
 def admin_establecimiento_borrar(request, establecimiento_id):
@@ -928,13 +1032,16 @@ def admin_proveedor_actualizar(request, proveedor_id):
         proveedor.save()
         
         return JsonResponse({
-            'id': proveedor.id,
-            'nombre': proveedor.nombre,
-            'telefono': proveedor.telefono,
-            'email': proveedor.email,
+            'success': True,
+            'data': {
+                'id': proveedor.id,
+                'nombre': proveedor.nombre,
+                'telefono': proveedor.telefono,
+                'email': proveedor.email,
+            }
         })
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
    
     
 @csrf_exempt   
@@ -963,7 +1070,6 @@ def admin_curso_crear(request):
             nombre=data['nombre'],
             cupos=data['cupos'],
             fecha_realizacion=data['fecha_realizacion'],
-            estado=data['estado'],
             establecimiento_id=data['establecimiento_id']
         )
         return JsonResponse({
@@ -971,7 +1077,6 @@ def admin_curso_crear(request):
             'nombre': curso.nombre,
             'cupos': curso.cupos,
             'fecha_realizacion': curso.fecha_realizacion,
-            'estado': curso.estado,
             'establecimiento_id': curso.establecimiento_id
         }, status=201)
     except Exception as e:
@@ -983,9 +1088,14 @@ def admin_curso_actualizar(request, curso_id):
         curso = get_object_or_404(Curso, pk=curso_id)
         data = json.loads(request.body)
         
+        # Validar que la fecha de realización no esté vacía
+        fecha_realizacion = data.get('fecha_realizacion')
+        if not fecha_realizacion:
+            return JsonResponse({'error': 'La fecha de realización es obligatoria'}, status=400)
+        
         curso.nombre = data.get('nombre', curso.nombre)
         curso.cupos = data.get('cupos', curso.cupos)
-        curso.fecha_realizacion = data.get('fecha_realizacion', curso.fecha_realizacion)
+        curso.fecha_realizacion = fecha_realizacion
         curso.estado = data.get('estado', curso.estado)
         curso.establecimiento_id = data.get('establecimiento_id', curso.establecimiento_id)
         curso.save()
@@ -1036,9 +1146,45 @@ def admin_inscripcion_actualizar(request, inscripcion_id):
         inscripcion = get_object_or_404(Inscripcion, pk=inscripcion_id)
         data = json.loads(request.body)
         
+        # Validar que los campos requeridos no estén vacíos
+        if 'usuario_id' in data:
+            if not data['usuario_id']:
+                return JsonResponse({'error': 'El usuario es requerido'}, status=400)
+        else:
+            return JsonResponse({'error': 'El usuario es requerido'}, status=400)
+        
+        if 'curso_id' in data:
+            if not data['curso_id']:
+                return JsonResponse({'error': 'El curso es requerido'}, status=400)
+        else:
+            return JsonResponse({'error': 'El curso es requerido'}, status=400)
+        
+        # Validar que el usuario existe
+        if 'usuario_id' in data:
+            try:
+                Cliente.objects.get(id=data['usuario_id'])
+            except Cliente.DoesNotExist:
+                return JsonResponse({'error': 'El usuario seleccionado no existe'}, status=400)
+        
+        # Validar que el curso existe
+        if 'curso_id' in data:
+            try:
+                Curso.objects.get(id=data['curso_id'])
+            except Curso.DoesNotExist:
+                return JsonResponse({'error': 'El curso seleccionado no existe'}, status=400)
+        
+        # Validar que no existe otra inscripción del mismo usuario al mismo curso
+        if 'usuario_id' in data and 'curso_id' in data:
+            inscripcion_existente = Inscripcion.objects.filter(
+                usuario_id=data['usuario_id'],
+                curso_id=data['curso_id']
+            ).exclude(id=inscripcion_id).first()
+            
+            if inscripcion_existente:
+                return JsonResponse({'error': 'El usuario ya está inscrito en este curso'}, status=400)
+        
         inscripcion.usuario_id = data.get('usuario_id', inscripcion.usuario_id)
         inscripcion.curso_id = data.get('curso_id', inscripcion.curso_id)
-        inscripcion.fecha_inscripcion = data.get('fecha_inscripcion', inscripcion.fecha_inscripcion)
         inscripcion.save()
         
         return JsonResponse({
@@ -1049,7 +1195,7 @@ def admin_inscripcion_actualizar(request, inscripcion_id):
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-    
+
 @csrf_exempt
 @requiere_admin
 def admin_inscripcion_borrar(request, inscripcion_id):
@@ -1381,3 +1527,192 @@ def recuperar_contrasena(request):
             return JsonResponse({'error': str(e)}, status=400)
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+def obtener_imagenes_productos(request):
+    if request.method == "GET":
+        try:
+            # Ruta a la carpeta de imágenes de productos
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'productos')
+            
+            # Obtener lista de archivos de imagen
+            imagenes = []
+            if os.path.exists(ruta_imagenes):
+                for archivo in os.listdir(ruta_imagenes):
+                    if archivo.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                        # Asegurarnos de que la ruta sea relativa a static
+                        imagenes.append(f'images/productos/{archivo}')
+            
+            return JsonResponse({
+                'imagenes': imagenes
+            })
+        except Exception as e:
+            logger.error(f"Error al obtener imágenes: {str(e)}")
+            return JsonResponse({
+                'error': str(e)
+            }, status=500)
+    
+    return JsonResponse({
+        'error': 'Método no permitido'
+    }, status=405)
+
+@csrf_exempt
+def subir_imagen_producto(request):
+    if request.method == "POST":
+        try:
+            if 'imagen' not in request.FILES:
+                return JsonResponse({'error': 'No se ha proporcionado ninguna imagen'}, status=400)
+            
+            imagen = request.FILES['imagen']
+            
+            # Validar el tipo de archivo
+            if not imagen.content_type.startswith('image/'):
+                return JsonResponse({'error': 'El archivo debe ser una imagen'}, status=400)
+            
+            # Validar la extensión
+            extension = os.path.splitext(imagen.name)[1].lower()
+            if extension not in ['.png', '.jpg', '.jpeg', '.gif']:
+                return JsonResponse({'error': 'Formato de imagen no permitido'}, status=400)
+            
+            # Crear el directorio si no existe
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'productos')
+            os.makedirs(ruta_imagenes, exist_ok=True)
+            
+            # Generar un nombre único para el archivo
+            nombre_archivo = f"{int(time.time())}_{imagen.name}"
+            ruta_completa = os.path.join(ruta_imagenes, nombre_archivo)
+            
+            # Guardar la imagen
+            with open(ruta_completa, 'wb+') as destino:
+                for chunk in imagen.chunks():
+                    destino.write(chunk)
+            
+            # Devolver la ruta relativa de la imagen
+            ruta_relativa = f'images/productos/{nombre_archivo}'
+            return JsonResponse({
+                'success': True,
+                'ruta': ruta_relativa
+            })
+            
+        except Exception as e:
+            logger.error(f"Error al subir imagen: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def venta_producto (request):
+    productos = Producto.objects.all()
+    categorias = CategoriaProducto.objects.all()
+    return render(request, 'punto_app/ventaproducto.html',{'productos': productos,'categorias': categorias})
+
+
+@csrf_exempt
+def finalizar_compra(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            print("🛒 Datos recibidos del carrito:")
+
+            productos_voucher = []
+            total_general = 0
+
+            for producto_data in data.get('productos', []):
+                producto_id = producto_data.get('id')
+                cantidad = int(producto_data.get('quantity'))
+                precio = float(producto_data.get('price'))
+
+                # Buscar producto en la base de datos
+                try:
+                    producto = Producto.objects.get(id=producto_id)
+                except Producto.DoesNotExist:
+                    return JsonResponse({'mensaje': f'Producto con ID {producto_id} no encontrado'}, status=404)
+
+                # Verificar stock suficiente
+                if producto.stock_actual < cantidad:
+                    return JsonResponse({'mensaje': f'Stock insuficiente para {producto.nombre}'}, status=400)
+
+
+                # Agregar al resumen del voucher
+                total = precio * cantidad
+                total_general += total
+
+                productos_voucher.append({
+                    'nombre': producto.nombre,
+                    'precio_unitario': precio,
+                    'cantidad': cantidad,
+                    'total_producto': round(total, 2)
+                })
+
+            # Resumen general
+            voucher = {
+                'fecha': timezone.now().strftime('%Y-%m-%d'),
+                'hora':timezone.now().strftime('%H:%M:%S'),
+                'productos': productos_voucher,
+                'total_general': round(total_general, 2)
+            }
+
+            print("\n📄 Voucher generado:")
+            for p in voucher['productos']:
+                print(f"Producto: {p['nombre']}, Cantidad: {p['cantidad']}, Precio: {p['precio_unitario']}, Total: {p['total_producto']}")
+            print(f"🕒 Fecha: {voucher['fecha']}")
+            print(f"💰 Total general de la compra: {voucher['total_general']}")
+
+            return JsonResponse({'mensaje': 'Compra finalizada', 'voucher': voucher})
+
+        except Exception as e:
+            print("❌ Error al procesar la compra:", e)
+            return JsonResponse({'mensaje': 'Error en la compra'}, status=400)
+
+    return JsonResponse({'mensaje': 'Método no permitido'}, status=405)
+
+def mostrar_voucher(request):
+    if request.method == 'POST':
+        try:
+            clientes=list(Cliente.objects.values('id','nombre','apellido','email','telefono'))
+            voucher_data = json.loads(request.POST.get('voucher_data'))
+            return render(request, 'punto_app/voucher_venta.html', {'voucher': voucher_data,'clientes':json.dumps(clientes)})
+        except Exception as e:
+            return render(request, 'error.html', {'mensaje': 'Error al mostrar voucher.'})
+    return render(request, 'error.html', {'mensaje': 'Método no permitido.'})
+
+@csrf_exempt
+def venta_confirmada(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        documento = request.POST.get('documento')
+        telefono = request.POST.get('telefono')
+        email = request.POST.get('email')
+        metodo_pago = request.POST.get('metodo_pago')
+        productos_json = request.POST.get('productos_json')
+        cliente_id = request.POST.get('cliente_id', '00')  # Default '00' si no viene
+
+        productos = json.loads(productos_json)
+        print("======= DATOS DEL CLIENTE Y COMPRA =======")
+        print(f"ID Cliente: {cliente_id}")
+        print(f"Nombre: {nombre}")
+        print(f"Documento: {documento}")
+        print(f"Teléfono: {telefono}")
+        print(f"Email: {email}")
+        print(f"Método de Pago: {metodo_pago}")
+        print("======= PRODUCTOS =======")
+        for i, prod in enumerate(productos, 1):
+            print(f"{i}. Producto: {prod.get('nombre_codigo')}")
+            print(f"   Cantidad: {prod.get('cantidad')}")
+            print(f"   Precio Unitario: {prod.get('precio_unitario')}")
+            print(f"   Subtotal: {prod.get('total_producto')}")
+        print("==========================================")
+        
+        # Aquí puedes hacer lo que necesites con el cliente_id
+        if cliente_id == '00':
+            print("Cliente no registrado")
+        else:
+            print(f"Cliente registrado con ID: {cliente_id}")
+        
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+def membresias(request):
+    membresias=Membresia.objects.all()    
+    Membresia_ciente=ClienteMembresia.objects.all()
+    return render(request, 'punto_app/admin_membresias.html',{'membresias': membresias,'Membresia_ciente': Membresia_ciente})
