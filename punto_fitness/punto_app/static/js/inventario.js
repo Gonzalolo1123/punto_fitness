@@ -27,7 +27,7 @@ function ocultarFormularioEdicion(id, id_tipo) {
   document.getElementById(`form-editar-${id_tipo}-${id}`).style.display = 'none';
 }
 
-// Función para actualizar vista de datos (INCOMPLETO)
+// Función para actualizar vista de datos
 function actualizarVista(objeto, id_tipo) {
   const row = document.querySelector(`tr[data-id="${objeto.id}"]`);
   if (!row) {
@@ -44,15 +44,15 @@ function actualizarVista(objeto, id_tipo) {
       cells[2].textContent = objeto.precio || '';
       cells[3].textContent = objeto.stock_actual || '';
       cells[4].textContent = objeto.stock_minimo || '';
-      cells[5].textContent = `${objeto.compra__fecha} - $${objeto.compra__total}` || '';
-      cells[6].textContent = objeto.categoria__nombre || '';
-      cells[7].textContent = objeto.establecimiento__nombre || '';
-      const imgElement = cells[8].querySelector('img');
-      if (imgElement) {
+      cells[5].textContent = objeto.categoria__nombre || '';
+      cells[6].textContent = objeto.establecimiento__nombre || '';
+      // Actualizar la imagen
+      const imgElement = cells[7].querySelector('img');
+      if (imgElement && objeto.imagen) {
         imgElement.src = `/static/${objeto.imagen}`;
         imgElement.alt = objeto.nombre;
       }
-      // cells[9] es la columna de acciones, no se actualiza
+      // cells[8] es la columna de acciones, no se actualiza
     }
   }
   if (id_tipo=='categoria') {
@@ -214,6 +214,7 @@ function actualizarProducto(id, data) {
   });
 }
 
+
 // Función para actualizar categoria
 function actualizarCategoria(id, data) {
   return fetch(`${BASE_URL}actualizar_categoria/${id}/`, {
@@ -344,17 +345,24 @@ function actualizarProveedor(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: '¡Actualizacion Exitosa!',
-        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(data => {
+        if (data.success) {
+          Swal.fire({
+            title: '¡Actualizacion Exitosa!',
+            html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+            icon: 'success',
+            confirmButtonColor: '#28a745'
+          }).then(() => {
+            // Recarga la página cuando se cierra el SweetAlert
+            location.reload();
+          });
+          return data.data; // Retornamos los datos del proveedor
+        } else {
+          throw new Error(data.error || 'Error al actualizar proveedor');
+        }
       });
     } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+      throw new Error('Error en la respuesta del servidor');
     }
   })
   .catch(error => {
@@ -595,6 +603,15 @@ function manejoCrearProducto(e) {
     imagen: document.getElementById('producto-imagen').value
   };
 
+  // Mostrar un indicador de carga
+  Swal.fire({
+    title: 'Creando producto...',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
   crearProducto(formData)
     .then(response => {
       if (!response.error) {
@@ -604,7 +621,10 @@ function manejoCrearProducto(e) {
           icon: 'success',
           confirmButtonColor: '#28a745'
         }).then(() => {
-          location.reload();
+          // Asegurarnos de que la petición se haya completado antes de recargar
+          setTimeout(() => {
+            location.reload();
+          }, 100);
         });
       } else {
         Swal.fire('Error', response.error || 'Hubo un problema al crear el producto.', 'error');
@@ -619,19 +639,17 @@ function manejoCrearProducto(e) {
 // Función para manejar la creación de categoría
 function manejoCrearCategoria(e) {
   e.preventDefault();
-  
-  const formData = {
-    nombre: document.getElementById('categoria-nombre').value,
-    descripcion: document.getElementById('categoria-descripcion').value
+  const form = e.target;
+  const formData = new FormData(form);
+  const data = {
+    nombre: formData.get('categoria-nombre'),
+    descripcion: formData.get('categoria-descripcion')
   };
 
-  crearCategoria(formData)
+  crearCategoria(data)
     .then(response => {
       // Si la respuesta es exitosa (no hay error)
       if (!response.error) {
-        // Guardar el ID de la categoría creada en sessionStorage
-        sessionStorage.setItem('categoriaRecienCreada', response.id);
-        
         Swal.fire({
           title: '¡Categoría Creada!',
           html: `<p style="color: #555;">La categoría ha sido creada correctamente.</p>`,
@@ -640,16 +658,97 @@ function manejoCrearCategoria(e) {
         }).then(() => {
           // Cerrar el modal de categoría
           cerrarModal('categoria');
-          // Recargar la página
-          location.reload();
+          
+          // Verificar de dónde venimos
+          const desdeProducto = sessionStorage.getItem('creandoCategoriaDesdeProducto');
+          const desdeProductoEditar = sessionStorage.getItem('creandoCategoriaDesdeProductoEditar');
+          
+          if (desdeProducto === 'true') {
+            // Limpiar el sessionStorage
+            sessionStorage.removeItem('creandoCategoriaDesdeProducto');
+            
+            // Abrir el modal de producto
+            setTimeout(() => {
+              const modalProducto = document.getElementById('modal-fondo-producto');
+              const botonProducto = document.getElementById('abrir-form-producto');
+              if (modalProducto && botonProducto) {
+                modalProducto.style.display = 'flex';
+                botonProducto.setAttribute('data-estado', 'abierto');
+                botonProducto.textContent = '-';
+                
+                // Preseleccionar la categoría recién creada
+                const selectCategoria = document.getElementById('producto-categoria');
+                if (selectCategoria) {
+                  // Agregar la nueva categoría al select
+                  const option = document.createElement('option');
+                  option.value = response.id;
+                  option.text = response.nombre;
+                  selectCategoria.appendChild(option);
+                  // Seleccionar la nueva categoría
+                  selectCategoria.value = response.id;
+                }
+              }
+            }, 100);
+          } else if (desdeProductoEditar === 'true') {
+            // Limpiar el sessionStorage
+            sessionStorage.removeItem('creandoCategoriaDesdeProductoEditar');
+            
+            // Recuperar los datos del producto
+            const datosProducto = JSON.parse(sessionStorage.getItem('datosProductoEdicion'));
+            sessionStorage.removeItem('datosProductoEdicion');
+            
+            // Abrir el modal de edición de producto
+            setTimeout(() => {
+              const modalProductoEditar = document.getElementById('modal-fondo-editar-producto');
+              if (modalProductoEditar) {
+                modalProductoEditar.style.display = 'flex';
+                
+                // Restaurar los datos del producto
+                const formProducto = document.getElementById('form-editar-producto');
+                if (formProducto && datosProducto) {
+                  formProducto.querySelector('#producto-nombre-editar').value = datosProducto.nombre;
+                  formProducto.querySelector('#producto-descripcion-editar').value = datosProducto.descripcion;
+                  formProducto.querySelector('#producto-precio-editar').value = datosProducto.precio;
+                  formProducto.querySelector('#producto-stock-actual-editar').value = datosProducto.stock_actual;
+                  formProducto.querySelector('#producto-stock-minimo-editar').value = datosProducto.stock_minimo;
+                  formProducto.querySelector('#producto-compra-editar').value = datosProducto.compra;
+                  formProducto.querySelector('#producto-establecimiento-editar').value = datosProducto.establecimiento;
+                  formProducto.querySelector('#producto-imagen-editar').value = datosProducto.imagen;
+                  
+                  // Actualizar la vista previa de la imagen si existe
+                  const vistaPrevia = document.getElementById('vista-previa-imagen-editar');
+                  const imgPrevia = vistaPrevia.querySelector('img');
+                  if (imgPrevia && datosProducto.imagen) {
+                    imgPrevia.src = `/static/${datosProducto.imagen}`;
+                    vistaPrevia.style.display = 'block';
+                  }
+                }
+                
+                // Preseleccionar la categoría recién creada
+                const selectCategoria = document.getElementById('producto-categoria-editar');
+                if (selectCategoria) {
+                  // Agregar la nueva categoría al select
+                  const option = document.createElement('option');
+                  option.value = response.id;
+                  option.text = response.nombre;
+                  selectCategoria.appendChild(option);
+                  // Seleccionar la nueva categoría
+                  selectCategoria.value = response.id;
+                }
+              }
+            }, 100);
+          } else {
+            // Si no venimos de ningún formulario, recargar la página
+            location.reload();
+          }
         });
       } else {
-        Swal.fire('Error', response.error || 'Hubo un problema al crear la categoría.', 'error');
+        Swal.fire('Error', response.error, 'error');
       }
     })
     .catch(error => {
       console.error(error);
-      Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+      Swal.fire('Error', 'Ocurrió un error al crear la categoría.', 'error');
     });
 }
 
@@ -1103,7 +1202,7 @@ function inicializarModales() {
         if (estado === 'cerrado') {
           abrirModal(tipo, this);
         } else {
-          cerrarModal(tipo, this);
+          cerrarModal(tipo);
         }
       });
     }
@@ -1228,6 +1327,14 @@ function cerrarModal(tipo, boton = null) {
       form.reset();
     }
     
+    // Si es el modal de producto, recargar la página solo si no estamos creando una categoría
+    if (tipo === 'producto') {
+      const creandoCategoria = sessionStorage.getItem('creandoCategoriaDesdeProducto');
+      if (!creandoCategoria) {
+        location.reload();
+      }
+    }
+    
     console.log(`✅ Modal ${tipo} cerrado correctamente`);
   } else {
     console.error(`❌ No se encontró el modal o botón para ${tipo}`);
@@ -1278,6 +1385,14 @@ function cerrarModalEdicion(tipo) {
     const form = modalFondo.querySelector('form');
     if (form) {
       form.reset();
+    }
+    
+    // Si es el modal de edición de producto, recargar la página solo si no estamos creando una categoría
+    if (tipo === 'producto') {
+      const creandoCategoria = sessionStorage.getItem('creandoCategoriaDesdeProductoEditar');
+      if (!creandoCategoria) {
+        location.reload();
+      }
     }
     
     console.log(`✅ Modal de edición ${tipo} cerrado correctamente`);
@@ -1356,9 +1471,15 @@ function llenarFormularioEdicion(tipo, datos) {
       break;
       
     case 'proveedor':
-      form.querySelector('#proveedor-nombre-editar').value = datos.nombre || '';
-      form.querySelector('#proveedor-telefono-editar').value = datos.telefono || '';
-      form.querySelector('#proveedor-email-editar').value = datos.email || '';
+      if (form.querySelector('#proveedor-nombre-editar')) {
+          form.querySelector('#proveedor-nombre-editar').value = datos.nombre || '';
+      }
+      if (form.querySelector('#proveedor-telefono-editar')) {
+          form.querySelector('#proveedor-telefono-editar').value = datos.telefono || '';
+      }
+      if (form.querySelector('#proveedor-email-editar')) {
+          form.querySelector('#proveedor-email-editar').value = datos.email || '';
+      }
       break;
   }
 }
@@ -1429,9 +1550,9 @@ function manejarFormularioEdicion(tipo, formData) {
       
     case 'proveedor':
       dataToSend = {
-        nombre: formData['proveedor-nombre'],
-        telefono: formData['proveedor-telefono'],
-        email: formData['proveedor-email']
+          nombre: formData['proveedor-nombre'],
+          telefono: formData['proveedor-telefono'],
+          email: formData['proveedor-email']
       };
       break;
   }
@@ -1450,27 +1571,61 @@ function manejarFormularioEdicion(tipo, formData) {
   if (funcionActualizacion) {
     funcionActualizacion(id, dataToSend)
       .then(response => {
-        if (response.success) {
+        if (!response.error) {
           console.log(`✅ ${tipo} actualizado correctamente`);
-          actualizarVista(response.data, tipo);
+          actualizarVista(response, tipo);
           cerrarModalEdicion(tipo);
         } else {
           console.error(`❌ Error al actualizar ${tipo}:`, response.error);
+          Swal.fire('Error', response.error || `Hubo un problema al actualizar el ${tipo}.`, 'error');
         }
       })
       .catch(error => {
         console.error(`❌ Error en la petición de actualización de ${tipo}:`, error);
+        Swal.fire('Error', 'Ocurrió un error de red.', 'error');
       });
   }
 }
 
 // Función para obtener datos de una fila de la tabla
 function obtenerDatosFila(tipo, id) {
-  const row = document.querySelector(`tr[data-id="${id}"]`);
-  if (!row) return null;
+  console.log('Obteniendo datos para:', tipo, 'con ID:', id);
   
+  // Mapeo de tipos a nombres de sección
+  const secciones = {
+    'producto': 'productos',
+    'categoria': 'categorias',
+    'compra': 'compras',
+    'vendedor': 'vendedores',
+    'establecimiento': 'establecimientos',
+    'proveedor': 'proveedores'
+  };
+  
+  // Verificar que estamos en la sección correcta
+  const nombreSeccion = secciones[tipo];
+  if (!nombreSeccion) {
+    console.error(`Tipo de sección no válido: ${tipo}`);
+    return null;
+  }
+  
+  const seccion = document.querySelector(`section[name="seccion-${nombreSeccion}"]`);
+  if (!seccion) {
+    console.error(`No se encontró la sección de ${nombreSeccion}`);
+    return null;
+  }
+  
+  // Buscar la fila dentro de la sección correcta
+  const row = seccion.querySelector(`tr[data-id="${id}"]`);
+  if (!row) {
+    console.error(`No se encontró la fila con ID ${id} en la sección de ${nombreSeccion}`);
+    return null;
+  }
+  
+  console.log('Fila encontrada:', row);
   const cells = row.cells;
-  let datos = { id: id };
+  console.log('Celdas encontradas:', cells.length);
+  
+  let datos = null;
   
   switch (tipo) {
     case 'producto':
@@ -1517,7 +1672,7 @@ function obtenerDatosFila(tipo, id) {
           nombre: cells[0].textContent,
           telefono: cells[1].textContent,
           email: cells[2].textContent,
-          // Los IDs se obtendrán del backend
+          proveedor_id: row.getAttribute('data-proveedor-id') || ''
         };
       }
       break;
@@ -1532,7 +1687,7 @@ function obtenerDatosFila(tipo, id) {
           email: cells[3].textContent,
           horario_apertura: cells[4].textContent,
           horario_cierre: cells[5].textContent,
-          // Los IDs se obtendrán del backend
+          proveedor_id: row.getAttribute('data-proveedor-id') || ''
         };
       }
       break;
@@ -1541,10 +1696,30 @@ function obtenerDatosFila(tipo, id) {
       if (cells.length >= 3) {
         datos = {
           id: id,
-          nombre: cells[0].textContent,
-          telefono: cells[1].textContent,
-          email: cells[2].textContent
+          nombre: cells[0].textContent.trim(),
+          telefono: cells[1].textContent.trim(),
+          email: cells[2].textContent.trim()
         };
+        console.log('Datos del proveedor obtenidos:', datos);
+        
+        // Validación adicional
+        if (!datos.nombre || !datos.telefono || !datos.email) {
+          console.error('Datos incompletos del proveedor:', datos);
+          return null;
+        }
+        
+        // Validación de formato
+        if (!/^\d{9,11}$/.test(datos.telefono)) {
+          console.error('Formato de teléfono inválido:', datos.telefono);
+          return null;
+        }
+        
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(datos.email)) {
+          console.error('Formato de email inválido:', datos.email);
+          return null;
+        }
+      } else {
+        console.error('Número insuficiente de celdas para proveedor:', cells.length);
       }
       break;
   }
@@ -1802,4 +1977,37 @@ function actualizarVistaPrevia() {
   } else {
     vistaPrevia.style.display = 'none';
   }
+}
+
+// Función para abrir modal de categoría desde el formulario de producto
+function abrirModalCategoriaDesdeProducto() {
+  // Marcar que venimos del flujo de producto
+  sessionStorage.setItem('creandoCategoriaDesdeProducto', 'true');
+  // Abrir el modal de categoría
+  cerrarModal('producto');
+  abrirModal('categoria');
+}
+
+function abrirModalCategoriaDesdeProductoEditar() {
+  // Obtener los datos actuales del formulario de producto
+  const formProducto = document.getElementById('form-editar-producto');
+  const datosProducto = {
+    nombre: formProducto.querySelector('#producto-nombre-editar').value,
+    descripcion: formProducto.querySelector('#producto-descripcion-editar').value,
+    precio: formProducto.querySelector('#producto-precio-editar').value,
+    stock_actual: formProducto.querySelector('#producto-stock-actual-editar').value,
+    stock_minimo: formProducto.querySelector('#producto-stock-minimo-editar').value,
+    compra: formProducto.querySelector('#producto-compra-editar').value,
+    establecimiento: formProducto.querySelector('#producto-establecimiento-editar').value,
+    imagen: formProducto.querySelector('#producto-imagen-editar').value
+  };
+  
+  // Guardar los datos en sessionStorage
+  sessionStorage.setItem('datosProductoEdicion', JSON.stringify(datosProducto));
+  sessionStorage.setItem('creandoCategoriaDesdeProductoEditar', 'true');
+  
+  // Cerrar el modal de edición de producto
+  cerrarModalEdicion('producto');
+  // Abrir el modal de categoría
+  abrirModal('categoria');
 }

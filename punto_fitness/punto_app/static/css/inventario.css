@@ -714,3 +714,21 @@ td:last-child .filtro-btn {
 .acciones-imagen .filtro-btn:hover {
   background-color: #45a049;
 }
+
+.select-with-button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.select-with-button select {
+  flex: 1;
+}
+
+.select-with-button .filtro-btn {
+  padding: 4px 8px;
+  min-width: 30px;
+  height: 30px;
+  font-size: 16px;
+  line-height: 1;
+}
