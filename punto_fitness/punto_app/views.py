@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 import json
 import re
-from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor
+from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor,DetalleVenta,VentaCliente,Membresia,ClienteMembresia
 from django.contrib.auth.hashers import check_password
 from .decorators import requiere_admin, requiere_superadmin
 # Funcionamiento CRUD
@@ -390,6 +390,13 @@ def admin_producto_crear(request):
         data = json.loads(request.body)
         print(f"📤 Datos recibidos para crear producto: {data}")
         
+        # Validaciones de unicidad
+        if Producto.objects.filter(nombre__iexact=data['nombre']).exists():
+            return JsonResponse({'error': '¡Ya existe un producto con este nombre!'}, status=400)
+        
+        ##if Producto.objects.filter(descripcion__iexact=data['descripcion']).exists():
+            ##return JsonResponse({'error': '¡Ya existe un producto con esta descripción!'}, status=400)
+        
         # Validar que los IDs no sean nulos o vacíos
         if not data.get('categoria_id') or data['categoria_id'] == '':
             return JsonResponse({'error': 'Debe seleccionar una categoría'}, status=400)
@@ -401,7 +408,7 @@ def admin_producto_crear(request):
             return JsonResponse({'error': 'Debe seleccionar un establecimiento'}, status=400)
 
         if not data.get('imagen') or data['imagen'] == '':
-            return JsonResponse({'error': 'Debe proporcionar una imagen'}, status=400)
+            return JsonResponse({'error': 'Debe proporcionar una ruta de imagen'}, status=400)
 
         if not data['imagen'].startswith('images/productos/'):
             return JsonResponse({'error': 'La imagen debe estar en la carpeta images/productos/'}, status=400)
@@ -442,6 +449,7 @@ def admin_producto_crear(request):
         print(f"💥 Error al crear producto: {str(e)}")
         return JsonResponse({'error': str(e)}, status=400)
 
+        
 @csrf_exempt
 def admin_producto_actualizar(request, producto_id):
     try:
@@ -621,7 +629,12 @@ def cancelar_inscripcion(request):
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 def maquinas(request):
-    return render(request,'punto_app/maquinas.html', {'maquinas': range(1, 9)})
+    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id', 'imagen')
+    establecimientos = Establecimiento.objects.values('id', 'nombre')
+    return render(request, 'punto_app/maquinas.html', {
+        'maquinas': maquinas,
+        'establecimientos': establecimientos
+    })
 
 @requiere_admin
 def admin_maquinas(request):
@@ -702,7 +715,84 @@ def admin_maquina_borrar(request, maquina_id):
         return JsonResponse({'message': 'Máquina eliminada correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+
+@csrf_exempt
+def obtener_imagenes_maquinas(request):
+    if request.method == "GET":
+        try:
+            # Ruta a la carpeta de imágenes de máquinas
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
+            
+            # Obtener lista de archivos de imagen
+            imagenes = []
+            if os.path.exists(ruta_imagenes):
+                for archivo in os.listdir(ruta_imagenes):
+                    if archivo.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                        # Asegurarnos de que la ruta sea relativa a static
+                        imagenes.append(f'images/maquinas/{archivo}')
+            
+            return JsonResponse({
+                'imagenes': imagenes
+            })
+        except Exception as e:
+            logger.error(f"Error al obtener imágenes: {str(e)}")
+            return JsonResponse({
+                'error': str(e)
+            }, status=500)
+    
+    return JsonResponse({
+        'error': 'Método no permitido'
+    }, status=405)
+
+@csrf_exempt
+def subir_imagen_maquina(request):
+    if request.method == "POST":
+        try:
+            if 'imagen' not in request.FILES:
+                return JsonResponse({'error': 'No se ha proporcionado ninguna imagen'}, status=400)
+            
+            imagen = request.FILES['imagen']
+            
+            # Validar el tipo de archivo
+            if not imagen.content_type.startswith('image/'):
+                return JsonResponse({'error': 'El archivo debe ser una imagen'}, status=400)
+            
+            # Validar la extensión
+            extension = os.path.splitext(imagen.name)[1].lower()
+            if extension not in ['.png', '.jpg', '.jpeg', '.gif']:
+                return JsonResponse({'error': 'Formato de imagen no permitido'}, status=400)
+            
+            # Crear el directorio si no existe
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
+            os.makedirs(ruta_imagenes, exist_ok=True)
+            
+            # Generar un nombre único para el archivo
+            nombre_archivo = f"{int(time.time())}_{imagen.name}"
+            ruta_completa = os.path.join(ruta_imagenes, nombre_archivo)
+            
+            # Guardar la imagen
+            with open(ruta_completa, 'wb+') as destino:
+                for chunk in imagen.chunks():
+                    destino.write(chunk)
+            
+            # Devolver la ruta relativa de la imagen
+            ruta_relativa = f'images/maquinas/{nombre_archivo}'
+            return JsonResponse({
+                'success': True,
+                'ruta': ruta_relativa
+            })
+            
+        except Exception as e:
+            logger.error(f"Error al subir imagen: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
 def estadisticas(request):
+    clientes = Cliente.objects.all()
+    Venta_Cliente = VentaCliente.objects.all()
+    Detalle_Venta = DetalleVenta.objects.all()
     return render(request, 'punto_app/estadisticas.html')
 @csrf_exempt
 def admin_compra_vendedor_crear(request):
@@ -810,7 +900,7 @@ def admin_vendedor_actualizar(request, vendedor_id):
         vendedor.nombre = data.get('nombre', vendedor.nombre)
         vendedor.telefono = data.get('telefono', vendedor.telefono)
         vendedor.email = data.get('email', vendedor.email)
-        vendedor.proveedor_id = data.get('proveedor_id', vendedor.proveedor_id)
+        vendedor.proveedor_id = data.get('proveedor', vendedor.proveedor_id)
         vendedor.save()
         
         # Obtener los datos con las relaciones
@@ -881,7 +971,7 @@ def admin_establecimiento_actualizar(request, establecimiento_id):
         establecimiento.email = data.get('email', establecimiento.email)
         establecimiento.horario_apertura = data.get('horario_apertura', establecimiento.horario_apertura)
         establecimiento.horario_cierre = data.get('horario_cierre', establecimiento.horario_cierre)
-        establecimiento.proveedor_id = data.get('proveedor', establecimiento.proveedor_id)
+        establecimiento.proveedor_id = data.get('proveedor_id', establecimiento.proveedor_id)
         establecimiento.save()
         
         return JsonResponse({
@@ -1510,74 +1600,119 @@ def subir_imagen_producto(request):
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
-@csrf_exempt
-def obtener_imagenes_maquinas(request):
-    if request.method == "GET":
-        try:
-            # Ruta a la carpeta de imágenes de máquinas
-            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
-            
-            # Obtener lista de archivos de imagen
-            imagenes = []
-            if os.path.exists(ruta_imagenes):
-                for archivo in os.listdir(ruta_imagenes):
-                    if archivo.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-                        # Asegurarnos de que la ruta sea relativa a static
-                        imagenes.append(f'images/maquinas/{archivo}')
-            
-            return JsonResponse({
-                'imagenes': imagenes
-            })
-        except Exception as e:
-            logger.error(f"Error al obtener imágenes: {str(e)}")
-            return JsonResponse({
-                'error': str(e)
-            }, status=500)
-    
-    return JsonResponse({
-        'error': 'Método no permitido'
-    }, status=405)
+def venta_producto (request):
+    productos = Producto.objects.all()
+    categorias = CategoriaProducto.objects.all()
+    return render(request, 'punto_app/ventaproducto.html',{'productos': productos,'categorias': categorias})
+
 
 @csrf_exempt
-def subir_imagen_maquina(request):
-    if request.method == "POST":
+def finalizar_compra(request):
+    if request.method == 'POST':
         try:
-            if 'imagen' not in request.FILES:
-                return JsonResponse({'error': 'No se ha proporcionado ninguna imagen'}, status=400)
-            
-            imagen = request.FILES['imagen']
-            
-            # Validar el tipo de archivo
-            if not imagen.content_type.startswith('image/'):
-                return JsonResponse({'error': 'El archivo debe ser una imagen'}, status=400)
-            
-            # Validar la extensión
-            extension = os.path.splitext(imagen.name)[1].lower()
-            if extension not in ['.png', '.jpg', '.jpeg', '.gif']:
-                return JsonResponse({'error': 'Formato de imagen no permitido'}, status=400)
-            
-            # Crear el directorio si no existe
-            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
-            os.makedirs(ruta_imagenes, exist_ok=True)
-            
-            # Generar un nombre único para el archivo
-            nombre_archivo = f"{int(time.time())}_{imagen.name}"
-            ruta_completa = os.path.join(ruta_imagenes, nombre_archivo)
-            
-            # Guardar la imagen
-            with open(ruta_completa, 'wb+') as destino:
-                for chunk in imagen.chunks():
-                    destino.write(chunk)
-            
-            # Devolver la ruta relativa de la imagen
-            ruta_relativa = f'images/maquinas/{nombre_archivo}'
-            return JsonResponse({
-                'success': True,
-                'ruta': ruta_relativa
-            })
-            
+            data = json.loads(request.body)
+            print("🛒 Datos recibidos del carrito:")
+
+            productos_voucher = []
+            total_general = 0
+
+            for producto_data in data.get('productos', []):
+                producto_id = producto_data.get('id')
+                cantidad = int(producto_data.get('quantity'))
+                precio = float(producto_data.get('price'))
+
+                # Buscar producto en la base de datos
+                try:
+                    producto = Producto.objects.get(id=producto_id)
+                except Producto.DoesNotExist:
+                    return JsonResponse({'mensaje': f'Producto con ID {producto_id} no encontrado'}, status=404)
+
+                # Verificar stock suficiente
+                if producto.stock_actual < cantidad:
+                    return JsonResponse({'mensaje': f'Stock insuficiente para {producto.nombre}'}, status=400)
+
+
+                # Agregar al resumen del voucher
+                total = precio * cantidad
+                total_general += total
+
+                productos_voucher.append({
+                    'nombre': producto.nombre,
+                    'precio_unitario': precio,
+                    'cantidad': cantidad,
+                    'total_producto': round(total, 2)
+                })
+
+            # Resumen general
+            voucher = {
+                'fecha': timezone.now().strftime('%Y-%m-%d'),
+                'hora':timezone.now().strftime('%H:%M:%S'),
+                'productos': productos_voucher,
+                'total_general': round(total_general, 2)
+            }
+
+            print("\n📄 Voucher generado:")
+            for p in voucher['productos']:
+                print(f"Producto: {p['nombre']}, Cantidad: {p['cantidad']}, Precio: {p['precio_unitario']}, Total: {p['total_producto']}")
+            print(f"🕒 Fecha: {voucher['fecha']}")
+            print(f"💰 Total general de la compra: {voucher['total_general']}")
+
+            return JsonResponse({'mensaje': 'Compra finalizada', 'voucher': voucher})
+
         except Exception as e:
-            logger.error(f"Error al subir imagen: {str(e)}")
-            return JsonResponse({'error': str(e)}, status=500)
-    
+            print("❌ Error al procesar la compra:", e)
+            return JsonResponse({'mensaje': 'Error en la compra'}, status=400)
+
+    return JsonResponse({'mensaje': 'Método no permitido'}, status=405)
+
+def mostrar_voucher(request):
+    if request.method == 'POST':
+        try:
+            clientes=list(Cliente.objects.values('id','nombre','apellido','email','telefono'))
+            voucher_data = json.loads(request.POST.get('voucher_data'))
+            return render(request, 'punto_app/voucher_venta.html', {'voucher': voucher_data,'clientes':json.dumps(clientes)})
+        except Exception as e:
+            return render(request, 'error.html', {'mensaje': 'Error al mostrar voucher.'})
+    return render(request, 'error.html', {'mensaje': 'Método no permitido.'})
+
+@csrf_exempt
+def venta_confirmada(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        documento = request.POST.get('documento')
+        telefono = request.POST.get('telefono')
+        email = request.POST.get('email')
+        metodo_pago = request.POST.get('metodo_pago')
+        productos_json = request.POST.get('productos_json')
+        cliente_id = request.POST.get('cliente_id', '00')  # Default '00' si no viene
+
+        productos = json.loads(productos_json)
+        print("======= DATOS DEL CLIENTE Y COMPRA =======")
+        print(f"ID Cliente: {cliente_id}")
+        print(f"Nombre: {nombre}")
+        print(f"Documento: {documento}")
+        print(f"Teléfono: {telefono}")
+        print(f"Email: {email}")
+        print(f"Método de Pago: {metodo_pago}")
+        print("======= PRODUCTOS =======")
+        for i, prod in enumerate(productos, 1):
+            print(f"{i}. Producto: {prod.get('nombre_codigo')}")
+            print(f"   Cantidad: {prod.get('cantidad')}")
+            print(f"   Precio Unitario: {prod.get('precio_unitario')}")
+            print(f"   Subtotal: {prod.get('total_producto')}")
+        print("==========================================")
+        
+        # Aquí puedes hacer lo que necesites con el cliente_id
+        if cliente_id == '00':
+            print("Cliente no registrado")
+        else:
+            print(f"Cliente registrado con ID: {cliente_id}")
+        
+        return JsonResponse({'status': 'ok'})
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+def membresias(request):
+    membresias=Membresia.objects.all()    
+    Membresia_ciente=ClienteMembresia.objects.all()
+    return render(request, 'punto_app/admin_membresias.html',{'membresias': membresias,'Membresia_ciente': Membresia_ciente})

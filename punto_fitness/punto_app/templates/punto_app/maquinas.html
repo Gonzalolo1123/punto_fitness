@@ -12,9 +12,10 @@
     <div class="carrusel-container">
       <button class="flecha izquierda">&#10094;</button>
       <div class="carrusel-maquinas">
-        {% for i in maquinas %}
+        {% for maquina in maquinas %}
         <div class="maquina">
-          <img src="{% static 'images/maquinas/' %}maquina{{ i }}.jpg" alt="Máquina {{ i }}">
+          <img src="{% if maquina.imagen %}{% static maquina.imagen %}{% endif %}" alt="Máquina {{ maquina.nombre }}">
+          {{ maquina.nombre }}
         </div>
         {% endfor %}
       </div>

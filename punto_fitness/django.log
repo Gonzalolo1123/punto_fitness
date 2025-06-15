@@ -480,15 +480,292 @@ Traceback (most recent call last):
     )
 django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 26: ''principal''. Did you forget to register or load this tag?
 ERROR 2025-06-09 13:49:16,179 basehttp 13980 7508 "GET / HTTP/1.1" 500 188014
-ERROR 2025-06-11 21:12:21,995 views 6912 14708 Error al obtener imágenes: expected str, bytes or os.PathLike object, not list
-ERROR 2025-06-11 21:12:21,998 log 6912 14708 Internal Server Error: /obtener_imagenes_productos/
-ERROR 2025-06-11 21:12:22,030 basehttp 6912 14708 "GET /obtener_imagenes_productos/ HTTP/1.1" 500 64
-ERROR 2025-06-11 21:12:23,422 views 6912 20796 Error al obtener imágenes: expected str, bytes or os.PathLike object, not list
-ERROR 2025-06-11 21:12:23,422 log 6912 20796 Internal Server Error: /obtener_imagenes_productos/
-ERROR 2025-06-11 21:12:23,425 basehttp 6912 20796 "GET /obtener_imagenes_productos/ HTTP/1.1" 500 64
-ERROR 2025-06-11 21:14:27,750 views 9304 20268 Error al obtener imágenes: expected str, bytes or os.PathLike object, not list
-ERROR 2025-06-11 21:14:27,752 log 9304 20268 Internal Server Error: /obtener_imagenes_productos/
-ERROR 2025-06-11 21:14:27,752 basehttp 9304 20268 "GET /obtener_imagenes_productos/ HTTP/1.1" 500 64
-ERROR 2025-06-11 21:14:29,361 views 9304 20268 Error al obtener imágenes: expected str, bytes or os.PathLike object, not list
-ERROR 2025-06-11 21:14:29,362 log 9304 20268 Internal Server Error: /obtener_imagenes_productos/
-ERROR 2025-06-11 21:14:29,362 basehttp 9304 20268 "GET /obtener_imagenes_productos/ HTTP/1.1" 500 64
+ERROR 2025-06-10 10:51:38,348 log 35876 38352 Internal Server Error: /usuarios/crear_usuario/
+ERROR 2025-06-10 10:51:38,349 basehttp 35876 38352 "POST /usuarios/crear_usuario/ HTTP/1.1" 500 64
+ERROR 2025-06-10 10:51:49,586 log 35876 14384 Internal Server Error: /usuarios/crear_usuario/
+ERROR 2025-06-10 10:51:49,587 basehttp 35876 14384 "POST /usuarios/crear_usuario/ HTTP/1.1" 500 64
+ERROR 2025-06-11 16:25:10,444 log 39100 15600 Internal Server Error: /venta_producto/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\query.py", line 2234, in add_fields
+    join_info = self.setup_joins(
+        name.split(LOOKUP_SEP), opts, alias, allow_many=allow_m2m
+    )
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\query.py", line 1897, in setup_joins
+    path, final_field, targets, rest = self.names_to_path(
+                                       ~~~~~~~~~~~~~~~~~~^
+        names[:pivot],
+        ^^^^^^^^^^^^^^
+    ...<2 lines>...
+        fail_on_missing=True,
+        ^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\query.py", line 1802, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'precio' into field. Choices are: administrador, compravendedor, curso, direccion, email, horario_apertura, horario_cierre, id, maquina, membresia, nombre, producto, proveedor, proveedor_id, registroacceso, telefono, ventacliente
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1435, in venta_producto
+    productos = Establecimiento.objects.values('id','nombre','precio','stock_actual','establecimiento','stock_minimo')
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1365, in values
+    clone = self._values(*fields, **expressions)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1360, in _values
+    clone.query.set_values(fields)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\query.py", line 2557, in set_values
+    self.add_fields(field_names, True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\query.py", line 2262, in add_fields
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'precio' into field. Choices are: administrador, compravendedor, curso, direccion, email, horario_apertura, horario_cierre, id, maquina, membresia, nombre, producto, proveedor, proveedor_id, registroacceso, telefono, ventacliente
+ERROR 2025-06-11 16:25:10,450 basehttp 39100 15600 "GET /venta_producto/ HTTP/1.1" 500 113280
+ERROR 2025-06-11 19:16:32,003 log 37300 16056 Internal Server Error: /finalizar_compra/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1446, in finalizar_compra
+    print(f"- ID: {prod['id']}, Nombre: {prod['nombre']}, Cantidad: {prod['cantidad']}, Precio: {prod['precio']}")
+                                         ~~~~^^^^^^^^^^
+KeyError: 'nombre'
+ERROR 2025-06-11 19:16:32,006 basehttp 37300 16056 "POST /finalizar_compra/ HTTP/1.1" 500 69279
+ERROR 2025-06-11 22:35:52,766 log 39844 16964 Internal Server Error: /venta_producto/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\smartif.py", line 180, in translate_token
+    op = OPERATORS[token]
+         ~~~~~~~~~^^^^^^^
+KeyError: 'producto.stock_actual==0'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1517, in venta_producto
+    return render(request, 'punto_app/ventaproducto.html',{'productos': productos})
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+        (
+    ...<2 lines>...
+        )
+    )
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 961, in do_if
+    condition = TemplateIfParser(parser, bits).parse()
+                ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 894, in __init__
+    super().__init__(*args, **kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\smartif.py", line 171, in __init__
+    mapped_tokens.append(self.translate_token(token))
+                         ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\smartif.py", line 182, in translate_token
+    return self.create_var(token)
+           ~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 897, in create_var
+    return TemplateLiteral(self.template_parser.compile_filter(value), value)
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 710, in __init__
+    raise TemplateSyntaxError(
+    ...<2 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Could not parse the remainder: '==0' from 'producto.stock_actual==0'
+ERROR 2025-06-11 22:35:52,780 basehttp 39844 16964 "GET /venta_producto/ HTTP/1.1" 500 245633
+ERROR 2025-06-12 18:48:32,692 basehttp 3596 9052 "GET /static/images/maquinas/maquina%7B'id':%204,%20'nombre':%20'press%20banca%202',%20'descripcion':%20'maquina%20de%20pecho1',%20'cantidad':%203,%20'establecimiento_id':%201,%20'imagen':%20'images/maquinas/maquina6.jpg'%7D.jpg HTTP/1.1" 500 59
+ERROR 2025-06-13 01:30:56,152 log 15216 20340 Internal Server Error: /mostrar_voucher/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 510, in parse
+    compile_func = self.tags[command]
+                   ~~~~~~~~~^^^^^^^^^
+KeyError: 'static'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1669, in mostrar_voucher
+    return render(request, 'punto_app/voucher_venta.html', {'voucher': voucher_data})
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 512, in parse
+    self.invalid_block_tag(token, command, parse_until)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 577, in invalid_block_tag
+    raise self.error(
+    ...<3 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 6: 'static'. Did you forget to register or load this tag?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1671, in mostrar_voucher
+    return render(request, 'error.html', {'mensaje': 'Error al mostrar voucher.'})
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: error.html
+ERROR 2025-06-13 01:30:56,160 basehttp 15216 20340 "POST /mostrar_voucher/ HTTP/1.1" 500 175086
+ERROR 2025-06-13 02:47:37,258 log 16656 29848 Internal Server Error: /venta_confirmada/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1687, in venta_confirmada
+    return render(request, 'venta_confirmada.html', {
+        'nombre': nombre,
+    ...<4 lines>...
+        'productos': productos,
+    })
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: venta_confirmada.html
+ERROR 2025-06-13 02:47:37,263 basehttp 16656 29848 "POST /venta_confirmada/ HTTP/1.1" 500 94207
+ERROR 2025-06-13 02:48:44,608 log 31380 8564 Internal Server Error: /venta_confirmada/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1695, in venta_confirmada
+    return render(request, 'error.html')
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: error.html
+ERROR 2025-06-13 02:48:44,612 basehttp 31380 8564 "POST /venta_confirmada/ HTTP/1.1" 500 91469
+ERROR 2025-06-13 04:33:21,419 log 31216 31152 Internal Server Error: /venta_confirmada/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 204, in _get_response
+    self.check_response(response, callback)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 332, in check_response
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: The view punto_app.views.venta_confirmada didn't return an HttpResponse object. It returned None instead.
+ERROR 2025-06-13 04:33:21,422 basehttp 31216 31152 "POST /venta_confirmada/ HTTP/1.1" 500 72352
+ERROR 2025-06-13 04:34:00,305 log 24752 31956 Internal Server Error: /venta_confirmada/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1698, in venta_confirmada
+    return JsonResponse({'mensaje': 'Compra finalizada', 'voucher': voucher})
+                                                                    ^^^^^^^
+NameError: name 'voucher' is not defined
+ERROR 2025-06-13 04:34:00,308 basehttp 24752 31956 "POST /venta_confirmada/ HTTP/1.1" 500 77246

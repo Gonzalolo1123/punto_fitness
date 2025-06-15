@@ -158,12 +158,19 @@ class DetalleVenta(models.Model):
 
 
 class Membresia(models.Model):
+    DURACIONES = [
+        ('semanal', 'Semanal'),
+        ('mensual', 'Mensual'),
+        ('anual', 'Anual'),
+        ('personalizada', 'Personalizada'),
+    ]
+
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
     precio = models.IntegerField()
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
+    duracion = models.CharField(max_length=15, choices=DURACIONES)
+    dias_por_semana = models.IntegerField(null=True, blank=True)  # Para "3 veces por semana", etc.
 
     class Meta:
         db_table = 'membresia'
@@ -187,7 +194,6 @@ class Maquina(models.Model):
     cantidad = models.IntegerField()
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
     imagen = models.CharField(max_length=200, null=True, blank=True)
-    
     class Meta:
         db_table = 'maquina'
         
