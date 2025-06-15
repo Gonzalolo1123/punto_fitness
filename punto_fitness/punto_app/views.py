@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 import json
 import re
-from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor,DetalleVenta,VentaCliente,Membresia,ClienteMembresia
+from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor,DetalleVenta,VentaCliente,Membresia,ClienteMembresia,MetodoPago,TipoDocumentoPago
 from django.contrib.auth.hashers import check_password
 from .decorators import requiere_admin, requiere_superadmin
 # Funcionamiento CRUD
@@ -1669,8 +1669,9 @@ def mostrar_voucher(request):
     if request.method == 'POST':
         try:
             clientes=list(Cliente.objects.values('id','nombre','apellido','email','telefono'))
+            forma_pago = list(MetodoPago.objects.values('id','nombre'))
             voucher_data = json.loads(request.POST.get('voucher_data'))
-            return render(request, 'punto_app/voucher_venta.html', {'voucher': voucher_data,'clientes':json.dumps(clientes)})
+            return render(request, 'punto_app/voucher_venta.html', {'voucher': voucher_data,'clientes':json.dumps(clientes),'forma_pago':json.dumps(forma_pago)})
         except Exception as e:
             return render(request, 'error.html', {'mensaje': 'Error al mostrar voucher.'})
     return render(request, 'error.html', {'mensaje': 'Método no permitido.'})

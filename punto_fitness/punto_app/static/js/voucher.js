@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function mostrarSeleccionCliente() {
         // Datos de clientes pasados desde Django
         const clientes = JSON.parse(document.getElementById('clientes-data').textContent);
-
+        const forma_pago = JSON.parse(document.getElementById('forma_pago-data').textContent);
         // Agregar opción de cliente no registrado
         const clienteNoRegistrado = {
             id: 0,
@@ -53,9 +53,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     <label for="swal2-metodo-pago">Método de Pago:</label>
                     <select id="swal2-metodo-pago" class="swal2-select">
                         <option value="">-- Seleccione --</option>
-                        <option value="Débito">Débito</option>
-                        <option value="Crédito">Crédito</option>
-                        <option value="Efectivo">Efectivo</option>
                     </select>
                 </div>
             </div>
@@ -84,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         row.style.display = shouldShow ? '' : 'none';
                     });
                 });
-
+                
                 // Configurar los botones de selección
                 const selectButtons = document.querySelectorAll('.swal2-select-btn');
                 selectButtons.forEach(btn => {
@@ -109,6 +106,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Configurar el método de pago
                 const metodoPagoSelect = document.getElementById('swal2-metodo-pago');
+                forma_pago.forEach(fp => {
+                    const option = document.createElement('option');
+                    option.value = fp.id;               // Usa el ID como valor
+                    option.textContent = fp.nombre;     // Muestra el nombre
+                    metodoPagoSelect.appendChild(option);
+                });
                 metodoPagoSelect.addEventListener('change', function () {
                     const hasSelectedClient = !!swalInstance.selectedClienteId;
                     swalInstance.enableButtons(hasSelectedClient && !!this.value);
