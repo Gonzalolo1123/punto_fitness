@@ -251,3 +251,240 @@ function inicializarEventListeners() {
         });
     });
 }
+
+// Funciones para transferencia de Super Admin
+function cargarAdminsParaTransferir() {
+    // Obtener solo los admins (no superadmins) de la tabla
+    const admins = [];
+    document.querySelectorAll('tr[data-id]').forEach(row => {
+        const nivelAcceso = row.cells[4].textContent.trim();
+        if (nivelAcceso === 'admin') {
+            const adminId = row.getAttribute('data-id');
+            const nombre = row.cells[0].textContent;
+            const apellido = row.cells[1].textContent;
+            const email = row.cells[2].textContent;
+            const telefono = row.cells[3].textContent;
+            
+            admins.push({
+                id: adminId,
+                nombre: nombre,
+                apellido: apellido,
+                email: email,
+                telefono: telefono
+            });
+        }
+    });
+    
+    return admins;
+}
+
+function mostrarAdminsParaTransferir() {
+    const admins = cargarAdminsParaTransferir();
+    const container = document.getElementById('admins-lista-transferir');
+    
+    if (admins.length === 0) {
+        container.innerHTML = '<p class="no-admins">No hay administradores disponibles para transferir el rol de Super Admin.</p>';
+        return;
+    }
+    
+    let html = '';
+    admins.forEach(admin => {
+        html += `
+            <div class="admin-item" data-admin-id="${admin.id}">
+                <div class="admin-info">
+                    <strong>${admin.nombre} ${admin.apellido}</strong>
+                    <span class="admin-email">${admin.email}</span>
+                    <span class="admin-telefono">${admin.telefono}</span>
+                </div>
+                <div class="admin-acciones">
+                    <button class="filtro-btn btn-seleccionar-admin" data-admin-id="${admin.id}">Seleccionar</button>
+                    <button class="filtro-btn btn-verificar-elegibilidad" data-admin-id="${admin.id}">Verificar Elegibilidad</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    
+    // Agregar event listeners a los botones
+    document.querySelectorAll('.btn-seleccionar-admin').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const adminId = this.getAttribute('data-admin-id');
+            seleccionarAdminParaTransferir(adminId);
+        });
+    });
+    
+    document.querySelectorAll('.btn-verificar-elegibilidad').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const adminId = this.getAttribute('data-admin-id');
+            verificarElegibilidadAdmin(adminId);
+        });
+    });
+}
+
+function seleccionarAdminParaTransferir(adminId) {
+    // Ocultar la lista y mostrar el formulario
+    document.getElementById('admins-lista-transferir').style.display = 'none';
+    document.getElementById('form-transferir-superadmin').style.display = 'block';
+    
+    // Guardar el admin seleccionado
+    window.adminSeleccionado = adminId;
+    
+    // Mostrar información del admin seleccionado
+    const adminItem = document.querySelector(`[data-admin-id="${adminId}"]`);
+    const adminInfo = adminItem.querySelector('.admin-info');
+    const adminName = adminInfo.querySelector('strong').textContent;
+    
+    const formContainer = document.getElementById('form-transferir-superadmin');
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'admin-seleccionado-info';
+    infoDiv.innerHTML = `
+        <div style="background-color: #e3f2fd; padding: 10px; margin-bottom: 15px; border-radius: 5px;">
+            <strong>Administrador seleccionado:</strong> ${adminName}
+        </div>
+    `;
+    formContainer.insertBefore(infoDiv, formContainer.firstChild);
+}
+
+function verificarElegibilidadAdmin(adminId) {
+    fetch(`${BASE_URL}verificar_elegibilidad/${adminId}/`, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.elegible) {
+                alert(`✅ ${data.admin.nombre} ${data.admin.apellido} es elegible para ser Super Admin.`);
+            } else {
+                alert(`❌ ${data.admin.nombre} ${data.admin.apellido} NO es elegible para ser Super Admin.\n\nCriterios no cumplidos:\n- Debe ser admin actual\n- Debe tener actividad regular\n- No debe tener incidentes de seguridad`);
+            }
+        } else {
+            alert('Error al verificar elegibilidad: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al verificar elegibilidad del administrador.');
+    });
+}
+
+function enviarCodigoVerificacion() {
+    if (!window.adminSeleccionado) {
+        alert('Debes seleccionar un administrador primero.');
+        return;
+    }
+    
+    fetch(`${BASE_URL}enviar_codigo_verificacion/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+            admin_id: window.adminSeleccionado
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Código de verificación enviado al email del administrador seleccionado.');
+            document.getElementById('enviar-codigo-btn').disabled = true;
+            document.getElementById('enviar-codigo-btn').textContent = 'Código Enviado';
+        } else {
+            alert('Error al enviar código: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al enviar código de verificación.');
+    });
+}
+
+function transferirSuperAdmin() {
+    const password = document.getElementById('password-superadmin').value;
+    const codigo = document.getElementById('codigo-verificacion').value;
+    const confirmacion = document.getElementById('confirmacion-final').value;
+    
+    if (!password) {
+        alert('Debes ingresar tu contraseña de Super Admin.');
+        return;
+    }
+    
+    if (!codigo) {
+        alert('Debes ingresar el código de verificación.');
+        return;
+    }
+    
+    if (confirmacion !== 'TRANSFERIR') {
+        alert('Debes escribir exactamente "TRANSFERIR" para confirmar.');
+        return;
+    }
+    
+    // Confirmación final
+    const confirmacionFinal = confirm(
+        '⚠️ ADVERTENCIA FINAL ⚠️\n\n' +
+        'Estás a punto de transferir el control total del sistema.\n' +
+        'Esta acción es IRREVERSIBLE.\n\n' +
+        '¿Estás completamente seguro de que quieres proceder?'
+    );
+    
+    if (!confirmacionFinal) {
+        return;
+    }
+    
+    fetch(`${BASE_URL}transferir_superadmin/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+            admin_id: window.adminSeleccionado,
+            password_superadmin: password,
+            codigo_verificacion: codigo
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Transferencia de Super Admin completada exitosamente.\n\nEl sistema se cerrará automáticamente.');
+            // Cerrar sesión y redirigir
+            setTimeout(() => {
+                window.location.href = '/logout/';
+            }, 3000);
+        } else {
+            alert('Error en la transferencia: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error durante la transferencia de Super Admin.');
+    });
+}
+
+// Agregar event listeners para transferencia de superadmin
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listener para el botón de transferir superadmin
+    const btnTransferirSuperadmin = document.getElementById('transferir-superadmin-btn');
+    if (btnTransferirSuperadmin) {
+        btnTransferirSuperadmin.addEventListener('click', function() {
+            abrirModal('transferir-superadmin');
+            mostrarAdminsParaTransferir();
+        });
+    }
+    
+    // Event listener para enviar código de verificación
+    const btnEnviarCodigo = document.getElementById('enviar-codigo-btn');
+    if (btnEnviarCodigo) {
+        btnEnviarCodigo.addEventListener('click', enviarCodigoVerificacion);
+    }
+    
+    // Event listener para confirmar transferencia
+    const btnConfirmarTransferir = document.getElementById('confirmar-transferir-superadmin');
+    if (btnConfirmarTransferir) {
+        btnConfirmarTransferir.addEventListener('click', transferirSuperAdmin);
+    }
+});

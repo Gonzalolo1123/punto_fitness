@@ -11,6 +11,9 @@
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
   <link rel="stylesheet" href="{% static 'css/signIn-Up.css' %}">
   <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
+  
+  <!-- Fuente Playfair Display para concordancia con base_admin -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
 
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -145,26 +148,37 @@
     <div class="modal-content">
       <span class="close" id="closeEmailVerificationModal">&times;</span>
       <div class="form-container">
-        <h1>Verificar Correo Electrónico</h1>
-        <p style="margin-bottom: 20px; color: #555;">
-          Hemos enviado un código de verificación a: <br>
-          <strong id="verificationEmail"></strong>
+        <h1>🔐 Verificar Correo Electrónico</h1>
+        <p>
+          Hemos enviado un código de verificación de 6 dígitos a: <br>
+          <strong id="verificationEmail">usuario@ejemplo.com</strong>
         </p>
+        <p style="font-size: 14px; color: #7f8c8d; margin-top: 15px;">
+          Por favor, revisa tu bandeja de entrada y spam, e ingresa el código a continuación.
+        </p>
+        
         <form id="emailVerificationForm">
           {% csrf_token %}
           <label>
-            <input type="text" id="verificationCode" placeholder="Ingrese el código de verificación" required maxlength="6" />
+            <input type="text" 
+                   id="verificationCode" 
+                   placeholder="000000" 
+                   required 
+                   maxlength="6" 
+                   pattern="[0-9]{6}"
+                   autocomplete="one-time-code" />
           </label>
-          <button type="submit" style="margin-top: 15px; width: 100%;">Verificar y Crear Cuenta</button>
+          <button type="submit">
+            ✅ Verificar y Crear Cuenta
+          </button>
         </form>
-        <div style="margin-top: 15px; text-align: center;">
-          <p style="font-size: 0.9em; color: #888;">
+        
+        <div class="links-container">
+          <p style="font-size: 14px; color: #7f8c8d; margin-bottom: 15px;">
             ¿No recibiste el código? 
-            <a href="#" id="resendCode" style="color: #007bff; text-decoration: none;">Reenviar código</a>
+            <a href="#" id="resendCode">🔄 Reenviar código</a>
           </p>
-        </div>
-        <div style="margin-top: 10px; text-align: center;">
-          <a href="#" id="backToSignUp" style="color: #6c757d; text-decoration: none; font-size: 0.9em;">
+          <a href="#" id="backToSignUp">
             ← Volver al registro
           </a>
         </div>
@@ -192,6 +206,7 @@
   </div>
 
   <!-- Scripts base -->
+  <script src="{% static 'js/validaciones.js' %}"></script>
   <script src="{% static 'js/cuenta.js' %}"></script>
   <script src="{% static 'js/signIn-Up.js' %}"></script>
   <script src="{% static 'js/session_check.js' %}"></script>

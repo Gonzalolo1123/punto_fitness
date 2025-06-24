@@ -423,6 +423,73 @@ function validarPorcentaje(valor, campo = 'porcentaje', min = 0, max = 100, obli
   return errores;
 }
 
+// Función para validar contraseña (con requisitos de seguridad)
+function validarContrasena(contrasena, campo = 'contraseña', minLength = 8, mostrarAlerta = false) {
+  const errores = [];
+  
+  if (!contrasena) {
+    errores.push(`La ${campo} es obligatoria`);
+  } else {
+    if (contrasena.length < minLength) {
+      errores.push(`La ${campo} debe tener al menos ${minLength} caracteres`);
+    }
+    
+    if (!/[A-Z]/.test(contrasena)) {
+      errores.push(`La ${campo} debe contener al menos una letra mayúscula`);
+    }
+    
+    if (!/[a-z]/.test(contrasena)) {
+      errores.push(`La ${campo} debe contener al menos una letra minúscula`);
+    }
+    
+    if (!/\d/.test(contrasena)) {
+      errores.push(`La ${campo} debe contener al menos un número`);
+    }
+    
+    if (!/[^A-Za-z0-9]/.test(contrasena)) {
+      errores.push(`La ${campo} debe contener al menos un carácter especial`);
+    }
+  }
+  
+  if (mostrarAlerta && errores.length > 0) {
+    mostrarErroresValidacion(errores, `Error en ${campo}`);
+  }
+  
+  return errores;
+}
+
+// Función para validar confirmación de contraseña
+function validarConfirmacionContrasena(contrasena, confirmacion, campo = 'confirmación de contraseña', mostrarAlerta = false) {
+  const errores = [];
+  
+  if (!confirmacion) {
+    errores.push(`La ${campo} es obligatoria`);
+  } else if (contrasena !== confirmacion) {
+    errores.push(`Las contraseñas no coinciden`);
+  }
+  
+  if (mostrarAlerta && errores.length > 0) {
+    mostrarErroresValidacion(errores, `Error en ${campo}`);
+  }
+  
+  return errores;
+}
+
+// Función para validar campos obligatorios
+function validarCampoObligatorio(valor, campo = 'campo', mostrarAlerta = false) {
+  const errores = [];
+  
+  if (!valor || valor.trim() === '') {
+    errores.push(`El ${campo} es obligatorio`);
+  }
+  
+  if (mostrarAlerta && errores.length > 0) {
+    mostrarErroresValidacion(errores, `Error en ${campo}`);
+  }
+  
+  return errores;
+}
+
 // Función para validar múltiples campos y mostrar todos los errores juntos
 function validarFormulario(validaciones, titulo = 'Errores en el Formulario') {
   const todosLosErrores = [];

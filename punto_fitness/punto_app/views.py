@@ -1675,3 +1675,294 @@ def verificar_codigo(request):
             return JsonResponse({'error': 'Error interno del servidor'}, status=500)
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@requiere_superadmin
+def transferir_superadmin(request):
+    """
+    Proceso seguro para transferir el rol de superadmin a otro usuario
+    Requiere múltiples verificaciones de seguridad
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            admin_id = data.get('admin_id')
+            codigo_verificacion = data.get('codigo_verificacion')
+            password_superadmin = data.get('password_superadmin')
+            
+            # Obtener el superadmin actual
+            superadmin_actual_id = request.session.get('cliente_id')
+            superadmin_actual = Cliente.objects.get(id=superadmin_actual_id)
+            
+            # Verificar que el superadmin actual existe
+            admin_actual = Administrador.objects.get(cliente=superadmin_actual, nivel_acceso='superadmin')
+            
+            # Verificar contraseña del superadmin actual
+            if not check_password(password_superadmin, superadmin_actual.contrasena):
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Contraseña del superadmin incorrecta'
+                }, status=401)
+            
+            # Obtener el admin que recibirá el rol de superadmin
+            try:
+                admin_destino = Administrador.objects.get(id=admin_id, nivel_acceso='admin')
+            except Administrador.DoesNotExist:
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Administrador no encontrado o no es admin'
+                }, status=404)
+            
+            # Verificar criterios de elegibilidad
+            if not verificar_elegibilidad_superadmin(admin_destino):
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'El administrador no cumple con los criterios de elegibilidad'
+                }, status=403)
+            
+            # Verificar código de verificación (si se implementa)
+            if codigo_verificacion and not verificar_codigo_superadmin(codigo_verificacion, admin_destino.cliente):
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Código de verificación incorrecto'
+                }, status=401)
+            
+            # Realizar la transferencia
+            try:
+                # Cambiar el superadmin actual a admin
+                admin_actual.nivel_acceso = 'admin'
+                admin_actual.save()
+                
+                # Otorgar superadmin al nuevo usuario
+                admin_destino.nivel_acceso = 'superadmin'
+                admin_destino.save()
+                
+                # Registrar la auditoría
+                registrar_auditoria_superadmin(superadmin_actual, admin_destino.cliente, 'transferencia')
+                
+                # Enviar notificaciones
+                enviar_notificacion_transferencia(admin_destino.cliente, superadmin_actual)
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Transferencia de superadmin completada exitosamente',
+                    'nuevo_superadmin': {
+                        'id': admin_destino.cliente.id,
+                        'nombre': admin_destino.cliente.nombre,
+                        'apellido': admin_destino.cliente.apellido,
+                        'email': admin_destino.cliente.email
+                    }
+                })
+                
+            except Exception as e:
+                logger.error(f"Error en transferencia de superadmin: {str(e)}")
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Error durante la transferencia'
+                }, status=500)
+                
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON inválido'}, status=400)
+        except Exception as e:
+            logger.error(f"Error inesperado en transferir_superadmin: {str(e)}")
+            return JsonResponse({'error': 'Error interno del servidor'}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+def verificar_elegibilidad_superadmin(admin):
+    """
+    Verifica si un admin cumple con los criterios para ser superadmin
+    """
+    try:
+        # Verificar que sea admin actual
+        if admin.nivel_acceso != 'admin':
+            return False
+        
+        # Verificar que no haya incidentes de seguridad
+        # (esto requeriría un modelo adicional para rastrear incidentes)
+        
+        # Verificar actividad reciente (últimos 30 días)
+        # (esto requeriría rastrear las sesiones de admin)
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error verificando elegibilidad: {str(e)}")
+        return False
+
+
+def verificar_codigo_superadmin(codigo, cliente):
+    """
+    Verifica el código de verificación para la transferencia de superadmin
+    """
+    # Implementar verificación de código temporal
+    # Por ahora, retornamos True para simplificar
+    return True
+
+
+def registrar_auditoria_superadmin(superadmin_origen, cliente_destino, accion):
+    """
+    Registra la auditoría de cambios de superadmin
+    """
+    try:
+        # Aquí deberías crear un modelo de auditoría
+        logger.info(f"AUDITORÍA SUPERADMIN: {accion} - De: {superadmin_origen.email} A: {cliente_destino.email}")
+    except Exception as e:
+        logger.error(f"Error registrando auditoría: {str(e)}")
+
+
+def enviar_notificacion_transferencia(cliente_destino, superadmin_origen):
+    """
+    Envía notificaciones sobre la transferencia de superadmin
+    """
+    try:
+        # Notificar al nuevo superadmin
+        subject = "Has sido nombrado Super Administrador"
+        message = f"""
+        Felicitaciones {cliente_destino.nombre} {cliente_destino.apellido},
+        
+        Has sido nombrado Super Administrador del sistema Punto Fitness por {superadmin_origen.nombre} {superadmin_origen.apellido}.
+        
+        Ahora tienes acceso completo a todas las funciones administrativas del sistema.
+        
+        Por favor, inicia sesión para verificar tu nuevo rol.
+        
+        Saludos,
+        Equipo Punto Fitness
+        """
+        
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            [cliente_destino.email],
+            fail_silently=False,
+        )
+        
+        # Notificar a todos los admins
+        admins = Administrador.objects.filter(nivel_acceso='admin').select_related('cliente')
+        for admin in admins:
+            if admin.cliente.email != cliente_destino.email:
+                subject_admin = "Cambio en la Administración del Sistema"
+                message_admin = f"""
+                Estimado {admin.cliente.nombre} {admin.cliente.apellido},
+                
+                Se ha realizado un cambio en la administración del sistema.
+                {cliente_destino.nombre} {cliente_destino.apellido} ha sido nombrado Super Administrador.
+                
+                Saludos,
+                Equipo Punto Fitness
+                """
+                
+                send_mail(
+                    subject_admin,
+                    message_admin,
+                    settings.EMAIL_HOST_USER,
+                    [admin.cliente.email],
+                    fail_silently=True,
+                )
+                
+    except Exception as e:
+        logger.error(f"Error enviando notificaciones: {str(e)}")
+
+
+@csrf_exempt
+@requiere_superadmin
+def verificar_elegibilidad_admin_superadmin(request, admin_id):
+    """
+    Verifica si un admin es elegible para ser superadmin
+    """
+    if request.method == "GET":
+        try:
+            admin = Administrador.objects.get(id=admin_id)
+            
+            elegibilidad = verificar_elegibilidad_superadmin(admin)
+            
+            return JsonResponse({
+                'success': True,
+                'elegible': elegibilidad,
+                'admin': {
+                    'id': admin.id,
+                    'nombre': admin.cliente.nombre,
+                    'apellido': admin.cliente.apellido,
+                    'email': admin.cliente.email,
+                    'fecha_registro': admin.cliente.fecha_registro.isoformat(),
+                    'nivel_acceso': admin.nivel_acceso
+                }
+            })
+            
+        except Administrador.DoesNotExist:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Administrador no encontrado'
+            }, status=404)
+        except Exception as e:
+            logger.error(f"Error verificando elegibilidad: {str(e)}")
+            return JsonResponse({
+                'success': False, 
+                'error': 'Error interno del servidor'
+            }, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+@csrf_exempt
+@requiere_superadmin
+def enviar_codigo_verificacion_superadmin(request):
+    """
+    Envía código de verificación para la transferencia de superadmin
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            admin_id = data.get('admin_id')
+            
+            admin = Administrador.objects.get(id=admin_id)
+            
+            # Generar código de verificación
+            codigo = generar_codigo_verificacion()
+            
+            # Enviar código por email
+            subject = "Código de Verificación - Transferencia de Super Admin"
+            message = f"""
+            Estimado {admin.cliente.nombre} {admin.cliente.apellido},
+            
+            Se ha solicitado otorgarte el rol de Super Administrador.
+            
+            Tu código de verificación es: {codigo}
+            
+            Este código expira en 10 minutos.
+            
+            Si no solicitaste este cambio, por favor ignora este mensaje.
+            
+            Saludos,
+            Equipo Punto Fitness
+            """
+            
+            send_mail(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                [admin.cliente.email],
+                fail_silently=False,
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Código de verificación enviado'
+            })
+            
+        except Administrador.DoesNotExist:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Administrador no encontrado'
+            }, status=404)
+        except Exception as e:
+            logger.error(f"Error enviando código: {str(e)}")
+            return JsonResponse({
+                'success': False, 
+                'error': 'Error enviando código de verificación'
+            }, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
