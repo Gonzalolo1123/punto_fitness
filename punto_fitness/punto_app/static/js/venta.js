@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 updateCartCount();
             });
         });
-
+        
         document.querySelectorAll('.remove-item').forEach(button => {
             button.addEventListener('click', function () {
                 const productId = this.dataset.id;
@@ -152,7 +152,18 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+    document.querySelector('.btn-clear').addEventListener('click', function () {
+            if (cart.length === 0) {
+                alert('El carrito ya está vacío');
+                return;
+            }
 
+            if (confirm('¿Estás seguro que deseas vaciar el carrito?')) {
+                cart = [];
+                updateCartDisplay();
+                updateCartCount();
+            }
+        });
     // Finalizar compra
     document.querySelector('.btn-checkout').addEventListener('click', function () {
         if (cart.length === 0) {

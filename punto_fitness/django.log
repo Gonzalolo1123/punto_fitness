@@ -769,3 +769,5 @@ Traceback (most recent call last):
                                                                     ^^^^^^^
 NameError: name 'voucher' is not defined
 ERROR 2025-06-13 04:34:00,308 basehttp 24752 31956 "POST /venta_confirmada/ HTTP/1.1" 500 77246
+ERROR 2025-06-15 19:44:20,776 log 51932 48860 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-15 19:44:20,778 basehttp 51932 48860 "POST /venta_confirmada/ HTTP/1.1" 500 68
