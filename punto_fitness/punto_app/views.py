@@ -971,7 +971,7 @@ def admin_establecimiento_actualizar(request, establecimiento_id):
         establecimiento.email = data.get('email', establecimiento.email)
         establecimiento.horario_apertura = data.get('horario_apertura', establecimiento.horario_apertura)
         establecimiento.horario_cierre = data.get('horario_cierre', establecimiento.horario_cierre)
-        establecimiento.proveedor_id = data.get('proveedor_id', establecimiento.proveedor_id)
+        establecimiento.proveedor_id = data.get('proveedor', establecimiento.proveedor_id)
         establecimiento.save()
         
         return JsonResponse({
@@ -1711,8 +1711,78 @@ def venta_confirmada(request):
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
-
+@requiere_admin
 def membresias(request):
-    membresias=Membresia.objects.all()    
-    Membresia_ciente=ClienteMembresia.objects.all()
-    return render(request, 'punto_app/admin_membresias.html',{'membresias': membresias,'Membresia_ciente': Membresia_ciente})
+    membresias = Membresia.objects.select_related('establecimiento').values(
+        'id', 'nombre', 'descripcion', 'precio', 'duracion', 'dias_por_semana',
+        'establecimiento_id', 'establecimiento__nombre'
+    )
+    establecimientos = Establecimiento.objects.all()
+    return render(request, 'punto_app/admin_membresias.html', {
+        'membresias': membresias,
+        'establecimientos': establecimientos
+    })
+
+@csrf_exempt
+@requiere_admin
+def admin_membresia_crear(request):
+    try:
+        data = json.loads(request.body)
+        
+        membresia = Membresia.objects.create(
+            nombre=data['nombre'],
+            descripcion=data['descripcion'],
+            precio=data['precio'],
+            duracion=data['duracion'],
+            dias_por_semana=data.get('dias_por_semana'),
+            establecimiento_id=data['establecimiento_id']
+        )
+        
+        return JsonResponse({
+            'id': membresia.id,
+            'nombre': membresia.nombre,
+            'descripcion': membresia.descripcion,
+            'precio': membresia.precio,
+            'duracion': membresia.duracion,
+            'dias_por_semana': membresia.dias_por_semana,
+            'establecimiento_id': membresia.establecimiento_id
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+@requiere_admin
+def admin_membresia_actualizar(request, membresia_id):
+    try:
+        membresia = get_object_or_404(Membresia, pk=membresia_id)
+        data = json.loads(request.body)
+        
+        membresia.nombre = data.get('nombre', membresia.nombre)
+        membresia.descripcion = data.get('descripcion', membresia.descripcion)
+        membresia.precio = data.get('precio', membresia.precio)
+        membresia.duracion = data.get('duracion', membresia.duracion)
+        membresia.dias_por_semana = data.get('dias_por_semana', membresia.dias_por_semana)
+        membresia.establecimiento_id = data.get('establecimiento_id', membresia.establecimiento_id)
+        membresia.save()
+        
+        return JsonResponse({
+            'id': membresia.id,
+            'nombre': membresia.nombre,
+            'descripcion': membresia.descripcion,
+            'precio': membresia.precio,
+            'duracion': membresia.duracion,
+            'dias_por_semana': membresia.dias_por_semana,
+            'establecimiento_id': membresia.establecimiento_id
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+@requiere_admin
+def admin_membresia_borrar(request, membresia_id):
+    try:
+        membresia = get_object_or_404(Membresia, pk=membresia_id)
+        membresia.delete()
+        return JsonResponse({'message': 'Membresía eliminada correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
