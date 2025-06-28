@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 import json
 import re
+from django.db.models.functions import TruncMonth
 from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor,DetalleVenta,VentaCliente,Membresia,ClienteMembresia,MetodoPago,TipoDocumentoPago
 from django.contrib.auth.hashers import check_password
 from .decorators import requiere_admin, requiere_superadmin
@@ -2045,3 +2046,37 @@ def admin_cliente_membresia_borrar(request, cliente_membresia_id):
         return JsonResponse({'message': 'ClienteMembresia eliminada correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+    
+    
+def estadisticas_view(request):
+    # Ventas por mes
+    ventas_mensuales = (
+        VentaCliente.objects
+        .annotate(mes=TruncMonth('fecha'))
+        .values('mes')
+        .annotate(total=Sum('total'))
+        .order_by('mes')
+    )
+
+    etiquetas = [v['mes'].strftime('%B %Y') for v in ventas_mensuales]
+    totales = [v['total'] for v in ventas_mensuales]
+
+    # Productos más vendidos
+    productos_mas_vendidos = (
+        DetalleVenta.objects
+        .values('producto__nombre')
+        .annotate(total_vendidos=Sum('cantidad'))
+        .order_by('-total_vendidos')[:5]
+    )
+
+    productos = [p['producto__nombre'] for p in productos_mas_vendidos]
+    cantidades = [p['total_vendidos'] for p in productos_mas_vendidos]
+
+    contexto = {
+        'etiquetas': json.dumps(etiquetas),
+        'totales': json.dumps(totales),
+        'productos': json.dumps(productos),
+        'cantidades': json.dumps(cantidades),
+    }
+
+    return render(request, 'estadisticas.html', contexto)
