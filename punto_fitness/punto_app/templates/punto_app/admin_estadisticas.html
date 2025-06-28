@@ -1,11 +1,90 @@
-{% extends 'base_admin.html' %}
-{% block content %}
-<h2>Estadísticas de Ventas</h2>
+{% extends 'punto_app/base_admin.html' %}
+{% load static %}
 
-<canvas id="ventasChart" width="400" height="200"></canvas>
-<canvas id="productosChart" width="400" height="200"></canvas>
+{% block title %}Estadísticas - Punto Fitness{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/estadisticas.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-</script>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+  <div class="button-group">
+    <label for="view-mode">Vista de gráficos:</label>
+    <select id="view-mode" onchange="changeViewMode(this.value)">
+      <option value="small">Pequeño</option>
+      <option value="medium" selected>Mediano</option>
+      <option value="large">Grande</option>
+    </select>
+  </div>
+
+  <!-- Sección de Estadísticas Monetarias -->
+  <div class="section">
+    <h2>Estadísticas monetarias</h2>
+    <div class="button-group" id="time-filter">
+      <button onclick="updateMoneyChart('daily')">Diario</button>
+      <button onclick="updateMoneyChart('weekly')">Semanal</button>
+      <button onclick="updateMoneyChart('monthly')">Mensual</button>
+      <button onclick="updateMoneyChart('yearly')">Anual</button>
+    </div>
+    <canvas id="moneyChart"></canvas>
+  </div>
+
+  <!-- Sección de Ventas por Producto -->
+  <div class="section">
+    <h2>Ventas por producto</h2>
+    <div class="button-group" id="product-buttons">
+      <!-- Los botones se generarán dinámicamente con JavaScript -->
+    </div>
+    <div class="button-group">
+      <button onclick="setProductPeriod('daily')">Diario</button>
+      <button onclick="setProductPeriod('weekly')">Semanal</button>
+      <button onclick="setProductPeriod('monthly')">Mensual</button>
+    </div>
+    <canvas id="productChart"></canvas>
+  </div>
+
+  <!-- Sección de Ventas de Membresías -->
+  <div class="section">
+    <h2>Ventas de membresías</h2>
+    <div class="button-group">
+      <button onclick="updateMembershipChart('daily')">Diario</button>
+      <button onclick="updateMembershipChart('weekly')">Semanal</button>
+      <button onclick="updateMembershipChart('monthly')">Mensual</button>
+    </div>
+    <canvas id="membershipChart"></canvas>
+  </div>
+</div>
+
+<!-- Datos ocultos para JavaScript -->
+<div id="etiquetas-data" style="display: none;">{{ etiquetas|safe }}</div>
+<div id="totales-data" style="display: none;">{{ totales|safe }}</div>
+<div id="productos-data" style="display: none;">{{ productos|safe }}</div>
+<div id="cantidades-data" style="display: none;">{{ cantidades|safe }}</div>
+
+<!-- Nuevos datos de ventas monetarias -->
+<div id="ventas-diarias-labels" style="display: none;">{{ ventas_diarias_labels|safe }}</div>
+<div id="ventas-diarias-data" style="display: none;">{{ ventas_diarias_data|safe }}</div>
+<div id="ventas-semanales-labels" style="display: none;">{{ ventas_semanales_labels|safe }}</div>
+<div id="ventas-semanales-data" style="display: none;">{{ ventas_semanales_data|safe }}</div>
+<div id="ventas-mensuales-labels" style="display: none;">{{ ventas_mensuales_labels|safe }}</div>
+<div id="ventas-mensuales-data" style="display: none;">{{ ventas_mensuales_data|safe }}</div>
+<div id="ventas-anuales-labels" style="display: none;">{{ ventas_anuales_labels|safe }}</div>
+<div id="ventas-anuales-data" style="display: none;">{{ ventas_anuales_data|safe }}</div>
+
+<!-- Datos de ventas por producto -->
+<div id="ventas-por-producto" style="display: none;">{{ ventas_por_producto|safe }}</div>
+
+<!-- Datos de membresías -->
+<div id="membresias-diarias-labels" style="display: none;">{{ membresias_diarias_labels|safe }}</div>
+<div id="membresias-diarias-data" style="display: none;">{{ membresias_diarias_data|safe }}</div>
+<div id="membresias-semanales-labels" style="display: none;">{{ membresias_semanales_labels|safe }}</div>
+<div id="membresias-semanales-data" style="display: none;">{{ membresias_semanales_data|safe }}</div>
+<div id="membresias-mensuales-labels" style="display: none;">{{ membresias_mensuales_labels|safe }}</div>
+<div id="membresias-mensuales-data" style="display: none;">{{ membresias_mensuales_data|safe }}</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/estadisticas.js' %}"></script>
 {% endblock %}

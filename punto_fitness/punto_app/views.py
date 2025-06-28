@@ -23,6 +23,10 @@ from django.conf import settings
 import time
 from datetime import datetime
 logger = logging.getLogger('punto_app')
+# funcionamiento estadísticas
+from datetime import datetime, timedelta
+from django.db.models.functions import TruncDay, TruncWeek, TruncMonth, TruncYear
+from django.utils import timezone
 
 # Create your views here.
 def principal(request):
@@ -795,7 +799,7 @@ def estadisticas(request):
     clientes = Cliente.objects.all()
     Venta_Cliente = VentaCliente.objects.all()
     Detalle_Venta = DetalleVenta.objects.all()
-    return render(request, 'punto_app/estadisticas.html')
+    return render(request, 'punto_app/admin_estadisticas.html')
 @csrf_exempt
 def admin_compra_vendedor_crear(request):
     try:
@@ -2048,35 +2052,264 @@ def admin_cliente_membresia_borrar(request, cliente_membresia_id):
         return JsonResponse({'error': str(e)}, status=400)
     
     
+@requiere_admin
 def estadisticas_view(request):
-    # Ventas por mes
+    # Obtener fecha actual y fechas de referencia
+    now = timezone.now()
+    thirty_days_ago = now - timedelta(days=30)
+    six_months_ago = now - timedelta(days=180)
+    
+    # Debug: Verificar si hay datos en las tablas
+    total_ventas = VentaCliente.objects.count()
+    total_membresias = ClienteMembresia.objects.count()
+    total_productos = Producto.objects.count()
+    
+    logger.info(f"Debug estadísticas - Total ventas: {total_ventas}, Total membresías: {total_membresias}, Total productos: {total_productos}")
+    
+    # 1. Ventas monetarias por diferentes períodos
+    # Ventas diarias (últimos 7 días)
+    ventas_diarias = (
+        VentaCliente.objects
+        .filter(fecha__gte=now.date() - timedelta(days=7))
+        .annotate(dia=TruncDay('fecha'))
+        .values('dia')
+        .annotate(total=Sum('total'))
+        .order_by('dia')
+    )
+    
+    # Ventas semanales (últimas 4 semanas)
+    ventas_semanales = (
+        VentaCliente.objects
+        .filter(fecha__gte=now.date() - timedelta(days=28))
+        .annotate(semana=TruncWeek('fecha'))
+        .values('semana')
+        .annotate(total=Sum('total'))
+        .order_by('semana')
+    )
+    
+    # Ventas mensuales (últimos 6 meses)
     ventas_mensuales = (
         VentaCliente.objects
+        .filter(fecha__gte=six_months_ago.date())
         .annotate(mes=TruncMonth('fecha'))
         .values('mes')
         .annotate(total=Sum('total'))
         .order_by('mes')
     )
-
-    etiquetas = [v['mes'].strftime('%B %Y') for v in ventas_mensuales]
-    totales = [v['total'] for v in ventas_mensuales]
-
-    # Productos más vendidos
+    
+    # Ventas anuales (todos los años disponibles)
+    ventas_anuales = (
+        VentaCliente.objects
+        .annotate(anio=TruncYear('fecha'))
+        .values('anio')
+        .annotate(total=Sum('total'))
+        .order_by('anio')
+    )
+    
+    # Si no hay ventas recientes, mostrar todas las ventas disponibles
+    if not ventas_mensuales.exists():
+        ventas_mensuales = (
+            VentaCliente.objects
+            .annotate(mes=TruncMonth('fecha'))
+            .values('mes')
+            .annotate(total=Sum('total'))
+            .order_by('mes')
+        )
+    
+    if not ventas_semanales.exists():
+        ventas_semanales = (
+            VentaCliente.objects
+            .annotate(semana=TruncWeek('fecha'))
+            .values('semana')
+            .annotate(total=Sum('total'))
+            .order_by('semana')
+        )
+    
+    if not ventas_diarias.exists():
+        ventas_diarias = (
+            VentaCliente.objects
+            .annotate(dia=TruncDay('fecha'))
+            .values('dia')
+            .annotate(total=Sum('total'))
+            .order_by('dia')
+        )
+    
+    # 2. Productos más vendidos
     productos_mas_vendidos = (
         DetalleVenta.objects
         .values('producto__nombre')
         .annotate(total_vendidos=Sum('cantidad'))
-        .order_by('-total_vendidos')[:5]
+        .order_by('-total_vendidos')[:10]
     )
-
+    
+    # 3. Ventas por producto específico (últimos 30 días)
+    ventas_por_producto_diario = (
+        DetalleVenta.objects
+        .filter(venta__fecha__gte=thirty_days_ago.date())
+        .values('producto__nombre', 'venta__fecha')
+        .annotate(cantidad_vendida=Sum('cantidad'))
+        .order_by('producto__nombre', 'venta__fecha')
+    )
+    
+    # 4. Membresías vendidas por período
+    membresias_diarias = (
+        ClienteMembresia.objects
+        .filter(fecha_inicio__gte=now.date() - timedelta(days=7))
+        .annotate(dia=TruncDay('fecha_inicio'))
+        .values('dia')
+        .annotate(total=Count('id'))
+        .order_by('dia')
+    )
+    
+    membresias_semanales = (
+        ClienteMembresia.objects
+        .filter(fecha_inicio__gte=now.date() - timedelta(days=28))
+        .annotate(semana=TruncWeek('fecha_inicio'))
+        .values('semana')
+        .annotate(total=Count('id'))
+        .order_by('semana')
+    )
+    
+    membresias_mensuales = (
+        ClienteMembresia.objects
+        .filter(fecha_inicio__gte=six_months_ago.date())
+        .annotate(mes=TruncMonth('fecha_inicio'))
+        .values('mes')
+        .annotate(total=Count('id'))
+        .order_by('mes')
+    )
+    
+    # Si no hay membresías recientes, mostrar todas las membresías disponibles
+    if not membresias_mensuales.exists():
+        membresias_mensuales = (
+            ClienteMembresia.objects
+            .annotate(mes=TruncMonth('fecha_inicio'))
+            .values('mes')
+            .annotate(total=Count('id'))
+            .order_by('mes')
+        )
+    
+    if not membresias_semanales.exists():
+        membresias_semanales = (
+            ClienteMembresia.objects
+            .annotate(semana=TruncWeek('fecha_inicio'))
+            .values('semana')
+            .annotate(total=Count('id'))
+            .order_by('semana')
+        )
+    
+    if not membresias_diarias.exists():
+        membresias_diarias = (
+            ClienteMembresia.objects
+            .annotate(dia=TruncDay('fecha_inicio'))
+            .values('dia')
+            .annotate(total=Count('id'))
+            .order_by('dia')
+        )
+    
+    # Preparar datos para el contexto
+    def format_ventas_data(ventas_data, date_format):
+        labels = []
+        data = []
+        for venta in ventas_data:
+            if 'dia' in venta:
+                labels.append(venta['dia'].strftime(date_format))
+                data.append(float(venta['total']))
+            elif 'semana' in venta:
+                labels.append(venta['semana'].strftime(date_format))
+                data.append(float(venta['total']))
+            elif 'mes' in venta:
+                labels.append(venta['mes'].strftime(date_format))
+                data.append(float(venta['total']))
+            elif 'anio' in venta:
+                labels.append(venta['anio'].strftime(date_format))
+                data.append(float(venta['total']))
+        return labels, data
+    
+    def format_membresias_data(membresias_data, date_format):
+        labels = []
+        data = []
+        for membresia in membresias_data:
+            if 'dia' in membresia:
+                labels.append(membresia['dia'].strftime(date_format))
+                data.append(membresia['total'])
+            elif 'semana' in membresia:
+                labels.append(membresia['semana'].strftime(date_format))
+                data.append(membresia['total'])
+            elif 'mes' in membresia:
+                labels.append(membresia['mes'].strftime(date_format))
+                data.append(membresia['total'])
+        return labels, data
+    
+    # Datos de ventas monetarias
+    ventas_diarias_labels, ventas_diarias_data = format_ventas_data(ventas_diarias, '%d/%m')
+    ventas_semanales_labels, ventas_semanales_data = format_ventas_data(ventas_semanales, '%d/%m')
+    ventas_mensuales_labels, ventas_mensuales_data = format_ventas_data(ventas_mensuales, '%B %Y')
+    ventas_anuales_labels, ventas_anuales_data = format_ventas_data(ventas_anuales, '%Y')
+    
+    # Datos de membresías
+    membresias_diarias_labels, membresias_diarias_data = format_membresias_data(membresias_diarias, '%d/%m')
+    membresias_semanales_labels, membresias_semanales_data = format_membresias_data(membresias_semanales, '%d/%m')
+    membresias_mensuales_labels, membresias_mensuales_data = format_membresias_data(membresias_mensuales, '%B %Y')
+    
+    # Productos más vendidos
     productos = [p['producto__nombre'] for p in productos_mas_vendidos]
     cantidades = [p['total_vendidos'] for p in productos_mas_vendidos]
-
+    
+    # Organizar ventas por producto para diferentes períodos
+    ventas_por_producto = {}
+    for venta in ventas_por_producto_diario:
+        producto = venta['producto__nombre']
+        fecha = venta['venta__fecha'].strftime('%d/%m')
+        cantidad = venta['cantidad_vendida']
+        
+        if producto not in ventas_por_producto:
+            ventas_por_producto[producto] = {'daily': {}, 'weekly': {}, 'monthly': {}}
+        
+        ventas_por_producto[producto]['daily'][fecha] = cantidad
+    
+    # Convertir a arrays para JavaScript
+    for producto in ventas_por_producto:
+        for periodo in ['daily', 'weekly', 'monthly']:
+            if isinstance(ventas_por_producto[producto][periodo], dict):
+                # Ordenar por fecha y convertir a arrays
+                sorted_items = sorted(ventas_por_producto[producto][periodo].items())
+                ventas_por_producto[producto][periodo] = [item[1] for item in sorted_items]
+    
+    # Debug: Log de datos encontrados
+    logger.info(f"Ventas diarias encontradas: {len(ventas_diarias_data)}")
+    logger.info(f"Ventas mensuales encontradas: {len(ventas_mensuales_data)}")
+    logger.info(f"Membresías diarias encontradas: {len(membresias_diarias_data)}")
+    logger.info(f"Membresías mensuales encontradas: {len(membresias_mensuales_data)}")
+    logger.info(f"Productos encontrados: {len(productos)}")
+    
     contexto = {
-        'etiquetas': json.dumps(etiquetas),
-        'totales': json.dumps(totales),
+        # Datos de ventas monetarias
+        'ventas_diarias_labels': json.dumps(ventas_diarias_labels),
+        'ventas_diarias_data': json.dumps(ventas_diarias_data),
+        'ventas_semanales_labels': json.dumps(ventas_semanales_labels),
+        'ventas_semanales_data': json.dumps(ventas_semanales_data),
+        'ventas_mensuales_labels': json.dumps(ventas_mensuales_labels),
+        'ventas_mensuales_data': json.dumps(ventas_mensuales_data),
+        'ventas_anuales_labels': json.dumps(ventas_anuales_labels),
+        'ventas_anuales_data': json.dumps(ventas_anuales_data),
+        
+        # Datos de productos
         'productos': json.dumps(productos),
         'cantidades': json.dumps(cantidades),
+        'ventas_por_producto': json.dumps(ventas_por_producto),
+        
+        # Datos de membresías
+        'membresias_diarias_labels': json.dumps(membresias_diarias_labels),
+        'membresias_diarias_data': json.dumps(membresias_diarias_data),
+        'membresias_semanales_labels': json.dumps(membresias_semanales_labels),
+        'membresias_semanales_data': json.dumps(membresias_semanales_data),
+        'membresias_mensuales_labels': json.dumps(membresias_mensuales_labels),
+        'membresias_mensuales_data': json.dumps(membresias_mensuales_data),
+        
+        # Datos legacy para compatibilidad
+        'etiquetas': json.dumps(ventas_mensuales_labels),
+        'totales': json.dumps(ventas_mensuales_data),
     }
 
-    return render(request, 'estadisticas.html', contexto)
+    return render(request, 'punto_app/admin_estadisticas.html', contexto)

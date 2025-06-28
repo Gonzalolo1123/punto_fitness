@@ -771,3 +771,291 @@ NameError: name 'voucher' is not defined
 ERROR 2025-06-13 04:34:00,308 basehttp 24752 31956 "POST /venta_confirmada/ HTTP/1.1" 500 77246
 ERROR 2025-06-15 19:44:20,776 log 51932 48860 Internal Server Error: /venta_confirmada/
 ERROR 2025-06-15 19:44:20,778 basehttp 51932 48860 "POST /venta_confirmada/ HTTP/1.1" 500 68
+ERROR 2025-06-27 23:02:48,400 log 12292 5824 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 798, in estadisticas
+    return render(request, 'punto_app/estadisticas.html')
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/estadisticas.html
+ERROR 2025-06-27 23:02:48,412 basehttp 12292 5824 "GET /estadisticas/ HTTP/1.1" 500 84641
+ERROR 2025-06-27 23:04:07,669 log 14508 10440 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 798, in estadisticas
+    return render(request, 'punto_app/estadisticas.html')
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/estadisticas.html
+ERROR 2025-06-27 23:04:07,673 basehttp 14508 10440 "GET /estadisticas/ HTTP/1.1" 500 84906
+ERROR 2025-06-27 23:06:29,254 log 14508 21108 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 798, in estadisticas
+    return render(request, 'punto_app/estadisticas.html')
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/estadisticas.html
+ERROR 2025-06-27 23:06:29,258 basehttp 14508 21108 "GET /estadisticas/ HTTP/1.1" 500 84641
+ERROR 2025-06-27 23:07:28,937 log 14508 9220 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 798, in estadisticas
+    return render(request, 'punto_app/estadisticas.html')
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/estadisticas.html
+ERROR 2025-06-27 23:07:28,939 basehttp 14508 9220 "GET /estadisticas/ HTTP/1.1" 500 84906
+ERROR 2025-06-27 23:07:45,835 log 14508 15264 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 798, in estadisticas
+    return render(request, 'punto_app/estadisticas.html')
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/estadisticas.html
+ERROR 2025-06-27 23:07:45,838 basehttp 14508 15264 "GET /estadisticas/ HTTP/1.1" 500 84799
+ERROR 2025-06-27 23:07:50,107 log 14508 1944 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 798, in estadisticas
+    return render(request, 'punto_app/estadisticas.html')
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/estadisticas.html
+ERROR 2025-06-27 23:07:50,111 basehttp 14508 1944 "GET /estadisticas/ HTTP/1.1" 500 84803
+ERROR 2025-06-27 23:08:01,730 log 14508 29232 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 798, in estadisticas
+    return render(request, 'punto_app/estadisticas.html')
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/estadisticas.html
+ERROR 2025-06-27 23:08:01,735 basehttp 14508 29232 "GET /estadisticas/ HTTP/1.1" 500 84803
+ERROR 2025-06-27 23:08:37,000 log 11428 2716 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 798, in estadisticas
+    return render(request, 'punto_app/estadisticas.html')
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/estadisticas.html
+ERROR 2025-06-27 23:08:37,004 basehttp 11428 2716 "GET /estadisticas/ HTTP/1.1" 500 85068
+ERROR 2025-06-27 23:08:38,459 log 11428 3536 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 798, in estadisticas
+    return render(request, 'punto_app/estadisticas.html')
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/estadisticas.html
+ERROR 2025-06-27 23:08:38,462 basehttp 11428 3536 "GET /estadisticas/ HTTP/1.1" 500 85068
+ERROR 2025-06-27 23:08:45,169 log 11428 2092 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 798, in estadisticas
+    return render(request, 'punto_app/estadisticas.html')
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/estadisticas.html
+ERROR 2025-06-27 23:08:45,173 basehttp 11428 2092 "GET /estadisticas/ HTTP/1.1" 500 84803
+ERROR 2025-06-27 23:10:15,576 log 12812 29896 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 2082, in estadisticas_view
+    return render(request, 'admin_estadisticas.html', contexto)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: admin_estadisticas.html
+ERROR 2025-06-27 23:10:15,583 basehttp 12812 29896 "GET /estadisticas/ HTTP/1.1" 500 85071
+ERROR 2025-06-27 23:10:42,048 log 1520 20876 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 134, in render
+    compiled_parent = self.get_parent(context)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 131, in get_parent
+    return self.find_template(parent, context)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 109, in find_template
+    template, origin = context.template.engine.find_template(
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        template_name,
+        ^^^^^^^^^^^^^^
+        skip=history,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 163, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: base_admin.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 2082, in estadisticas_view
+    return render(request, 'punto_app/admin_estadisticas.html', contexto)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 109, in render
+    reraise(exc, self.backend)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 130, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: base_admin.html
+ERROR 2025-06-27 23:10:42,059 basehttp 1520 20876 "GET /estadisticas/ HTTP/1.1" 500 132993
+ERROR 2025-06-27 23:10:43,089 log 1520 23584 Internal Server Error: /estadisticas/
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 134, in render
+    compiled_parent = self.get_parent(context)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 131, in get_parent
+    return self.find_template(parent, context)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 109, in find_template
+    template, origin = context.template.engine.find_template(
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        template_name,
+        ^^^^^^^^^^^^^^
+        skip=history,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 163, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: base_admin.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Sergi\OneDrive\Escritorio\universidad\Semestre 09 (IX)\Taller de Ingeniería de Software\punto_fitness\punto_fitness\punto_app\views.py", line 2082, in estadisticas_view
+    return render(request, 'punto_app/admin_estadisticas.html', contexto)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 109, in render
+    reraise(exc, self.backend)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Sergi\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 130, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: base_admin.html
+ERROR 2025-06-27 23:10:43,094 basehttp 1520 23584 "GET /estadisticas/ HTTP/1.1" 500 132993
