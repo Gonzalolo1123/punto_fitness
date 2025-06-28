@@ -6,7 +6,8 @@ from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 import json
 import re
-from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor,DetalleVenta,VentaCliente,Membresia,ClienteMembresia
+from django.db.models.functions import TruncMonth
+from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor,DetalleVenta,VentaCliente,Membresia,ClienteMembresia,MetodoPago,TipoDocumentoPago
 from django.contrib.auth.hashers import check_password
 from .decorators import requiere_admin, requiere_superadmin
 # Funcionamiento CRUD
@@ -20,6 +21,7 @@ from django.utils.timezone import localtime
 import os
 from django.conf import settings
 import time
+from datetime import datetime
 logger = logging.getLogger('punto_app')
 
 # Create your views here.
@@ -1642,13 +1644,15 @@ def finalizar_compra(request):
                     'cantidad': cantidad,
                     'total_producto': round(total, 2)
                 })
-
             # Resumen general
             voucher = {
                 'fecha': timezone.now().strftime('%Y-%m-%d'),
                 'hora':timezone.now().strftime('%H:%M:%S'),
                 'productos': productos_voucher,
-                'total_general': round(total_general, 2)
+                'total_general': round(total_general, 2),
+                'subtotal':total_general,
+                'porcentaje_iva':'19',
+                'valor_iva':total_general*0.19,
             }
 
             print("\n📄 Voucher generado:")
@@ -1669,8 +1673,9 @@ def mostrar_voucher(request):
     if request.method == 'POST':
         try:
             clientes=list(Cliente.objects.values('id','nombre','apellido','email','telefono'))
+            forma_pago = list(MetodoPago.objects.values('id','nombre'))
             voucher_data = json.loads(request.POST.get('voucher_data'))
-            return render(request, 'punto_app/voucher_venta.html', {'voucher': voucher_data,'clientes':json.dumps(clientes)})
+            return render(request, 'punto_app/voucher_venta.html', {'voucher': voucher_data,'clientes':json.dumps(clientes),'forma_pago':json.dumps(forma_pago)})
         except Exception as e:
             return render(request, 'error.html', {'mensaje': 'Error al mostrar voucher.'})
     return render(request, 'error.html', {'mensaje': 'Método no permitido.'})
@@ -1682,34 +1687,75 @@ def venta_confirmada(request):
         documento = request.POST.get('documento')
         telefono = request.POST.get('telefono')
         email = request.POST.get('email')
-        metodo_pago = request.POST.get('metodo_pago')
+        metodo_pago_id = request.POST.get('metodo_pago')  # Se recibe el ID ahora
         productos_json = request.POST.get('productos_json')
-        cliente_id = request.POST.get('cliente_id', '00')  # Default '00' si no viene
+        cliente_id = request.POST.get('cliente_id', '00')
 
         productos = json.loads(productos_json)
-        print("======= DATOS DEL CLIENTE Y COMPRA =======")
-        print(f"ID Cliente: {cliente_id}")
-        print(f"Nombre: {nombre}")
-        print(f"Documento: {documento}")
-        print(f"Teléfono: {telefono}")
-        print(f"Email: {email}")
-        print(f"Método de Pago: {metodo_pago}")
-        print("======= PRODUCTOS =======")
-        for i, prod in enumerate(productos, 1):
-            print(f"{i}. Producto: {prod.get('nombre_codigo')}")
-            print(f"   Cantidad: {prod.get('cantidad')}")
-            print(f"   Precio Unitario: {prod.get('precio_unitario')}")
-            print(f"   Subtotal: {prod.get('total_producto')}")
-        print("==========================================")
+
+        try:
+            # Obtener método de pago
+            metodo_pago = MetodoPago.objects.get(id=metodo_pago_id)
+
+            # Obtener establecimiento (ejemplo: si tienes uno por defecto)
+            establecimiento = Establecimiento.objects.first()  # o según el usuario logueado
+
+            # Calcular el total de la venta
+            total = sum(int(p['total_producto']) for p in productos)
+
+            if cliente_id == '00':
+                # Si no hay cliente registrado, puedes crear un cliente temporal si lo deseas
+                cliente = Cliente.objects.create(
+                    nombre=nombre,
+                    apellido='',
+                    email=email,
+                    telefono=telefono
+                )
+            else:
+                cliente = Cliente.objects.get(id=cliente_id)
+
+            # Crear la venta
+            venta = VentaCliente.objects.create(
+                establecimiento=establecimiento,
+                metodo_pago=metodo_pago,
+                usuario=cliente,
+                fecha=timezone.now().date(),
+                total=total
+            )
+
+            # Guardar detalles de venta
+            for item in productos:
+                nombre_codigo = item['nombre_codigo']
+                cantidad = int(item['cantidad'])
+                precio_unitario = int(item['precio_unitario'])
+                subtotal = int(item['total_producto'])
+                iva = round(subtotal * 0.19, 2)  # o como sea que calcules el IVA
+                print(f"Buscando producto con nombre_codigo: {nombre_codigo}")
+
+                # Buscar el producto por nombre o código
+                
+                producto = Producto.objects.filter(nombre__icontains=nombre_codigo).first()
+                print('los productos son',producto)
+                if not producto:
+                    continue  # Saltar si no se encuentra
+
+                DetalleVenta.objects.create(
+                    cantidad=cantidad,
+                    iva=iva,
+                    subtotal=subtotal,
+                    precio_unitario=precio_unitario,
+                    producto=producto,
+                    venta=venta
+                )
+
+            return JsonResponse({'status': 'ok'})
         
-        # Aquí puedes hacer lo que necesites con el cliente_id
-        if cliente_id == '00':
-            print("Cliente no registrado")
-        else:
-            print(f"Cliente registrado con ID: {cliente_id}")
-        
-        return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            print("ERROR en guardar venta:", e)
+            return JsonResponse({'error': str(e)}, status=500)
+
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
 
 @requiere_admin
 def membresias(request):
@@ -1786,3 +1832,251 @@ def admin_membresia_borrar(request, membresia_id):
         return JsonResponse({'message': 'Membresía eliminada correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+    
+@requiere_admin
+def membresias(request):
+    membresias = Membresia.objects.select_related('establecimiento').values(
+        'id', 'nombre', 'descripcion', 'precio', 'duracion', 'dias_por_semana',
+        'establecimiento_id', 'establecimiento__nombre'
+    )
+    establecimientos = Establecimiento.objects.all()
+    
+    # Agregar datos de ClienteMembresia con fechas formateadas para input date
+    cliente_membresias_raw = ClienteMembresia.objects.select_related('usuario', 'membresia').values(
+        'id', 'usuario_id', 'membresia_id', 'fecha_inicio', 'fecha_fin', 'estado', 'codigo_qr',
+        'usuario__nombre', 'usuario__apellido', 'usuario__email',
+        'membresia__nombre', 'membresia__precio'
+    )
+    
+    # Formatear las fechas para el input de tipo date
+    cliente_membresias = []
+    for cm in cliente_membresias_raw:
+        cm_dict = dict(cm)
+        if cm_dict['fecha_inicio']:
+            cm_dict['fecha_inicio_formatted'] = cm_dict['fecha_inicio'].strftime('%Y-%m-%d')
+        else:
+            cm_dict['fecha_inicio_formatted'] = ''
+        if cm_dict['fecha_fin']:
+            cm_dict['fecha_fin_formatted'] = cm_dict['fecha_fin'].strftime('%Y-%m-%d')
+        else:
+            cm_dict['fecha_fin_formatted'] = ''
+        cliente_membresias.append(cm_dict)
+    
+    clientes = Cliente.objects.all()
+    
+    return render(request, 'punto_app/admin_membresias.html', {
+        'membresias': membresias,
+        'establecimientos': establecimientos,
+        'cliente_membresias': cliente_membresias,
+        'clientes': clientes
+    })
+
+@csrf_exempt
+@requiere_admin
+def admin_membresia_crear(request):
+    try:
+        data = json.loads(request.body)
+        
+        membresia = Membresia.objects.create(
+            nombre=data['nombre'],
+            descripcion=data['descripcion'],
+            precio=data['precio'],
+            duracion=data['duracion'],
+            dias_por_semana=data.get('dias_por_semana'),
+            establecimiento_id=data['establecimiento_id']
+        )
+        
+        return JsonResponse({
+            'id': membresia.id,
+            'nombre': membresia.nombre,
+            'descripcion': membresia.descripcion,
+            'precio': membresia.precio,
+            'duracion': membresia.duracion,
+            'dias_por_semana': membresia.dias_por_semana,
+            'establecimiento_id': membresia.establecimiento_id
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+@requiere_admin
+def admin_membresia_actualizar(request, membresia_id):
+    try:
+        membresia = get_object_or_404(Membresia, pk=membresia_id)
+        data = json.loads(request.body)
+        
+        membresia.nombre = data.get('nombre', membresia.nombre)
+        membresia.descripcion = data.get('descripcion', membresia.descripcion)
+        membresia.precio = data.get('precio', membresia.precio)
+        membresia.duracion = data.get('duracion', membresia.duracion)
+        membresia.dias_por_semana = data.get('dias_por_semana', membresia.dias_por_semana)
+        membresia.establecimiento_id = data.get('establecimiento_id', membresia.establecimiento_id)
+        membresia.save()
+        
+        # Recalcular fecha_fin de todas las ClienteMembresia asociadas
+        from datetime import timedelta
+        from dateutil.relativedelta import relativedelta
+        cliente_membresias = ClienteMembresia.objects.filter(membresia_id=membresia.id)
+        for cm in cliente_membresias:
+            if membresia.duracion == 'semanal':
+                cm.fecha_fin = cm.fecha_inicio + timedelta(days=7)
+            elif membresia.duracion == 'mensual':
+                cm.fecha_fin = cm.fecha_inicio + relativedelta(months=1)
+            elif membresia.duracion == 'anual':
+                cm.fecha_fin = cm.fecha_inicio + relativedelta(years=1)
+            else:
+                cm.fecha_fin = cm.fecha_inicio
+            cm.save()
+        
+        return JsonResponse({
+            'id': membresia.id,
+            'nombre': membresia.nombre,
+            'descripcion': membresia.descripcion,
+            'precio': membresia.precio,
+            'duracion': membresia.duracion,
+            'dias_por_semana': membresia.dias_por_semana,
+            'establecimiento_id': membresia.establecimiento_id
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+@requiere_admin
+def admin_membresia_borrar(request, membresia_id):
+    try:
+        membresia = get_object_or_404(Membresia, pk=membresia_id)
+        membresia.delete()
+        return JsonResponse({'message': 'Membresía eliminada correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+# Funciones CRUD para ClienteMembresia
+@csrf_exempt
+@requiere_admin
+def admin_cliente_membresia_crear(request):
+    try:
+        data = json.loads(request.body)
+        fecha_inicio = datetime.strptime(data['fecha_inicio'], '%Y-%m-%d').date()
+        membresia = Membresia.objects.get(id=data['membresia_id'])
+        # Calcular fecha_fin según la duración
+        if membresia.duracion == 'semanal':
+            from datetime import timedelta
+            fecha_fin = fecha_inicio + timedelta(days=7)
+        elif membresia.duracion == 'mensual':
+            from dateutil.relativedelta import relativedelta
+            fecha_fin = fecha_inicio + relativedelta(months=1)
+        elif membresia.duracion == 'anual':
+            from dateutil.relativedelta import relativedelta
+            fecha_fin = fecha_inicio + relativedelta(years=1)
+        else:
+            fecha_fin = fecha_inicio
+        
+        cliente_membresia = ClienteMembresia.objects.create(
+            usuario_id=data['usuario_id'],
+            membresia_id=data['membresia_id'],
+            fecha_inicio=fecha_inicio,
+            fecha_fin=fecha_fin,
+            estado=data['estado']
+        )
+        
+        return JsonResponse({
+            'id': cliente_membresia.id,
+            'usuario_id': cliente_membresia.usuario_id,
+            'membresia_id': cliente_membresia.membresia_id,
+            'fecha_inicio': cliente_membresia.fecha_inicio.strftime('%Y-%m-%d'),
+            'fecha_fin': cliente_membresia.fecha_fin.strftime('%Y-%m-%d'),
+            'estado': cliente_membresia.estado
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+@requiere_admin
+def admin_cliente_membresia_actualizar(request, cliente_membresia_id):
+    try:
+        cliente_membresia = get_object_or_404(ClienteMembresia, pk=cliente_membresia_id)
+        data = json.loads(request.body)
+        
+        cliente_membresia.usuario_id = data.get('usuario_id', cliente_membresia.usuario_id)
+        cliente_membresia.membresia_id = data.get('membresia_id', cliente_membresia.membresia_id)
+        
+        # Recalcular fecha_inicio y fecha_fin si se edita la fecha de inicio o la membresía
+        if 'fecha_inicio' in data or 'membresia_id' in data:
+            if 'fecha_inicio' in data:
+                fecha_inicio = datetime.strptime(data['fecha_inicio'], '%Y-%m-%d').date()
+            else:
+                fecha_inicio = cliente_membresia.fecha_inicio
+            membresia = Membresia.objects.get(id=cliente_membresia.membresia_id)
+            if 'membresia_id' in data:
+                membresia = Membresia.objects.get(id=data['membresia_id'])
+            if membresia.duracion == 'semanal':
+                from datetime import timedelta
+                fecha_fin = fecha_inicio + timedelta(days=7)
+            elif membresia.duracion == 'mensual':
+                from dateutil.relativedelta import relativedelta
+                fecha_fin = fecha_inicio + relativedelta(months=1)
+            elif membresia.duracion == 'anual':
+                from dateutil.relativedelta import relativedelta
+                fecha_fin = fecha_inicio + relativedelta(years=1)
+            else:
+                fecha_fin = fecha_inicio
+            cliente_membresia.fecha_inicio = fecha_inicio
+            cliente_membresia.fecha_fin = fecha_fin
+        
+        cliente_membresia.estado = data.get('estado', cliente_membresia.estado)
+        cliente_membresia.save()
+        
+        return JsonResponse({
+            'id': cliente_membresia.id,
+            'usuario_id': cliente_membresia.usuario_id,
+            'membresia_id': cliente_membresia.membresia_id,
+            'fecha_inicio': cliente_membresia.fecha_inicio.strftime('%Y-%m-%d'),
+            'fecha_fin': cliente_membresia.fecha_fin.strftime('%Y-%m-%d'),
+            'estado': cliente_membresia.estado
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+@requiere_admin
+def admin_cliente_membresia_borrar(request, cliente_membresia_id):
+    try:
+        cliente_membresia = get_object_or_404(ClienteMembresia, pk=cliente_membresia_id)
+        cliente_membresia.delete()
+        return JsonResponse({'message': 'ClienteMembresia eliminada correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+    
+def estadisticas_view(request):
+    # Ventas por mes
+    ventas_mensuales = (
+        VentaCliente.objects
+        .annotate(mes=TruncMonth('fecha'))
+        .values('mes')
+        .annotate(total=Sum('total'))
+        .order_by('mes')
+    )
+
+    etiquetas = [v['mes'].strftime('%B %Y') for v in ventas_mensuales]
+    totales = [v['total'] for v in ventas_mensuales]
+
+    # Productos más vendidos
+    productos_mas_vendidos = (
+        DetalleVenta.objects
+        .values('producto__nombre')
+        .annotate(total_vendidos=Sum('cantidad'))
+        .order_by('-total_vendidos')[:5]
+    )
+
+    productos = [p['producto__nombre'] for p in productos_mas_vendidos]
+    cantidades = [p['total_vendidos'] for p in productos_mas_vendidos]
+
+    contexto = {
+        'etiquetas': json.dumps(etiquetas),
+        'totales': json.dumps(totales),
+        'productos': json.dumps(productos),
+        'cantidades': json.dumps(cantidades),
+    }
+
+    return render(request, 'estadisticas.html', contexto)

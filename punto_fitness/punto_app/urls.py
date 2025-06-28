@@ -79,10 +79,13 @@ urlpatterns = [
     path('finalizar_compra/', views.finalizar_compra, name='finalizar_compra'),
     path('mostrar_voucher/', views.mostrar_voucher, name='mostrar_voucher'),
     path('venta_confirmada/', views.venta_confirmada, name='venta_confirmada'),
-
     # Membresías
     path('membresias/', views.membresias, name='membresias'),
     path('membresias/crear_membresia/', views.admin_membresia_crear, name='admin_membresia_crear'),
     path('membresias/actualizar_membresia/<int:membresia_id>/', views.admin_membresia_actualizar, name='admin_membresia_actualizar'),
     path('membresias/borrar_membresia/<int:membresia_id>/', views.admin_membresia_borrar, name='admin_membresia_borrar'),
+    path('membresias/crear_cliente_membresia/', views.admin_cliente_membresia_crear, name='admin_cliente_membresia_crear'),
+    path('membresias/actualizar_cliente_membresia/<int:cliente_membresia_id>/', views.admin_cliente_membresia_actualizar, name='admin_cliente_membresia_actualizar'),
+    path('membresias/borrar_cliente_membresia/<int:cliente_membresia_id>/', views.admin_cliente_membresia_borrar, name='admin_cliente_membresia_borrar'),
+    path('estadisticas/', views.estadisticas_view, name='estadisticas'),
 ]

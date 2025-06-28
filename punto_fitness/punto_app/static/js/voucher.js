@@ -3,8 +3,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function mostrarSeleccionCliente() {
         // Datos de clientes pasados desde Django
         const clientes = JSON.parse(document.getElementById('clientes-data').textContent);
-
+        const forma_pago = JSON.parse(document.getElementById('forma_pago-data').textContent);
         // Agregar opción de cliente no registrado
+        const existeClienteNoRegistrado = clientes.some(cliente => cliente.email.trim().toLowerCase() === 'no.registrado@tienda.com');
+        console.log('resultado no registrado',existeClienteNoRegistrado)
         const clienteNoRegistrado = {
             id: 0,
             nombre: 'Cliente sin registro',
@@ -13,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
             telefono: '1111111111',
             email: 'no.registrado@tienda.com'
         };
-
+        
         // Construir el HTML para la tabla de clientes
         let html = `
             <div class="swal2-cliente-container">
@@ -41,7 +43,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             `).join('')}
                             <tr>
                                 <td colspan="4">
-                                    <button class="swal2-select-btn swal2-no-reg-btn" data-id="0">
+                                    <button class="swal2-select-btn swal2-no-reg-btn" data-id="0"
+                                        ${existeClienteNoRegistrado ? 'disabled' : ''}>
                                         Cliente no registrado
                                     </button>
                                 </td>
@@ -53,9 +56,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     <label for="swal2-metodo-pago">Método de Pago:</label>
                     <select id="swal2-metodo-pago" class="swal2-select">
                         <option value="">-- Seleccione --</option>
-                        <option value="Débito">Débito</option>
-                        <option value="Crédito">Crédito</option>
-                        <option value="Efectivo">Efectivo</option>
                     </select>
                 </div>
             </div>
@@ -65,6 +65,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const swalInstance = Swal.fire({
             title: 'Seleccionar Cliente',
             html: html,
+            didRender: () => {
+                if (existeClienteNoRegistrado) {
+                    document.querySelector('.swal2-no-reg-btn').setAttribute('disabled', 'disabled');
+                }
+            },
             width: '800px',
             showConfirmButton: true,
             confirmButtonText: 'Confirmar',
@@ -84,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         row.style.display = shouldShow ? '' : 'none';
                     });
                 });
-
+                
                 // Configurar los botones de selección
                 const selectButtons = document.querySelectorAll('.swal2-select-btn');
                 selectButtons.forEach(btn => {
@@ -109,6 +114,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Configurar el método de pago
                 const metodoPagoSelect = document.getElementById('swal2-metodo-pago');
+                forma_pago.forEach(fp => {
+                    const option = document.createElement('option');
+                    option.value = fp.id;               // Usa el ID como valor
+                    option.textContent = fp.nombre;     // Muestra el nombre
+                    metodoPagoSelect.appendChild(option);
+                });
                 metodoPagoSelect.addEventListener('change', function () {
                     const hasSelectedClient = !!swalInstance.selectedClienteId;
                     swalInstance.enableButtons(hasSelectedClient && !!this.value);
@@ -185,6 +196,10 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('btnSeleccionarCliente').addEventListener('click', mostrarSeleccionCliente);
 });
 
+function limpiarNombre(nombre) {
+    // Quita paréntesis y lo que está dentro
+    return nombre.replace(/\s*\(.*?\)\s*/g, '').trim();
+}
 // Función para confirmar los datos de la venta
 function confirmarDatos(boton) {
     const urlVenta = boton.dataset.url;
@@ -209,7 +224,7 @@ function confirmarDatos(boton) {
     filas.forEach(fila => {
         const columnas = fila.querySelectorAll("td");
         productos.push({
-            nombre_codigo: columnas[0].innerText.trim(),
+            nombre_codigo: limpiarNombre(columnas[0].innerText.trim()),
             cantidad: columnas[1].innerText.trim(),
             precio_unitario: columnas[2].innerText.trim().replace("$", ""),
             total_producto: columnas[3].innerText.trim().replace("$", "")
