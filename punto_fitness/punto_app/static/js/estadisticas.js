@@ -1,3 +1,138 @@
+// Variables globales
+let selectedCategory = 'todos';
+let selectedPeriod = 'monthly';
+let categoryData = {};
+let moneyData = {};
+let membershipData = {};
+let moneyChart, productChart, membershipChart;
+
+// Función para obtener datos de categoría para un período específico
+function getCategoryDataForPeriod(period, category) {
+    if (!categoryData || !categoryData[period]) {
+        return { labels: ['Sin datos'], data: [0] };
+    }
+    
+    const periodData = categoryData[period];
+    if (!periodData || !periodData[category]) {
+        return { labels: ['Sin datos'], data: [0] };
+    }
+    
+    const categoryDataForPeriod = periodData[category];
+    const labels = Object.keys(categoryDataForPeriod).sort();
+    const data = labels.map(label => categoryDataForPeriod[label]);
+    
+    return { labels, data };
+}
+
+// Función para obtener datos de todas las categorías para un período específico
+function getAllCategoriesDataForPeriod(period) {
+    if (!categoryData || !categoryData[period]) {
+        return { labels: ['Sin datos'], datasets: [] };
+    }
+    
+    const periodData = categoryData[period];
+    if (!periodData || Object.keys(periodData).length === 0) {
+        return { labels: ['Sin datos'], datasets: [] };
+    }
+    
+    // Obtener todas las fechas únicas
+    const allDates = new Set();
+    Object.values(periodData).forEach(categoryDataItem => {
+        if (categoryDataItem && typeof categoryDataItem === 'object') {
+            Object.keys(categoryDataItem).forEach(date => allDates.add(date));
+        }
+    });
+    
+    const labels = Array.from(allDates).sort();
+    
+    // Crear datasets para cada categoría
+    const datasets = [];
+    const colors = ['#e10600', '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997'];
+    
+    Object.keys(periodData).forEach((category, index) => {
+        if (periodData[category] && typeof periodData[category] === 'object') {
+            const data = labels.map(label => periodData[category][label] || 0);
+            datasets.push({
+                label: category,
+                data: data,
+                backgroundColor: colors[index % colors.length] + '40',
+                borderColor: colors[index % colors.length],
+                borderWidth: 2,
+                fill: false
+            });
+        }
+    });
+    
+    return { labels, datasets };
+}
+
+// Funciones de actualización
+function updateMoneyChart(period) {
+    if (!moneyData || !moneyData[period] || !moneyChart) return;
+    const data = moneyData[period];
+    moneyChart.data.labels = data.labels;
+    moneyChart.data.datasets[0].data = data.data;
+    moneyChart.update();
+}
+
+function updateCategoryChart(period) {
+    if (!categoryData || !productChart) return;
+    
+    if (selectedCategory === 'todos') {
+        const data = getAllCategoriesDataForPeriod(period);
+        productChart.data.labels = data.labels;
+        productChart.data.datasets = data.datasets;
+    } else {
+        const data = getCategoryDataForPeriod(period, selectedCategory);
+        productChart.data.labels = data.labels;
+        productChart.data.datasets = [{
+            label: selectedCategory,
+            data: data.data,
+            backgroundColor: 'rgba(225, 6, 0, 0.2)',
+            borderColor: '#e10600',
+            borderWidth: 2,
+            fill: true
+        }];
+    }
+    productChart.update();
+}
+
+function setCategory(category) {
+    selectedCategory = category;
+    
+    // Actualizar estado visual de los botones
+    const buttons = document.querySelectorAll('#product-buttons button');
+    buttons.forEach(button => {
+        button.classList.remove('active');
+        if (button.textContent === category || (category === 'todos' && button.textContent === 'Todas las categorías')) {
+            button.classList.add('active');
+        }
+    });
+    
+    updateCategoryChart(selectedPeriod);
+}
+
+function setCategoryPeriod(period) {
+    selectedPeriod = period;
+    updateCategoryChart(period);
+}
+
+function updateMembershipChart(period) {
+    if (!membershipData || !membershipData[period] || !membershipChart) return;
+    const data = membershipData[period];
+    membershipChart.data.labels = data.labels;
+    membershipChart.data.datasets[0].data = data.data;
+    membershipChart.update();
+}
+
+function changeViewMode(mode) {
+    const canvases = document.querySelectorAll('canvas');
+    canvases.forEach(canvas => {
+        canvas.classList.remove('chart-small', 'chart-medium', 'chart-large');
+        canvas.classList.add(`chart-${mode}`);
+    });
+}
+
 // Script para las estadísticas de ventas con datos reales de la base de datos
 document.addEventListener('DOMContentLoaded', function() {
     // Obtener los datos del contexto de Django
@@ -19,6 +154,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Datos de ventas por producto
     const ventasPorProducto = JSON.parse(document.getElementById('ventas-por-producto').textContent || '{}');
     
+    // Nuevos datos de ventas por categoría
+    const ventasCategoriaDiariasData = JSON.parse(document.getElementById('ventas-categoria-diarias-data').textContent || '{}');
+    const ventasCategoriaSemanalesData = JSON.parse(document.getElementById('ventas-categoria-semanales-data').textContent || '{}');
+    const ventasCategoriaMensualesData = JSON.parse(document.getElementById('ventas-categoria-mensuales-data').textContent || '{}');
+    const ventasCategoriaAnualesData = JSON.parse(document.getElementById('ventas-categoria-anuales-data').textContent || '{}');
+    const categoriasUnicas = JSON.parse(document.getElementById('categorias-unicas').textContent || '[]');
+    
     // Datos de membresías
     const membresiasDiariasLabels = JSON.parse(document.getElementById('membresias-diarias-labels').textContent || '[]');
     const membresiasDiariasData = JSON.parse(document.getElementById('membresias-diarias-data').textContent || '[]');
@@ -32,12 +174,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const productChartCtx = document.getElementById('productChart').getContext('2d');
     const membershipChartCtx = document.getElementById('membershipChart').getContext('2d');
 
-    // Variables globales
-    let selectedProduct = productos.length > 0 ? productos[0] : 'todos';
-    let selectedPeriod = 'daily';
+    // Actualizar variables globales
+    selectedCategory = categoriasUnicas.length > 0 ? categoriasUnicas[0] : 'todos';
+    selectedPeriod = 'monthly';
 
     // Datos de ventas monetarias organizados por período
-    const moneyData = {
+    moneyData = {
         daily: {
             labels: ventasDiariasLabels.length > 0 ? ventasDiariasLabels : ['Sin ventas recientes'],
             data: ventasDiariasData.length > 0 ? ventasDiariasData : [0]
@@ -56,8 +198,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Datos de ventas por categoría organizados por período
+    categoryData = {
+        daily: ventasCategoriaDiariasData,
+        weekly: ventasCategoriaSemanalesData,
+        monthly: ventasCategoriaMensualesData,
+        yearly: ventasCategoriaAnualesData
+    };
+
     // Datos de membresías organizados por período
-    const membershipData = {
+    membershipData = {
         daily: {
             labels: membresiasDiariasLabels.length > 0 ? membresiasDiariasLabels : ['Sin membresías recientes'],
             data: membresiasDiariasData.length > 0 ? membresiasDiariasData : [0]
@@ -73,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Configuración de gráficos
-    let moneyChart = new Chart(moneyChartCtx, {
+    moneyChart = new Chart(moneyChartCtx, {
         type: 'line',
         data: {
             labels: moneyData.monthly.labels,
@@ -110,27 +260,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    let productChart = new Chart(productChartCtx, {
-        type: 'bar',
-        data: {
-            labels: productos.length > 0 ? productos : ['Sin productos'],
-            datasets: [{
-                label: 'Cantidad Vendida',
-                data: cantidades.length > 0 ? cantidades : [0],
-                backgroundColor: '#e10600'
-            }]
-        },
+    productChart = new Chart(productChartCtx, {
+        type: 'line',
+        data: getAllCategoriesDataForPeriod('monthly'),
         options: {
             responsive: true,
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Cantidad Vendida'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Período'
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Ventas por Categoría de Producto'
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
                 }
             }
         }
     });
 
-    let membershipChart = new Chart(membershipChartCtx, {
+    membershipChart = new Chart(membershipChartCtx, {
         type: 'bar',
         data: {
             labels: membershipData.monthly.labels,
@@ -150,91 +313,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Funciones de actualización
-    function updateMoneyChart(period) {
-        const data = moneyData[period];
-        moneyChart.data.labels = data.labels;
-        moneyChart.data.datasets[0].data = data.data;
-        moneyChart.update();
-    }
-
-    function updateProductChart() {
-        // Para el gráfico de productos, mostramos los productos más vendidos
-        // No cambiamos los datos por período ya que es un ranking general
-        productChart.data.labels = productos.length > 0 ? productos : ['Sin productos'];
-        productChart.data.datasets[0].data = cantidades.length > 0 ? cantidades : [0];
-        productChart.update();
-    }
-
-    function setProduct(product) {
-        selectedProduct = product;
-        
-        // Actualizar estado visual de los botones
-        const buttons = document.querySelectorAll('#product-buttons button');
-        buttons.forEach(button => {
-            button.classList.remove('active');
-            if (button.textContent === product || (product === 'todos' && button.textContent === 'Todos los productos')) {
-                button.classList.add('active');
-            }
-        });
-        
-        updateProductChart();
-    }
-
-    function setProductPeriod(period) {
-        selectedPeriod = period;
-        updateProductChart();
-    }
-
-    function updateMembershipChart(period) {
-        const data = membershipData[period];
-        membershipChart.data.labels = data.labels;
-        membershipChart.data.datasets[0].data = data.data;
-        membershipChart.update();
-    }
-
-    function changeViewMode(mode) {
-        const canvases = document.querySelectorAll('canvas');
-        canvases.forEach(canvas => {
-            canvas.classList.remove('chart-small', 'chart-medium', 'chart-large');
-            canvas.classList.add(`chart-${mode}`);
-        });
-    }
-
-    // Hacer las funciones globales
-    window.updateMoneyChart = updateMoneyChart;
-    window.updateProductChart = updateProductChart;
-    window.setProduct = setProduct;
-    window.setProductPeriod = setProductPeriod;
-    window.updateMembershipChart = updateMembershipChart;
-    window.changeViewMode = changeViewMode;
-
-    // Generar botones de productos dinámicamente
-    function generateProductButtons() {
+    // Generar botones de categorías dinámicamente
+    function generateCategoryButtons() {
         const productButtonsContainer = document.getElementById('product-buttons');
         if (!productButtonsContainer) return;
 
         // Limpiar contenedor
         productButtonsContainer.innerHTML = '';
 
-        // Agregar botón "Todos los productos"
+        // Agregar botón "Todas las categorías"
         const allButton = document.createElement('button');
-        allButton.textContent = 'Todos los productos';
-        allButton.onclick = () => setProduct('todos');
+        allButton.textContent = 'Todas las categorías';
+        allButton.onclick = () => setCategory('todos');
         allButton.classList.add('active');
         productButtonsContainer.appendChild(allButton);
 
-        // Agregar botones para cada producto
-        productos.forEach((producto, index) => {
+        // Agregar botones para cada categoría
+        categoriasUnicas.forEach((categoria) => {
             const button = document.createElement('button');
-            button.textContent = producto;
-            button.onclick = () => setProduct(producto);
+            button.textContent = categoria;
+            button.onclick = () => setCategory(categoria);
             productButtonsContainer.appendChild(button);
         });
     }
 
     // Llamar a la función para generar botones
-    generateProductButtons();
+    generateCategoryButtons();
 
     // Mostrar información de datos disponibles
     console.log('Datos de ventas cargados:', {
@@ -244,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
         anuales: ventasAnualesData.length
     });
     
-    console.log('Productos disponibles:', productos);
+    console.log('Categorías disponibles:', categoriasUnicas);
     console.log('Membresías cargadas:', {
         diarias: membresiasDiariasData.length,
         semanales: membresiasSemanalesData.length,
@@ -279,10 +383,10 @@ document.addEventListener('DOMContentLoaded', function() {
             infoHTML += `<li>Membresías encontradas: ${membresiasMensualesData.length} meses con datos</li>`;
         }
         
-        if (productos.length === 0) {
-            infoHTML += '<li>No hay productos registrados en la base de datos</li>';
+        if (categoriasUnicas.length === 0) {
+            infoHTML += '<li>No hay categorías de productos con ventas registradas</li>';
         } else {
-            infoHTML += `<li>Productos disponibles: ${productos.length}</li>`;
+            infoHTML += `<li>Categorías disponibles: ${categoriasUnicas.length}</li>`;
         }
         
         infoHTML += '</ul>';

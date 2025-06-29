@@ -2134,7 +2134,84 @@ def estadisticas_view(request):
             .order_by('dia')
         )
     
-    # 2. Productos más vendidos
+    # 2. Ventas por categoría de producto por diferentes períodos
+    # Ventas por categoría diarias (últimos 7 días)
+    ventas_categoria_diarias = (
+        DetalleVenta.objects
+        .filter(venta__fecha__gte=now.date() - timedelta(days=7))
+        .annotate(dia=TruncDay('venta__fecha'))
+        .values('producto__categoria__nombre', 'dia')
+        .annotate(total_vendido=Sum('cantidad'))
+        .order_by('producto__categoria__nombre', 'dia')
+    )
+    
+    # Ventas por categoría semanales (últimas 4 semanas)
+    ventas_categoria_semanales = (
+        DetalleVenta.objects
+        .filter(venta__fecha__gte=now.date() - timedelta(days=28))
+        .annotate(semana=TruncWeek('venta__fecha'))
+        .values('producto__categoria__nombre', 'semana')
+        .annotate(total_vendido=Sum('cantidad'))
+        .order_by('producto__categoria__nombre', 'semana')
+    )
+    
+    # Ventas por categoría mensuales (últimos 6 meses)
+    ventas_categoria_mensuales = (
+        DetalleVenta.objects
+        .filter(venta__fecha__gte=six_months_ago.date())
+        .annotate(mes=TruncMonth('venta__fecha'))
+        .values('producto__categoria__nombre', 'mes')
+        .annotate(total_vendido=Sum('cantidad'))
+        .order_by('producto__categoria__nombre', 'mes')
+    )
+    
+    # Ventas por categoría anuales (todos los años disponibles)
+    ventas_categoria_anuales = (
+        DetalleVenta.objects
+        .annotate(anio=TruncYear('venta__fecha'))
+        .values('producto__categoria__nombre', 'anio')
+        .annotate(total_vendido=Sum('cantidad'))
+        .order_by('producto__categoria__nombre', 'anio')
+    )
+    
+    # Si no hay ventas por categoría recientes, mostrar todas las disponibles
+    if not ventas_categoria_mensuales.exists():
+        ventas_categoria_mensuales = (
+            DetalleVenta.objects
+            .annotate(mes=TruncMonth('venta__fecha'))
+            .values('producto__categoria__nombre', 'mes')
+            .annotate(total_vendido=Sum('cantidad'))
+            .order_by('producto__categoria__nombre', 'mes')
+        )
+    
+    if not ventas_categoria_semanales.exists():
+        ventas_categoria_semanales = (
+            DetalleVenta.objects
+            .annotate(semana=TruncWeek('venta__fecha'))
+            .values('producto__categoria__nombre', 'semana')
+            .annotate(total_vendido=Sum('cantidad'))
+            .order_by('producto__categoria__nombre', 'semana')
+        )
+    
+    if not ventas_categoria_diarias.exists():
+        ventas_categoria_diarias = (
+            DetalleVenta.objects
+            .annotate(dia=TruncDay('venta__fecha'))
+            .values('producto__categoria__nombre', 'dia')
+            .annotate(total_vendido=Sum('cantidad'))
+            .order_by('producto__categoria__nombre', 'dia')
+        )
+    
+    if not ventas_categoria_anuales.exists():
+        ventas_categoria_anuales = (
+            DetalleVenta.objects
+            .annotate(anio=TruncYear('venta__fecha'))
+            .values('producto__categoria__nombre', 'anio')
+            .annotate(total_vendido=Sum('cantidad'))
+            .order_by('producto__categoria__nombre', 'anio')
+        )
+    
+    # 3. Productos más vendidos
     productos_mas_vendidos = (
         DetalleVenta.objects
         .values('producto__nombre')
@@ -2142,7 +2219,7 @@ def estadisticas_view(request):
         .order_by('-total_vendidos')[:10]
     )
     
-    # 3. Ventas por producto específico (últimos 30 días)
+    # 4. Ventas por producto específico (últimos 30 días)
     ventas_por_producto_diario = (
         DetalleVenta.objects
         .filter(venta__fecha__gte=thirty_days_ago.date())
@@ -2151,7 +2228,7 @@ def estadisticas_view(request):
         .order_by('producto__nombre', 'venta__fecha')
     )
     
-    # 4. Membresías vendidas por período
+    # 5. Membresías vendidas por período
     membresias_diarias = (
         ClienteMembresia.objects
         .filter(fecha_inicio__gte=now.date() - timedelta(days=7))
@@ -2226,6 +2303,27 @@ def estadisticas_view(request):
                 data.append(float(venta['total']))
         return labels, data
     
+    def format_ventas_categoria_data(ventas_categoria_data, date_format):
+        # Organizar datos por categoría
+        categorias_data = {}
+        for venta in ventas_categoria_data:
+            categoria = venta['producto__categoria__nombre'] or 'Sin categoría'
+            if categoria not in categorias_data:
+                categorias_data[categoria] = {}
+            
+            if 'dia' in venta:
+                fecha = venta['dia'].strftime(date_format)
+            elif 'semana' in venta:
+                fecha = venta['semana'].strftime(date_format)
+            elif 'mes' in venta:
+                fecha = venta['mes'].strftime(date_format)
+            elif 'anio' in venta:
+                fecha = venta['anio'].strftime(date_format)
+            
+            categorias_data[categoria][fecha] = venta['total_vendido']
+        
+        return categorias_data
+    
     def format_membresias_data(membresias_data, date_format):
         labels = []
         data = []
@@ -2246,6 +2344,18 @@ def estadisticas_view(request):
     ventas_semanales_labels, ventas_semanales_data = format_ventas_data(ventas_semanales, '%d/%m')
     ventas_mensuales_labels, ventas_mensuales_data = format_ventas_data(ventas_mensuales, '%B %Y')
     ventas_anuales_labels, ventas_anuales_data = format_ventas_data(ventas_anuales, '%Y')
+    
+    # Datos de ventas por categoría
+    ventas_categoria_diarias_data = format_ventas_categoria_data(ventas_categoria_diarias, '%d/%m')
+    ventas_categoria_semanales_data = format_ventas_categoria_data(ventas_categoria_semanales, '%d/%m')
+    ventas_categoria_mensuales_data = format_ventas_categoria_data(ventas_categoria_mensuales, '%B %Y')
+    ventas_categoria_anuales_data = format_ventas_categoria_data(ventas_categoria_anuales, '%Y')
+    
+    # Obtener todas las categorías únicas
+    categorias_unicas = set()
+    for data in [ventas_categoria_diarias_data, ventas_categoria_semanales_data, 
+                 ventas_categoria_mensuales_data, ventas_categoria_anuales_data]:
+        categorias_unicas.update(data.keys())
     
     # Datos de membresías
     membresias_diarias_labels, membresias_diarias_data = format_membresias_data(membresias_diarias, '%d/%m')
@@ -2282,6 +2392,7 @@ def estadisticas_view(request):
     logger.info(f"Membresías diarias encontradas: {len(membresias_diarias_data)}")
     logger.info(f"Membresías mensuales encontradas: {len(membresias_mensuales_data)}")
     logger.info(f"Productos encontrados: {len(productos)}")
+    logger.info(f"Categorías encontradas: {list(categorias_unicas)}")
     
     contexto = {
         # Datos de ventas monetarias
@@ -2293,6 +2404,13 @@ def estadisticas_view(request):
         'ventas_mensuales_data': json.dumps(ventas_mensuales_data),
         'ventas_anuales_labels': json.dumps(ventas_anuales_labels),
         'ventas_anuales_data': json.dumps(ventas_anuales_data),
+        
+        # Datos de ventas por categoría
+        'ventas_categoria_diarias_data': json.dumps(ventas_categoria_diarias_data),
+        'ventas_categoria_semanales_data': json.dumps(ventas_categoria_semanales_data),
+        'ventas_categoria_mensuales_data': json.dumps(ventas_categoria_mensuales_data),
+        'ventas_categoria_anuales_data': json.dumps(ventas_categoria_anuales_data),
+        'categorias_unicas': json.dumps(list(categorias_unicas)),
         
         # Datos de productos
         'productos': json.dumps(productos),
