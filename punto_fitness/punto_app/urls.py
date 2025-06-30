@@ -77,4 +77,5 @@ urlpatterns = [
     path('super_admin/transferir_superadmin/', views.transferir_superadmin, name='transferir_superadmin'),
     path('super_admin/verificar_elegibilidad/<int:admin_id>/', views.verificar_elegibilidad_admin_superadmin, name='verificar_elegibilidad_admin_superadmin'),
     path('super_admin/enviar_codigo_verificacion/', views.enviar_codigo_verificacion_superadmin, name='enviar_codigo_verificacion_superadmin'),
+    path('super_admin/enviar_codigo_verificacion_actual/', views.enviar_codigo_verificacion_superadmin_actual, name='enviar_codigo_verificacion_superadmin_actual'),
 ]

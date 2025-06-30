@@ -46,8 +46,10 @@
         </tr>
       </thead>
       <tbody>
+        {% with admin_count=0 %}
         {% for admin in administradores %}
         {% if admin.nivel_acceso == 'admin' %}  <!-- Solo muestra los de nivel admin -->
+        {% with admin_count=admin_count|add:1 %}
         <tr data-id="{{ admin.id }}">
           <td>{{ admin.cliente.nombre }}</td>
           <td>{{ admin.cliente.apellido }}</td>
@@ -92,15 +94,6 @@
                   <label for="admin-telefono-editar-{{ admin.id }}">Teléfono:</label>
                   <input type="tel" id="admin-telefono-editar-{{ admin.id }}" name="admin-telefono-editar-{{ admin.id }}" value="{{ admin.cliente.telefono }}" required>
                 </div>
-              
-                <div class="form-fila">
-                  <label for="admin-nivel-editar-{{ admin.id }}">Nivel de acceso:</label>
-                  <select id="admin-nivel-editar-{{ admin.id }}" name="admin-nivel-editar-{{ admin.id }}" required>
-                    <option value="admin" {% if admin.nivel_acceso == 'admin' %}selected{% endif %}>Admin</option>
-                    <option value="superadmin" {% if admin.nivel_acceso == 'superadmin' %}selected{% endif %}>Super Admin</option>
-                  </select>
-                </div>
-                
                 <div class="modal-actions">
                   <button class="filtro-btn" type="submit">Guardar</button>
                   <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModalEdicion('admin', '{{ admin.id }}')">Cancelar</button>
@@ -109,13 +102,16 @@
             </div>
           </div>
         </div>
-
+        {% endwith %}
         {% endif %}
-        {% empty %}
+        {% endfor %}
+        
+        {% if admin_count == 0 %}
         <tr>
           <td colspan="6">No hay administradores registrados</td>
         </tr>
-        {% endfor %}
+        {% endif %}
+        {% endwith %}
       </tbody>
     </table>
 
@@ -204,9 +200,15 @@
               </div>
 
               <div class="form-fila">
-                <label for="codigo-verificacion">Código de verificación (enviado por email):</label>
+                <label for="codigo-verificacion">Código de verificación del admin destino (enviado por email):</label>
                 <input type="text" id="codigo-verificacion" name="codigo-verificacion" placeholder="Ingresa el código de 6 dígitos">
                 <button type="button" id="enviar-codigo-btn" class="filtro-btn">Enviar Código</button>
+              </div>
+
+              <div class="form-fila">
+                <label for="codigo-superadmin-actual">Código de verificación del Super Admin actual (enviado por email):</label>
+                <input type="text" id="codigo-superadmin-actual" name="codigo-superadmin-actual" placeholder="Ingresa el código de 6 dígitos" required>
+                <button type="button" id="enviar-codigo-superadmin-actual-btn" class="filtro-btn">Enviar Código</button>
               </div>
 
               <div class="form-fila">
