@@ -495,3 +495,222 @@ ERROR 2025-06-12 00:01:27,329 log 17348 14276 Internal Server Error: /enviar-cod
 ERROR 2025-06-12 00:01:27,330 basehttp 17348 14276 "POST /enviar-codigo-verificacion/ HTTP/1.1" 500 39
 ERROR 2025-06-12 00:26:02,638 log 7336 13364 Internal Server Error: /registro/
 ERROR 2025-06-12 00:26:02,643 basehttp 7336 13364 "POST /registro/ HTTP/1.1" 500 38
+ERROR 2025-06-29 22:35:28,404 log 8080 15940 Internal Server Error: /verificar-sesion/
+Traceback (most recent call last):
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: no existe la relación «cliente»
+LINE 1: ...liente"."fecha_registro", "cliente"."estado" FROM "cliente" ...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\views.py", line 1395, in verificar_sesion
+    cliente = Cliente.objects.get(id=cliente_id)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 629, in get
+    num = len(clone)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 366, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+django.db.utils.ProgrammingError: no existe la relación «cliente»
+LINE 1: ...liente"."fecha_registro", "cliente"."estado" FROM "cliente" ...
+                                                             ^
+
+ERROR 2025-06-29 22:35:28,414 basehttp 8080 15940 "GET /verificar-sesion/ HTTP/1.1" 500 137688
+ERROR 2025-06-29 22:36:29,305 log 8080 15940 Internal Server Error: /verificar-sesion/
+Traceback (most recent call last):
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\contrib\sessions\backends\base.py", line 244, in _get_session
+    return self._session_cache
+           ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: no existe la relación «django_session»
+LINE 1: ...ession_data", "django_session"."expire_date" FROM "django_se...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\views.py", line 1391, in verificar_sesion
+    cliente_id = request.session.get('cliente_id')
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\contrib\sessions\backends\base.py", line 74, in get
+    return self._session.get(key, default)
+           ^^^^^^^^^^^^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\contrib\sessions\backends\base.py", line 249, in _get_session
+    self._session_cache = self.load()
+                          ~~~~~~~~~^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\contrib\sessions\backends\db.py", line 55, in load
+    s = self._get_session_from_db()
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\contrib\sessions\backends\db.py", line 34, in _get_session_from_db
+    return self.model.objects.get(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        session_key=self.session_key, expire_date__gt=timezone.now()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 629, in get
+    num = len(clone)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 366, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+django.db.utils.ProgrammingError: no existe la relación «django_session»
+LINE 1: ...ession_data", "django_session"."expire_date" FROM "django_se...
+                                                             ^
+
+ERROR 2025-06-29 22:36:29,316 basehttp 8080 15940 "GET /verificar-sesion/ HTTP/1.1" 500 157844
+ERROR 2025-06-29 23:25:35,391 log 4524 15584 Internal Server Error: /venta_producto/
+Traceback (most recent call last):
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\views.py", line 2242, in venta_producto
+    return render(request, 'punto_app/ventaproducto.html',{'productos': productos,'categorias': categorias})
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/ventaproducto.html
+ERROR 2025-06-29 23:25:35,396 basehttp 4524 15584 "GET /venta_producto/ HTTP/1.1" 500 86018
+ERROR 2025-06-29 23:43:22,612 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:43:22,613 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
+ERROR 2025-06-29 23:43:55,787 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:43:55,787 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
+ERROR 2025-06-29 23:44:02,259 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:02,260 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
+ERROR 2025-06-29 23:44:03,523 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:03,523 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
+ERROR 2025-06-29 23:44:04,443 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:04,444 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
+ERROR 2025-06-29 23:44:41,473 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:41,474 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
+ERROR 2025-06-29 23:44:42,518 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:42,518 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
+ERROR 2025-06-29 23:44:43,505 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:43,506 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
+ERROR 2025-06-29 23:44:44,414 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:44,414 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
+ERROR 2025-06-29 23:44:45,279 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:45,279 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
+ERROR 2025-06-29 23:44:46,096 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:46,097 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
+ERROR 2025-06-29 23:44:46,921 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:46,922 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
+ERROR 2025-06-29 23:44:47,832 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:47,833 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
+ERROR 2025-06-29 23:44:48,604 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:48,605 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
+ERROR 2025-06-29 23:44:49,380 log 1220 11412 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-29 23:44:49,380 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
+ERROR 2025-06-30 00:11:47,953 log 16544 9620 Internal Server Error: /membresias/
+Traceback (most recent call last):
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\decorators.py", line 22, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\views.py", line 2509, in membresias
+    return render(request, 'punto_app/admin_membresias.html', {
+        'membresias': membresias,
+    ...<2 lines>...
+        'clientes': clientes
+    })
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: punto_app/admin_membresias.html
+ERROR 2025-06-30 00:11:47,957 basehttp 16544 9620 "GET /membresias/ HTTP/1.1" 500 105009

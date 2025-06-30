@@ -5,26 +5,6 @@ const BASE_URL = '/inventario/';
 ////////////////////////////////
 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🔧 Inicializando módulo de inventario...');
-  
-  // Verificar que las funciones de validación estén disponibles
-  if (typeof validarNombre === 'undefined' || typeof validarFormulario === 'undefined') {
-    console.error('❌ ERROR: Las funciones de validación no están disponibles. Verifique que validaciones.js se cargue antes que inventario.js');
-    Swal.fire('Error', 'Error de configuración: Las validaciones no están disponibles. Por favor, recarga la página.', 'error');
-    return;
-  }
-  
-  console.log('✅ Funciones de validación disponibles:', {
-    validarNombre: typeof validarNombre,
-    validarDescripcion: typeof validarDescripcion,
-    validarPrecioChileno: typeof validarPrecioChileno,
-    validarNumeroEntero: typeof validarNumeroEntero,
-    validarEmail: typeof validarEmail,
-    validarTelefonoChileno: typeof validarTelefonoChileno,
-    validarFormulario: typeof validarFormulario,
-    mostrarExitoValidacion: typeof mostrarExitoValidacion
-  });
-  
   inicializarEventListeners();
 });
 
@@ -47,7 +27,7 @@ function ocultarFormularioEdicion(id, id_tipo) {
   document.getElementById(`form-editar-${id_tipo}-${id}`).style.display = 'none';
 }
 
-// Función para actualizar vista de datos (INCOMPLETO)
+// Función para actualizar vista de datos
 function actualizarVista(objeto, id_tipo) {
   const row = document.querySelector(`tr[data-id="${objeto.id}"]`);
   if (!row) {
@@ -58,15 +38,20 @@ function actualizarVista(objeto, id_tipo) {
   const cells = row.cells;
   
   if (id_tipo=='producto') {
-    if (cells.length >= 8) {
+    if (cells.length >= 9) {
       cells[0].textContent = objeto.nombre || '';
       cells[1].textContent = objeto.descripcion || '';
       cells[2].textContent = objeto.precio || '';
       cells[3].textContent = objeto.stock_actual || '';
       cells[4].textContent = objeto.stock_minimo || '';
-      cells[5].textContent = `${objeto.compra__fecha} - $${objeto.compra__total}` || '';
-      cells[6].textContent = objeto.categoria__nombre || '';
-      cells[7].textContent = objeto.establecimiento__nombre || '';
+      cells[5].textContent = objeto.categoria__nombre || '';
+      cells[6].textContent = objeto.establecimiento__nombre || '';
+      // Actualizar la imagen
+      const imgElement = cells[7].querySelector('img');
+      if (imgElement && objeto.imagen) {
+        imgElement.src = `/static/${objeto.imagen}`;
+        imgElement.alt = objeto.nombre;
+      }
       // cells[8] es la columna de acciones, no se actualiza
     }
   }
@@ -118,15 +103,6 @@ function actualizarVista(objeto, id_tipo) {
     }
   }
 }
-
-////////////////////////////////
-// FUNCIONES DE VALIDACIÓN //
-////////////////////////////////
-
-// IMPORTAR FUNCIONES DE VALIDACIÓN
-// Si usas módulos ES6, descomenta la siguiente línea y asegúrate de servir los JS como type="module":
-// import { validarNombre, validarDescripcion, validarPrecioChileno, validarNumeroDecimal, validarNumeroEntero, validarEmail, validarTelefonoChileno, validarTelefonoNumericoChileno, validarFecha, validarHorario, validarSeleccion, validarDireccionChilena, validarPorcentaje } from './validaciones.js';
-// Si no usas módulos, simplemente incluye <script src="/static/js/validaciones.js"></script> antes de este archivo en tu HTML.
 
 ///////////////////////////
 // FUNCIONES DE CREACIÓN //
@@ -219,22 +195,25 @@ function actualizarProducto(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('El producto ha sido actualizado correctamente.', '¡Actualización Exitosa!');
-        return responseData;
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
       });
     } else {
-      return response.json().then(errorData => {
-        throw new Error(errorData.error || 'Error al actualizar el producto');
-      });
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
     }
   })
   .catch(error => {
-    console.error('Error al actualizar producto:', error);
-    Swal.fire('Error', 'Ocurrió un error al actualizar el producto: ' + error.message, 'error');
-    throw error;
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
   });
 }
+
 
 // Función para actualizar categoria
 function actualizarCategoria(id, data) {
@@ -247,20 +226,22 @@ function actualizarCategoria(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('La categoría ha sido actualizada correctamente.', '¡Actualización Exitosa!');
-        return responseData;
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
       });
     } else {
-      return response.json().then(errorData => {
-        throw new Error(errorData.error || 'Error al actualizar la categoría');
-      });
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
     }
   })
   .catch(error => {
-    console.error('Error al actualizar categoría:', error);
-    Swal.fire('Error', 'Ocurrió un error al actualizar la categoría: ' + error.message, 'error');
-    throw error;
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
   });
 }
 
@@ -275,22 +256,23 @@ function actualizarCompraVendedor(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('La compra ha sido actualizada correctamente.', '¡Actualización Exitosa!');
-        return responseData;
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
       });
     } else {
-      return response.json().then(errorData => {
-        throw new Error(errorData.error || 'Error al actualizar la compra');
-      });
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
     }
   })
   .catch(error => {
-    console.error('Error al actualizar compra:', error);
-    Swal.fire('Error', 'Ocurrió un error al actualizar la compra: ' + error.message, 'error');
-    throw error;
-  });
-}
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+  });}
 
 // Función para actualizar vendedor
 function actualizarVendedor(id, data) {
@@ -303,20 +285,22 @@ function actualizarVendedor(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('El vendedor ha sido actualizado correctamente.', '¡Actualización Exitosa!');
-        return responseData;
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
       });
     } else {
-      return response.json().then(errorData => {
-        throw new Error(errorData.error || 'Error al actualizar el vendedor');
-      });
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
     }
   })
   .catch(error => {
-    console.error('Error al actualizar vendedor:', error);
-    Swal.fire('Error', 'Ocurrió un error al actualizar el vendedor: ' + error.message, 'error');
-    throw error;
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
   });
 }
 
@@ -331,20 +315,22 @@ function actualizarEstablecimiento(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('El establecimiento ha sido actualizado correctamente.', '¡Actualización Exitosa!');
-        return responseData;
+      Swal.fire({
+        title: '¡Actualizacion Exitosa!',
+        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
       });
     } else {
-      return response.json().then(errorData => {
-        throw new Error(errorData.error || 'Error al actualizar el establecimiento');
-      });
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
     }
   })
   .catch(error => {
-    console.error('Error al actualizar establecimiento:', error);
-    Swal.fire('Error', 'Ocurrió un error al actualizar el establecimiento: ' + error.message, 'error');
-    throw error;
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
   });
 }
 
@@ -359,20 +345,29 @@ function actualizarProveedor(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('El proveedor ha sido actualizado correctamente.', '¡Actualización Exitosa!');
-        return responseData;
+      return response.json().then(data => {
+        if (data.success) {
+          Swal.fire({
+            title: '¡Actualizacion Exitosa!',
+            html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
+            icon: 'success',
+            confirmButtonColor: '#28a745'
+          }).then(() => {
+            // Recarga la página cuando se cierra el SweetAlert
+            location.reload();
+          });
+          return data.data; // Retornamos los datos del proveedor
+        } else {
+          throw new Error(data.error || 'Error al actualizar proveedor');
+        }
       });
     } else {
-      return response.json().then(errorData => {
-        throw new Error(errorData.error || 'Error al actualizar el proveedor');
-      });
+      throw new Error('Error en la respuesta del servidor');
     }
   })
   .catch(error => {
-    console.error('Error al actualizar proveedor:', error);
-    Swal.fire('Error', 'Ocurrió un error al actualizar el proveedor: ' + error.message, 'error');
-    throw error;
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
   });
 }
 
@@ -390,9 +385,14 @@ function eliminarProducto(id) {
     }
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('El producto ha sido eliminado correctamente.', '¡Eliminación Exitosa!');
-        return responseData;
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">El producto ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
       });
     } else {
       return response.json().then(data => {
@@ -401,9 +401,8 @@ function eliminarProducto(id) {
     }
   })
   .catch(error => {
-    console.error('Error al eliminar producto:', error);
-    Swal.fire('Error', 'Ocurrió un error al eliminar el producto: ' + error.message, 'error');
-    throw error;
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el procduto: ' + error.message, 'error');
   });
 }
 
@@ -417,20 +416,24 @@ function eliminarCategoria(id) {
     }
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('La categoría ha sido eliminada correctamente.', '¡Eliminación Exitosa!');
-        return responseData;
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">La categoria ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
       });
     } else {
       return response.json().then(data => {
-        throw new Error(data.error || 'Error al eliminar la categoría');
+        throw new Error(data.error || 'Error al eliminar categoria');
       });
     }
   })
   .catch(error => {
-    console.error('Error al eliminar categoría:', error);
-    Swal.fire('Error', 'Ocurrió un error al eliminar la categoría: ' + error.message, 'error');
-    throw error;
+    console.error('Error al eliminar proveedor:', error);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el proveedor: ' + error.message, 'error');
   });
 }
 
@@ -444,9 +447,14 @@ function eliminarCompraVendedor(id) {
     }
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('La compra ha sido eliminada correctamente.', '¡Eliminación Exitosa!');
-        return responseData;
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">La compra ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
       });
     } else {
       return response.json().then(data => {
@@ -455,9 +463,8 @@ function eliminarCompraVendedor(id) {
     }
   })
   .catch(error => {
-    console.error('Error al eliminar compra:', error);
+    console.error('Error al eliminar proveedor:', error);
     Swal.fire('Error', 'Ocurrió un error al eliminar la compra: ' + error.message, 'error');
-    throw error;
   });
 }
 
@@ -471,9 +478,14 @@ function eliminarVendedor(id) {
     }
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('El vendedor ha sido eliminado correctamente.', '¡Eliminación Exitosa!');
-        return responseData;
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">El vendedor ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
       });
     } else {
       return response.json().then(data => {
@@ -482,11 +494,9 @@ function eliminarVendedor(id) {
     }
   })
   .catch(error => {
-    console.error('Error al eliminar vendedor:', error);
+    console.error('Error al eliminar proveedor:', error);
     Swal.fire('Error', 'Ocurrió un error al eliminar el vendedor: ' + error.message, 'error');
-    throw error;
-  });
-}
+  });}
 
 // Función para eliminar establecimiento
 function eliminarEstablecimiento(id) {
@@ -498,20 +508,22 @@ function eliminarEstablecimiento(id) {
     }
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('El establecimiento ha sido eliminado correctamente.', '¡Eliminación Exitosa!');
-        return responseData;
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">Tu Eliminación ha sido registrada correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
       });
     } else {
-      return response.json().then(errorData => {
-        throw new Error(errorData.error || 'Error al eliminar el establecimiento');
-      });
+      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
     }
   })
   .catch(error => {
-    console.error('Error al eliminar establecimiento:', error);
-    Swal.fire('Error', 'Ocurrió un error al eliminar el establecimiento: ' + error.message, 'error');
-    throw error;
+    console.error(error);
+    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
   });
 }
 
@@ -525,20 +537,24 @@ function eliminarProveedor(id) {
     }
   }).then(response => {
     if (response.ok) {
-      return response.json().then(responseData => {
-        mostrarExitoValidacion('El proveedor ha sido eliminado correctamente.', '¡Eliminación Exitosa!');
-        return responseData;
+      Swal.fire({
+        title: 'Eliminación Exitosa!',
+        html: `<p style="color: #555;">El proveedor ha sido eliminado correctamente.</p>`,
+        icon: 'success',
+        confirmButtonColor: '#28a745'
+      }).then(() => {
+        // Recarga la página cuando se cierra el SweetAlert
+        location.reload();
       });
     } else {
       return response.json().then(data => {
-        throw new Error(data.error || 'Error al eliminar el proveedor');
+        throw new Error(data.error || 'Error al eliminar proveedor');
       });
     }
   })
   .catch(error => {
     console.error('Error al eliminar proveedor:', error);
     Swal.fire('Error', 'Ocurrió un error al eliminar el proveedor: ' + error.message, 'error');
-    throw error;
   });
 }
 
@@ -546,99 +562,195 @@ function eliminarProveedor(id) {
 // FUNCIONES DE MANEJO DE EVENT LISTENERS //
 ////////////////////////////////////////////
 
-// Creación de productos de event listeners
+// Función para manejar la creación de producto
 function manejoCrearProducto(e) {
   e.preventDefault();
-
-  // Obtener y limpiar valores
-  const nombre = document.getElementById('producto-nombre').value.trim();
-  const descripcion = document.getElementById('producto-descripcion').value.trim();
-  const precio = document.getElementById('producto-precio').value.trim();
-  const stockActual = document.getElementById('producto-stock-actual').value.trim();
-  const stockMinimo = document.getElementById('producto-stock-minimo').value.trim();
-  const compraId = document.getElementById('producto-compra').value;
-  const categoriaId = document.getElementById('producto-categoria').value;
-  const establecimientoId = document.getElementById('producto-establecimiento').value;
-
-  // Validaciones usando la nueva función validarFormulario
-  const validaciones = [
-    () => validarNombre(nombre, 'nombre del producto', 3, 30, true),
-    () => validarDescripcion(descripcion, 'descripción del producto', 5, 50),
-    () => validarPrecioChileno(precio, 'precio', 1, 999999999, true),
-    () => validarNumeroEntero(stockActual, 'stock actual', 0, 99999, true),
-    () => validarNumeroEntero(stockMinimo, 'stock mínimo', 0, 99999, true),
-    () => validarSeleccion(categoriaId, 'categoría', true),
-    () => validarSeleccion(establecimientoId, 'establecimiento', true)
-  ];
-
-  // Validación adicional: stock mínimo no puede ser mayor que stock actual
-  if (stockActual && stockMinimo && parseInt(stockMinimo) > parseInt(stockActual)) {
-    validaciones.push(() => ['El stock mínimo no puede ser mayor que el stock actual']);
-  }
-
-  // Validar formulario y mostrar errores si existen
-  if (!validarFormulario(validaciones, 'Errores en el Formulario de Producto')) {
+  
+  // Verificar si hay categorías disponibles
+  const selectCategoria = document.getElementById('producto-categoria');
+  if (selectCategoria.options.length <= 1) { // Solo tiene la opción "Seleccione"
+    Swal.fire({
+      title: 'No hay categorías disponibles',
+      text: '¿Deseas crear una nueva categoría?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, crear categoría',
+      cancelButtonText: 'No, cancelar',
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#dc3545'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Marcar que venimos del flujo de producto
+        sessionStorage.setItem('creandoCategoriaDesdeProducto', 'true');
+        // Cerrar el modal de producto
+        cerrarModal('producto');
+        // Abrir el modal de categoría
+        abrirModal('categoria');
+      }
+    });
     return;
   }
 
   const formData = {
-    nombre: nombre,
-    descripcion: descripcion,
-    precio: parseInt(precio), // Cambiar a entero para Chile
-    stock_actual: parseInt(stockActual),
-    stock_minimo: parseInt(stockMinimo),
-    compra_id: compraId || null,
-    categoria_id: categoriaId,
-    establecimiento_id: establecimientoId
+    nombre: document.getElementById('producto-nombre').value,
+    descripcion: document.getElementById('producto-descripcion').value,
+    precio: document.getElementById('producto-precio').value,
+    stock_actual: document.getElementById('producto-stock-actual').value,
+    stock_minimo: document.getElementById('producto-stock-minimo').value,
+    compra_id: document.getElementById('producto-compra').value || null,
+    categoria_id: document.getElementById('producto-categoria').value,
+    establecimiento_id: document.getElementById('producto-establecimiento').value,
+    imagen: document.getElementById('producto-imagen').value
   };
 
-  console.log('🚀 Enviando datos para crear producto...');
+  // Mostrar un indicador de carga
+  Swal.fire({
+    title: 'Creando producto...',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
   crearProducto(formData)
-    .then(data => {
-      console.log('✅ Respuesta del servidor:', data);
-      if (data.error) throw new Error(data.error);
-      mostrarExitoValidacion('Producto creado exitosamente', '¡Producto Creado!');
+    .then(response => {
+      if (!response.error) {
+        Swal.fire({
+          title: '¡Producto Creado!',
+          html: `<p style="color: #555;">El producto ha sido creado correctamente.</p>`,
+          icon: 'success',
+          confirmButtonColor: '#28a745'
+        }).then(() => {
+          // Asegurarnos de que la petición se haya completado antes de recargar
+          setTimeout(() => {
+            location.reload();
+          }, 100);
+        });
+      } else {
+        Swal.fire('Error', response.error || 'Hubo un problema al crear el producto.', 'error');
+      }
     })
     .catch(error => {
-      console.error('💥 Error al crear producto:', error);
-      Swal.fire('Error', 'Error al crear producto: ' + error.message, 'error');
+      console.error(error);
+      Swal.fire('Error', 'Ocurrió un error de red.', 'error');
     });
-};
+}
 
-// Creación de categorías de event listeners
+// Función para manejar la creación de categoría
 function manejoCrearCategoria(e) {
   e.preventDefault();
-  
-  // Obtener y limpiar valores
-  const nombre = document.getElementById('categoria-nombre').value.trim();
-  const descripcion = document.getElementById('categoria-descripcion').value.trim();
-  
-  // Validaciones usando la nueva función validarFormulario
-  const validaciones = [
-    () => validarNombre(nombre, 'nombre de la categoría', 3, 30, false),
-    () => validarDescripcion(descripcion, 'descripción de la categoría', 5, 50)
-  ];
-  
-  // Validar formulario y mostrar errores si existen
-  if (!validarFormulario(validaciones, 'Errores en el Formulario de Producto')) {
-    return;
-  }
-
-  const formData = {
-    nombre: nombre,
-    descripcion: descripcion,
+  const form = e.target;
+  const formData = new FormData(form);
+  const data = {
+    nombre: formData.get('categoria-nombre'),
+    descripcion: formData.get('categoria-descripcion')
   };
-  
-  crearCategoria(formData)
-    .then(data => {
-      if (data.error) throw new Error(data.error);
-      mostrarExitoValidacion('Categoría creada exitosamente', '¡Categoría Creada!');
+
+  crearCategoria(data)
+    .then(response => {
+      // Si la respuesta es exitosa (no hay error)
+      if (!response.error) {
+        Swal.fire({
+          title: '¡Categoría Creada!',
+          html: `<p style="color: #555;">La categoría ha sido creada correctamente.</p>`,
+          icon: 'success',
+          confirmButtonColor: '#28a745'
+        }).then(() => {
+          // Cerrar el modal de categoría
+          cerrarModal('categoria');
+          
+          // Verificar de dónde venimos
+          const desdeProducto = sessionStorage.getItem('creandoCategoriaDesdeProducto');
+          const desdeProductoEditar = sessionStorage.getItem('creandoCategoriaDesdeProductoEditar');
+          
+          if (desdeProducto === 'true') {
+            // Limpiar el sessionStorage
+            sessionStorage.removeItem('creandoCategoriaDesdeProducto');
+            
+            // Abrir el modal de producto
+            setTimeout(() => {
+              const modalProducto = document.getElementById('modal-fondo-producto');
+              const botonProducto = document.getElementById('abrir-form-producto');
+              if (modalProducto && botonProducto) {
+                modalProducto.style.display = 'flex';
+                botonProducto.setAttribute('data-estado', 'abierto');
+                botonProducto.textContent = '-';
+                
+                // Preseleccionar la categoría recién creada
+                const selectCategoria = document.getElementById('producto-categoria');
+                if (selectCategoria) {
+                  // Agregar la nueva categoría al select
+                  const option = document.createElement('option');
+                  option.value = response.id;
+                  option.text = response.nombre;
+                  selectCategoria.appendChild(option);
+                  // Seleccionar la nueva categoría
+                  selectCategoria.value = response.id;
+                }
+              }
+            }, 100);
+          } else if (desdeProductoEditar === 'true') {
+            // Limpiar el sessionStorage
+            sessionStorage.removeItem('creandoCategoriaDesdeProductoEditar');
+            
+            // Recuperar los datos del producto
+            const datosProducto = JSON.parse(sessionStorage.getItem('datosProductoEdicion'));
+            sessionStorage.removeItem('datosProductoEdicion');
+            
+            // Abrir el modal de edición de producto
+            setTimeout(() => {
+              const modalProductoEditar = document.getElementById('modal-fondo-editar-producto');
+              if (modalProductoEditar) {
+                modalProductoEditar.style.display = 'flex';
+                
+                // Restaurar los datos del producto
+                const formProducto = document.getElementById('form-editar-producto');
+                if (formProducto && datosProducto) {
+                  formProducto.querySelector('#producto-nombre-editar').value = datosProducto.nombre;
+                  formProducto.querySelector('#producto-descripcion-editar').value = datosProducto.descripcion;
+                  formProducto.querySelector('#producto-precio-editar').value = datosProducto.precio;
+                  formProducto.querySelector('#producto-stock-actual-editar').value = datosProducto.stock_actual;
+                  formProducto.querySelector('#producto-stock-minimo-editar').value = datosProducto.stock_minimo;
+                  formProducto.querySelector('#producto-compra-editar').value = datosProducto.compra;
+                  formProducto.querySelector('#producto-establecimiento-editar').value = datosProducto.establecimiento;
+                  formProducto.querySelector('#producto-imagen-editar').value = datosProducto.imagen;
+                  
+                  // Actualizar la vista previa de la imagen si existe
+                  const vistaPrevia = document.getElementById('vista-previa-imagen-editar');
+                  const imgPrevia = vistaPrevia.querySelector('img');
+                  if (imgPrevia && datosProducto.imagen) {
+                    imgPrevia.src = `/static/${datosProducto.imagen}`;
+                    vistaPrevia.style.display = 'block';
+                  }
+                }
+                
+                // Preseleccionar la categoría recién creada
+                const selectCategoria = document.getElementById('producto-categoria-editar');
+                if (selectCategoria) {
+                  // Agregar la nueva categoría al select
+                  const option = document.createElement('option');
+                  option.value = response.id;
+                  option.text = response.nombre;
+                  selectCategoria.appendChild(option);
+                  // Seleccionar la nueva categoría
+                  selectCategoria.value = response.id;
+                }
+              }
+            }, 100);
+          } else {
+            // Si no venimos de ningún formulario, recargar la página
+            location.reload();
+          }
+        });
+      } else {
+        Swal.fire('Error', response.error, 'error');
+      }
     })
     .catch(error => {
-      console.error('Error:', error);
-      Swal.fire('Error', 'Error al crear categoría: ' + error.message, 'error');
+      console.error(error);
+      Swal.fire('Error', 'Ocurrió un error al crear la categoría.', 'error');
     });
-};
+}
 
 // Creación de compra de event listeners
 function manejoCrearCompraVendedor(e) {
@@ -652,24 +764,62 @@ function manejoCrearCompraVendedor(e) {
   const establecimientoId = document.getElementById('compra-establecimiento').value;
   const vendedorId = document.getElementById('compra-vendedor').value;
   
-  // Validaciones usando la nueva función validarFormulario
-  const validaciones = [
-    () => validarFecha(fecha, 'fecha', true),
-    () => validarPrecioChileno(total, 'total', 1, 999999999, true),
-    () => validarPorcentaje(iva, 'IVA', 0, 100, true),
-    () => validarSeleccion(estado, 'estado', true),
-    () => validarSeleccion(establecimientoId, 'establecimiento', true),
-    () => validarSeleccion(vendedorId, 'vendedor', true)
-  ];
+  // Validaciones
+  const errores = [];
   
-  // Validar formulario y mostrar errores si existen
-  if (!validarFormulario(validaciones, 'Errores en el Formulario de Compra')) {
+  // 1. Validar fecha (obligatoria, formato)
+  if (!fecha) {
+    errores.push('La fecha es obligatoria');
+  } else {
+    const fechaObj = new Date(fecha);
+    const hoy = new Date();
+    if (fechaObj > hoy) {
+      errores.push('La fecha no puede ser futura');
+    }
+  }
+  
+  // 2. Validar total (obligatorio, numérico, positivo)
+  if (!total) {
+    errores.push('El total es obligatorio');
+  } else if (isNaN(total) || parseFloat(total) <= 0) {
+    errores.push('El total debe ser un número positivo');
+  } else if (parseFloat(total) > 999999999) {
+    errores.push('El total no puede exceder 999,999,999');
+  }
+  
+  // 3. Validar IVA (obligatorio, numérico, no negativo)
+  if (!iva) {
+    errores.push('El IVA es obligatorio');
+  } else if (isNaN(iva) || parseFloat(iva) < 0) {
+    errores.push('El IVA debe ser un número no negativo');
+  } else if (parseFloat(iva) > 100) {
+    errores.push('El IVA no puede exceder el 100%');
+  }
+  
+  // 4. Validar estado (obligatorio)
+  if (!estado) {
+    errores.push('Debe seleccionar un estado');
+  }
+  
+  // 5. Validar establecimiento (obligatorio)
+  if (!establecimientoId || establecimientoId === "") {
+    errores.push('Debe seleccionar un establecimiento');
+  }
+  
+  // 6. Validar vendedor (obligatorio)
+  if (!vendedorId || vendedorId === "") {
+    errores.push('Debe seleccionar un vendedor');
+  }
+  
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
     return;
   }
   
   const formData = {
     fecha: fecha,
-    total: parseInt(total), // Cambiar a entero para Chile
+    total: parseFloat(total),
     iva: parseFloat(iva),
     estado: estado === 'True',
     establecimiento_id: establecimientoId,
@@ -679,11 +829,12 @@ function manejoCrearCompraVendedor(e) {
   crearCompraVendedor(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      mostrarExitoValidacion('Compra creada exitosamente', '¡Compra Creada!');
+      alert('Compra creada exitosamente');
+      window.location.reload();
     })
     .catch(error => {
       console.error('Error:', error);
-      Swal.fire('Error', 'Error al crear compra: ' + error.message, 'error');
+      alert('Error al crear compra: ' + error.message);
     });
 };
 
@@ -697,16 +848,45 @@ function manejoCrearVendedor(e) {
   const email = document.getElementById('vendedor-email').value.trim();
   const proveedorId = document.getElementById('vendedor-proveedor').value;
   
-  // Validaciones usando la nueva función validarFormulario
-  const validaciones = [
-    () => validarNombre(nombre, 'nombre del vendedor', 3, 30, false),
-    () => validarTelefonoChileno(telefono, 'teléfono del vendedor', true),
-    () => validarEmail(email, 'email del vendedor', 50, true),
-    () => validarSeleccion(proveedorId, 'proveedor', true)
-  ];
+  // Validaciones
+  const errores = [];
   
-  // Validar formulario y mostrar errores si existen
-  if (!validarFormulario(validaciones, 'Errores en el Formulario de Vendedor')) {
+  // 1. Validar nombre (obligatorio, longitud, caracteres)
+  if (!nombre) {
+    errores.push('El nombre es obligatorio');
+  } else if (nombre.length > 30) {
+    errores.push('El nombre no puede exceder los 30 caracteres');
+  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]/.test(nombre)) {
+    errores.push('El nombre solo puede contener letras, espacios y guiones');
+  }
+  
+  // 2. Validar teléfono (obligatorio, formato)
+  if (!telefono) {
+    errores.push('El teléfono es obligatorio');
+  } else if (!/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
+    errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
+  }
+  
+  // 3. Validar email (obligatorio, formato)
+  if (!email) {
+    errores.push('El email es obligatorio');
+  } else {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errores.push('El email no tiene un formato válido');
+    } else if (email.length > 30) {
+      errores.push('El email no puede exceder los 30 caracteres');
+    }
+  }
+  
+  // 4. Validar proveedor (obligatorio)
+  if (!proveedorId || proveedorId === "") {
+    errores.push('Debe seleccionar un proveedor');
+  }
+  
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
     return;
   }
   
@@ -720,11 +900,12 @@ function manejoCrearVendedor(e) {
   crearVendedor(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      mostrarExitoValidacion('Vendedor creado exitosamente', '¡Vendedor Creado!');
+      alert('Vendedor creado exitosamente');
+      window.location.reload();
     })
     .catch(error => {
       console.error('Error:', error);
-      Swal.fire('Error', 'Error al crear vendedor: ' + error.message, 'error');
+      alert('Error al crear vendedor: ' + error.message);
     });
 };
 
@@ -740,24 +921,59 @@ function manejoCrearEstablecimiento(e) {
   const cierre = document.getElementById('establecimiento-horario_cierre').value;
   const proveedorId = document.getElementById('establecimiento-proveedor').value;
 
-  // Validaciones usando la nueva función validarFormulario
-  const validaciones = [
-    () => validarNombre(nombre, 'nombre del establecimiento', 3, 100, true),
-    () => validarDireccionChilena(direccion, 'dirección del establecimiento', 5, 200),
-    () => validarTelefonoChileno(telefono, 'teléfono del establecimiento', false),
-    () => validarEmail(email, 'email del establecimiento', 100, false),
-    () => validarHorario(apertura, 'horario de apertura', 6, 12, true),
-    () => validarHorario(cierre, 'horario de cierre', 12, 23, true),
-    () => validarSeleccion(proveedorId, 'proveedor', true)
-  ];
-
-  // Validación adicional: horario de apertura debe ser anterior al de cierre
-  if (apertura && cierre && apertura >= cierre) {
-    validaciones.push(() => ['El horario de apertura debe ser anterior al de cierre']);
+  // Validaciones
+  const errores = [];
+  
+  // 1. Validar nombre (obligatorio, longitud, caracteres)
+  if (!nombre) {
+    errores.push('El nombre es obligatorio');
+  } else if (nombre.length > 100) {
+    errores.push('El nombre no puede exceder los 100 caracteres');
+  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.,]/.test(nombre)) {
+    errores.push('El nombre contiene caracteres no permitidos');
   }
 
-  // Validar formulario y mostrar errores si existen
-  if (!validarFormulario(validaciones, 'Errores en el Formulario de Establecimiento')) {
+  // 2. Validar dirección (obligatoria, longitud)
+  if (!direccion) {
+    errores.push('La dirección es obligatoria');
+  } else if (direccion.length > 200) {
+    errores.push('La dirección no puede exceder los 200 caracteres');
+  }
+
+  // 3. Validar teléfono (formato opcional)
+  if (telefono && !/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
+    errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
+  }
+
+  // 4. Validar email (formato)
+  if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errores.push('El email no tiene un formato válido');
+    } else if (email.length > 100) {
+      errores.push('El email no puede exceder los 100 caracteres');
+    }
+  }
+
+  // 5. Validar horarios
+  if (!apertura) {
+    errores.push('El horario de apertura es obligatorio');
+  }
+  if (!cierre) {
+    errores.push('El horario de cierre es obligatorio');
+  }
+  if (apertura && cierre && apertura >= cierre) {
+    errores.push('El horario de apertura debe ser anterior al de cierre');
+  }
+
+  // 6. Validar proveedor (obligatorio)
+  if (!proveedorId || proveedorId === "0") {
+    errores.push('Debe seleccionar un proveedor válido');
+  }
+
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
     return;
   }
 
@@ -765,8 +981,8 @@ function manejoCrearEstablecimiento(e) {
   const formData = {
     nombre: nombre,
     direccion: direccion,
-    telefono: telefono || '',
-    email: email || '',
+    telefono: telefono,
+    email: email,
     horario_apertura: apertura,
     horario_cierre: cierre,
     proveedor_id: proveedorId
@@ -776,11 +992,12 @@ function manejoCrearEstablecimiento(e) {
   crearEstablecimiento(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      mostrarExitoValidacion('Establecimiento creado exitosamente', '¡Establecimiento Creado!');
+      alert('Establecimiento creado exitosamente');
+      window.location.reload();
     })
     .catch(error => {
       console.error('Error:', error);
-      Swal.fire('Error', 'Error al crear establecimiento: ' + error.message, 'error');
+      alert('Error al crear establecimiento: ' + error.message);
     });
 }
 
@@ -792,15 +1009,40 @@ function manejoCrearProveedor(e) {
   const telefono = document.getElementById('proveedor-telefono').value.trim();
   const email = document.getElementById('proveedor-email').value.trim();
   
-  // Validaciones usando la nueva función validarFormulario
-  const validaciones = [
-    () => validarNombre(nombre, 'nombre del proveedor', 3, 100, false),
-    () => validarTelefonoNumericoChileno(telefono, 'teléfono del proveedor', true),
-    () => validarEmail(email, 'email del proveedor', 100, true)
-  ];
+  // Validaciones
+  const errores = [];
   
-  // Validar formulario y mostrar errores si existen
-  if (!validarFormulario(validaciones, 'Errores en el Formulario de Proveedor')) {
+  // 1. Validar nombre
+  if (!nombre) {
+    errores.push('El nombre es obligatorio');
+  } else if (nombre.length > 100) {
+    errores.push('El nombre no puede exceder los 100 caracteres');
+  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]/.test(nombre)) {
+    errores.push('El nombre solo puede contener letras, espacios y guiones');
+  }
+  
+  // 2. Validar teléfono
+  if (telefono) {
+    if (!/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
+      errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
+    }
+  }
+  
+  // 3. Validar email
+  if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errores.push('El email no tiene un formato válido');
+    } else if (email.length > 100) {
+      errores.push('El email no puede exceder los 100 caracteres');
+    }
+  } else {
+    errores.push('El email es obligatorio');
+  }
+  
+  // Mostrar errores si existen
+  if (errores.length > 0) {
+    alert('Errores en el formulario:\n\n' + errores.join('\n'));
     return;
   }
   
@@ -815,20 +1057,47 @@ function manejoCrearProveedor(e) {
   crearProveedor(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      mostrarExitoValidacion('Proveedor creado exitosamente', '¡Proveedor Creado!');
+      alert('Proveedor creado exitosamente');
+      window.location.reload();
     })
     .catch(error => {
       console.error('Error:', error);
-      Swal.fire('Error', 'Error al crear proveedor: ' + error.message, 'error');
+      alert('Error al crear proveedor: ' + error.message);
     });
 }
-
 ////////////////////////////////////
 // INICIALIZACIÓN EVENT LISTENERS //
 ////////////////////////////////////
 
 function inicializarEventListeners() {
   console.log('🎯 Inicializando event listeners...');
+
+  // Verificar si hay una categoría recién creada y si venimos del flujo de producto
+  const categoriaRecienCreada = sessionStorage.getItem('categoriaRecienCreada');
+  const creandoDesdeProducto = sessionStorage.getItem('creandoCategoriaDesdeProducto');
+  
+  if (categoriaRecienCreada && creandoDesdeProducto === 'true') {
+    // Limpiar el sessionStorage
+    sessionStorage.removeItem('categoriaRecienCreada');
+    sessionStorage.removeItem('creandoCategoriaDesdeProducto');
+    
+    // Abrir el modal de producto
+    setTimeout(() => {
+      const modalProducto = document.getElementById('modal-fondo-producto');
+      const botonProducto = document.getElementById('abrir-form-producto');
+      if (modalProducto && botonProducto) {
+        modalProducto.style.display = 'flex';
+        botonProducto.setAttribute('data-estado', 'abierto');
+        botonProducto.textContent = '-';
+        
+        // Preseleccionar la categoría recién creada
+        const selectCategoria = document.getElementById('producto-categoria');
+        if (selectCategoria) {
+          selectCategoria.value = categoriaRecienCreada;
+        }
+      }
+    }, 100);
+  }
 
   // Event listeners para formularios de creación
   document.getElementById('form-crear-producto').addEventListener('submit', manejoCrearProducto);
@@ -842,100 +1111,45 @@ function inicializarEventListeners() {
   document.querySelectorAll('[name="btn-eliminar-producto"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
-      Swal.fire({
-        title: '¿Está seguro?',
-        text: '¿Está seguro de que desea eliminar este producto?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          eliminarProducto(id);
-        }
-      });
+      if (confirm('¿Está seguro de que desea eliminar este producto?')) {
+        eliminarProducto(id);
+      }
     });
   });
 
   document.querySelectorAll('[name="btn-eliminar-categoria"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
-      Swal.fire({
-        title: '¿Está seguro?',
-        text: '¿Está seguro de que desea eliminar esta categoría?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          eliminarCategoria(id);
-        }
-      });
+      if (confirm('¿Está seguro de que desea eliminar esta categoría?')) {
+        eliminarCategoria(id);
+      }
     });
   });
 
   document.querySelectorAll('[name="btn-eliminar-compra"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
-      Swal.fire({
-        title: '¿Está seguro?',
-        text: '¿Está seguro de que desea eliminar esta compra?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          eliminarCompraVendedor(id);
-        }
-      });
+      if (confirm('¿Está seguro de que desea eliminar esta compra?')) {
+        eliminarCompraVendedor(id);
+      }
     });
   });
 
   document.querySelectorAll('[name="btn-eliminar-vendedor"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
-      Swal.fire({
-        title: '¿Está seguro?',
-        text: '¿Está seguro de que desea eliminar este vendedor?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          eliminarVendedor(id);
-        }
-      });
+      if (confirm('¿Está seguro de que desea eliminar este vendedor?')) {
+        eliminarVendedor(id);
+      }
     });
   });
 
   document.querySelectorAll('[name="btn-eliminar-establecimiento"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
-      Swal.fire({
-        title: '¿Está seguro?',
-        text: '¿Está seguro de que desea eliminar este establecimiento?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          eliminarEstablecimiento(id);
-        }
-      });
+      if (confirm('¿Está seguro de que desea eliminar este establecimiento?')) {
+        eliminarEstablecimiento(id);
+      }
     });
   });
 
@@ -943,22 +1157,14 @@ function inicializarEventListeners() {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
       console.log('Intentando eliminar proveedor con ID:', id);
-      Swal.fire({
-        title: '¿Está seguro?',
-        text: '¿Está seguro de que desea eliminar este proveedor?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          eliminarProveedor(id);
-        }
-      });
+      if (confirm('¿Está seguro de que desea eliminar este proveedor?')) {
+        eliminarProveedor(id);
+      }
     });
   });
+  
+  // Inicializar selector de imágenes
+  inicializarSelectorImagenes();
 
   // Event listeners para botones de edición (modales)
   inicializarBotonesEdicion();
@@ -996,7 +1202,7 @@ function inicializarModales() {
         if (estado === 'cerrado') {
           abrirModal(tipo, this);
         } else {
-          cerrarModal(tipo, this);
+          cerrarModal(tipo);
         }
       });
     }
@@ -1058,6 +1264,33 @@ function abrirModal(tipo, boton = null) {
   const botonAbrir = boton || document.getElementById(`abrir-form-${tipo}`);
   
   if (modalFondo && botonAbrir) {
+    // Si es el modal de producto, verificar si hay categorías
+    if (tipo === 'producto') {
+      const selectCategoria = document.getElementById('producto-categoria');
+      if (selectCategoria && selectCategoria.options.length <= 1) { // Solo tiene la opción "Seleccione"
+        Swal.fire({
+          title: 'No hay categorías disponibles',
+          text: '¿Deseas crear una nueva categoría?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, crear categoría',
+          cancelButtonText: 'No, cancelar',
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#dc3545'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Marcar que venimos del flujo de producto
+            sessionStorage.setItem('creandoCategoriaDesdeProducto', 'true');
+            // Cerrar el modal de producto
+            cerrarModal('producto');
+            // Abrir el modal de categoría
+            abrirModal('categoria');
+          }
+        });
+        return;
+      }
+    }
+
     modalFondo.style.display = 'flex';
     botonAbrir.setAttribute('data-estado', 'abierto');
     botonAbrir.textContent = '-';
@@ -1092,6 +1325,14 @@ function cerrarModal(tipo, boton = null) {
     const form = modalFondo.querySelector('form');
     if (form) {
       form.reset();
+    }
+    
+    // Si es el modal de producto, recargar la página solo si no estamos creando una categoría
+    if (tipo === 'producto') {
+      const creandoCategoria = sessionStorage.getItem('creandoCategoriaDesdeProducto');
+      if (!creandoCategoria) {
+        location.reload();
+      }
     }
     
     console.log(`✅ Modal ${tipo} cerrado correctamente`);
@@ -1146,6 +1387,14 @@ function cerrarModalEdicion(tipo) {
       form.reset();
     }
     
+    // Si es el modal de edición de producto, recargar la página solo si no estamos creando una categoría
+    if (tipo === 'producto') {
+      const creandoCategoria = sessionStorage.getItem('creandoCategoriaDesdeProductoEditar');
+      if (!creandoCategoria) {
+        location.reload();
+      }
+    }
+    
     console.log(`✅ Modal de edición ${tipo} cerrado correctamente`);
   } else {
     console.error(`❌ No se encontró el modal de edición para ${tipo}`);
@@ -1177,6 +1426,17 @@ function llenarFormularioEdicion(tipo, datos) {
       form.querySelector('#producto-compra-editar').value = datos.compra_id || '';
       form.querySelector('#producto-categoria-editar').value = datos.categoria_id || '';
       form.querySelector('#producto-establecimiento-editar').value = datos.establecimiento_id || '';
+      // Actualizar la imagen
+      const inputImagen = form.querySelector('#producto-imagen-editar');
+      const vistaPrevia = form.querySelector('#vista-previa-imagen-editar');
+      const imgPrevia = vistaPrevia.querySelector('img');
+      if (inputImagen && datos.imagen) {
+        inputImagen.value = datos.imagen;
+        if (imgPrevia) {
+          imgPrevia.src = `/static/${datos.imagen}`;
+          vistaPrevia.style.display = 'block';
+        }
+      }
       break;
       
     case 'categoria':
@@ -1211,9 +1471,15 @@ function llenarFormularioEdicion(tipo, datos) {
       break;
       
     case 'proveedor':
-      form.querySelector('#proveedor-nombre-editar').value = datos.nombre || '';
-      form.querySelector('#proveedor-telefono-editar').value = datos.telefono || '';
-      form.querySelector('#proveedor-email-editar').value = datos.email || '';
+      if (form.querySelector('#proveedor-nombre-editar')) {
+          form.querySelector('#proveedor-nombre-editar').value = datos.nombre || '';
+      }
+      if (form.querySelector('#proveedor-telefono-editar')) {
+          form.querySelector('#proveedor-telefono-editar').value = datos.telefono || '';
+      }
+      if (form.querySelector('#proveedor-email-editar')) {
+          form.querySelector('#proveedor-email-editar').value = datos.email || '';
+      }
       break;
   }
 }
@@ -1237,8 +1503,9 @@ function manejarFormularioEdicion(tipo, formData) {
         stock_actual: formData['producto-stock-actual'],
         stock_minimo: formData['producto-stock-minimo'],
         compra: formData['producto-compra'],
-        categoria: formData['producto-categoria'],
-        establecimiento: formData['producto-establecimiento']
+        categoria_id: formData['producto-categoria'],
+        establecimiento_id: formData['producto-establecimiento'],
+        imagen: formData['producto-imagen']
       };
       break;
       
@@ -1255,8 +1522,8 @@ function manejarFormularioEdicion(tipo, formData) {
         total: formData['compra-total'],
         iva: formData['compra-iva'],
         estado: formData['compra-estado'],
-        establecimiento: formData['compra-establecimiento'],
-        vendedor: formData['compra-vendedor']
+        establecimiento_id: formData['compra-establecimiento'],
+        vendedor_id: formData['compra-vendedor']
       };
       break;
       
@@ -1265,7 +1532,7 @@ function manejarFormularioEdicion(tipo, formData) {
         nombre: formData['vendedor-nombre'],
         telefono: formData['vendedor-telefono'],
         email: formData['vendedor-email'],
-        proveedor: formData['vendedor-proveedor']
+        proveedor_id: formData['vendedor-proveedor']
       };
       break;
       
@@ -1277,15 +1544,15 @@ function manejarFormularioEdicion(tipo, formData) {
         email: formData['establecimiento-email'],
         horario_apertura: formData['establecimiento-horario_apertura'],
         horario_cierre: formData['establecimiento-horario_cierre'],
-        proveedor: formData['establecimiento-proveedor']
+        proveedor_id: formData['establecimiento-proveedor']
       };
       break;
       
     case 'proveedor':
       dataToSend = {
-        nombre: formData['proveedor-nombre'],
-        telefono: formData['proveedor-telefono'],
-        email: formData['proveedor-email']
+          nombre: formData['proveedor-nombre'],
+          telefono: formData['proveedor-telefono'],
+          email: formData['proveedor-email']
       };
       break;
   }
@@ -1304,27 +1571,61 @@ function manejarFormularioEdicion(tipo, formData) {
   if (funcionActualizacion) {
     funcionActualizacion(id, dataToSend)
       .then(response => {
-        if (response.success) {
+        if (!response.error) {
           console.log(`✅ ${tipo} actualizado correctamente`);
-          actualizarVista(response.data, tipo);
+          actualizarVista(response, tipo);
           cerrarModalEdicion(tipo);
         } else {
           console.error(`❌ Error al actualizar ${tipo}:`, response.error);
+          Swal.fire('Error', response.error || `Hubo un problema al actualizar el ${tipo}.`, 'error');
         }
       })
       .catch(error => {
         console.error(`❌ Error en la petición de actualización de ${tipo}:`, error);
+        Swal.fire('Error', 'Ocurrió un error de red.', 'error');
       });
   }
 }
 
 // Función para obtener datos de una fila de la tabla
 function obtenerDatosFila(tipo, id) {
-  const row = document.querySelector(`tr[data-id="${id}"]`);
-  if (!row) return null;
+  console.log('Obteniendo datos para:', tipo, 'con ID:', id);
   
+  // Mapeo de tipos a nombres de sección
+  const secciones = {
+    'producto': 'productos',
+    'categoria': 'categorias',
+    'compra': 'compras',
+    'vendedor': 'vendedores',
+    'establecimiento': 'establecimientos',
+    'proveedor': 'proveedores'
+  };
+  
+  // Verificar que estamos en la sección correcta
+  const nombreSeccion = secciones[tipo];
+  if (!nombreSeccion) {
+    console.error(`Tipo de sección no válido: ${tipo}`);
+    return null;
+  }
+  
+  const seccion = document.querySelector(`section[name="seccion-${nombreSeccion}"]`);
+  if (!seccion) {
+    console.error(`No se encontró la sección de ${nombreSeccion}`);
+    return null;
+  }
+  
+  // Buscar la fila dentro de la sección correcta
+  const row = seccion.querySelector(`tr[data-id="${id}"]`);
+  if (!row) {
+    console.error(`No se encontró la fila con ID ${id} en la sección de ${nombreSeccion}`);
+    return null;
+  }
+  
+  console.log('Fila encontrada:', row);
   const cells = row.cells;
-  let datos = { id: id };
+  console.log('Celdas encontradas:', cells.length);
+  
+  let datos = null;
   
   switch (tipo) {
     case 'producto':
@@ -1371,7 +1672,7 @@ function obtenerDatosFila(tipo, id) {
           nombre: cells[0].textContent,
           telefono: cells[1].textContent,
           email: cells[2].textContent,
-          // Los IDs se obtendrán del backend
+          proveedor_id: row.getAttribute('data-proveedor-id') || ''
         };
       }
       break;
@@ -1386,7 +1687,7 @@ function obtenerDatosFila(tipo, id) {
           email: cells[3].textContent,
           horario_apertura: cells[4].textContent,
           horario_cierre: cells[5].textContent,
-          // Los IDs se obtendrán del backend
+          proveedor_id: row.getAttribute('data-proveedor-id') || ''
         };
       }
       break;
@@ -1395,10 +1696,30 @@ function obtenerDatosFila(tipo, id) {
       if (cells.length >= 3) {
         datos = {
           id: id,
-          nombre: cells[0].textContent,
-          telefono: cells[1].textContent,
-          email: cells[2].textContent
+          nombre: cells[0].textContent.trim(),
+          telefono: cells[1].textContent.trim(),
+          email: cells[2].textContent.trim()
         };
+        console.log('Datos del proveedor obtenidos:', datos);
+        
+        // Validación adicional
+        if (!datos.nombre || !datos.telefono || !datos.email) {
+          console.error('Datos incompletos del proveedor:', datos);
+          return null;
+        }
+        
+        // Validación de formato
+        if (!/^\d{9,11}$/.test(datos.telefono)) {
+          console.error('Formato de teléfono inválido:', datos.telefono);
+          return null;
+        }
+        
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(datos.email)) {
+          console.error('Formato de email inválido:', datos.email);
+          return null;
+        }
+      } else {
+        console.error('Número insuficiente de celdas para proveedor:', cells.length);
       }
       break;
   }
@@ -1426,9 +1747,9 @@ function inicializarBotonesEdicion() {
           abrirModalEdicion(tipo, id, datos);
         } else {
           console.error(`❌ No se pudieron obtener los datos para ${tipo} con ID ${id}`);
-        }
-      });
-    });
+    }
+  });
+});
   });
   
   // Event listeners para formularios de edición
@@ -1451,4 +1772,242 @@ function inicializarBotonesEdicion() {
   });
   
   console.log('✅ Botones de edición inicializados correctamente');
+}
+
+///////////////////////////
+// SELECCIÓN DE IMÁGENES //
+///////////////////////////
+
+// Función para inicializar el selector de imágenes
+function inicializarSelectorImagenes() {
+  // Elementos del formulario de creación
+  const btnSeleccionarImagen = document.getElementById('btn-seleccionar-imagen');
+  const btnSubirImagen = document.getElementById('btn-subir-imagen');
+  const inputSubirImagen = document.getElementById('input-subir-imagen');
+  const modalImagenes = document.getElementById('modal-imagenes');
+  const galeriaImagenes = document.getElementById('galeria-imagenes');
+  const inputImagen = document.getElementById('producto-imagen');
+  const vistaPrevia = document.getElementById('vista-previa-imagen');
+  const cerrarModal = document.querySelector('.cerrar-modal-imagenes');
+
+  // Elementos del formulario de edición
+  const btnSeleccionarImagenEditar = document.getElementById('btn-seleccionar-imagen-editar');
+  const inputImagenEditar = document.getElementById('producto-imagen-editar');
+  const vistaPreviaEditar = document.getElementById('vista-previa-imagen-editar');
+
+  // Cargar las imágenes disponibles
+  cargarImagenesDisponibles();
+
+  // Función para manejar la selección de imagen
+  function manejarSeleccionImagen(input, vistaPrevia) {
+    return (imagen) => {
+      input.value = imagen;
+      const imgPrevia = vistaPrevia.querySelector('img');
+      if (imgPrevia) {
+        imgPrevia.src = `/static/${imagen}`;
+        vistaPrevia.style.display = 'block';
+      }
+      modalImagenes.style.display = 'none';
+    };
+  }
+
+  // Event listener para el botón de seleccionar imagen (creación)
+  if (btnSeleccionarImagen) {
+    btnSeleccionarImagen.addEventListener('click', () => {
+      modalImagenes.style.display = 'block';
+      modalImagenes.dataset.target = 'creacion';
+    });
+  }
+
+  // Event listener para el botón de seleccionar imagen (edición)
+  if (btnSeleccionarImagenEditar) {
+    btnSeleccionarImagenEditar.addEventListener('click', () => {
+      modalImagenes.style.display = 'block';
+      modalImagenes.dataset.target = 'edicion';
+    });
+  }
+
+  // Event listener para el botón de subir imagen
+  if (btnSubirImagen) {
+    btnSubirImagen.addEventListener('click', () => {
+      inputSubirImagen.click();
+    });
+  }
+
+  // Event listener para cuando se selecciona un archivo
+  if (inputSubirImagen) {
+    inputSubirImagen.addEventListener('change', (e) => {
+      const archivo = e.target.files[0];
+      if (archivo) {
+        const formData = new FormData();
+        formData.append('imagen', archivo);
+
+        fetch('/subir_imagen_producto/', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Actualizar el input y la vista previa según el formulario activo
+            const target = modalImagenes.dataset.target;
+            if (target === 'creacion' && inputImagen) {
+              inputImagen.value = data.ruta;
+              actualizarVistaPrevia();
+            } else if (target === 'edicion' && inputImagenEditar) {
+              inputImagenEditar.value = data.ruta;
+              const imgPrevia = vistaPreviaEditar.querySelector('img');
+              if (imgPrevia) {
+                imgPrevia.src = `/static/${data.ruta}`;
+                vistaPreviaEditar.style.display = 'block';
+              }
+            }
+            
+            // Recargar la galería de imágenes
+            cargarImagenesDisponibles();
+            
+            // Cerrar el modal
+            modalImagenes.style.display = 'none';
+          } else {
+            alert('Error al subir la imagen: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error al subir la imagen');
+        });
+      }
+    });
+  }
+
+  // Event listener para cerrar el modal
+  if (cerrarModal) {
+    cerrarModal.addEventListener('click', () => {
+      modalImagenes.style.display = 'none';
+    });
+  }
+
+  // Cerrar modal al hacer clic fuera
+  window.addEventListener('click', (e) => {
+    if (e.target === modalImagenes) {
+      modalImagenes.style.display = 'none';
+    }
+  });
+
+  // Event listeners para los inputs de imagen
+  if (inputImagen) {
+    inputImagen.addEventListener('change', actualizarVistaPrevia);
+  }
+  if (inputImagenEditar) {
+    inputImagenEditar.addEventListener('change', () => {
+      const imgPrevia = vistaPreviaEditar.querySelector('img');
+      if (imgPrevia && inputImagenEditar.value) {
+        imgPrevia.src = `/static/${inputImagenEditar.value}`;
+        vistaPreviaEditar.style.display = 'block';
+      } else {
+        vistaPreviaEditar.style.display = 'none';
+      }
+    });
+  }
+}
+
+// Función para cargar las imágenes disponibles
+function cargarImagenesDisponibles() {
+  const galeriaImagenes = document.getElementById('galeria-imagenes');
+  const modalImagenes = document.getElementById('modal-imagenes');
+
+  if (!galeriaImagenes) return;
+
+  // Hacer una petición al servidor para obtener la lista de imágenes
+  fetch('/obtener_imagenes_productos/')
+    .then(response => response.json())
+    .then(data => {
+      galeriaImagenes.innerHTML = '';
+      data.imagenes.forEach(imagen => {
+        const div = document.createElement('div');
+        div.className = 'imagen-item';
+        div.innerHTML = `
+          <img src="/static/${imagen}" alt="${imagen.split('/').pop()}" data-ruta="${imagen}">
+        `;
+        
+        // Event listener para seleccionar imagen
+        div.addEventListener('click', () => {
+          const target = modalImagenes.dataset.target;
+          if (target === 'creacion') {
+            const inputImagen = document.getElementById('producto-imagen');
+            const vistaPrevia = document.getElementById('vista-previa-imagen');
+            if (inputImagen && vistaPrevia) {
+              inputImagen.value = imagen;
+              const imgPrevia = vistaPrevia.querySelector('img');
+              if (imgPrevia) {
+                imgPrevia.src = `/static/${imagen}`;
+                vistaPrevia.style.display = 'block';
+              }
+            }
+          } else if (target === 'edicion') {
+            const inputImagen = document.getElementById('producto-imagen-editar');
+            const vistaPrevia = document.getElementById('vista-previa-imagen-editar');
+            if (inputImagen && vistaPrevia) {
+              inputImagen.value = imagen;
+              const imgPrevia = vistaPrevia.querySelector('img');
+              if (imgPrevia) {
+                imgPrevia.src = `/static/${imagen}`;
+                vistaPrevia.style.display = 'block';
+              }
+            }
+          }
+          modalImagenes.style.display = 'none';
+        });
+        
+        galeriaImagenes.appendChild(div);
+      });
+    })
+    .catch(error => console.error('Error al cargar imágenes:', error));
+}
+
+// Función para actualizar la vista previa de la imagen
+function actualizarVistaPrevia() {
+  const inputImagen = document.getElementById('producto-imagen');
+  const vistaPrevia = document.getElementById('vista-previa-imagen');
+  const imgPrevia = vistaPrevia.querySelector('img');
+  
+  if (inputImagen.value) {
+    imgPrevia.src = `/static/${inputImagen.value}`;
+    vistaPrevia.style.display = 'block';
+  } else {
+    vistaPrevia.style.display = 'none';
+  }
+}
+
+// Función para abrir modal de categoría desde el formulario de producto
+function abrirModalCategoriaDesdeProducto() {
+  // Marcar que venimos del flujo de producto
+  sessionStorage.setItem('creandoCategoriaDesdeProducto', 'true');
+  // Abrir el modal de categoría
+  cerrarModal('producto');
+  abrirModal('categoria');
+}
+
+function abrirModalCategoriaDesdeProductoEditar() {
+  // Obtener los datos actuales del formulario de producto
+  const formProducto = document.getElementById('form-editar-producto');
+  const datosProducto = {
+    nombre: formProducto.querySelector('#producto-nombre-editar').value,
+    descripcion: formProducto.querySelector('#producto-descripcion-editar').value,
+    precio: formProducto.querySelector('#producto-precio-editar').value,
+    stock_actual: formProducto.querySelector('#producto-stock-actual-editar').value,
+    stock_minimo: formProducto.querySelector('#producto-stock-minimo-editar').value,
+    compra: formProducto.querySelector('#producto-compra-editar').value,
+    establecimiento: formProducto.querySelector('#producto-establecimiento-editar').value,
+    imagen: formProducto.querySelector('#producto-imagen-editar').value
+  };
+  
+  // Guardar los datos en sessionStorage
+  sessionStorage.setItem('datosProductoEdicion', JSON.stringify(datosProducto));
+  sessionStorage.setItem('creandoCategoriaDesdeProductoEditar', 'true');
+  
+  // Cerrar el modal de edición de producto
+  cerrarModalEdicion('producto');
+  // Abrir el modal de categoría
+  abrirModal('categoria');
 }

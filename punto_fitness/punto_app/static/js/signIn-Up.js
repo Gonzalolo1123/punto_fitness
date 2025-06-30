@@ -582,7 +582,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.nivel_acceso === "superadmin") {
               window.location.replace('/super_admin/');
             } else if (data.nivel_acceso === "admin") {
-              window.location.replace('/admin-dashboard/');
+              window.location.replace('/estadisticas/');
             }
           } else {
             window.location.reload();

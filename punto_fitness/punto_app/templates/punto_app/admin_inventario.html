@@ -15,7 +15,7 @@
   <section name="seccion-productos">
     <div class="header-content">
       <h2>Productos</h2>
-      <button id="abrir-form-producto" class="btn-agregar-circular" data-estado="cerrado">+</button>
+      <button id="abrir-form-producto" class="filtro-btn" data-estado="cerrado">+</button>
     </div>
     <table>
       <thead>
@@ -27,6 +27,7 @@
           <th>Stock mínimo</th>
           <th>Categoría</th>
           <th>Establecimiento</th>
+          <th>Imágen</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -40,6 +41,9 @@
           <td>{{ producto.stock_minimo }}</td>
           <td>{{ producto.categoria__nombre }}</td>
           <td>{{ producto.establecimiento__nombre }}</td>
+          <td>
+            <img src="{% static producto.imagen %}" alt="{{ producto.nombre }}" width="200">
+          </td>
           <td>
             <div class="action-buttons-container">
               <button class="filtro-btn" name="btn-editar-producto" data-id="{{ producto.id }}">Actualizar</button>
@@ -63,7 +67,7 @@
   <section name="seccion-categorias">
     <div class="header-content">
       <h2>Categorías de productos</h2>
-      <button id="abrir-form-categoria" class="btn-agregar-circular" data-estado="cerrado">+</button>
+      <button id="abrir-form-categoria" class="filtro-btn" data-estado="cerrado">+</button>
     </div>
     <table>
       <thead>
@@ -103,7 +107,7 @@
   <section name="seccion-compras">
     <div class="header-content">
       <h2>Compras</h2>
-      <button id="abrir-form-compra" class="btn-agregar-circular" data-estado="cerrado">+</button>
+      <button id="abrir-form-compra" class="filtro-btn" data-estado="cerrado">+</button>
     </div>
     <table>
       <thead>
@@ -119,8 +123,10 @@
       </thead>
       <tbody>
         {% for compra in compras %}
-        <tr data-id="{{ compra.id }}">
-          <td>{{ compra.fecha|date:"d-m-Y" }}</td>
+        <tr data-id="{{ compra.id }}" 
+            data-establecimiento-id="{{ compra.establecimiento_id }}"
+            data-vendedor-id="{{ compra.vendedor_id }}">
+          <td>{{ compra.fecha|date:"d/m/y" }}</td>
           <td>{{ compra.total }}</td>
           <td>{{ compra.iva }}</td>
           <td>{{ compra.estado }}</td>
@@ -149,7 +155,7 @@
   <section name="seccion-vendedores">
     <div class="header-content">
       <h2>Vendedores</h2>
-      <button id="abrir-form-vendedor" class="btn-agregar-circular" data-estado="cerrado">+</button>
+      <button id="abrir-form-vendedor" class="filtro-btn" data-estado="cerrado">+</button>
     </div>
     <table>
       <thead>
@@ -163,7 +169,8 @@
       </thead>
       <tbody>
         {% for vendedor in vendedores %}
-        <tr data-id="{{ vendedor.id }}">
+        <tr data-id="{{ vendedor.id }}" 
+            data-proveedor-id="{{ vendedor.proveedor_id }}">
           <td>{{ vendedor.nombre }}</td>
           <td>{{ vendedor.telefono }}</td>
           <td>{{ vendedor.email }}</td>
@@ -191,7 +198,7 @@
   <section name="seccion-establecimientos">
     <div class="header-content">
       <h2>Establecimiento</h2>
-      <button id="abrir-form-establecimiento" class="btn-agregar-circular" data-estado="cerrado">+</button>
+      <button id="abrir-form-establecimiento" class="filtro-btn" data-estado="cerrado">+</button>
     </div>
     <table>
       <thead>
@@ -208,7 +215,7 @@
       </thead>
       <tbody>
         {% for establecimiento in establecimientos %}
-        <tr data-id="{{ establecimiento.id }}">
+        <tr data-id="{{ establecimiento.id }}" data-proveedor-id="{{ establecimiento.proveedor_id }}">
           <td>{{ establecimiento.nombre }}</td>
           <td>{{ establecimiento.direccion }}</td>
           <td>{{ establecimiento.telefono }}</td>
@@ -241,7 +248,7 @@
   <section name="seccion-proveedores">
     <div class="header-content">
       <h2>Proveedores</h2>
-      <button id="abrir-form-proveedor" class="btn-agregar-circular" data-estado="cerrado">+</button>
+      <button id="abrir-form-proveedor" class="filtro-btn" data-estado="cerrado">+</button>
     </div>
     <table>
       <thead>
@@ -318,9 +325,9 @@
             <input type="number" 
                    id="producto-precio" 
                    name="producto-precio" 
-                   min="1" 
-                   step="1"
-                   title="Debe ser un número entero mayor a 0"
+                   min="0.01" 
+                   step="0.01"
+                   title="Debe ser mayor a 0"
                    required>
           </div>
           
@@ -351,22 +358,25 @@
                     title="Seleccione una compra (opcional)">
               <option value="">Seleccione</option>
               {% for compra in compras %}
-              <option value="{{ compra.id }}">{{ compra.fecha|date:"d-m-Y" }} - {{ compra.total }}</option>
+              <option value="{{ compra.id }}">{{ compra.fecha|date:"d/m/y" }} - {{ compra.total }}</option>
               {% endfor %}
             </select>
           </div>
           
           <div class="form-fila">
             <label for="producto-categoria">Categoría:</label>
-            <select id="producto-categoria" 
-                    name="producto-categoria" 
-                    required
-                    title="Seleccione una categoría">
-              <option value="">Seleccione</option>
-              {% for categoria in categorias %}
-              <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
-              {% endfor %}
-            </select>
+            <div class="select-with-button">
+              <select id="producto-categoria" 
+                      name="producto-categoria" 
+                      required
+                      title="Seleccione una categoría">
+                <option value="">Seleccione</option>
+                {% for categoria in categorias %}
+                <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                {% endfor %}
+              </select>
+              <button type="button" class="filtro-btn" id="btn-nueva-categoria" onclick="abrirModalCategoriaDesdeProducto()">+</button>
+            </div>
           </div>
           
           <div class="form-fila">
@@ -381,6 +391,18 @@
               {% endfor %}
             </select>
           </div>
+
+          <div class="form-fila">
+            <label for="producto-imagen">Imágen:</label>
+            <div class="imagen-selector">
+              <input type="hidden" id="producto-imagen" name="producto-imagen">
+              <button type="button" class="filtro-btn" id="btn-seleccionar-imagen">Seleccionar Imagen</button>
+            </div>
+            <div id="vista-previa-imagen" class="vista-previa-imagen" style="display: none;">
+              <img src="" alt="Vista previa" style="max-width: 200px; max-height: 200px;">
+            </div>
+          </div>
+
           <div class="modal-actions">
             <button class="filtro-btn" type="submit">Agregar Producto</button>
             <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModal('producto')">Cancelar</button>
@@ -448,7 +470,7 @@
                    id="compra-fecha" 
                    name="compra-fecha" 
                    min="2000-01-01"
-                   max="{{ now|date:'d-m-Y' }}"
+                   max="{{ now|date:'Y-m-d' }}"
                    required
                    title="Seleccione una fecha válida entre 2000 y hoy">
           </div>
@@ -458,10 +480,10 @@
             <input type="number" 
                    id="compra-total" 
                    name="compra-total" 
-                   min="1" 
-                   step="1"
+                   min="0.01" 
+                   step="0.01"
                    required
-                   title="Debe ser un número entero mayor a 0">
+                   title="Debe ser mayor a 0">
           </div>
           
           <div class="form-fila">
@@ -764,9 +786,9 @@
             <input type="number" 
                    id="producto-precio-editar" 
                    name="producto-precio" 
-                   min="1" 
-                   step="1"
-                   title="Debe ser un número entero mayor a 0"
+                   min="0.01" 
+                   step="0.01"
+                   title="Debe ser mayor a 0"
                    required>
           </div>
           <div class="form-fila">
@@ -794,21 +816,24 @@
                     title="Seleccione una compra (opcional)">
               <option value="">Seleccione</option>
               {% for compra in compras %}
-              <option value="{{ compra.id }}">{{ compra.fecha|date:"Y-m-d" }} - {{ compra.total }}</option>
+              <option value="{{ compra.id }}">{{ compra.fecha|date:"d/m/y" }} - {{ compra.total }}</option>
               {% endfor %}
             </select>
           </div>
           <div class="form-fila">
             <label for="producto-categoria-editar">Categoría:</label>
-            <select id="producto-categoria-editar" 
-                    name="producto-categoria" 
-                    required
-                    title="Seleccione una categoría">
-              <option value="">Seleccione</option>
-              {% for categoria in categorias %}
-              <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
-              {% endfor %}
-            </select>
+            <div class="select-with-button">
+              <select id="producto-categoria-editar" 
+                      name="producto-categoria" 
+                      required
+                      title="Seleccione una categoría">
+                <option value="">Seleccione</option>
+                {% for categoria in categorias %}
+                <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                {% endfor %}
+              </select>
+              <button type="button" class="filtro-btn" id="btn-nueva-categoria-editar" onclick="abrirModalCategoriaDesdeProductoEditar()">+</button>
+            </div>
           </div>
           <div class="form-fila">
             <label for="producto-establecimiento-editar">Establecimiento:</label>
@@ -822,6 +847,18 @@
               {% endfor %}
             </select>
           </div>
+
+          <div class="form-fila">
+            <label for="producto-imagen-editar">Imágen:</label>
+            <div class="imagen-selector">
+              <input type="hidden" id="producto-imagen-editar" name="producto-imagen">
+              <button type="button" class="filtro-btn" id="btn-seleccionar-imagen-editar">Seleccionar Imagen</button>
+            </div>
+            <div id="vista-previa-imagen-editar" class="vista-previa-imagen" style="display: none;">
+              <img src="" alt="Vista previa" style="max-width: 200px; max-height: 200px;">
+            </div>
+          </div>
+          
           <div class="modal-actions">
             <button class="filtro-btn" type="submit">Actualizar Producto</button>
             <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModalEdicion('producto')">Cancelar</button>
@@ -899,10 +936,10 @@
             <input type="number" 
                    id="compra-total-editar" 
                    name="compra-total" 
-                   min="1" 
-                   step="1"
+                   min="0.01" 
+                   step="0.01"
                    required
-                   title="Debe ser un número entero mayor a 0">
+                   title="Debe ser mayor a 0">
           </div>
           <div class="form-fila">
             <label for="compra-iva-editar">IVA:</label>
@@ -1173,10 +1210,24 @@
     </div>
   </div>
 
+  <!-- Modal para selección de imágenes -->
+  <div id="modal-imagenes" class="modal-imagenes">
+    <div class="modal-imagenes-contenido">
+      <span class="cerrar-modal-imagenes">&times;</span>
+      <h3>Seleccionar Imagen</h3>
+      <div class="acciones-imagen">
+        <button type="button" class="filtro-btn" id="btn-subir-imagen">Subir Nueva Imagen</button>
+        <input type="file" id="input-subir-imagen" accept="image/*" style="display: none;">
+      </div>
+      <div class="galeria-imagenes" id="galeria-imagenes">
+        <!-- Las imágenes se cargarán dinámicamente con JavaScript -->
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{% static 'js/validaciones.js' %}"></script>
 <script src="{% static 'js/inventario.js' %}"></script>
 {% endblock %}

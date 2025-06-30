@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (nivelAcceso === 'superadmin') {
         window.location.href = '/super_admin/';
       } else if (nivelAcceso === 'admin') {
-        window.location.href = '/admin-dashboard/';
+        window.location.href = '/estadisticas/';
       }
     });
   }

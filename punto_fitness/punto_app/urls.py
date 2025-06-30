@@ -6,12 +6,10 @@ from . import views
 urlpatterns = [
      path('', views.principal, name='principal'),
     path('login/', views.login_view, name='login'),
-    path('admin-dashboard/', views.pagina_admin, name='pagina_admin'),
     path('registro/', views.register_view, name='registro'),
     path('planes/', views.planes, name='planes'),
     path('inscribir_curso/', views.inscribir_curso, name='inscribir_curso'),
     path('cancelar_inscripcion/', views.cancelar_inscripcion, name='cancelar_inscripcion'),
-    path('estadisticas/', views.estadisticas, name='estadisticas'),
     path('logout/', views.logout_cliente, name='logout'),
     path("verificar-correo/", views.verificar_correo, name="verificar_correo"),
     path("verificar-sesion/", views.verificar_sesion, name="verificar_sesion"),
@@ -78,4 +76,23 @@ urlpatterns = [
     path('super_admin/verificar_elegibilidad/<int:admin_id>/', views.verificar_elegibilidad_admin_superadmin, name='verificar_elegibilidad_admin_superadmin'),
     path('super_admin/enviar_codigo_verificacion/', views.enviar_codigo_verificacion_superadmin, name='enviar_codigo_verificacion_superadmin'),
     path('super_admin/enviar_codigo_verificacion_actual/', views.enviar_codigo_verificacion_superadmin_actual, name='enviar_codigo_verificacion_superadmin_actual'),
+    
+    #Venta Productos
+    path('venta_producto/', views.venta_producto, name='venta_producto'),
+    path('obtener_imagenes_productos/', views.obtener_imagenes_productos, name='obtener_imagenes_productos'),
+    path('subir_imagen_producto/', views.subir_imagen_producto, name='subir_imagen_producto'),
+    path('obtener_imagenes_maquinas/', views.obtener_imagenes_maquinas, name='obtener_imagenes_maquinas'),
+    path('subir_imagen_maquina/', views.subir_imagen_maquina, name='subir_imagen_maquina'),
+    path('finalizar_compra/', views.finalizar_compra, name='finalizar_compra'),
+    path('mostrar_voucher/', views.mostrar_voucher, name='mostrar_voucher'),
+    path('venta_confirmada/', views.venta_confirmada, name='venta_confirmada'),
+    # Membresías
+    path('membresias/', views.membresias, name='membresias'),
+    path('membresias/crear_membresia/', views.admin_membresia_crear, name='admin_membresia_crear'),
+    path('membresias/actualizar_membresia/<int:membresia_id>/', views.admin_membresia_actualizar, name='admin_membresia_actualizar'),
+    path('membresias/borrar_membresia/<int:membresia_id>/', views.admin_membresia_borrar, name='admin_membresia_borrar'),
+    path('membresias/crear_cliente_membresia/', views.admin_cliente_membresia_crear, name='admin_cliente_membresia_crear'),
+    path('membresias/actualizar_cliente_membresia/<int:cliente_membresia_id>/', views.admin_cliente_membresia_actualizar, name='admin_cliente_membresia_actualizar'),
+    path('membresias/borrar_cliente_membresia/<int:cliente_membresia_id>/', views.admin_cliente_membresia_borrar, name='admin_cliente_membresia_borrar'),
+    path('estadisticas/', views.estadisticas_view, name='estadisticas'),
 ]
