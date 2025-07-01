@@ -172,6 +172,7 @@ class Membresia(models.Model):
     precio = models.IntegerField()
     duracion = models.CharField(max_length=15, choices=DURACIONES)
     dias_por_semana = models.IntegerField(null=True, blank=True)  # Para "3 veces por semana", etc.
+    imagen = models.CharField(max_length=200, null=True, blank=True)  # Imagen de la membresía
 
     class Meta:
         db_table = 'membresia'

@@ -26,6 +26,7 @@
           <th>Duración</th>
           <th>Días por Semana</th>
           <th>Establecimiento</th>
+          <th>Imagen</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -38,6 +39,13 @@
           <td>{{ membresia.duracion }}</td>
           <td>{{ membresia.dias_por_semana }}</td>
           <td>{{ membresia.establecimiento__nombre }}</td>
+          <td>
+            {% if membresia.imagen %}
+              <img src="{% static membresia.imagen %}" alt="{{ membresia.nombre }}" style="max-width: 80px; max-height: 80px;">
+            {% else %}
+              <span style="color: #aaa;">Sin imagen</span>
+            {% endif %}
+          </td>
           <td>
             <div class="action-buttons-container">
               <button class="filtro-btn" name="btn-editar-membresia" data-id="{{ membresia.id }}">Actualizar</button>
@@ -124,6 +132,17 @@
                   </select>
                 </div>
                 
+                <div class="form-fila">
+                  <label for="membresia-imagen-editar-{{ membresia.id }}">Imagen:</label>
+                  <div class="imagen-selector">
+                    <input type="hidden" id="membresia-imagen-editar-{{ membresia.id }}" name="membresia-imagen-editar-{{ membresia.id }}" value="{{ membresia.imagen }}">
+                    <button type="button" class="filtro-btn" id="btn-seleccionar-imagen-editar-{{ membresia.id }}">Seleccionar Imagen</button>
+                  </div>
+                  <div id="vista-previa-imagen-editar-{{ membresia.id }}" class="vista-previa-imagen{% if not membresia.imagen %} d-none{% endif %}">
+                    <img src="{% if membresia.imagen %}{% static membresia.imagen %}{% endif %}" alt="Vista previa" style="max-width: 200px; max-height: 200px;">
+                  </div>
+                </div>
+                
                 <div class="modal-actions">
                   <button class="filtro-btn" type="submit">Guardar</button>
                   <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModalEdicion('membresia', '{{ membresia.id }}')">Cancelar</button>
@@ -207,6 +226,17 @@
                 <option value="{{ establecimiento.id }}">{{ establecimiento.nombre }}</option>
               {% endfor %}
             </select>
+          </div>
+
+          <div class="form-fila">
+            <label for="membresia-imagen">Imagen:</label>
+            <div class="imagen-selector">
+              <input type="hidden" id="membresia-imagen" name="membresia-imagen">
+              <button type="button" class="filtro-btn" id="btn-seleccionar-imagen">Seleccionar Imagen</button>
+            </div>
+            <div id="vista-previa-imagen" class="vista-previa-imagen" style="display: none;">
+              <img src="" alt="Vista previa" style="max-width: 200px; max-height: 200px;">
+            </div>
           </div>
 
           <div class="modal-actions">
@@ -381,6 +411,21 @@
             <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModal('cliente-membresia')">Cancelar</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para selección de imágenes de membresía -->
+  <div id="modal-imagenes-membresia" class="modal-imagenes">
+    <div class="modal-imagenes-contenido">
+      <span class="cerrar-modal-imagenes">&times;</span>
+      <h3>Seleccionar Imagen</h3>
+      <div class="acciones-imagen">
+        <button type="button" class="filtro-btn" id="btn-subir-imagen-membresia">Subir Nueva Imagen</button>
+        <input type="file" id="input-subir-imagen-membresia" accept="image/*" style="display: none;">
+      </div>
+      <div class="galeria-imagenes" id="galeria-imagenes-membresia">
+        <!-- Las imágenes se cargarán dinámicamente con JavaScript -->
       </div>
     </div>
   </div>

@@ -664,7 +664,7 @@ def maquinas(request):
 
 @requiere_admin
 def admin_maquinas(request):
-    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id')
+    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id', 'imagen')
     establecimientos = Establecimiento.objects.values('id', 'nombre')
     return render(request, 'punto_app/admin_maquinas.html', {
         'maquinas': maquinas,
@@ -676,17 +676,18 @@ def admin_maquina_crear(request):
     try:
         data = json.loads(request.body)
 
-        if Maquina.objects.filter(nombre__iexact=data['nombre']).exists():
+        if Maquina.objects.filter(nombreiexact=data['nombre']).exists():
             return JsonResponse({'error': '¡Ya existe una máquina con este nombre!'}, status=400)
 
-        if Maquina.objects.filter(descripcion__iexact=data['descripcion']).exists():
+        if Maquina.objects.filter(descripcioniexact=data['descripcion']).exists():
             return JsonResponse({'error': '¡Ya existe una máquina con esta descripción!'}, status=400)
-        
+
         maquina = Maquina.objects.create(
             nombre=data['nombre'],
             descripcion=data['descripcion'],
             cantidad=data.get('cantidad', 1),
-            establecimiento_id=data['establecimiento_id']
+            establecimiento_id=data['establecimiento_id'],
+            imagen=data['imagen']
         )
         return JsonResponse({
             'id': maquina.id,
@@ -697,6 +698,7 @@ def admin_maquina_crear(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
+
 @csrf_exempt
 def admin_maquina_actualizar(request, maquina_id):
     try:
@@ -705,19 +707,20 @@ def admin_maquina_actualizar(request, maquina_id):
 
         # Validaciones de unicidad excluyendo a la máquina actual
         if 'nombre' in data and data['nombre'] != maquina.nombre:
-            if Maquina.objects.filter(nombre__iexact=data['nombre']).exclude(id=maquina_id).exists():
+            if Maquina.objects.filter(nombreiexact=data['nombre']).exclude(id=maquina_id).exists():
                 return JsonResponse({'error': '¡Ya existe una máquina con este nombre!'}, status=400)
 
         if 'descripcion' in data and data['descripcion'] != maquina.descripcion:
-            if Maquina.objects.filter(descripcion__iexact=data['descripcion']).exclude(id=maquina_id).exists():
+            if Maquina.objects.filter(descripcioniexact=data['descripcion']).exclude(id=maquina_id).exists():
                 return JsonResponse({'error': '¡Ya existe una máquina con esta descripción!'}, status=400)
-        
+
         maquina.nombre = data.get('nombre', maquina.nombre)
         maquina.descripcion = data.get('descripcion', maquina.descripcion)
         maquina.cantidad = data.get('cantidad', maquina.cantidad)
         maquina.establecimiento_id = data.get('establecimiento_id', maquina.establecimiento_id)
+        maquina.imagen = data.get('imagen', maquina.imagen)
         maquina.save()
-        
+
         return JsonResponse({
             'id': maquina.id,
             'nombre': maquina.nombre,
@@ -2398,88 +2401,12 @@ def venta_confirmada(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
-
-@requiere_admin
-def membresias(request):
-    membresias = Membresia.objects.select_related('establecimiento').values(
-        'id', 'nombre', 'descripcion', 'precio', 'duracion', 'dias_por_semana',
-        'establecimiento_id', 'establecimiento__nombre'
-    )
-    establecimientos = Establecimiento.objects.all()
-    return render(request, 'punto_app/admin_membresias.html', {
-        'membresias': membresias,
-        'establecimientos': establecimientos
-    })
-
-@csrf_exempt
-@requiere_admin
-def admin_membresia_crear(request):
-    try:
-        data = json.loads(request.body)
-        
-        membresia = Membresia.objects.create(
-            nombre=data['nombre'],
-            descripcion=data['descripcion'],
-            precio=data['precio'],
-            duracion=data['duracion'],
-            dias_por_semana=data.get('dias_por_semana'),
-            establecimiento_id=data['establecimiento_id']
-        )
-        
-        return JsonResponse({
-            'id': membresia.id,
-            'nombre': membresia.nombre,
-            'descripcion': membresia.descripcion,
-            'precio': membresia.precio,
-            'duracion': membresia.duracion,
-            'dias_por_semana': membresia.dias_por_semana,
-            'establecimiento_id': membresia.establecimiento_id
-        }, status=201)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
-
-@csrf_exempt
-@requiere_admin
-def admin_membresia_actualizar(request, membresia_id):
-    try:
-        membresia = get_object_or_404(Membresia, pk=membresia_id)
-        data = json.loads(request.body)
-        
-        membresia.nombre = data.get('nombre', membresia.nombre)
-        membresia.descripcion = data.get('descripcion', membresia.descripcion)
-        membresia.precio = data.get('precio', membresia.precio)
-        membresia.duracion = data.get('duracion', membresia.duracion)
-        membresia.dias_por_semana = data.get('dias_por_semana', membresia.dias_por_semana)
-        membresia.establecimiento_id = data.get('establecimiento_id', membresia.establecimiento_id)
-        membresia.save()
-        
-        return JsonResponse({
-            'id': membresia.id,
-            'nombre': membresia.nombre,
-            'descripcion': membresia.descripcion,
-            'precio': membresia.precio,
-            'duracion': membresia.duracion,
-            'dias_por_semana': membresia.dias_por_semana,
-            'establecimiento_id': membresia.establecimiento_id
-        })
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
-
-@csrf_exempt
-@requiere_admin
-def admin_membresia_borrar(request, membresia_id):
-    try:
-        membresia = get_object_or_404(Membresia, pk=membresia_id)
-        membresia.delete()
-        return JsonResponse({'message': 'Membresía eliminada correctamente'}, status=200)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
     
 @requiere_admin
 def membresias(request):
     membresias = Membresia.objects.select_related('establecimiento').values(
         'id', 'nombre', 'descripcion', 'precio', 'duracion', 'dias_por_semana',
-        'establecimiento_id', 'establecimiento__nombre'
+        'establecimiento_id', 'establecimiento__nombre', 'imagen'
     )
     establecimientos = Establecimiento.objects.all()
     
@@ -2514,6 +2441,38 @@ def membresias(request):
     })
 
 @csrf_exempt
+def obtener_imagenes_membresias(request):
+    ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'planes')
+    imagenes = []
+    if os.path.exists(ruta_imagenes):
+        for archivo in os.listdir(ruta_imagenes):
+            if archivo.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+                imagenes.append(f'images/planes/{archivo}')
+    return JsonResponse({'imagenes': imagenes})
+
+@csrf_exempt
+def subir_imagen_membresia(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    if 'imagen' not in request.FILES:
+        return JsonResponse({'error': 'No se ha proporcionado ninguna imagen'}, status=400)
+    imagen = request.FILES['imagen']
+    if not imagen.content_type.startswith('image/'):
+        return JsonResponse({'error': 'El archivo debe ser una imagen'}, status=400)
+    extension = os.path.splitext(imagen.name)[1].lower()
+    if extension not in ['.png', '.jpg', '.jpeg', '.gif', '.webp']:
+        return JsonResponse({'error': 'Formato de imagen no permitido'}, status=400)
+    ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'planes')
+    os.makedirs(ruta_imagenes, exist_ok=True)
+    nombre_archivo = f"{int(time.time())}_{imagen.name}"
+    ruta_completa = os.path.join(ruta_imagenes, nombre_archivo)
+    with open(ruta_completa, 'wb+') as destino:
+        for chunk in imagen.chunks():
+            destino.write(chunk)
+    ruta_relativa = f'images/planes/{nombre_archivo}'
+    return JsonResponse({'success': True, 'ruta': ruta_relativa})
+
+@csrf_exempt
 @requiere_admin
 def admin_membresia_crear(request):
     try:
@@ -2525,7 +2484,8 @@ def admin_membresia_crear(request):
             precio=data['precio'],
             duracion=data['duracion'],
             dias_por_semana=data.get('dias_por_semana'),
-            establecimiento_id=data['establecimiento_id']
+            establecimiento_id=data['establecimiento_id'],
+            imagen=data.get('imagen', '')
         )
         
         return JsonResponse({
@@ -2535,7 +2495,8 @@ def admin_membresia_crear(request):
             'precio': membresia.precio,
             'duracion': membresia.duracion,
             'dias_por_semana': membresia.dias_por_semana,
-            'establecimiento_id': membresia.establecimiento_id
+            'establecimiento_id': membresia.establecimiento_id,
+            'imagen': membresia.imagen
         }, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -2553,6 +2514,8 @@ def admin_membresia_actualizar(request, membresia_id):
         membresia.duracion = data.get('duracion', membresia.duracion)
         membresia.dias_por_semana = data.get('dias_por_semana', membresia.dias_por_semana)
         membresia.establecimiento_id = data.get('establecimiento_id', membresia.establecimiento_id)
+        if 'imagen' in data:
+            membresia.imagen = data['imagen']
         membresia.save()
         
         # Recalcular fecha_fin de todas las ClienteMembresia asociadas
@@ -2577,7 +2540,8 @@ def admin_membresia_actualizar(request, membresia_id):
             'precio': membresia.precio,
             'duracion': membresia.duracion,
             'dias_por_semana': membresia.dias_por_semana,
-            'establecimiento_id': membresia.establecimiento_id
+            'establecimiento_id': membresia.establecimiento_id,
+            'imagen': membresia.imagen
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)

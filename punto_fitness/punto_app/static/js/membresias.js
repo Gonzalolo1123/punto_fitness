@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     inicializarEventListeners();
     inicializarModalesClienteMembresia();
     inicializarEventListenersClienteMembresia();
+    inicializarSelectorImagenesMembresia();
 });
 
 // Funciones para manejar modales
@@ -125,12 +126,16 @@ async function crearMembresia(form) {
             precio: formData.get('membresia-precio'),
             duracion: formData.get('membresia-duracion'),
             dias_por_semana: formData.get('membresia-dias-por-semana'),
-            establecimiento_id: formData.get('membresia-establecimiento') || 1
+            establecimiento_id: formData.get('membresia-establecimiento') || 1,
+            imagen: formData.get('membresia-imagen')
         };
         let errores = [];
         errores = errores.concat(validarNombre(data.nombre, 'nombre', 3, 30));
         errores = errores.concat(validarDescripcion(data.descripcion, 'descripción', 5, 50));
         errores = errores.concat(validarPrecioChileno(data.precio, 'precio'));
+        if (!data.duracion) {
+            errores.push('La duración es obligatoria.');
+        }
         errores = errores.concat(validarNumeroEntero(data.dias_por_semana, 'días por semana', 1, 7));
         if (errores.length > 0) {
             mostrarErroresValidacion(errores, 'Errores en el formulario de membresía');
@@ -175,13 +180,16 @@ async function actualizarMembresia(id, form) {
             precio: formData.get(`membresia-precio-editar-${id}`),
             duracion: formData.get(`membresia-duracion-editar-${id}`),
             dias_por_semana: formData.get(`membresia-dias-por-semana-editar-${id}`),
-            establecimiento_id: formData.get(`membresia-establecimiento-editar-${id}`)
+            establecimiento_id: formData.get(`membresia-establecimiento-editar-${id}`),
+            imagen: formData.get(`membresia-imagen-editar-${id}`)
         };
         let errores = [];
         errores = errores.concat(validarNombre(data.nombre, 'nombre', 3, 30));
         errores = errores.concat(validarDescripcion(data.descripcion, 'descripción', 5, 50));
         errores = errores.concat(validarPrecioChileno(data.precio, 'precio'));
-        errores = errores.concat(validarNumeroEntero(data.duracion, 'duración', 1, 365));
+        if (!data.duracion) {
+            errores.push('La duración es obligatoria.');
+        }
         errores = errores.concat(validarNumeroEntero(data.dias_por_semana, 'días por semana', 1, 7));
         if (errores.length > 0) {
             mostrarErroresValidacion(errores, 'Errores en la edición de membresía');
@@ -439,4 +447,95 @@ async function eliminarClienteMembresia(id) {
         console.error('Error:', error);
         mostrarErroresValidacion([error.message], 'Error al eliminar la membresía de cliente');
     }
+}
+
+// === IMÁGENES DE MEMBRESÍA ===
+function inicializarSelectorImagenesMembresia() {
+    // Crear
+    const btnSeleccionarImagen = document.getElementById('btn-seleccionar-imagen');
+    const inputImagen = document.getElementById('membresia-imagen');
+    const vistaPrevia = document.getElementById('vista-previa-imagen');
+    if (btnSeleccionarImagen) {
+        btnSeleccionarImagen.addEventListener('click', function() {
+            abrirModalImagenesMembresia(inputImagen, vistaPrevia);
+        });
+    }
+    // Editar (varios)
+    document.querySelectorAll('[id^="btn-seleccionar-imagen-editar-"]').forEach(btn => {
+        const id = btn.id.replace('btn-seleccionar-imagen-editar-', '');
+        const input = document.getElementById(`membresia-imagen-editar-${id}`);
+        const vista = document.getElementById(`vista-previa-imagen-editar-${id}`);
+        btn.addEventListener('click', function() {
+            abrirModalImagenesMembresia(input, vista);
+        });
+    });
+    // Cerrar modal
+    document.querySelectorAll('.cerrar-modal-imagenes').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('modal-imagenes-membresia').style.display = 'none';
+        });
+    });
+}
+
+function abrirModalImagenesMembresia(inputImagen, vistaPrevia) {
+    const modal = document.getElementById('modal-imagenes-membresia');
+    modal.style.display = 'flex';
+    cargarImagenesDisponiblesMembresia(inputImagen, vistaPrevia);
+    // Subir nueva imagen
+    document.getElementById('btn-subir-imagen-membresia').onclick = function() {
+        document.getElementById('input-subir-imagen-membresia').click();
+    };
+    document.getElementById('input-subir-imagen-membresia').onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) subirImagenMembresia(file, inputImagen, vistaPrevia);
+    };
+}
+
+function cargarImagenesDisponiblesMembresia(inputImagen, vistaPrevia) {
+    fetch('/obtener_imagenes_membresias/')
+        .then(res => res.json())
+        .then(data => {
+            const galeria = document.getElementById('galeria-imagenes-membresia');
+            galeria.innerHTML = '';
+            data.imagenes.forEach(ruta => {
+                const img = document.createElement('img');
+                img.src = `/static/${ruta}`;
+                img.style.maxWidth = '120px';
+                img.style.maxHeight = '120px';
+                img.classList.add('img-galeria');
+                img.onclick = function() {
+                    inputImagen.value = ruta;
+                    if (vistaPrevia) {
+                        vistaPrevia.style.display = 'block';
+                        const imgPrev = vistaPrevia.querySelector('img');
+                        if (imgPrev) imgPrev.src = `/static/${ruta}`;
+                    }
+                    document.getElementById('modal-imagenes-membresia').style.display = 'none';
+                };
+                galeria.appendChild(img);
+            });
+        });
+}
+
+function subirImagenMembresia(file, inputImagen, vistaPrevia) {
+    const formData = new FormData();
+    formData.append('imagen', file);
+    fetch('/subir_imagen_membresia/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.ruta) {
+            inputImagen.value = data.ruta;
+            if (vistaPrevia) {
+                vistaPrevia.style.display = 'block';
+                const imgPrev = vistaPrevia.querySelector('img');
+                if (imgPrev) imgPrev.src = `/static/${data.ruta}`;
+            }
+            document.getElementById('modal-imagenes-membresia').style.display = 'none';
+        } else if (data.error) {
+            alert('Error al subir imagen: ' + data.error);
+        }
+    });
 } 
