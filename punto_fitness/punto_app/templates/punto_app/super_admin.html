@@ -16,7 +16,7 @@
     <div class="logo">Punto Fitness</div>
     <nav>
       <ul>
-        <li><a href="{% url 'pagina_admin' %}">Admin dashboard</a></li>
+        <li><a href="{% url 'estadisticas' %}">Pagina Admin</a></li>
       </ul>
     </nav>
   </header>
@@ -27,6 +27,10 @@
       <!-- Botón para agregar nuevo administrador -->
       <button id="abrir-form-admin" class="filtro-btn" data-estado="cerrado">
         +
+      </button>
+      <!-- Botón para transferir superadmin (solo visible para superadmin actual) -->
+      <button id="transferir-superadmin-btn" class="filtro-btn btn-transferir" style="background-color: #dc3545; color: white;">
+        🔄 Transferir Super Admin
       </button>
     </div>
     <!-- Tabla de administradores -->
@@ -42,8 +46,10 @@
         </tr>
       </thead>
       <tbody>
+        {% with admin_count=0 %}
         {% for admin in administradores %}
         {% if admin.nivel_acceso == 'admin' %}  <!-- Solo muestra los de nivel admin -->
+        {% with admin_count=admin_count|add:1 %}
         <tr data-id="{{ admin.id }}">
           <td>{{ admin.cliente.nombre }}</td>
           <td>{{ admin.cliente.apellido }}</td>
@@ -88,15 +94,6 @@
                   <label for="admin-telefono-editar-{{ admin.id }}">Teléfono:</label>
                   <input type="tel" id="admin-telefono-editar-{{ admin.id }}" name="admin-telefono-editar-{{ admin.id }}" value="{{ admin.cliente.telefono }}" required>
                 </div>
-              
-                <div class="form-fila">
-                  <label for="admin-nivel-editar-{{ admin.id }}">Nivel de acceso:</label>
-                  <select id="admin-nivel-editar-{{ admin.id }}" name="admin-nivel-editar-{{ admin.id }}" required>
-                    <option value="admin" {% if admin.nivel_acceso == 'admin' %}selected{% endif %}>Admin</option>
-                    <option value="superadmin" {% if admin.nivel_acceso == 'superadmin' %}selected{% endif %}>Super Admin</option>
-                  </select>
-                </div>
-                
                 <div class="modal-actions">
                   <button class="filtro-btn" type="submit">Guardar</button>
                   <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModalEdicion('admin', '{{ admin.id }}')">Cancelar</button>
@@ -105,13 +102,16 @@
             </div>
           </div>
         </div>
-
+        {% endwith %}
         {% endif %}
-        {% empty %}
+        {% endfor %}
+        
+        {% if admin_count == 0 %}
         <tr>
           <td colspan="6">No hay administradores registrados</td>
         </tr>
-        {% endfor %}
+        {% endif %}
+        {% endwith %}
       </tbody>
     </table>
 
@@ -165,6 +165,61 @@
             <div class="modal-actions">
               <button class="filtro-btn" id="confirmar-accion">Confirmar</button>
               <button class="filtro-btn btn-cancelar" id="cancelar-accion">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para transferir Super Admin -->
+    <div id="modal-fondo-transferir-superadmin" class="modal-fondo" style="display:none;">
+      <div id="modal-form-transferir-superadmin" class="modal-form" style="max-width: 800px;">
+        <div class="modal-header">
+          <h3>🔄 Transferir Rol de Super Administrador</h3>
+          <button class="cerrar-modal" onclick="cerrarModal('transferir-superadmin')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-content">
+            <div class="warning-box" style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+              <h4>⚠️ ADVERTENCIA DE SEGURIDAD</h4>
+              <p>Esta acción transferirá el control total del sistema a otro administrador. Esta operación es <strong>IRREVERSIBLE</strong> y requiere múltiples verificaciones de seguridad.</p>
+            </div>
+
+            <h4>Selecciona un administrador para transferir el rol de Super Admin:</h4>
+            
+            <div class="admins-lista" id="admins-lista-transferir">
+              <!-- Los admins se cargarán dinámicamente -->
+            </div>
+
+            <div id="form-transferir-superadmin" style="display:none;">
+              <h4>Verificaciones de Seguridad</h4>
+              
+              <div class="form-fila">
+                <label for="password-superadmin">Contraseña del Super Admin actual:</label>
+                <input type="password" id="password-superadmin" name="password-superadmin" required>
+              </div>
+
+              <div class="form-fila">
+                <label for="codigo-verificacion">Código de verificación del admin destino (enviado por email):</label>
+                <input type="text" id="codigo-verificacion" name="codigo-verificacion" placeholder="Ingresa el código de 6 dígitos">
+                <button type="button" id="enviar-codigo-btn" class="filtro-btn">Enviar Código</button>
+              </div>
+
+              <div class="form-fila">
+                <label for="codigo-superadmin-actual">Código de verificación del Super Admin actual (enviado por email):</label>
+                <input type="text" id="codigo-superadmin-actual" name="codigo-superadmin-actual" placeholder="Ingresa el código de 6 dígitos" required>
+                <button type="button" id="enviar-codigo-superadmin-actual-btn" class="filtro-btn">Enviar Código</button>
+              </div>
+
+              <div class="form-fila">
+                <label for="confirmacion-final">Escribe "TRANSFERIR" para confirmar:</label>
+                <input type="text" id="confirmacion-final" name="confirmacion-final" placeholder="TRANSFERIR" required>
+              </div>
+
+              <div class="modal-actions">
+                <button class="filtro-btn" id="confirmar-transferir-superadmin" style="background-color: #dc3545; color: white;">🔄 Confirmar Transferencia</button>
+                <button class="filtro-btn btn-cancelar" onclick="cerrarModal('transferir-superadmin')">Cancelar</button>
+              </div>
             </div>
           </div>
         </div>

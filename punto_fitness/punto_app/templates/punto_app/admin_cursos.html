@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
 {% endblock %}
 
@@ -34,7 +35,7 @@
           <td>{{ curso.id }}</td>
           <td>{{ curso.nombre }}</td>
           <td>{{ curso.cupos }}</td>
-          <td>{{ curso.fecha_realizacion|date:'Y-m-d' }}</td>
+          <td>{{ curso.fecha_realizacion|date:'d/m/y' }}</td>
           <td>{{ curso.estado }}</td>
           <td>
             {% for establecimiento in establecimientos %}
@@ -45,7 +46,7 @@
           </td>
           <td>
             <div class="action-buttons-container">
-              <button class="filtro-btn" name="btn-editar-curso" data-id="{{ curso.id }}" data-fecha="{{ curso.fecha_realizacion|date:'Y-m-d' }}">Actualizar</button>
+              <button class="filtro-btn" name="btn-editar-curso" data-id="{{ curso.id }}" data-fecha="{{ curso.fecha_realizacion|date:'d/m/y' }}">Actualizar</button>
               <button class="filtro-btn" name="btn-eliminar-curso" data-id="{{ curso.id }}">Eliminar</button>
             </div>
           </td>
@@ -92,8 +93,8 @@
                   <input type="date" 
                          id="curso-fecha_realizacion-editar-modal-{{ curso.id }}" 
                          name="curso-fecha_realizacion" 
-                         value="{{ curso.fecha_realizacion|date:'Y-m-d' }}"
-                         min="2000-01-01"
+                         value="{{ curso.fecha_realizacion|date:'d/m/y' }}"
+                         min="{{ now|date:'d-m-Y' }}"
                          max="2030-12-31"
                          title="Seleccione una fecha válida entre 2000 y 2030"
                          required>
@@ -166,7 +167,7 @@
           <td>
             {% for curso in cursos %}
             {% if curso.id == inscripcion.curso_id %}
-            {{ curso.fecha_realizacion|date:'Y-m-d' }}
+            {{ curso.fecha_realizacion|date:'d/m/y' }}
             {% endif %}
             {% endfor %}
           </td>
@@ -356,5 +357,6 @@
 
 {% endblock %}
 {% block extra_scripts %}
+<script src="{% static 'js/validaciones.js' %}"></script>
 <script src="{% static 'js/cursos.js' %}"></script>
 {% endblock %}

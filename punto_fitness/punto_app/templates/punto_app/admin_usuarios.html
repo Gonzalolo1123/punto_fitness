@@ -14,7 +14,7 @@
     <div class="header-content">
         <h2>Usuarios</h2>
         <!-- Botón para agregar nuevo usuario -->
-        <button id="abrir-form-usuario" class="filtro-btn" data-estado="cerrado" data-texto-original="+">
+        <button id="abrir-form-usuario" class="btn-agregar-circular" data-estado="cerrado" data-texto-original="+">
             +
         </button>
     </div>
@@ -186,5 +186,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="{% static 'js/validaciones.js' %}"></script>
 <script src="{% static 'js/usuarios.js' %}"></script>
 {% endblock %}

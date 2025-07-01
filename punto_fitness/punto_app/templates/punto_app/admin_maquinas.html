@@ -3,6 +3,8 @@
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_maquinas.css' %}">
+
 {% endblock %}
 
 {% block content %}
@@ -111,7 +113,7 @@
                     <input type="hidden" id="maquina-imagen-editar-{{ maquina.id }}" name="maquina-imagen-editar-{{ maquina.id }}" value="{{ maquina.imagen }}">
                     <button type="button" class="filtro-btn" id="btn-seleccionar-imagen-editar-{{ maquina.id }}">Seleccionar Imagen</button>
                   </div>
-                  <div id="vista-previa-imagen-editar-{{ maquina.id }}" class="vista-previa-imagen" style="display: {% if maquina.imagen %}block{% else %}none{% endif %};">
+                  <div id="vista-previa-imagen-editar-{{ maquina.id }}" class="vista-previa-imagen{% if not maquina.imagen %} d-none{% endif %}">
                     <img src="{% if maquina.imagen %}{% static maquina.imagen %}{% endif %}" alt="Vista previa" style="max-width: 200px; max-height: 200px;">
                   </div>
                 </div>

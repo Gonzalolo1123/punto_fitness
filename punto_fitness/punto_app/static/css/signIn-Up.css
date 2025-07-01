@@ -43,7 +43,6 @@ a {
 
 /* Formulario */
 .form-container {
-  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -494,4 +493,409 @@ a {
   flex-direction: row;
   align-items: stretch;
   overflow: hidden;
+}
+
+#authModal .container {
+  margin: 0;
+  box-shadow: none;
+}
+
+/* Estilos para el modal de verificación de correo */
+#emailVerificationModal {
+  display: none;
+  position: fixed;
+  z-index: 10000; /* Mayor z-index para estar sobre todo */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#emailVerificationModal:not(.hidden) {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  visibility: visible;
+}
+
+#emailVerificationModal.hidden {
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Estilos forzados para asegurar visibilidad */
+#emailVerificationModal[style*="display: block"],
+#emailVerificationModal[style*="display: flex"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 10000 !important;
+}
+
+#emailVerificationModal.show {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#emailVerificationModal .modal-content {
+  background-color: #ffffff;
+  margin: 0 auto;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-50px) scale(0.9);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform, opacity;
+}
+
+#emailVerificationModal:not(.hidden):not(.closing) .modal-content {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+#emailVerificationModal h1 {
+  color: #2c3e50;
+  font-size: 28px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+}
+
+#emailVerificationModal:not(.hidden) h1 {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#emailVerificationModal p {
+  color: #5a6c7d;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  font-weight: 400;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
+}
+
+#emailVerificationModal:not(.hidden) p {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#emailVerificationModal #verificationEmail {
+  color: #3498db;
+  font-weight: 700;
+  word-break: break-all;
+  background: rgba(52, 152, 219, 0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: inline-block;
+  margin: 10px 0;
+  border: 2px solid rgba(52, 152, 219, 0.2);
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.5s;
+}
+
+#emailVerificationModal:not(.hidden) #verificationEmail {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#emailVerificationModal input[type="text"] {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-size: 18px;
+  text-align: center;
+  letter-spacing: 3px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-bottom: 25px;
+  width: 100%;
+  box-sizing: border-box;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#emailVerificationModal:not(.hidden) input[type="text"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#emailVerificationModal input[type="text"]:focus {
+  outline: none;
+  border-color: #3498db;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  transform: translateY(-2px);
+}
+
+#emailVerificationModal input[type="text"]::placeholder {
+  color: #bdc3c7;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+#emailVerificationModal button[type="submit"] {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 5px rgba(39, 174, 96, 0.2);
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.7s, background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#emailVerificationModal:not(.hidden) button[type="submit"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#emailVerificationModal button[type="submit"]:hover {
+  background-color: #2ecc71;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+}
+
+#emailVerificationModal button[type="submit"]:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(39, 174, 96, 0.2);
+}
+
+#emailVerificationModal .links-container {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eaeaea;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.8s;
+}
+
+#emailVerificationModal:not(.hidden) .links-container {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#emailVerificationModal #resendCode {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin: 5px;
+  display: inline-block;
+}
+
+#emailVerificationModal #resendCode:hover {
+  color: #2980b9;
+  background: rgba(52, 152, 219, 0.1);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+#emailVerificationModal #backToSignUp {
+  color: #7f8c8d;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin: 5px;
+  display: inline-block;
+}
+
+#emailVerificationModal #backToSignUp:hover {
+  color: #34495e;
+  background: rgba(127, 140, 141, 0.1);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+#emailVerificationModal .close {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  color: #95a5a6;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(149, 165, 166, 0.1);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s, color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+}
+
+#emailVerificationModal:not(.hidden) .close {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#emailVerificationModal .close:hover {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
+  transform: scale(1.1);
+}
+
+/* Responsive design para el modal de verificación */
+@media (max-width: 768px) {
+  #emailVerificationModal .modal-content {
+    width: 95%;
+    margin: 5% auto;
+    max-height: 95vh;
+  }
+  
+  #emailVerificationModal .form-container {
+    padding: 30px 20px;
+  }
+  
+  #emailVerificationModal h1 {
+    font-size: 24px;
+  }
+  
+  #emailVerificationModal p {
+    font-size: 14px;
+  }
+  
+  #emailVerificationModal input[type="text"] {
+    font-size: 16px;
+    padding: 15px 20px;
+    letter-spacing: 2px;
+  }
+  
+  #emailVerificationModal button[type="submit"] {
+    font-size: 14px;
+    padding: 15px 25px;
+  }
+  
+  #emailVerificationModal .close {
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  #emailVerificationModal .modal-content {
+    width: 98%;
+    margin: 2% auto;
+  }
+  
+  #emailVerificationModal .form-container {
+    padding: 25px 15px;
+  }
+  
+  #emailVerificationModal h1 {
+    font-size: 22px;
+  }
+  
+  #emailVerificationModal input[type="text"] {
+    font-size: 14px;
+    padding: 12px 15px;
+    letter-spacing: 1px;
+  }
+  
+  #emailVerificationModal button[type="submit"] {
+    font-size: 13px;
+    padding: 12px 20px;
+  }
+}
+
+/* Estilos para el botón de prueba del modal */
+#testEmailModal {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white !important;
+  padding: 8px 16px !important;
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  text-decoration: none !important;
+  box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3) !important;
+}
+
+#testEmailModal:hover {
+  background: linear-gradient(135deg, #2980b9, #1f5f8b) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4) !important;
+  color: white !important;
+}
+
+#testEmailModal:active {
+  transform: translateY(0) !important;
+}
+
+/* Transición de cierre del modal */
+#emailVerificationModal.closing {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#emailVerificationModal.closing .modal-content {
+  opacity: 0;
+  transform: translateY(-50px) scale(0.9);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#emailVerificationModal:not(.hidden):not(.closing) .modal-content {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+#emailVerificationModal .form-container {
+  padding: 40px 30px;
+  text-align: center;
+  position: relative;
+  background: #ffffff;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
+}
+
+#emailVerificationModal:not(.hidden):not(.closing) .form-container {
+  opacity: 1;
+  transform: translateY(0);
 }

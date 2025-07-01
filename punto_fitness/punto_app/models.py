@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -221,4 +222,30 @@ class Inscripcion(models.Model):
     def save(self, *args, **kwargs):
         # Establece la fecha_realizacion igual a la del curso relacionado
         self.fecha_realizacion = self.curso.fecha_realizacion
+        super().save(*args, **kwargs)
+
+class VerificacionCorreo(models.Model):
+    id_verificacion = models.AutoField(primary_key=True)
+    id_usuario = models.ForeignKey(
+        Cliente, 
+        on_delete=models.CASCADE, 
+        db_column='id_usuario'
+    )
+    codigo = models.CharField(max_length=10)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_expiracion = models.DateTimeField()
+    utilizado = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'verificacion_correo'
+        verbose_name = 'Verificación de correo'
+        verbose_name_plural = 'Verificaciones de correo'
+
+    def __str__(self):
+        return f"Verificación para {self.id_usuario} - {self.codigo}"
+
+    def save(self, *args, **kwargs):
+        # Si es un nuevo registro y no tiene fecha de expiración, establece una por defecto (10 minutos)
+        if not self.id_verificacion and not self.fecha_expiracion:
+            self.fecha_expiracion = timezone.now() + timedelta(minutes=10)
         super().save(*args, **kwargs)

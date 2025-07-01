@@ -18,5 +18,5 @@ class ProductoAdmin(admin.ModelAdmin):
 
 @admin.register(Membresia)
 class MembresiaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'descripcion', 'precio', 'duracion', 'establecimiento')
-    list_filter = ('establecimiento',)
+    list_display = ('nombre', 'descripcion', 'precio', 'duracion', 'dias_por_semana', 'establecimiento')
+    list_filter = ('establecimiento', 'duracion')

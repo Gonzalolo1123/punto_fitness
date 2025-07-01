@@ -11,6 +11,12 @@
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
   <link rel="stylesheet" href="{% static 'css/signIn-Up.css' %}">
   <link rel="stylesheet" href="{% static 'css/cuenta.css' %}">
+  
+  <!-- Fuente Playfair Display para concordancia con base_admin -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   {% block extra_head %}{% endblock %}
 </head>
@@ -137,6 +143,49 @@
     </div>
   </div>
 
+  <!-- Modal de Verificación de Correo -->
+  <div id="emailVerificationModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" id="closeEmailVerificationModal">&times;</span>
+      <div class="form-container">
+        <h1>🔐 Verificar Correo Electrónico</h1>
+        <p>
+          Hemos enviado un código de verificación de 6 dígitos a: <br>
+          <strong id="verificationEmail">usuario@ejemplo.com</strong>
+        </p>
+        <p style="font-size: 14px; color: #7f8c8d; margin-top: 15px;">
+          Por favor, revisa tu bandeja de entrada y spam, e ingresa el código a continuación.
+        </p>
+        
+        <form id="emailVerificationForm">
+          {% csrf_token %}
+          <label>
+            <input type="text" 
+                   id="verificationCode" 
+                   placeholder="000000" 
+                   required 
+                   maxlength="6" 
+                   pattern="[0-9]{6}"
+                   autocomplete="one-time-code" />
+          </label>
+          <button type="submit">
+            ✅ Verificar y Crear Cuenta
+          </button>
+        </form>
+        
+        <div class="links-container">
+          <p style="font-size: 14px; color: #7f8c8d; margin-bottom: 15px;">
+            ¿No recibiste el código? 
+            <a href="#" id="resendCode">🔄 Reenviar código</a>
+          </p>
+          <a href="#" id="backToSignUp">
+            ← Volver al registro
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Cuenta Usuario -->
   <div id="userModal" class="modal hidden">
     <div class="modal-content">
@@ -149,7 +198,7 @@
         <p><strong>Rol:</strong> {{nivel_acceso|default:"Cliente"}}</p>
         <div class="admin-buttons" style="display: none;">
           <a href="{% url 'super_admin' %}" class="admin-btn superadmin-btn" style="display: none;">Panel Super Admin</a>
-          <a href="{% url 'pagina_admin' %}" class="admin-btn admin-btn" style="display: none;">Panel Admin</a>
+          <a href="{% url 'estadisticas' %}" class="admin-btn admin-btn" style="display: none;">Panel Estadísticas</a>
         </div>
         <a href="{% url 'logout' %}" id="cerrarSesionBtn">Cerrar sesión</a>
       </div>
@@ -157,6 +206,7 @@
   </div>
 
   <!-- Scripts base -->
+  <script src="{% static 'js/validaciones.js' %}"></script>
   <script src="{% static 'js/cuenta.js' %}"></script>
   <script src="{% static 'js/signIn-Up.js' %}"></script>
   <script src="{% static 'js/session_check.js' %}"></script>

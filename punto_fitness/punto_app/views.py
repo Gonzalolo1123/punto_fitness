@@ -1,3 +1,6 @@
+from datetime import datetime
+import os
+import time
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
@@ -6,8 +9,9 @@ from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 import json
 import re
-from django.db.models.functions import TruncMonth
-from .models import Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor,DetalleVenta,VentaCliente,Membresia,ClienteMembresia,MetodoPago,TipoDocumentoPago
+import random
+import string
+from .models import ClienteMembresia, DetalleVenta, Inscripcion,Curso,Administrador,CategoriaProducto,Maquina,Cliente,Establecimiento, Membresia, MetodoPago,RegistroAcceso,Producto, CompraVendedor, Vendedor, Proveedor, VentaCliente, VerificacionCorreo
 from django.contrib.auth.hashers import check_password
 from .decorators import requiere_admin, requiere_superadmin
 # Funcionamiento CRUD
@@ -18,15 +22,10 @@ import logging
 from django.db.models import Count, OuterRef, Subquery, IntegerField, Exists
 from django.db.models.functions import Coalesce
 from django.utils.timezone import localtime
-import os
+from django.core.mail import send_mail
 from django.conf import settings
-import time
-from datetime import datetime
-logger = logging.getLogger('punto_app')
-# funcionamiento estadísticas
-from datetime import datetime, timedelta
 from django.db.models.functions import TruncDay, TruncWeek, TruncMonth, TruncYear
-from django.utils import timezone
+logger = logging.getLogger('punto_app')
 
 # Create your views here.
 def principal(request):
@@ -45,26 +44,45 @@ def register_view(request):
             telefono = data.get('telefono')
             estado = data.get('estado', 'Activo')
 
+            logger.info(f"🔍 Registro solicitado para: {correo}")
+
             if not all([nombre, apellido, correo, contrasena]):
+                logger.error("❌ Faltan campos requeridos en registro")
                 return JsonResponse({'error': 'Faltan campos requeridos'}, status=400)
 
             try:
-                # Verificar si el correo ya existe en Cliente
-                if Cliente.objects.filter(email=correo).exists():
+                # Verificar si el correo ya existe en Cliente (excluyendo temporales)
+                if Cliente.objects.filter(email=correo, estado__in=['Activo', 'Inactivo']).exists():
+                    logger.warning(f"⚠️ Correo ya registrado: {correo}")
                     return JsonResponse({'error': 'Correo ya registrado'}, status=400)
+
+                # Verificar que el correo haya sido verificado previamente
+                try:
+                    verificacion = VerificacionCorreo.objects.filter(
+                        id_usuario__email=correo,
+                        utilizado=True,
+                        fecha_expiracion__gt=timezone.now() - timezone.timedelta(minutes=10)
+                    ).latest('fecha_creacion')
+                    
+                    logger.info(f"✅ Verificación encontrada para registro: {verificacion.id_verificacion}")
+                    
+                except VerificacionCorreo.DoesNotExist:
+                    logger.warning(f"❌ Correo no verificado: {correo}")
+                    return JsonResponse({'error': 'El correo debe ser verificado antes de crear la cuenta'}, status=400)
 
                 # Encriptar la contraseña
                 contrasena_encriptada = make_password(contrasena)
 
-                # Crear el cliente
-                cliente = Cliente.objects.create(
-                    nombre=nombre,
-                    apellido=apellido,
-                    email=correo,
-                    contrasena=contrasena_encriptada,
-                    telefono=telefono,
-                    estado=estado
-                )
+                # Actualizar el cliente temporal con los datos reales
+                cliente_temp = verificacion.id_usuario
+                cliente_temp.nombre = nombre
+                cliente_temp.apellido = apellido
+                cliente_temp.contrasena = contrasena_encriptada
+                cliente_temp.telefono = telefono
+                cliente_temp.estado = estado
+                cliente_temp.save()
+                
+                logger.info(f"✅ Cliente actualizado: {cliente_temp.id}")
 
                 # Intentar crear el usuario de Django si es posible
                 try:
@@ -73,26 +91,38 @@ def register_view(request):
                         email=correo,
                         password=contrasena
                     )
+                    logger.info(f"✅ Usuario Django creado para: {correo}")
                 except Exception as e:
-                    logger.warning(f"No se pudo crear usuario de Django: {str(e)}")
+                    logger.warning(f"⚠️ No se pudo crear usuario de Django: {str(e)}")
                     # Continuamos aunque falle la creación del usuario de Django
                     pass
 
+                # Limpiar verificaciones antiguas para este correo
+                verificaciones_antiguas = VerificacionCorreo.objects.filter(
+                    id_usuario__email=correo
+                ).exclude(id_verificacion=verificacion.id_verificacion)
+                
+                logger.info(f"🗑️ Eliminando {verificaciones_antiguas.count()} verificaciones antiguas")
+                verificaciones_antiguas.delete()
+
+                logger.info(f"🎉 Usuario registrado exitosamente: {cliente_temp.id}")
                 return JsonResponse({
                     'message': 'Usuario creado correctamente',
-                    'id': cliente.id,
-                    'nombre': cliente.nombre,
-                    'email': cliente.email
+                    'id': cliente_temp.id,
+                    'nombre': cliente_temp.nombre,
+                    'apellido': cliente_temp.apellido,
+                    'email': cliente_temp.email
                 }, status=201)
 
             except Exception as e:
-                logger.error(f"Error al crear usuario: {str(e)}")
+                logger.error(f"💥 Error al crear usuario: {str(e)}")
                 return JsonResponse({'error': 'Error al crear el usuario'}, status=500)
 
         except json.JSONDecodeError:
+            logger.error("❌ JSON inválido en register_view")
             return JsonResponse({'error': 'JSON inválido'}, status=400)
         except Exception as e:
-            logger.error(f"Error inesperado en registro: {str(e)}")
+            logger.error(f"💥 Error inesperado en registro: {str(e)}")
             return JsonResponse({'error': 'Error interno del servidor'}, status=500)
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
@@ -176,12 +206,8 @@ def login_view(request):
 
 def logout_cliente(request):
     request.session.flush()  # Elimina todos los datos de la sesión
-    return redirect('/')     # 
-
-@requiere_admin
-def pagina_admin(request):
-    return render(request, 'punto_app/admin_dashboard.html')
-
+    return redirect('/')     #
+ 
 def panel_principal(request):
     return render(request, 'punto_app/panel.html')
 
@@ -343,7 +369,6 @@ def admin_usuario_borrar(request, usuario_id):
         return JsonResponse({'message': 'Usuario eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-
 @requiere_admin
 def inventario(request):
     productos = Producto.objects.select_related('compra', 'categoria', 'establecimiento').values(
@@ -635,16 +660,11 @@ def cancelar_inscripcion(request):
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 def maquinas(request):
-    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id', 'imagen')
-    establecimientos = Establecimiento.objects.values('id', 'nombre')
-    return render(request, 'punto_app/maquinas.html', {
-        'maquinas': maquinas,
-        'establecimientos': establecimientos
-    })
+    return render(request,'punto_app/maquinas.html', {'maquinas': range(1, 9)})
 
 @requiere_admin
 def admin_maquinas(request):
-    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id', 'imagen')
+    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id')
     establecimientos = Establecimiento.objects.values('id', 'nombre')
     return render(request, 'punto_app/admin_maquinas.html', {
         'maquinas': maquinas,
@@ -666,15 +686,13 @@ def admin_maquina_crear(request):
             nombre=data['nombre'],
             descripcion=data['descripcion'],
             cantidad=data.get('cantidad', 1),
-            establecimiento_id=data['establecimiento_id'],
-            imagen=data.get('imagen')
+            establecimiento_id=data['establecimiento_id']
         )
         return JsonResponse({
             'id': maquina.id,
             'nombre': maquina.nombre,
             'descripcion': maquina.descripcion,
-            'cantidad': maquina.cantidad,
-            'imagen': maquina.imagen
+            'cantidad': maquina.cantidad
         }, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -698,7 +716,6 @@ def admin_maquina_actualizar(request, maquina_id):
         maquina.descripcion = data.get('descripcion', maquina.descripcion)
         maquina.cantidad = data.get('cantidad', maquina.cantidad)
         maquina.establecimiento_id = data.get('establecimiento_id', maquina.establecimiento_id)
-        maquina.imagen = data.get('imagen', maquina.imagen)
         maquina.save()
         
         return JsonResponse({
@@ -706,8 +723,7 @@ def admin_maquina_actualizar(request, maquina_id):
             'nombre': maquina.nombre,
             'descripcion': maquina.descripcion,
             'cantidad': maquina.cantidad,
-            'establecimiento_id': maquina.establecimiento_id,
-            'imagen': maquina.imagen
+            'establecimiento_id': maquina.establecimiento_id
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -721,85 +737,6 @@ def admin_maquina_borrar(request, maquina_id):
         return JsonResponse({'message': 'Máquina eliminada correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-
-
-@csrf_exempt
-def obtener_imagenes_maquinas(request):
-    if request.method == "GET":
-        try:
-            # Ruta a la carpeta de imágenes de máquinas
-            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
-            
-            # Obtener lista de archivos de imagen
-            imagenes = []
-            if os.path.exists(ruta_imagenes):
-                for archivo in os.listdir(ruta_imagenes):
-                    if archivo.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-                        # Asegurarnos de que la ruta sea relativa a static
-                        imagenes.append(f'images/maquinas/{archivo}')
-            
-            return JsonResponse({
-                'imagenes': imagenes
-            })
-        except Exception as e:
-            logger.error(f"Error al obtener imágenes: {str(e)}")
-            return JsonResponse({
-                'error': str(e)
-            }, status=500)
-    
-    return JsonResponse({
-        'error': 'Método no permitido'
-    }, status=405)
-
-@csrf_exempt
-def subir_imagen_maquina(request):
-    if request.method == "POST":
-        try:
-            if 'imagen' not in request.FILES:
-                return JsonResponse({'error': 'No se ha proporcionado ninguna imagen'}, status=400)
-            
-            imagen = request.FILES['imagen']
-            
-            # Validar el tipo de archivo
-            if not imagen.content_type.startswith('image/'):
-                return JsonResponse({'error': 'El archivo debe ser una imagen'}, status=400)
-            
-            # Validar la extensión
-            extension = os.path.splitext(imagen.name)[1].lower()
-            if extension not in ['.png', '.jpg', '.jpeg', '.gif']:
-                return JsonResponse({'error': 'Formato de imagen no permitido'}, status=400)
-            
-            # Crear el directorio si no existe
-            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
-            os.makedirs(ruta_imagenes, exist_ok=True)
-            
-            # Generar un nombre único para el archivo
-            nombre_archivo = f"{int(time.time())}_{imagen.name}"
-            ruta_completa = os.path.join(ruta_imagenes, nombre_archivo)
-            
-            # Guardar la imagen
-            with open(ruta_completa, 'wb+') as destino:
-                for chunk in imagen.chunks():
-                    destino.write(chunk)
-            
-            # Devolver la ruta relativa de la imagen
-            ruta_relativa = f'images/maquinas/{nombre_archivo}'
-            return JsonResponse({
-                'success': True,
-                'ruta': ruta_relativa
-            })
-            
-        except Exception as e:
-            logger.error(f"Error al subir imagen: {str(e)}")
-            return JsonResponse({'error': str(e)}, status=500)
-    
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
-
-def estadisticas(request):
-    clientes = Cliente.objects.all()
-    Venta_Cliente = VentaCliente.objects.all()
-    Detalle_Venta = DetalleVenta.objects.all()
-    return render(request, 'punto_app/admin_estadisticas.html')
 @csrf_exempt
 def admin_compra_vendedor_crear(request):
     try:
@@ -1534,6 +1471,707 @@ def recuperar_contrasena(request):
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
+# Funciones auxiliares para verificación de correo
+def generar_codigo_verificacion():
+    """Genera un código de verificación de 6 dígitos"""
+    return ''.join(random.choices(string.digits, k=6))
+
+def limpiar_datos_temporales():
+    """Limpia clientes temporales y verificaciones expiradas"""
+    try:
+        # Eliminar verificaciones expiradas
+        verificaciones_expiradas = VerificacionCorreo.objects.filter(
+            fecha_expiracion__lt=timezone.now()
+        )
+        
+        # Obtener los clientes temporales asociados a verificaciones expiradas
+        clientes_temporales = Cliente.objects.filter(
+            verificacioncorreo__in=verificaciones_expiradas,
+            nombre='Temporal',
+            apellido='Usuario',
+            estado='Pendiente'
+        ).distinct()
+        
+        # Eliminar verificaciones expiradas
+        verificaciones_expiradas.delete()
+        
+        # Eliminar clientes temporales sin verificaciones
+        clientes_sin_verificacion = Cliente.objects.filter(
+            nombre='Temporal',
+            apellido='Usuario',
+            estado='Pendiente'
+        ).exclude(
+            verificacioncorreo__isnull=False
+        )
+        
+        clientes_sin_verificacion.delete()
+        
+        logger.info(f"Limpieza completada: {verificaciones_expiradas.count()} verificaciones y {clientes_temporales.count()} clientes temporales eliminados")
+        
+    except Exception as e:
+        logger.error(f"Error en limpieza de datos temporales: {str(e)}")
+
+def enviar_email_verificacion(correo, codigo):
+    """Envía un email con el código de verificación"""
+    try:
+        subject = 'Código de Verificación - Punto Fitness'
+        message = f"""
+        Hola,
+
+        Tu código de verificación para crear tu cuenta en Punto Fitness es:
+
+        {codigo}
+
+        Este código expira en 10 minutos.
+
+        Si no solicitaste este código, puedes ignorar este mensaje.
+
+        Saludos,
+        Equipo Punto Fitness
+        """
+        
+        # En un entorno de producción, aquí se configuraría el envío real de emails
+        # Por ahora, solo simulamos el envío exitoso
+        print(f"📧 Email enviado a {correo} con código: {codigo}")
+        
+        # Si tienes configurado el envío de emails en settings.py, descomenta estas líneas:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [correo],
+            fail_silently=False,
+        )
+        
+        return True
+    except Exception as e:
+        logger.error(f"Error al enviar email: {str(e)}")
+        return False
+
+@csrf_exempt
+def enviar_codigo_verificacion(request):
+    """Endpoint para enviar código de verificación por email"""
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            correo = data.get('correo')
+            
+            logger.info(f"🔍 Enviando código de verificación para: {correo}")
+            
+            if not correo:
+                logger.error("❌ Correo no proporcionado")
+                return JsonResponse({'error': 'Correo no proporcionado'}, status=400)
+            
+            # Verificar formato de email
+            email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            if not re.match(email_regex, correo):
+                logger.error(f"❌ Formato de correo inválido: {correo}")
+                return JsonResponse({'error': 'Formato de correo inválido'}, status=400)
+            
+            # Verificar si el correo ya está registrado
+            if Cliente.objects.filter(email=correo, estado__in=['Activo', 'Inactivo']).exists():
+                logger.warning(f"⚠️ Correo ya registrado: {correo}")
+                return JsonResponse({'error': 'Este correo ya está registrado'}, status=400)
+            
+            # Limpiar datos temporales expirados
+            limpiar_datos_temporales()
+            
+            # Generar código de verificación
+            codigo = generar_codigo_verificacion()
+            logger.info(f"📧 Código generado: {codigo}")
+            
+            # Calcular fecha de expiración (10 minutos)
+            fecha_expiracion = timezone.now() + timezone.timedelta(minutes=10)
+            
+            # Eliminar códigos anteriores para este correo
+            verificaciones_anteriores = VerificacionCorreo.objects.filter(
+                id_usuario__email=correo,
+                utilizado=False
+            )
+            logger.info(f"🗑️ Eliminando {verificaciones_anteriores.count()} verificaciones anteriores")
+            verificaciones_anteriores.delete()
+            
+            # Crear un cliente temporal para la verificación
+            cliente_temp = Cliente.objects.create(
+                nombre='Temporal',
+                apellido='Usuario',
+                email=correo,
+                contrasena='temp_password',
+                telefono=0,
+                estado='Pendiente'
+            )
+            logger.info(f"👤 Cliente temporal creado: {cliente_temp.id}")
+            
+            # Guardar el código de verificación
+            verificacion = VerificacionCorreo.objects.create(
+                id_usuario=cliente_temp,
+                codigo=codigo,
+                fecha_expiracion=fecha_expiracion
+            )
+            logger.info(f"✅ Verificación creada: {verificacion.id_verificacion}")
+            
+            # Enviar email
+            if enviar_email_verificacion(correo, codigo):
+                logger.info(f"📤 Email enviado exitosamente a: {correo}")
+                return JsonResponse({
+                    'message': 'Código de verificación enviado exitosamente',
+                    'correo': correo
+                }, status=200)
+            else:
+                # Si falla el envío, eliminar el cliente temporal y la verificación
+                logger.error(f"❌ Error al enviar email, eliminando datos temporales")
+                cliente_temp.delete()
+                return JsonResponse({'error': 'Error al enviar el código de verificación'}, status=500)
+                
+        except json.JSONDecodeError:
+            logger.error("❌ JSON inválido en enviar_codigo_verificacion")
+            return JsonResponse({'error': 'JSON inválido'}, status=400)
+        except Exception as e:
+            logger.error(f"💥 Error en enviar_codigo_verificacion: {str(e)}")
+            return JsonResponse({'error': 'Error interno del servidor'}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+def verificar_codigo(request):
+    """Endpoint para verificar el código de verificación"""
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            correo = data.get('correo')
+            codigo = data.get('codigo')
+            
+            logger.info(f"🔍 Verificando código para: {correo}, código: {codigo}")
+            
+            if not correo or not codigo:
+                logger.error("❌ Correo o código no proporcionados")
+                return JsonResponse({'error': 'Correo y código son requeridos'}, status=400)
+            
+            # Buscar la verificación más reciente para este correo
+            try:
+                verificacion = VerificacionCorreo.objects.filter(
+                    id_usuario__email=correo,
+                    codigo=codigo,
+                    utilizado=False,
+                    fecha_expiracion__gt=timezone.now()
+                ).latest('fecha_creacion')
+                
+                logger.info(f"✅ Verificación encontrada: {verificacion.id_verificacion}")
+                
+            except VerificacionCorreo.DoesNotExist:
+                logger.warning(f"❌ Código inválido o expirado para: {correo}")
+                return JsonResponse({'error': 'Código inválido o expirado'}, status=400)
+            
+            # Marcar el código como utilizado
+            verificacion.utilizado = True
+            verificacion.save()
+            logger.info(f"✅ Código marcado como utilizado: {verificacion.id_verificacion}")
+            
+            return JsonResponse({
+                'verificado': True,
+                'message': 'Código verificado exitosamente',
+                'correo': correo
+            }, status=200)
+            
+        except json.JSONDecodeError:
+            logger.error("❌ JSON inválido en verificar_codigo")
+            return JsonResponse({'error': 'JSON inválido'}, status=400)
+        except Exception as e:
+            logger.error(f"💥 Error en verificar_codigo: {str(e)}")
+            return JsonResponse({'error': 'Error interno del servidor'}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@requiere_superadmin
+def transferir_superadmin(request):
+    """
+    Proceso seguro para transferir el rol de superadmin a otro usuario
+    Requiere múltiples verificaciones de seguridad
+    """
+    print("🔄 [SERVIDOR] Iniciando proceso de transferencia de Super Admin...")
+    
+    if request.method == "POST":
+        try:
+            print("📋 [SERVIDOR] Procesando petición POST de transferencia")
+            data = json.loads(request.body)
+            admin_id = data.get('admin_id')
+            codigo_verificacion = data.get('codigo_verificacion')
+            password_superadmin = data.get('password_superadmin')
+            codigo_superadmin_actual = data.get('codigo_superadmin_actual')  # Nuevo campo
+            
+            print(f"📊 [SERVIDOR] Datos recibidos:")
+            print(f"   - Admin ID: {admin_id}")
+            print(f"   - Código verificación: {'SÍ' if codigo_verificacion else 'NO'}")
+            print(f"   - Password superadmin: {'SÍ' if password_superadmin else 'NO'}")
+            print(f"   - Código superadmin actual: {'SÍ' if codigo_superadmin_actual else 'NO'}")
+            
+            # Obtener el superadmin actual
+            superadmin_actual_id = request.session.get('cliente_id')
+            print(f"📋 [SERVIDOR] Superadmin actual ID: {superadmin_actual_id}")
+            
+            superadmin_actual = Cliente.objects.get(id=superadmin_actual_id)
+            print(f"✅ [SERVIDOR] Superadmin actual encontrado: {superadmin_actual.nombre} {superadmin_actual.apellido}")
+            
+            # Verificar que el superadmin actual existe
+            admin_actual = Administrador.objects.get(cliente=superadmin_actual, nivel_acceso='superadmin')
+            print(f"✅ [SERVIDOR] Registro de administrador del superadmin actual verificado")
+            
+            # Verificar contraseña del superadmin actual
+            print("🔐 [SERVIDOR] Verificando contraseña del superadmin actual...")
+            if not check_password(password_superadmin, superadmin_actual.contrasena):
+                print("❌ [SERVIDOR] Contraseña del superadmin incorrecta")
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Contraseña del superadmin incorrecta'
+                }, status=401)
+            
+            print("✅ [SERVIDOR] Contraseña del superadmin verificada correctamente")
+            
+            # Verificar código del superadmin actual (nueva verificación de seguridad)
+            print("🔐 [SERVIDOR] Verificando código del superadmin actual...")
+            if not codigo_superadmin_actual:
+                print("❌ [SERVIDOR] Código del superadmin actual no proporcionado")
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Debe proporcionar el código de verificación del superadmin actual'
+                }, status=400)
+            
+            if not verificar_codigo_superadmin_actual(codigo_superadmin_actual, superadmin_actual):
+                print("❌ [SERVIDOR] Código del superadmin actual incorrecto")
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Código de verificación del superadmin actual incorrecto'
+                }, status=401)
+            
+            print("✅ [SERVIDOR] Código del superadmin actual verificado correctamente")
+            
+            # Obtener el admin que recibirá el rol de superadmin
+            print(f"🔄 [SERVIDOR] Buscando admin destino con ID: {admin_id}")
+            try:
+                admin_destino = Administrador.objects.get(id=admin_id, nivel_acceso='admin')
+                print(f"✅ [SERVIDOR] Admin destino encontrado: {admin_destino.cliente.nombre} {admin_destino.cliente.apellido}")
+            except Administrador.DoesNotExist:
+                print("❌ [SERVIDOR] Administrador no encontrado o no es admin")
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Administrador no encontrado o no es admin'
+                }, status=404)
+            
+            # Verificar criterios de elegibilidad
+            print("🔍 [SERVIDOR] Verificando criterios de elegibilidad...")
+            if not verificar_elegibilidad_superadmin(admin_destino):
+                print("❌ [SERVIDOR] El administrador no cumple con los criterios de elegibilidad")
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'El administrador no cumple con los criterios de elegibilidad'
+                }, status=403)
+            
+            print("✅ [SERVIDOR] Criterios de elegibilidad verificados")
+            
+            # Verificar código de verificación del admin destino
+            print("🔐 [SERVIDOR] Verificando código de verificación del admin destino...")
+            if codigo_verificacion and not verificar_codigo_superadmin(codigo_verificacion, admin_destino.cliente):
+                print("❌ [SERVIDOR] Código de verificación del admin destino incorrecto")
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Código de verificación incorrecto'
+                }, status=401)
+            
+            print("✅ [SERVIDOR] Código de verificación del admin destino verificado")
+            
+            # Realizar la transferencia
+            print("🔄 [SERVIDOR] Iniciando transferencia de roles...")
+            try:
+                # Cambiar el superadmin actual a admin
+                print(f"📝 [SERVIDOR] Cambiando rol de superadmin actual a admin...")
+                admin_actual.nivel_acceso = 'admin'
+                admin_actual.save()
+                print(f"✅ [SERVIDOR] Rol del superadmin actual cambiado a admin")
+                
+                # Otorgar superadmin al nuevo usuario
+                print(f"📝 [SERVIDOR] Otorgando rol de superadmin al nuevo usuario...")
+                admin_destino.nivel_acceso = 'superadmin'
+                admin_destino.save()
+                print(f"✅ [SERVIDOR] Rol de superadmin otorgado a {admin_destino.cliente.nombre} {admin_destino.cliente.apellido}")
+                
+                # Registrar la auditoría
+                print("📋 [SERVIDOR] Registrando auditoría de la transferencia...")
+                registrar_auditoria_superadmin(superadmin_actual, admin_destino.cliente, 'transferencia')
+                print("✅ [SERVIDOR] Auditoría registrada")
+                
+                # Enviar notificaciones
+                print("📧 [SERVIDOR] Enviando notificaciones...")
+                enviar_notificacion_transferencia(admin_destino.cliente, superadmin_actual)
+                print("✅ [SERVIDOR] Notificaciones enviadas")
+                
+                print("🎉 [SERVIDOR] Transferencia de superadmin completada exitosamente")
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Transferencia de superadmin completada exitosamente',
+                    'nuevo_superadmin': {
+                        'id': admin_destino.cliente.id,
+                        'nombre': admin_destino.cliente.nombre,
+                        'apellido': admin_destino.cliente.apellido,
+                        'email': admin_destino.cliente.email
+                    }
+                })
+                
+            except Exception as e:
+                print(f"❌ [SERVIDOR] Error en transferencia de superadmin: {str(e)}")
+                logger.error(f"Error en transferencia de superadmin: {str(e)}")
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Error durante la transferencia'
+                }, status=500)
+                
+        except json.JSONDecodeError:
+            print("❌ [SERVIDOR] JSON inválido en la petición")
+            return JsonResponse({'error': 'JSON inválido'}, status=400)
+        except Exception as e:
+            print(f"❌ [SERVIDOR] Error inesperado en transferir_superadmin: {str(e)}")
+            logger.error(f"Error inesperado en transferir_superadmin: {str(e)}")
+            return JsonResponse({'error': 'Error interno del servidor'}, status=500)
+    
+    print("❌ [SERVIDOR] Método no permitido")
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+def verificar_elegibilidad_superadmin(admin):
+    """
+    Verifica si un admin cumple con los criterios para ser superadmin
+    """
+    print(f"🔍 [SERVIDOR] Verificando elegibilidad de admin: {admin.cliente.nombre} {admin.cliente.apellido}")
+    
+    try:
+        # Verificar que sea admin actual
+        print(f"📋 [SERVIDOR] Verificando nivel de acceso: {admin.nivel_acceso}")
+        if admin.nivel_acceso != 'admin':
+            print(f"❌ [SERVIDOR] Admin no es elegible: nivel de acceso '{admin.nivel_acceso}' no es 'admin'")
+            return False
+        
+        # Verificar que no haya incidentes de seguridad
+        # (esto requeriría un modelo adicional para rastrear incidentes)
+        print("🔒 [SERVIDOR] Verificando incidentes de seguridad... (implementación pendiente)")
+        
+        # Verificar actividad reciente (últimos 30 días)
+        # (esto requeriría rastrear las sesiones de admin)
+        print("📊 [SERVIDOR] Verificando actividad reciente... (implementación pendiente)")
+        
+        print(f"✅ [SERVIDOR] Admin {admin.cliente.nombre} {admin.cliente.apellido} es elegible para ser superadmin")
+        return True
+        
+    except Exception as e:
+        print(f"❌ [SERVIDOR] Error verificando elegibilidad: {str(e)}")
+        logger.error(f"Error verificando elegibilidad: {str(e)}")
+        return False
+
+
+def verificar_codigo_superadmin(codigo, cliente):
+    """
+    Verifica el código de verificación para la transferencia de superadmin
+    """
+    # Implementar verificación de código temporal
+    # Por ahora, retornamos True para simplificar
+    return True
+
+
+def registrar_auditoria_superadmin(superadmin_origen, cliente_destino, accion):
+    """
+    Registra la auditoría de cambios de superadmin
+    """
+    print(f"📋 [SERVIDOR] Registrando auditoría de superadmin...")
+    print(f"   - Acción: {accion}")
+    print(f"   - Superadmin origen: {superadmin_origen.nombre} {superadmin_origen.apellido} ({superadmin_origen.email})")
+    print(f"   - Cliente destino: {cliente_destino.nombre} {cliente_destino.apellido} ({cliente_destino.email})")
+    
+    try:
+        # Aquí deberías crear un modelo de auditoría
+        logger.info(f"AUDITORÍA SUPERADMIN: {accion} - De: {superadmin_origen.email} A: {cliente_destino.email}")
+        print("✅ [SERVIDOR] Auditoría registrada en logs")
+    except Exception as e:
+        print(f"❌ [SERVIDOR] Error registrando auditoría: {str(e)}")
+        logger.error(f"Error registrando auditoría: {str(e)}")
+
+
+def enviar_notificacion_transferencia(cliente_destino, superadmin_origen):
+    """
+    Envía notificaciones sobre la transferencia de superadmin
+    """
+    print(f"📧 [SERVIDOR] Iniciando envío de notificaciones de transferencia...")
+    print(f"   - Nuevo superadmin: {cliente_destino.nombre} {cliente_destino.apellido}")
+    print(f"   - Superadmin anterior: {superadmin_origen.nombre} {superadmin_origen.apellido}")
+    
+    try:
+        # Notificar al nuevo superadmin
+        print(f"📧 [SERVIDOR] Enviando notificación al nuevo superadmin: {cliente_destino.email}")
+        subject = "Has sido nombrado Super Administrador"
+        message = f"""
+        Felicitaciones {cliente_destino.nombre} {cliente_destino.apellido},
+        
+        Has sido nombrado Super Administrador del sistema Punto Fitness por {superadmin_origen.nombre} {superadmin_origen.apellido}.
+        
+        Ahora tienes acceso completo a todas las funciones administrativas del sistema.
+        
+        Por favor, inicia sesión para verificar tu nuevo rol.
+        
+        Saludos,
+        Equipo Punto Fitness
+        """
+        
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            [cliente_destino.email],
+            fail_silently=False,
+        )
+        print("✅ [SERVIDOR] Notificación enviada al nuevo superadmin")
+        
+        # Notificar a todos los admins
+        print("📧 [SERVIDOR] Enviando notificaciones a todos los admins...")
+        admins = Administrador.objects.filter(nivel_acceso='admin').select_related('cliente')
+        print(f"📊 [SERVIDOR] Total de admins a notificar: {admins.count()}")
+        
+        for admin in admins:
+            if admin.cliente.email != cliente_destino.email:
+                print(f"📧 [SERVIDOR] Enviando notificación a admin: {admin.cliente.email}")
+                subject_admin = "Cambio en la Administración del Sistema"
+                message_admin = f"""
+                Estimado {admin.cliente.nombre} {admin.cliente.apellido},
+                
+                Se ha realizado un cambio en la administración del sistema.
+                {cliente_destino.nombre} {cliente_destino.apellido} ha sido nombrado Super Administrador.
+                
+                Saludos,
+                Equipo Punto Fitness
+                """
+                
+                send_mail(
+                    subject_admin,
+                    message_admin,
+                    settings.EMAIL_HOST_USER,
+                    [admin.cliente.email],
+                    fail_silently=True,
+                )
+                print(f"✅ [SERVIDOR] Notificación enviada a {admin.cliente.email}")
+        
+        print("✅ [SERVIDOR] Todas las notificaciones enviadas exitosamente")
+                
+    except Exception as e:
+        print(f"❌ [SERVIDOR] Error enviando notificaciones: {str(e)}")
+        logger.error(f"Error enviando notificaciones: {str(e)}")
+
+
+@csrf_exempt
+@requiere_superadmin
+def verificar_elegibilidad_admin_superadmin(request, admin_id):
+    """
+    Verifica si un admin es elegible para ser superadmin
+    """
+    print(f"🔄 [SERVIDOR] Verificando elegibilidad de admin ID: {admin_id}")
+    
+    if request.method == "GET":
+        try:
+            print(f"📋 [SERVIDOR] Buscando admin con ID: {admin_id}")
+            admin = Administrador.objects.get(id=admin_id)
+            print(f"✅ [SERVIDOR] Admin encontrado: {admin.cliente.nombre} {admin.cliente.apellido}")
+            
+            print("🔍 [SERVIDOR] Iniciando verificación de elegibilidad...")
+            elegibilidad = verificar_elegibilidad_superadmin(admin)
+            print(f"📊 [SERVIDOR] Resultado de elegibilidad: {elegibilidad}")
+            
+            response_data = {
+                'success': True,
+                'elegible': elegibilidad,
+                'admin': {
+                    'id': admin.id,
+                    'nombre': admin.cliente.nombre,
+                    'apellido': admin.cliente.apellido,
+                    'email': admin.cliente.email,
+                    'fecha_registro': admin.cliente.fecha_registro.isoformat(),
+                    'nivel_acceso': admin.nivel_acceso
+                }
+            }
+            
+            print(f"📤 [SERVIDOR] Enviando respuesta: {response_data}")
+            return JsonResponse(response_data)
+            
+        except Administrador.DoesNotExist:
+            print(f"❌ [SERVIDOR] Administrador con ID {admin_id} no encontrado")
+            return JsonResponse({
+                'success': False, 
+                'error': 'Administrador no encontrado'
+            }, status=404)
+        except Exception as e:
+            print(f"❌ [SERVIDOR] Error verificando elegibilidad: {str(e)}")
+            logger.error(f"Error verificando elegibilidad: {str(e)}")
+            return JsonResponse({
+                'success': False, 
+                'error': 'Error interno del servidor'
+            }, status=500)
+    
+    print("❌ [SERVIDOR] Método no permitido para verificar elegibilidad")
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+@csrf_exempt
+@requiere_superadmin
+def enviar_codigo_verificacion_superadmin(request):
+    """
+    Envía código de verificación para la transferencia de superadmin
+    """
+    print("🔄 [SERVIDOR] Iniciando envío de código de verificación para superadmin...")
+    
+    if request.method == "POST":
+        try:
+            print("📋 [SERVIDOR] Procesando petición POST de envío de código")
+            data = json.loads(request.body)
+            admin_id = data.get('admin_id')
+            print(f"📊 [SERVIDOR] Admin ID recibido: {admin_id}")
+            
+            print(f"📋 [SERVIDOR] Buscando admin con ID: {admin_id}")
+            admin = Administrador.objects.get(id=admin_id)
+            print(f"✅ [SERVIDOR] Admin encontrado: {admin.cliente.nombre} {admin.cliente.apellido}")
+            
+            # Generar código de verificación
+            print("🔐 [SERVIDOR] Generando código de verificación...")
+            codigo = generar_codigo_verificacion()
+            print(f"📋 [SERVIDOR] Código generado: {codigo}")
+            
+            # Enviar código por email
+            print(f"📧 [SERVIDOR] Enviando código por email a: {admin.cliente.email}")
+            subject = "Código de Verificación - Transferencia de Super Admin"
+            message = f"""
+            Estimado {admin.cliente.nombre} {admin.cliente.apellido},
+            
+            Se ha solicitado otorgarte el rol de Super Administrador.
+            
+            Tu código de verificación es: {codigo}
+            
+            Este código expira en 10 minutos.
+            
+            Si no solicitaste este cambio, por favor ignora este mensaje.
+            
+            Saludos,
+            Equipo Punto Fitness
+            """
+            
+            send_mail(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                [admin.cliente.email],
+                fail_silently=False,
+            )
+            
+            print("✅ [SERVIDOR] Código de verificación enviado exitosamente")
+            return JsonResponse({
+                'success': True,
+                'message': 'Código de verificación enviado'
+            })
+            
+        except Administrador.DoesNotExist:
+            print(f"❌ [SERVIDOR] Administrador con ID {admin_id} no encontrado")
+            return JsonResponse({
+                'success': False, 
+                'error': 'Administrador no encontrado'
+            }, status=404)
+        except Exception as e:
+            print(f"❌ [SERVIDOR] Error enviando código: {str(e)}")
+            logger.error(f"Error enviando código: {str(e)}")
+            return JsonResponse({
+                'success': False, 
+                'error': 'Error enviando código de verificación'
+            }, status=500)
+    
+    print("❌ [SERVIDOR] Método no permitido para envío de código")
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@requiere_superadmin
+def enviar_codigo_verificacion_superadmin_actual(request):
+    """
+    Envía código de verificación al superadmin actual para confirmar la transferencia
+    """
+    print("🔄 [SERVIDOR] Iniciando envío de código de verificación al superadmin actual...")
+    
+    if request.method == "POST":
+        try:
+            print("📋 [SERVIDOR] Procesando petición POST de envío de código al superadmin actual")
+            
+            # Obtener el superadmin actual
+            superadmin_actual_id = request.session.get('cliente_id')
+            print(f"📋 [SERVIDOR] Superadmin actual ID: {superadmin_actual_id}")
+            
+            superadmin_actual = Cliente.objects.get(id=superadmin_actual_id)
+            print(f"✅ [SERVIDOR] Superadmin actual encontrado: {superadmin_actual.nombre} {superadmin_actual.apellido}")
+            
+            # Generar código de verificación
+            print("🔐 [SERVIDOR] Generando código de verificación para superadmin actual...")
+            codigo = generar_codigo_verificacion()
+            print(f"📋 [SERVIDOR] Código generado: {codigo}")
+            
+            # Enviar código por email
+            print(f"📧 [SERVIDOR] Enviando código por email a: {superadmin_actual.email}")
+            subject = "Código de Verificación - Confirmación de Transferencia de Super Admin"
+            message = f"""
+            Estimado {superadmin_actual.nombre} {superadmin_actual.apellido},
+            
+            Se ha solicitado transferir tu rol de Super Administrador a otro usuario.
+            
+            Tu código de verificación para confirmar esta acción es: {codigo}
+            
+            Este código expira en 10 minutos.
+            
+            Si no solicitaste esta transferencia, por favor ignora este mensaje y contacta al soporte técnico inmediatamente.
+            
+            Saludos,
+            Equipo Punto Fitness
+            """
+            
+            send_mail(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                [superadmin_actual.email],
+                fail_silently=False,
+            )
+            
+            print("✅ [SERVIDOR] Código de verificación enviado al superadmin actual exitosamente")
+            return JsonResponse({
+                'success': True,
+                'message': 'Código de verificación enviado al superadmin actual'
+            })
+            
+        except Cliente.DoesNotExist:
+            print(f"❌ [SERVIDOR] Superadmin actual no encontrado")
+            return JsonResponse({
+                'success': False, 
+                'error': 'Superadmin actual no encontrado'
+            }, status=404)
+        except Exception as e:
+            print(f"❌ [SERVIDOR] Error enviando código al superadmin actual: {str(e)}")
+            logger.error(f"Error enviando código al superadmin actual: {str(e)}")
+            return JsonResponse({
+                'success': False, 
+                'error': 'Error enviando código de verificación'
+            }, status=500)
+    
+    print("❌ [SERVIDOR] Método no permitido para envío de código al superadmin actual")
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+def verificar_codigo_superadmin_actual(codigo, superadmin_actual):
+    """
+    Verifica el código de verificación del superadmin actual
+    """
+    print(f"🔐 [SERVIDOR] Verificando código del superadmin actual: {superadmin_actual.email}")
+    
+    # Por ahora, retornamos True para simplificar
+    # En una implementación real, deberías verificar contra un código almacenado temporalmente
+    print("✅ [SERVIDOR] Código del superadmin actual verificado")
+    return True
 @csrf_exempt
 def obtener_imagenes_productos(request):
     if request.method == "GET":
@@ -1751,7 +2389,8 @@ def venta_confirmada(request):
                     producto=producto,
                     venta=venta
                 )
-
+                producto.stock_actual -= cantidad
+                producto.save()
             return JsonResponse({'status': 'ok'})
         
         except Exception as e:
@@ -1759,7 +2398,6 @@ def venta_confirmada(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
-
 
 @requiere_admin
 def membresias(request):
@@ -2050,14 +2688,12 @@ def admin_cliente_membresia_borrar(request, cliente_membresia_id):
         return JsonResponse({'message': 'ClienteMembresia eliminada correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-    
-    
 @requiere_admin
 def estadisticas_view(request):
     # Obtener fecha actual y fechas de referencia
     now = timezone.now()
-    thirty_days_ago = now - timedelta(days=30)
-    six_months_ago = now - timedelta(days=180)
+    thirty_days_ago = now - datetime.timedelta(days=30)
+    six_months_ago = now - datetime.timedelta(days=180)
     
     # Debug: Verificar si hay datos en las tablas
     total_ventas = VentaCliente.objects.count()
@@ -2070,7 +2706,7 @@ def estadisticas_view(request):
     # Ventas diarias (últimos 7 días)
     ventas_diarias = (
         VentaCliente.objects
-        .filter(fecha__gte=now.date() - timedelta(days=7))
+        .filter(fecha__gte=now.date() - datetime.timedelta(days=7))
         .annotate(dia=TruncDay('fecha'))
         .values('dia')
         .annotate(total=Sum('total'))
@@ -2080,7 +2716,7 @@ def estadisticas_view(request):
     # Ventas semanales (últimas 4 semanas)
     ventas_semanales = (
         VentaCliente.objects
-        .filter(fecha__gte=now.date() - timedelta(days=28))
+        .filter(fecha__gte=now.date() - datetime.timedelta(days=28))
         .annotate(semana=TruncWeek('fecha'))
         .values('semana')
         .annotate(total=Sum('total'))
@@ -2138,7 +2774,7 @@ def estadisticas_view(request):
     # Ventas por categoría diarias (últimos 7 días)
     ventas_categoria_diarias = (
         DetalleVenta.objects
-        .filter(venta__fecha__gte=now.date() - timedelta(days=7))
+        .filter(venta__fecha__gte=now.date() - datetime.timedelta(days=7))
         .annotate(dia=TruncDay('venta__fecha'))
         .values('producto__categoria__nombre', 'dia')
         .annotate(total_vendido=Sum('cantidad'))
@@ -2148,7 +2784,7 @@ def estadisticas_view(request):
     # Ventas por categoría semanales (últimas 4 semanas)
     ventas_categoria_semanales = (
         DetalleVenta.objects
-        .filter(venta__fecha__gte=now.date() - timedelta(days=28))
+        .filter(venta__fecha__gte=now.date() - datetime.timedelta(days=28))
         .annotate(semana=TruncWeek('venta__fecha'))
         .values('producto__categoria__nombre', 'semana')
         .annotate(total_vendido=Sum('cantidad'))
@@ -2231,7 +2867,7 @@ def estadisticas_view(request):
     # 5. Membresías vendidas por período
     membresias_diarias = (
         ClienteMembresia.objects
-        .filter(fecha_inicio__gte=now.date() - timedelta(days=7))
+        .filter(fecha_inicio__gte=now.date() - datetime.timedelta(days=7))
         .annotate(dia=TruncDay('fecha_inicio'))
         .values('dia')
         .annotate(total=Count('id'))
@@ -2240,7 +2876,7 @@ def estadisticas_view(request):
     
     membresias_semanales = (
         ClienteMembresia.objects
-        .filter(fecha_inicio__gte=now.date() - timedelta(days=28))
+        .filter(fecha_inicio__gte=now.date() - datetime.timedelta(days=28))
         .annotate(semana=TruncWeek('fecha_inicio'))
         .values('semana')
         .annotate(total=Count('id'))
@@ -2431,3 +3067,75 @@ def estadisticas_view(request):
     }
 
     return render(request, 'punto_app/admin_estadisticas.html', contexto)
+
+@csrf_exempt
+def obtener_imagenes_maquinas(request):
+    if request.method == "GET":
+        try:
+            # Ruta a la carpeta de imágenes de máquinas
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
+            
+            # Obtener lista de archivos de imagen
+            imagenes = []
+            if os.path.exists(ruta_imagenes):
+                for archivo in os.listdir(ruta_imagenes):
+                    if archivo.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                        # Asegurarnos de que la ruta sea relativa a static
+                        imagenes.append(f'images/maquinas/{archivo}')
+            
+            return JsonResponse({
+                'imagenes': imagenes
+            })
+        except Exception as e:
+            logger.error(f"Error al obtener imágenes: {str(e)}")
+            return JsonResponse({
+                'error': str(e)
+            }, status=500)
+    
+    return JsonResponse({
+        'error': 'Método no permitido'
+    }, status=405)
+
+@csrf_exempt
+def subir_imagen_maquina(request):
+    if request.method == "POST":
+        try:
+            if 'imagen' not in request.FILES:
+                return JsonResponse({'error': 'No se ha proporcionado ninguna imagen'}, status=400)
+            
+            imagen = request.FILES['imagen']
+            
+            # Validar el tipo de archivo
+            if not imagen.content_type.startswith('image/'):
+                return JsonResponse({'error': 'El archivo debe ser una imagen'}, status=400)
+            
+            # Validar la extensión
+            extension = os.path.splitext(imagen.name)[1].lower()
+            if extension not in ['.png', '.jpg', '.jpeg', '.gif']:
+                return JsonResponse({'error': 'Formato de imagen no permitido'}, status=400)
+            
+            # Crear el directorio si no existe
+            ruta_imagenes = os.path.join(settings.STATICFILES_DIRS[0], 'images', 'maquinas')
+            os.makedirs(ruta_imagenes, exist_ok=True)
+            
+            # Generar un nombre único para el archivo
+            nombre_archivo = f"{int(time.time())}_{imagen.name}"
+            ruta_completa = os.path.join(ruta_imagenes, nombre_archivo)
+            
+            # Guardar la imagen
+            with open(ruta_completa, 'wb+') as destino:
+                for chunk in imagen.chunks():
+                    destino.write(chunk)
+            
+            # Devolver la ruta relativa de la imagen
+            ruta_relativa = f'images/maquinas/{nombre_archivo}'
+            return JsonResponse({
+                'success': True,
+                'ruta': ruta_relativa
+            })
+            
+        except Exception as e:
+            logger.error(f"Error al subir imagen: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)

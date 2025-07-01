@@ -126,7 +126,7 @@
         <tr data-id="{{ compra.id }}" 
             data-establecimiento-id="{{ compra.establecimiento_id }}"
             data-vendedor-id="{{ compra.vendedor_id }}">
-          <td>{{ compra.fecha|date:"Y-m-d" }}</td>
+          <td>{{ compra.fecha|date:"d/m/y" }}</td>
           <td>{{ compra.total }}</td>
           <td>{{ compra.iva }}</td>
           <td>{{ compra.estado }}</td>
@@ -358,7 +358,7 @@
                     title="Seleccione una compra (opcional)">
               <option value="">Seleccione</option>
               {% for compra in compras %}
-              <option value="{{ compra.id }}">{{ compra.fecha|date:"Y-m-d" }} - {{ compra.total }}</option>
+              <option value="{{ compra.id }}">{{ compra.fecha|date:"d/m/y" }} - {{ compra.total }}</option>
               {% endfor %}
             </select>
           </div>
@@ -816,7 +816,7 @@
                     title="Seleccione una compra (opcional)">
               <option value="">Seleccione</option>
               {% for compra in compras %}
-              <option value="{{ compra.id }}">{{ compra.fecha|date:"Y-m-d" }} - {{ compra.total }}</option>
+              <option value="{{ compra.id }}">{{ compra.fecha|date:"d/m/y" }} - {{ compra.total }}</option>
               {% endfor %}
             </select>
           </div>

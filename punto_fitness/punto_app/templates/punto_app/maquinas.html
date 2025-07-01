@@ -3,6 +3,7 @@
 
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/maquinas.css' %}">
+  
 {% endblock %}
 
 {% block content %}
@@ -12,10 +13,9 @@
     <div class="carrusel-container">
       <button class="flecha izquierda">&#10094;</button>
       <div class="carrusel-maquinas">
-        {% for maquina in maquinas %}
+        {% for i in maquinas %}
         <div class="maquina">
-          <img src="{% if maquina.imagen %}{% static maquina.imagen %}{% endif %}" alt="Máquina {{ maquina.nombre }}">
-          {{ maquina.nombre }}
+          <img src="{% static 'images/maquinas/' %}maquina{{ i }}.jpg" alt="Máquina {{ i }}">
         </div>
         {% endfor %}
       </div>

@@ -6,16 +6,16 @@ from . import views
 urlpatterns = [
      path('', views.principal, name='principal'),
     path('login/', views.login_view, name='login'),
-    path('admin-dashboard/', views.pagina_admin, name='pagina_admin'),
     path('registro/', views.register_view, name='registro'),
     path('planes/', views.planes, name='planes'),
     path('inscribir_curso/', views.inscribir_curso, name='inscribir_curso'),
     path('cancelar_inscripcion/', views.cancelar_inscripcion, name='cancelar_inscripcion'),
-    #path('estadisticas/', views.estadisticas, name='estadisticas'),
     path('logout/', views.logout_cliente, name='logout'),
     path("verificar-correo/", views.verificar_correo, name="verificar_correo"),
     path("verificar-sesion/", views.verificar_sesion, name="verificar_sesion"),
     path("recuperar-contrasena/", views.recuperar_contrasena, name="recuperar_contrasena"),
+    path("enviar-codigo-verificacion/", views.enviar_codigo_verificacion, name="enviar_codigo_verificacion"),
+    path("verificar-codigo/", views.verificar_codigo, name="verificar_codigo"),
     
     path('inventario/', views.inventario, name='inventario'),
 
@@ -71,6 +71,13 @@ urlpatterns = [
     path('confirmar_asistencia/', views.confirmar_asistencia, name='confirmar_asistencia'),
     path('confirmar-salida/', views.confirmar_salida, name='confirmar_salida'),
     path('cambiar-rol-admin/', views.cambiar_rol_admin, name='cambiar_rol_admin'),
+    # Nuevas URLs para transferencia de superadmin
+    path('super_admin/transferir_superadmin/', views.transferir_superadmin, name='transferir_superadmin'),
+    path('super_admin/verificar_elegibilidad/<int:admin_id>/', views.verificar_elegibilidad_admin_superadmin, name='verificar_elegibilidad_admin_superadmin'),
+    path('super_admin/enviar_codigo_verificacion/', views.enviar_codigo_verificacion_superadmin, name='enviar_codigo_verificacion_superadmin'),
+    path('super_admin/enviar_codigo_verificacion_actual/', views.enviar_codigo_verificacion_superadmin_actual, name='enviar_codigo_verificacion_superadmin_actual'),
+    
+    #Venta Productos
     path('venta_producto/', views.venta_producto, name='venta_producto'),
     path('obtener_imagenes_productos/', views.obtener_imagenes_productos, name='obtener_imagenes_productos'),
     path('subir_imagen_producto/', views.subir_imagen_producto, name='subir_imagen_producto'),
