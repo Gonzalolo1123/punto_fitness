@@ -1,22 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
-  const cuentaBtn = document.getElementById('cuentaBtn');
   const userModal = document.getElementById('userModal');
   const modalContent = userModal ? userModal.querySelector('.modal-content') : null;
   const closeUserModal = document.getElementById('closeUserModal');
-
-  if (cuentaBtn && userModal) {
-    cuentaBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      userModal.classList.remove('hidden');
-    });
-  }
-
-  // Si quieres también cerrar con el botón (si lo dejas en el HTML)
-  if (closeUserModal && userModal) {
-    closeUserModal.addEventListener('click', function() {
-      userModal.classList.add('hidden');
-    });
-  }
 
   // Cerrar sesión
   const cerrarSesionBtn = document.getElementById("cerrarSesionBtn");

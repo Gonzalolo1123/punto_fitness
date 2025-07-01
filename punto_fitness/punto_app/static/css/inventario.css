@@ -208,20 +208,14 @@ tr:nth-child(even):hover {
 
 /* Botones de formulario */
 .formulario button[type="submit"] {
-  background: linear-gradient(135deg, #ffcc00 0%, #ffd633 100%);
-  color: #000;
-  font-weight: 700;
-  padding: 12px 24px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  background: linear-gradient(135deg, #e10600 0%, #c70039 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 15px rgba(225, 6, 0, 0.3) !important;
 }
 
 .formulario button[type="submit"]:hover {
-  background: linear-gradient(135deg, #ffd633 0%, #ffe066 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 204, 0, 0.4);
+  background: linear-gradient(135deg, #c70039 0%, #a00030 100%) !important;
+  color: #fff !important;
 }
 
 .formulario button[type="button"] {
@@ -257,22 +251,26 @@ tr:nth-child(even):hover {
   font-size: 1.8em;
 }
 
-/* Botón de agregar */
-#abrir-form-usuario {
-  font-size: 1.5em;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+/* Botón de agregar (con +) verde y redondo */
+.filtro-btn.agregar-btn,
+#abrir-form-usuario.filtro-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: #fff !important;
+  border-radius: 50% !important;
+  width: 48px;
+  height: 48px;
+  font-size: 1.7em;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
   box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  padding: 0;
 }
 
-#abrir-form-usuario:hover {
-  background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
-  transform: rotate(90deg) scale(1.1);
+.filtro-btn.agregar-btn:hover,
+#abrir-form-usuario.filtro-btn:hover {
+  background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+  transform: scale(1.1) rotate(90deg);
 }
 
 .form-container {
@@ -307,6 +305,7 @@ tr:nth-child(even):hover {
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.3s ease-out;
+  overflow-x: hidden;
 }
 
 @keyframes fadeIn {
@@ -325,6 +324,7 @@ tr:nth-child(even):hover {
   width: 90%;
   max-height: 80vh;
   overflow: hidden;
+  overflow-x: none;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease-out;
   border: 1px solid #e9ecef;
@@ -343,7 +343,6 @@ tr:nth-child(even):hover {
   }
 }
 
-/* Header del modal */
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -389,7 +388,6 @@ tr:nth-child(even):hover {
   transform: scale(1.1);
 }
 
-/* Body del modal */
 .modal-body {
   padding: 30px;
   overflow-y: auto;
@@ -404,7 +402,6 @@ tr:nth-child(even):hover {
   max-width: none;
 }
 
-/* Acciones del modal */
 .modal-actions {
   display: flex;
   gap: 15px;
@@ -731,4 +728,88 @@ td:last-child .filtro-btn {
   height: 30px;
   font-size: 16px;
   line-height: 1;
+}
+
+.modal-body input,
+.modal-body select {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 18px;
+}
+
+#abrir-form-maquina.filtro-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: #fff !important;
+  border-radius: 50% !important;
+  width: 48px;
+  height: 48px;
+  font-size: 1.7em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  padding: 0;
+}
+
+#abrir-form-maquina.filtro-btn:hover {
+  background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+  transform: scale(1.1) rotate(90deg);
+}
+
+#abrir-form-producto.filtro-btn,
+#abrir-form-categoria.filtro-btn,
+#abrir-form-compra.filtro-btn,
+#abrir-form-vendedor.filtro-btn,
+#abrir-form-establecimiento.filtro-btn,
+#abrir-form-proveedor.filtro-btn,
+#btn-nueva-categoria.filtro-btn,
+#btn-nueva-categoria-editar.filtro-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: #fff !important;
+  border-radius: 50% !important;
+  width: 48px;
+  height: 48px;
+  font-size: 1.7em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  padding: 0;
+}
+
+#abrir-form-producto.filtro-btn:hover,
+#abrir-form-categoria.filtro-btn:hover,
+#abrir-form-compra.filtro-btn:hover,
+#abrir-form-vendedor.filtro-btn:hover,
+#abrir-form-establecimiento.filtro-btn:hover,
+#abrir-form-proveedor.filtro-btn:hover,
+#btn-nueva-categoria.filtro-btn:hover,
+#btn-nueva-categoria-editar.filtro-btn:hover {
+  background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+  transform: scale(1.1) rotate(90deg);
+}
+
+#abrir-form-curso.filtro-btn,
+#abrir-form-inscripcion.filtro-btn,
+#abrir-form-membresia.filtro-btn,
+#abrir-form-cliente-membresia.filtro-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: #fff !important;
+  border-radius: 50% !important;
+  width: 48px;
+  height: 48px;
+  font-size: 1.7em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  padding: 0;
+}
+
+#abrir-form-curso.filtro-btn:hover,
+#abrir-form-inscripcion.filtro-btn:hover,
+#abrir-form-membresia.filtro-btn:hover,
+#abrir-form-cliente-membresia.filtro-btn:hover {
+  background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+  transform: scale(1.1) rotate(90deg);
 }

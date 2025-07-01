@@ -26,7 +26,6 @@
           <th>Stock actual</th>
           <th>Stock mínimo</th>
           <th>Categoría</th>
-          <th>Establecimiento</th>
           <th>Imágen</th>
           <th>Acciones</th>
         </tr>
@@ -40,7 +39,6 @@
           <td>{{ producto.stock_actual }}</td>
           <td>{{ producto.stock_minimo }}</td>
           <td>{{ producto.categoria__nombre }}</td>
-          <td>{{ producto.establecimiento__nombre }}</td>
           <td>
             <img src="{% static producto.imagen %}" alt="{{ producto.nombre }}" width="200">
           </td>

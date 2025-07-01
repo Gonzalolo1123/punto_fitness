@@ -95,4 +95,5 @@ urlpatterns = [
     path('membresias/actualizar_cliente_membresia/<int:cliente_membresia_id>/', views.admin_cliente_membresia_actualizar, name='admin_cliente_membresia_actualizar'),
     path('membresias/borrar_cliente_membresia/<int:cliente_membresia_id>/', views.admin_cliente_membresia_borrar, name='admin_cliente_membresia_borrar'),
     path('estadisticas/', views.estadisticas_view, name='estadisticas'),
+    
 ]

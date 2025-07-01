@@ -32,11 +32,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
     text-align: center;
     font-family: Arial, sans-serif;
     position: relative;
-    border: 2px solid #000;
+    border: 2.5px solid #e0e0e0;
     box-sizing: border-box;
 }
 
@@ -55,10 +55,10 @@
 
 /* Encabezado del modal de cuenta */
 #userModal .form-container h1 {
-    margin-bottom: 15px;
-    font-size: 24px;
+    margin-bottom: 18px;
+    font-size: 2em;
     font-weight: bold;
-    color: #000;
+    color: #222;
 }
 
 /* Información del usuario en el modal de cuenta */
@@ -251,25 +251,29 @@
 }
 
 /* Botón de cerrar del modal de cuenta */
-#userModal .close-cuenta {
+#userModal .close {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 28px;
+    top: 18px;
+    right: 24px;
+    font-size: 2.2em;
+    color: #e10600;
     cursor: pointer;
-    font-weight: bold;
-    transition: color 0.2s ease-in-out;
-    color: #333;
     background: #fff;
+    border: 2px solid #eee;
     border-radius: 50%;
-    padding: 2px 8px;
-    border: 1px solid #ccc;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s, border 0.2s;
     z-index: 10;
 }
 
-#userModal .close-cuenta:hover {
-    color: #ff416c;
-    background: #f8f8f8;
+#userModal .close:hover {
+    background: #ffeaea;
+    color: #b30000;
+    border-color: #e10600;
 }
 
 .admin-panel-btn {
