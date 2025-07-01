@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import time
 from django.shortcuts import get_object_or_404, render, redirect
@@ -2692,8 +2692,8 @@ def admin_cliente_membresia_borrar(request, cliente_membresia_id):
 def estadisticas_view(request):
     # Obtener fecha actual y fechas de referencia
     now = timezone.now()
-    thirty_days_ago = now - datetime.timedelta(days=30)
-    six_months_ago = now - datetime.timedelta(days=180)
+    thirty_days_ago = now - timedelta(days=30)
+    six_months_ago = now - timedelta(days=180)
     
     # Debug: Verificar si hay datos en las tablas
     total_ventas = VentaCliente.objects.count()
@@ -2706,7 +2706,7 @@ def estadisticas_view(request):
     # Ventas diarias (últimos 7 días)
     ventas_diarias = (
         VentaCliente.objects
-        .filter(fecha__gte=now.date() - datetime.timedelta(days=7))
+        .filter(fecha__gte=now.date() - timedelta(days=7))
         .annotate(dia=TruncDay('fecha'))
         .values('dia')
         .annotate(total=Sum('total'))
@@ -2716,7 +2716,7 @@ def estadisticas_view(request):
     # Ventas semanales (últimas 4 semanas)
     ventas_semanales = (
         VentaCliente.objects
-        .filter(fecha__gte=now.date() - datetime.timedelta(days=28))
+        .filter(fecha__gte=now.date() - timedelta(days=28))
         .annotate(semana=TruncWeek('fecha'))
         .values('semana')
         .annotate(total=Sum('total'))
@@ -2774,7 +2774,7 @@ def estadisticas_view(request):
     # Ventas por categoría diarias (últimos 7 días)
     ventas_categoria_diarias = (
         DetalleVenta.objects
-        .filter(venta__fecha__gte=now.date() - datetime.timedelta(days=7))
+        .filter(venta__fecha__gte=now.date() - timedelta(days=7))
         .annotate(dia=TruncDay('venta__fecha'))
         .values('producto__categoria__nombre', 'dia')
         .annotate(total_vendido=Sum('cantidad'))
@@ -2784,7 +2784,7 @@ def estadisticas_view(request):
     # Ventas por categoría semanales (últimas 4 semanas)
     ventas_categoria_semanales = (
         DetalleVenta.objects
-        .filter(venta__fecha__gte=now.date() - datetime.timedelta(days=28))
+        .filter(venta__fecha__gte=now.date() - timedelta(days=28))
         .annotate(semana=TruncWeek('venta__fecha'))
         .values('producto__categoria__nombre', 'semana')
         .annotate(total_vendido=Sum('cantidad'))
@@ -2867,7 +2867,7 @@ def estadisticas_view(request):
     # 5. Membresías vendidas por período
     membresias_diarias = (
         ClienteMembresia.objects
-        .filter(fecha_inicio__gte=now.date() - datetime.timedelta(days=7))
+        .filter(fecha_inicio__gte=now.date() - timedelta(days=7))
         .annotate(dia=TruncDay('fecha_inicio'))
         .values('dia')
         .annotate(total=Count('id'))
@@ -2876,7 +2876,7 @@ def estadisticas_view(request):
     
     membresias_semanales = (
         ClienteMembresia.objects
-        .filter(fecha_inicio__gte=now.date() - datetime.timedelta(days=28))
+        .filter(fecha_inicio__gte=now.date() - timedelta(days=28))
         .annotate(semana=TruncWeek('fecha_inicio'))
         .values('semana')
         .annotate(total=Count('id'))
