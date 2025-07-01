@@ -125,8 +125,17 @@ async function crearMembresia(form) {
             precio: formData.get('membresia-precio'),
             duracion: formData.get('membresia-duracion'),
             dias_por_semana: formData.get('membresia-dias-por-semana'),
-            establecimiento_id: formData.get('membresia-establecimiento') || 1 // Por defecto el establecimiento 1 si no se especifica
+            establecimiento_id: formData.get('membresia-establecimiento') || 1
         };
+        let errores = [];
+        errores = errores.concat(validarNombre(data.nombre, 'nombre', 3, 30));
+        errores = errores.concat(validarDescripcion(data.descripcion, 'descripción', 5, 50));
+        errores = errores.concat(validarPrecioChileno(data.precio, 'precio'));
+        errores = errores.concat(validarNumeroEntero(data.dias_por_semana, 'días por semana', 1, 7));
+        if (errores.length > 0) {
+            mostrarErroresValidacion(errores, 'Errores en el formulario de membresía');
+            return;
+        }
 
         const response = await fetch('/membresias/crear_membresia/', {
             method: 'POST',
@@ -139,15 +148,18 @@ async function crearMembresia(form) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Error al crear la membresía');
+            mostrarErroresValidacion([errorData.error || 'Error al crear la membresía'], 'Error');
+            return;
         }
         
         const result = await response.json();
-        if (result.error) throw new Error(result.error);
+        if (result.error) {
+            mostrarErroresValidacion([result.error], 'Error');
+            return;
+        }
         
-        alert('Membresía creada exitosamente');
+        mostrarExitoValidacion('Membresía creada exitosamente', '¡Éxito!');
         cerrarModal('membresia');
-        window.location.reload();
     } catch (error) {
         console.error('Error:', error);
         alert('Error al crear la membresía: ' + error.message);
@@ -165,6 +177,16 @@ async function actualizarMembresia(id, form) {
             dias_por_semana: formData.get(`membresia-dias-por-semana-editar-${id}`),
             establecimiento_id: formData.get(`membresia-establecimiento-editar-${id}`)
         };
+        let errores = [];
+        errores = errores.concat(validarNombre(data.nombre, 'nombre', 3, 30));
+        errores = errores.concat(validarDescripcion(data.descripcion, 'descripción', 5, 50));
+        errores = errores.concat(validarPrecioChileno(data.precio, 'precio'));
+        errores = errores.concat(validarNumeroEntero(data.duracion, 'duración', 1, 365));
+        errores = errores.concat(validarNumeroEntero(data.dias_por_semana, 'días por semana', 1, 7));
+        if (errores.length > 0) {
+            mostrarErroresValidacion(errores, 'Errores en la edición de membresía');
+            return;
+        }
 
         const response = await fetch(`/membresias/actualizar_membresia/${id}/`, {
             method: 'POST',
@@ -177,15 +199,18 @@ async function actualizarMembresia(id, form) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Error al actualizar la membresía');
+            mostrarErroresValidacion([errorData.error || 'Error al actualizar la membresía'], 'Error');
+            return;
         }
         
         const result = await response.json();
-        if (result.error) throw new Error(result.error);
+        if (result.error) {
+            mostrarErroresValidacion([result.error], 'Error');
+            return;
+        }
         
-        alert('Membresía actualizada exitosamente');
+        mostrarExitoValidacion('Membresía actualizada exitosamente', '¡Éxito!');
         cerrarModalEdicion('membresia', id);
-        window.location.reload();
     } catch (error) {
         console.error('Error:', error);
         alert('Error al actualizar la membresía: ' + error.message);
@@ -200,14 +225,12 @@ async function eliminarMembresia(id) {
                 'X-CSRFToken': getCookie('csrftoken')
             }
         });
-
         if (!response.ok) throw new Error('Error al eliminar la membresía');
-        
-        alert('Membresía eliminada exitosamente');
-        window.location.reload();
+        mostrarExitoValidacion('Membresía eliminada exitosamente', '¡Éxito!');
+        // window.location.reload();
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al eliminar la membresía: ' + error.message);
+        mostrarErroresValidacion([error.message], 'Error al eliminar la membresía');
     }
 }
 
@@ -309,6 +332,14 @@ async function crearClienteMembresia(form) {
             estado: formData.get('cliente-membresia-estado') === 'True',
             codigo_qr: formData.get('cliente-membresia-codigo-qr')
         };
+        let errores = [];
+        errores = errores.concat(validarNumeroEntero(data.usuario_id, 'usuario', 1, 999999));
+        errores = errores.concat(validarNumeroEntero(data.membresia_id, 'membresía', 1, 999999));
+        errores = errores.concat(validarFecha(data.fecha_inicio, 'fecha de inicio', true, false, true));
+        if (errores.length > 0) {
+            mostrarErroresValidacion(errores, 'Errores en el formulario de cliente-membresía');
+            return;
+        }
         
         console.log('Datos a enviar:', data);
 
@@ -325,16 +356,19 @@ async function crearClienteMembresia(form) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Error al crear la membresía de cliente');
+            mostrarErroresValidacion([errorData.error || 'Error al crear la membresía de cliente'], 'Error');
+            return;
         }
         
         const result = await response.json();
-        if (result.error) throw new Error(result.error);
+        if (result.error) {
+            mostrarErroresValidacion([result.error], 'Error');
+            return;
+        }
         
         console.log('ClienteMembresia creada exitosamente:', result);
-        alert('Membresía de cliente creada exitosamente');
+        mostrarExitoValidacion('Membresía de cliente creada exitosamente', '¡Éxito!');
         cerrarModal('cliente-membresia');
-        window.location.reload();
     } catch (error) {
         console.error('Error al crear ClienteMembresia:', error);
         alert('Error al crear la membresía de cliente: ' + error.message);
@@ -352,6 +386,14 @@ async function actualizarClienteMembresia(id, form) {
             estado: formData.get(`cliente-membresia-estado-editar-${id}`) === 'True',
             codigo_qr: formData.get(`cliente-membresia-codigo-qr-editar-${id}`)
         };
+        let errores = [];
+        errores = errores.concat(validarNumeroEntero(data.usuario_id, 'usuario', 1, 999999));
+        errores = errores.concat(validarNumeroEntero(data.membresia_id, 'membresía', 1, 999999));
+        errores = errores.concat(validarFecha(data.fecha_inicio, 'fecha de inicio', true, false, true));
+        if (errores.length > 0) {
+            mostrarErroresValidacion(errores, 'Errores en la edición de cliente-membresía');
+            return;
+        }
 
         const response = await fetch(`/membresias/actualizar_cliente_membresia/${id}/`, {
             method: 'POST',
@@ -364,15 +406,18 @@ async function actualizarClienteMembresia(id, form) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Error al actualizar la membresía de cliente');
+            mostrarErroresValidacion([errorData.error || 'Error al actualizar la membresía de cliente'], 'Error');
+            return;
         }
         
         const result = await response.json();
-        if (result.error) throw new Error(result.error);
+        if (result.error) {
+            mostrarErroresValidacion([result.error], 'Error');
+            return;
+        }
         
-        alert('Membresía de cliente actualizada exitosamente');
+        mostrarExitoValidacion('Membresía de cliente actualizada exitosamente', '¡Éxito!');
         cerrarModalEdicion('cliente-membresia', id);
-        window.location.reload();
     } catch (error) {
         console.error('Error:', error);
         alert('Error al actualizar la membresía de cliente: ' + error.message);
@@ -387,13 +432,11 @@ async function eliminarClienteMembresia(id) {
                 'X-CSRFToken': getCookie('csrftoken')
             }
         });
-
         if (!response.ok) throw new Error('Error al eliminar la membresía de cliente');
-        
-        alert('Membresía de cliente eliminada exitosamente');
-        window.location.reload();
+        mostrarExitoValidacion('Membresía de cliente eliminada exitosamente', '¡Éxito!');
+        // window.location.reload();
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al eliminar la membresía de cliente: ' + error.message);
+        mostrarErroresValidacion([error.message], 'Error al eliminar la membresía de cliente');
     }
 } 

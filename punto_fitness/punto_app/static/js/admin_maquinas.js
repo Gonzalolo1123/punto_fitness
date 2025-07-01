@@ -220,47 +220,17 @@ function inicializarEventListeners() {
       
       // Validaciones
       const errores = [];
-      
-      // 1. Validar nombre (obligatorio, longitud, caracteres)
-      if (!nombre) {
-        errores.push('El nombre es obligatorio');
-      } else if (nombre.length > 30) {
-        errores.push('El nombre no puede exceder los 30 caracteres');
-      } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-]/.test(nombre)) {
-        errores.push('El nombre solo puede contener letras, números, espacios y guiones');
-      }
-      
-      // 2. Validar descripción (obligatoria, longitud)
-      if (!descripcion) {
-        errores.push('La descripción es obligatoria');
-      } else if (descripcion.length > 50) {
-        errores.push('La descripción no puede exceder los 50 caracteres');
-      }
-      
-      // 3. Validar cantidad (obligatoria, numérica, positiva)
-      if (!cantidad) {
-        errores.push('La cantidad es obligatoria');
-      } else if (isNaN(cantidad) || parseInt(cantidad) < 0) {
-        errores.push('La cantidad debe ser un número no negativo');
-      } else if (parseInt(cantidad) > 999) {
-        errores.push('La cantidad no puede exceder 999');
-      }
-      
-      // 4. Validar establecimiento (obligatorio)
-      if (!establecimientoId || establecimientoId === "") {
-        errores.push('Debe seleccionar un establecimiento');
-      }
-
-      // 5. Validar imagen
+      errores.push(...validarNombre(nombre, 'nombre', 3, 30, false));
+      errores.push(...validarDescripcion(descripcion, 'descripción', 5, 50, false));
+      errores.push(...validarNumeroEntero(cantidad, 'cantidad', 0, 999, true, false));
+      if (!establecimientoId) errores.push('Debe seleccionar un establecimiento');
       if (!imagen) {
         errores.push('Debe seleccionar una imagen');
       } else if (!imagen.startsWith('images/maquinas/')) {
         errores.push('La imagen debe estar en la carpeta images/maquinas/');
       }
-      
-      // Mostrar errores si existen
       if (errores.length > 0) {
-        alert('Errores en el formulario:\n\n' + errores.join('\n'));
+        mostrarErroresValidacion(errores, 'Errores en el formulario de máquina');
         return;
       }
       
@@ -334,47 +304,17 @@ function inicializarEventListeners() {
       
       // Validaciones
       const errores = [];
-      
-      // 1. Validar nombre (obligatorio, longitud, caracteres)
-      if (!nombre) {
-        errores.push('El nombre es obligatorio');
-      } else if (nombre.length > 30) {
-        errores.push('El nombre no puede exceder los 30 caracteres');
-      } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-]/.test(nombre)) {
-        errores.push('El nombre solo puede contener letras, números, espacios y guiones');
-      }
-      
-      // 2. Validar descripción (obligatoria, longitud)
-      if (!descripcion) {
-        errores.push('La descripción es obligatoria');
-      } else if (descripcion.length > 50) {
-        errores.push('La descripción no puede exceder los 50 caracteres');
-      }
-      
-      // 3. Validar cantidad (obligatoria, numérica, positiva)
-      if (!cantidad) {
-        errores.push('La cantidad es obligatoria');
-      } else if (isNaN(cantidad) || parseInt(cantidad) < 0) {
-        errores.push('La cantidad debe ser un número no negativo');
-      } else if (parseInt(cantidad) > 999) {
-        errores.push('La cantidad no puede exceder 999');
-      }
-      
-      // 4. Validar establecimiento (obligatorio)
-      if (!establecimientoId || establecimientoId === "") {
-        errores.push('Debe seleccionar un establecimiento');
-      }
-
-      // 5. Validar imagen
+      errores.push(...validarNombre(nombre, 'nombre', 3, 30, false));
+      errores.push(...validarDescripcion(descripcion, 'descripción', 5, 50, false));
+      errores.push(...validarNumeroEntero(cantidad, 'cantidad', 0, 999, true, false));
+      if (!establecimientoId) errores.push('Debe seleccionar un establecimiento');
       if (!imagen) {
         errores.push('Debe seleccionar una imagen');
       } else if (!imagen.startsWith('images/maquinas/')) {
         errores.push('La imagen debe estar en la carpeta images/maquinas/');
       }
-      
-      // Mostrar errores si existen
       if (errores.length > 0) {
-        alert('Errores en el formulario:\n\n' + errores.join('\n'));
+        mostrarErroresValidacion(errores, 'Errores en el formulario de máquina');
         return;
       }
       

@@ -266,25 +266,23 @@ function validarTelefonoNumericoChileno(telefono, campo = 'teléfono', obligator
 // Función para validar fecha (adaptada a Chile)
 function validarFecha(fecha, campo = 'fecha', obligatorio = true, mostrarAlerta = false) {
   const errores = [];
-  
   if (!fecha && obligatorio) {
     errores.push(`La ${campo} es obligatoria`);
   } else if (fecha) {
-    const fechaObj = new Date(fecha);
     const hoy = new Date();
-    const fechaMinima = new Date('2000-01-01');
-    
-    if (fechaObj > hoy) {
-      errores.push(`La ${campo} no puede ser futura`);
-    } else if (fechaObj < fechaMinima) {
-      errores.push(`La ${campo} no puede ser anterior al año 2000`);
+    const inicio = new Date(fecha);
+    hoy.setHours(0,0,0,0);
+    inicio.setHours(0,0,0,0);
+    // Calcula 'ayer'
+    const ayer = new Date(hoy);
+    ayer.setDate(hoy.getDate() - 1);
+    if (inicio < ayer) {
+      errores.push(`La ${campo} no puede ser anterior a hoy`);
     }
   }
-  
   if (mostrarAlerta && errores.length > 0) {
     mostrarErroresValidacion(errores, `Error en ${campo}`);
   }
-  
   return errores;
 }
 

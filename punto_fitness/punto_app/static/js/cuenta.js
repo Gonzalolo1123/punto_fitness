@@ -26,4 +26,23 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+  // --- Modal de usuario (abrir/cerrar) ---
+  const userBtn = document.getElementById('openUserModal');
+  if(userBtn && userModal && closeUserModal) {
+    userBtn.addEventListener('click', function() {
+      userModal.classList.remove('hidden');
+      userModal.classList.add('active');
+    });
+    closeUserModal.addEventListener('click', function() {
+      userModal.classList.add('hidden');
+      userModal.classList.remove('active');
+    });
+    window.addEventListener('click', function(e) {
+      if(e.target === userModal) {
+        userModal.classList.add('hidden');
+        userModal.classList.remove('active');
+      }
+    });
+  }
 });

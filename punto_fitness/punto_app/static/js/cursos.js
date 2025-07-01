@@ -412,7 +412,7 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
       const validaciones = [
         () => validarNombre(nombre, 'nombre del curso', 3, 30, true),
         () => validarNumeroEntero(cupos, 'cupos', 1, 100, true),
-        () => validarFecha(fecha_realizacion, 'fecha de realización', true),
+        () => validarFecha(fecha_realizacion, 'fecha de realización', true, false, true),
         () => validarSeleccion(establecimiento_id, 'establecimiento', true)
       ];
 
@@ -421,6 +421,15 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
         return;
       }
       
+      // Validación adicional: la fecha no puede ser anterior a hoy
+      const hoy2 = new Date();
+      hoy2.setHours(0,0,0,0);
+      const fechaCurso2 = new Date(fecha_realizacion);
+      if (fechaCurso2 < hoy2) {
+        mostrarErroresValidacion(['La fecha de realización del curso no puede ser anterior a hoy.'], 'Error en la fecha');
+        return;
+      }
+
       console.log('Valor de fecha_realizacion a enviar (después de validación):', fecha_realizacion);
 
       const formData = {
@@ -703,7 +712,7 @@ function manejoCrearCurso(e) {
   const validaciones = [
     () => validarNombre(nombre, 'nombre del curso', 3, 30, true),
     () => validarNumeroEntero(cupos, 'cupos', 1, 100, true),
-    () => validarFecha(fecha_realizacion, 'fecha de realización', true),
+    () => validarFecha(fecha_realizacion, 'fecha de realización', true, false, true),
     () => validarSeleccion(establecimiento_id, 'establecimiento', true)
   ];
 
@@ -714,7 +723,6 @@ function manejoCrearCurso(e) {
     console.log('❌ Validaciones fallaron, deteniendo envío');
     return;
   }
-
   console.log('✅ Validaciones pasaron, enviando datos...');
 
   const formData = {

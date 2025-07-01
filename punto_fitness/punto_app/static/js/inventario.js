@@ -565,506 +565,268 @@ function eliminarProveedor(id) {
 // Función para manejar la creación de producto
 function manejoCrearProducto(e) {
   e.preventDefault();
-  
-  // Verificar si hay categorías disponibles
-  const selectCategoria = document.getElementById('producto-categoria');
-  if (selectCategoria.options.length <= 1) { // Solo tiene la opción "Seleccione"
-    Swal.fire({
-      title: 'No hay categorías disponibles',
-      text: '¿Deseas crear una nueva categoría?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, crear categoría',
-      cancelButtonText: 'No, cancelar',
-      confirmButtonColor: '#28a745',
-      cancelButtonColor: '#dc3545'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Marcar que venimos del flujo de producto
-        sessionStorage.setItem('creandoCategoriaDesdeProducto', 'true');
-        // Cerrar el modal de producto
-        cerrarModal('producto');
-        // Abrir el modal de categoría
-        abrirModal('categoria');
-      }
-    });
+  // Verificar existencia de campos
+  const nombreInput = document.getElementById('producto-nombre');
+  const descripcionInput = document.getElementById('producto-descripcion');
+  const precioInput = document.getElementById('producto-precio');
+  const stockActualInput = document.getElementById('producto-stock_actual');
+  const stockMinimoInput = document.getElementById('producto-stock_minimo');
+  const categoriaInput = document.getElementById('producto-categoria');
+  const establecimientoInput = document.getElementById('producto-establecimiento');
+  const imagenInput = document.getElementById('producto-imagen');
+  if (!nombreInput || !descripcionInput || !precioInput || !stockActualInput || !stockMinimoInput || !categoriaInput || !establecimientoInput || !imagenInput) {
+    mostrarErroresValidacion(['Faltan campos obligatorios en el formulario de producto. Por favor, recarga la página.'], 'Error de formulario');
+    return;
+  }
+  const nombre = nombreInput.value.trim();
+  const descripcion = descripcionInput.value.trim();
+  const precio = precioInput.value.trim();
+  const stock_actual = stockActualInput.value.trim();
+  const stock_minimo = stockMinimoInput.value.trim();
+  const categoria_id = categoriaInput.value;
+  const establecimiento_id = establecimientoInput.value;
+  const imagen = imagenInput.value;
+
+  let errores = [];
+  errores = errores.concat(validarNombre(nombre, 'nombre', 3, 30));
+  errores = errores.concat(validarDescripcion(descripcion, 'descripción', 5, 50));
+  errores = errores.concat(validarPrecioChileno(precio));
+  errores = errores.concat(validarNumeroEntero(stock_actual, 'stock actual', 0, 99999));
+  errores = errores.concat(validarNumeroEntero(stock_minimo, 'stock mínimo', 0, 99999));
+  if (!categoria_id) errores.push('Debe seleccionar una categoría');
+  if (!establecimiento_id) errores.push('Debe seleccionar un establecimiento');
+  if (!imagen) errores.push('Debe seleccionar una imagen');
+
+  if (errores.length > 0) {
+    mostrarErroresValidacion(errores, 'Errores en el formulario de producto');
     return;
   }
 
   const formData = {
-    nombre: document.getElementById('producto-nombre').value,
-    descripcion: document.getElementById('producto-descripcion').value,
-    precio: document.getElementById('producto-precio').value,
-    stock_actual: document.getElementById('producto-stock-actual').value,
-    stock_minimo: document.getElementById('producto-stock-minimo').value,
-    compra_id: document.getElementById('producto-compra').value || null,
-    categoria_id: document.getElementById('producto-categoria').value,
-    establecimiento_id: document.getElementById('producto-establecimiento').value,
-    imagen: document.getElementById('producto-imagen').value
+    nombre,
+    descripcion,
+    precio,
+    stock_actual,
+    stock_minimo,
+    categoria_id,
+    establecimiento_id,
+    imagen
   };
-
-  // Mostrar un indicador de carga
-  Swal.fire({
-    title: 'Creando producto...',
-    allowOutsideClick: false,
-    didOpen: () => {
-      Swal.showLoading();
-    }
-  });
-
   crearProducto(formData)
-    .then(response => {
-      if (!response.error) {
-        Swal.fire({
-          title: '¡Producto Creado!',
-          html: `<p style="color: #555;">El producto ha sido creado correctamente.</p>`,
-          icon: 'success',
-          confirmButtonColor: '#28a745'
-        }).then(() => {
-          // Asegurarnos de que la petición se haya completado antes de recargar
-          setTimeout(() => {
-            location.reload();
-          }, 100);
-        });
-      } else {
-        Swal.fire('Error', response.error || 'Hubo un problema al crear el producto.', 'error');
-      }
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      mostrarExitoValidacion('Producto creado exitosamente');
     })
     .catch(error => {
-      console.error(error);
-      Swal.fire('Error', 'Ocurrió un error de red.', 'error');
+      mostrarErroresValidacion([error.message], 'Error al crear producto');
     });
 }
 
 // Función para manejar la creación de categoría
 function manejoCrearCategoria(e) {
   e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form);
-  const data = {
-    nombre: formData.get('categoria-nombre'),
-    descripcion: formData.get('categoria-descripcion')
-  };
-
-  crearCategoria(data)
-    .then(response => {
-      // Si la respuesta es exitosa (no hay error)
-      if (!response.error) {
-        Swal.fire({
-          title: '¡Categoría Creada!',
-          html: `<p style="color: #555;">La categoría ha sido creada correctamente.</p>`,
-          icon: 'success',
-          confirmButtonColor: '#28a745'
-        }).then(() => {
-          // Cerrar el modal de categoría
-          cerrarModal('categoria');
-          
-          // Verificar de dónde venimos
-          const desdeProducto = sessionStorage.getItem('creandoCategoriaDesdeProducto');
-          const desdeProductoEditar = sessionStorage.getItem('creandoCategoriaDesdeProductoEditar');
-          
-          if (desdeProducto === 'true') {
-            // Limpiar el sessionStorage
-            sessionStorage.removeItem('creandoCategoriaDesdeProducto');
-            
-            // Abrir el modal de producto
-            setTimeout(() => {
-              const modalProducto = document.getElementById('modal-fondo-producto');
-              const botonProducto = document.getElementById('abrir-form-producto');
-              if (modalProducto && botonProducto) {
-                modalProducto.style.display = 'flex';
-                botonProducto.setAttribute('data-estado', 'abierto');
-                botonProducto.textContent = '-';
-                
-                // Preseleccionar la categoría recién creada
-                const selectCategoria = document.getElementById('producto-categoria');
-                if (selectCategoria) {
-                  // Agregar la nueva categoría al select
-                  const option = document.createElement('option');
-                  option.value = response.id;
-                  option.text = response.nombre;
-                  selectCategoria.appendChild(option);
-                  // Seleccionar la nueva categoría
-                  selectCategoria.value = response.id;
-                }
-              }
-            }, 100);
-          } else if (desdeProductoEditar === 'true') {
-            // Limpiar el sessionStorage
-            sessionStorage.removeItem('creandoCategoriaDesdeProductoEditar');
-            
-            // Recuperar los datos del producto
-            const datosProducto = JSON.parse(sessionStorage.getItem('datosProductoEdicion'));
-            sessionStorage.removeItem('datosProductoEdicion');
-            
-            // Abrir el modal de edición de producto
-            setTimeout(() => {
-              const modalProductoEditar = document.getElementById('modal-fondo-editar-producto');
-              if (modalProductoEditar) {
-                modalProductoEditar.style.display = 'flex';
-                
-                // Restaurar los datos del producto
-                const formProducto = document.getElementById('form-editar-producto');
-                if (formProducto && datosProducto) {
-                  formProducto.querySelector('#producto-nombre-editar').value = datosProducto.nombre;
-                  formProducto.querySelector('#producto-descripcion-editar').value = datosProducto.descripcion;
-                  formProducto.querySelector('#producto-precio-editar').value = datosProducto.precio;
-                  formProducto.querySelector('#producto-stock-actual-editar').value = datosProducto.stock_actual;
-                  formProducto.querySelector('#producto-stock-minimo-editar').value = datosProducto.stock_minimo;
-                  formProducto.querySelector('#producto-compra-editar').value = datosProducto.compra;
-                  formProducto.querySelector('#producto-establecimiento-editar').value = datosProducto.establecimiento;
-                  formProducto.querySelector('#producto-imagen-editar').value = datosProducto.imagen;
-                  
-                  // Actualizar la vista previa de la imagen si existe
-                  const vistaPrevia = document.getElementById('vista-previa-imagen-editar');
-                  const imgPrevia = vistaPrevia.querySelector('img');
-                  if (imgPrevia && datosProducto.imagen) {
-                    imgPrevia.src = `/static/${datosProducto.imagen}`;
-                    vistaPrevia.style.display = 'block';
-                  }
-                }
-                
-                // Preseleccionar la categoría recién creada
-                const selectCategoria = document.getElementById('producto-categoria-editar');
-                if (selectCategoria) {
-                  // Agregar la nueva categoría al select
-                  const option = document.createElement('option');
-                  option.value = response.id;
-                  option.text = response.nombre;
-                  selectCategoria.appendChild(option);
-                  // Seleccionar la nueva categoría
-                  selectCategoria.value = response.id;
-                }
-              }
-            }, 100);
-          } else {
-            // Si no venimos de ningún formulario, recargar la página
-            location.reload();
-          }
-        });
-      } else {
-        Swal.fire('Error', response.error, 'error');
-      }
+  const nombreInput = document.getElementById('categoria-nombre');
+  const descripcionInput = document.getElementById('categoria-descripcion');
+  if (!nombreInput || !descripcionInput) {
+    mostrarErroresValidacion(['Faltan campos obligatorios en el formulario de categoría. Por favor, recarga la página.'], 'Error de formulario');
+    return;
+  }
+  const nombre = nombreInput.value.trim();
+  const descripcion = descripcionInput.value.trim();
+  let errores = [];
+  errores = errores.concat(validarNombre(nombre, 'nombre', 3, 30));
+  errores = errores.concat(validarDescripcion(descripcion, 'descripción', 5, 50));
+  if (errores.length > 0) {
+    mostrarErroresValidacion(errores, 'Errores en el formulario de categoría');
+    return;
+  }
+  const formData = { nombre, descripcion };
+  crearCategoria(formData)
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      mostrarExitoValidacion('Categoría creada exitosamente');
     })
     .catch(error => {
-      console.error(error);
-      Swal.fire('Error', 'Ocurrió un error al crear la categoría.', 'error');
+      mostrarErroresValidacion([error.message], 'Error al crear categoría');
     });
 }
 
-// Creación de compra de event listeners
+// Función para manejar la creación de compra
 function manejoCrearCompraVendedor(e) {
   e.preventDefault();
-  
-  // Obtener y limpiar valores
-  const fecha = document.getElementById('compra-fecha').value;
-  const total = document.getElementById('compra-total').value.trim();
-  const iva = document.getElementById('compra-iva').value.trim();
-  const estado = document.getElementById('compra-estado').value;
-  const establecimientoId = document.getElementById('compra-establecimiento').value;
-  const vendedorId = document.getElementById('compra-vendedor').value;
-  
-  // Validaciones
-  const errores = [];
-  
-  // 1. Validar fecha (obligatoria, formato)
-  if (!fecha) {
-    errores.push('La fecha es obligatoria');
-  } else {
-    const fechaObj = new Date(fecha);
-    const hoy = new Date();
-    if (fechaObj > hoy) {
-      errores.push('La fecha no puede ser futura');
-    }
-  }
-  
-  // 2. Validar total (obligatorio, numérico, positivo)
-  if (!total) {
-    errores.push('El total es obligatorio');
-  } else if (isNaN(total) || parseFloat(total) <= 0) {
-    errores.push('El total debe ser un número positivo');
-  } else if (parseFloat(total) > 999999999) {
-    errores.push('El total no puede exceder 999,999,999');
-  }
-  
-  // 3. Validar IVA (obligatorio, numérico, no negativo)
-  if (!iva) {
-    errores.push('El IVA es obligatorio');
-  } else if (isNaN(iva) || parseFloat(iva) < 0) {
-    errores.push('El IVA debe ser un número no negativo');
-  } else if (parseFloat(iva) > 100) {
-    errores.push('El IVA no puede exceder el 100%');
-  }
-  
-  // 4. Validar estado (obligatorio)
-  if (!estado) {
-    errores.push('Debe seleccionar un estado');
-  }
-  
-  // 5. Validar establecimiento (obligatorio)
-  if (!establecimientoId || establecimientoId === "") {
-    errores.push('Debe seleccionar un establecimiento');
-  }
-  
-  // 6. Validar vendedor (obligatorio)
-  if (!vendedorId || vendedorId === "") {
-    errores.push('Debe seleccionar un vendedor');
-  }
-  
-  // Mostrar errores si existen
-  if (errores.length > 0) {
-    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+  const fechaInput = document.getElementById('compra-fecha');
+  const totalInput = document.getElementById('compra-total');
+  const ivaInput = document.getElementById('compra-iva');
+  const estadoInput = document.getElementById('compra-estado');
+  const establecimientoInput = document.getElementById('compra-establecimiento');
+  const vendedorInput = document.getElementById('compra-vendedor');
+  if (!fechaInput || !totalInput || !ivaInput || !estadoInput || !establecimientoInput || !vendedorInput) {
+    mostrarErroresValidacion(['Faltan campos obligatorios en el formulario de compra. Por favor, recarga la página.'], 'Error de formulario');
     return;
   }
-  
+  const fecha = fechaInput.value;
+  const total = totalInput.value.trim();
+  const iva = ivaInput.value.trim();
+  const estado = estadoInput.value;
+  const establecimientoId = establecimientoInput.value;
+  const vendedorId = vendedorInput.value;
+  let errores = [];
+  errores = errores.concat(validarFecha(fecha, 'fecha'));
+  errores = errores.concat(validarPrecioChileno(total, 'total'));
+  errores = errores.concat(validarPorcentaje(iva, 'IVA', 0, 100));
+  if (!estado) errores.push('Debe seleccionar un estado');
+  if (!establecimientoId) errores.push('Debe seleccionar un establecimiento');
+  if (!vendedorId) errores.push('Debe seleccionar un vendedor');
+  if (errores.length > 0) {
+    mostrarErroresValidacion(errores, 'Errores en el formulario de compra');
+    return;
+  }
   const formData = {
-    fecha: fecha,
-    total: parseFloat(total),
-    iva: parseFloat(iva),
+    fecha,
+    total,
+    iva,
     estado: estado === 'True',
     establecimiento_id: establecimientoId,
     vendedor_id: vendedorId,
   };
-  
   crearCompraVendedor(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      alert('Compra creada exitosamente');
-      window.location.reload();
+      mostrarExitoValidacion('Compra creada exitosamente');
     })
     .catch(error => {
-      console.error('Error:', error);
-      alert('Error al crear compra: ' + error.message);
+      mostrarErroresValidacion([error.message], 'Error al crear compra');
     });
-};
+}
 
-// Creación de vendedor de event listeners
+// Función para manejar la creación de vendedor
 function manejoCrearVendedor(e) {
   e.preventDefault();
-  
-  // Obtener y limpiar valores
-  const nombre = document.getElementById('vendedor-nombre').value.trim();
-  const telefono = document.getElementById('vendedor-telefono').value.trim();
-  const email = document.getElementById('vendedor-email').value.trim();
-  const proveedorId = document.getElementById('vendedor-proveedor').value;
-  
-  // Validaciones
-  const errores = [];
-  
-  // 1. Validar nombre (obligatorio, longitud, caracteres)
-  if (!nombre) {
-    errores.push('El nombre es obligatorio');
-  } else if (nombre.length > 30) {
-    errores.push('El nombre no puede exceder los 30 caracteres');
-  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]/.test(nombre)) {
-    errores.push('El nombre solo puede contener letras, espacios y guiones');
-  }
-  
-  // 2. Validar teléfono (obligatorio, formato)
-  if (!telefono) {
-    errores.push('El teléfono es obligatorio');
-  } else if (!/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
-    errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
-  }
-  
-  // 3. Validar email (obligatorio, formato)
-  if (!email) {
-    errores.push('El email es obligatorio');
-  } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      errores.push('El email no tiene un formato válido');
-    } else if (email.length > 30) {
-      errores.push('El email no puede exceder los 30 caracteres');
-    }
-  }
-  
-  // 4. Validar proveedor (obligatorio)
-  if (!proveedorId || proveedorId === "") {
-    errores.push('Debe seleccionar un proveedor');
-  }
-  
-  // Mostrar errores si existen
-  if (errores.length > 0) {
-    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+  const nombreInput = document.getElementById('vendedor-nombre');
+  const telefonoInput = document.getElementById('vendedor-telefono');
+  const emailInput = document.getElementById('vendedor-email');
+  const proveedorInput = document.getElementById('vendedor-proveedor');
+  if (!nombreInput || !telefonoInput || !emailInput || !proveedorInput) {
+    mostrarErroresValidacion(['Faltan campos obligatorios en el formulario de vendedor. Por favor, recarga la página.'], 'Error de formulario');
     return;
   }
-  
+  const nombre = nombreInput.value.trim();
+  const telefono = telefonoInput.value.trim();
+  const email = emailInput.value.trim();
+  const proveedorId = proveedorInput.value;
+  let errores = [];
+  errores = errores.concat(validarNombre(nombre, 'nombre', 3, 30));
+  errores = errores.concat(validarTelefonoChileno(telefono, 'teléfono'));
+  errores = errores.concat(validarEmail(email, 'email'));
+  if (!proveedorId) errores.push('Debe seleccionar un proveedor');
+  if (errores.length > 0) {
+    mostrarErroresValidacion(errores, 'Errores en el formulario de vendedor');
+    return;
+  }
   const formData = {
-    nombre: nombre,
-    telefono: telefono,
-    email: email,
+    nombre,
+    telefono,
+    email,
     proveedor_id: proveedorId,
   };
-  
   crearVendedor(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      alert('Vendedor creado exitosamente');
-      window.location.reload();
+      mostrarExitoValidacion('Vendedor creado exitosamente');
     })
     .catch(error => {
-      console.error('Error:', error);
-      alert('Error al crear vendedor: ' + error.message);
+      mostrarErroresValidacion([error.message], 'Error al crear vendedor');
     });
-};
+}
 
+// Función para manejar la creación de establecimiento
 function manejoCrearEstablecimiento(e) {
   e.preventDefault();
-  
-  // Obtener y limpiar valores
-  const nombre = document.getElementById('establecimiento-nombre').value.trim();
-  const direccion = document.getElementById('establecimiento-direccion').value.trim();
-  const telefono = document.getElementById('establecimiento-telefono').value.trim();
-  const email = document.getElementById('establecimiento-email').value.trim();
-  const apertura = document.getElementById('establecimiento-horario_apertura').value;
-  const cierre = document.getElementById('establecimiento-horario_cierre').value;
-  const proveedorId = document.getElementById('establecimiento-proveedor').value;
-
-  // Validaciones
-  const errores = [];
-  
-  // 1. Validar nombre (obligatorio, longitud, caracteres)
-  if (!nombre) {
-    errores.push('El nombre es obligatorio');
-  } else if (nombre.length > 100) {
-    errores.push('El nombre no puede exceder los 100 caracteres');
-  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.,]/.test(nombre)) {
-    errores.push('El nombre contiene caracteres no permitidos');
-  }
-
-  // 2. Validar dirección (obligatoria, longitud)
-  if (!direccion) {
-    errores.push('La dirección es obligatoria');
-  } else if (direccion.length > 200) {
-    errores.push('La dirección no puede exceder los 200 caracteres');
-  }
-
-  // 3. Validar teléfono (formato opcional)
-  if (telefono && !/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
-    errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
-  }
-
-  // 4. Validar email (formato)
-  if (email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      errores.push('El email no tiene un formato válido');
-    } else if (email.length > 100) {
-      errores.push('El email no puede exceder los 100 caracteres');
-    }
-  }
-
-  // 5. Validar horarios
-  if (!apertura) {
-    errores.push('El horario de apertura es obligatorio');
-  }
-  if (!cierre) {
-    errores.push('El horario de cierre es obligatorio');
-  }
-  if (apertura && cierre && apertura >= cierre) {
-    errores.push('El horario de apertura debe ser anterior al de cierre');
-  }
-
-  // 6. Validar proveedor (obligatorio)
-  if (!proveedorId || proveedorId === "0") {
-    errores.push('Debe seleccionar un proveedor válido');
-  }
-
-  // Mostrar errores si existen
-  if (errores.length > 0) {
-    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+  const nombreInput = document.getElementById('establecimiento-nombre');
+  const direccionInput = document.getElementById('establecimiento-direccion');
+  const telefonoInput = document.getElementById('establecimiento-telefono');
+  const emailInput = document.getElementById('establecimiento-email');
+  const aperturaInput = document.getElementById('establecimiento-horario_apertura');
+  const cierreInput = document.getElementById('establecimiento-horario_cierre');
+  const proveedorInput = document.getElementById('establecimiento-proveedor');
+  if (!nombreInput || !direccionInput || !telefonoInput || !emailInput || !aperturaInput || !cierreInput || !proveedorInput) {
+    mostrarErroresValidacion(['Faltan campos obligatorios en el formulario de establecimiento. Por favor, recarga la página.'], 'Error de formulario');
     return;
   }
-
-  // Preparar datos para enviar
+  const nombre = nombreInput.value.trim();
+  const direccion = direccionInput.value.trim();
+  const telefono = telefonoInput.value.trim();
+  const email = emailInput.value.trim();
+  const apertura = aperturaInput.value;
+  const cierre = cierreInput.value;
+  const proveedorId = proveedorInput.value;
+  let errores = [];
+  errores = errores.concat(validarNombre(nombre, 'nombre', 3, 100));
+  errores = errores.concat(validarDireccionChilena(direccion, 'dirección', 5, 200));
+  if (telefono) errores = errores.concat(validarTelefonoChileno(telefono, 'teléfono', false));
+  if (email) errores = errores.concat(validarEmail(email, 'email', false));
+  if (!apertura) errores.push('Debe ingresar el horario de apertura');
+  if (!cierre) errores.push('Debe ingresar el horario de cierre');
+  if (!proveedorId) errores.push('Debe seleccionar un proveedor');
+  if (errores.length > 0) {
+    mostrarErroresValidacion(errores, 'Errores en el formulario de establecimiento');
+    return;
+  }
   const formData = {
-    nombre: nombre,
-    direccion: direccion,
-    telefono: telefono,
-    email: email,
+    nombre,
+    direccion,
+    telefono,
+    email,
     horario_apertura: apertura,
     horario_cierre: cierre,
-    proveedor_id: proveedorId
+    proveedor_id: proveedorId,
   };
-
-  // Enviar datos
   crearEstablecimiento(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      alert('Establecimiento creado exitosamente');
-      window.location.reload();
+      mostrarExitoValidacion('Establecimiento creado exitosamente');
     })
     .catch(error => {
-      console.error('Error:', error);
-      alert('Error al crear establecimiento: ' + error.message);
+      mostrarErroresValidacion([error.message], 'Error al crear establecimiento');
     });
 }
 
+// Función para manejar la creación de proveedor
 function manejoCrearProveedor(e) {
   e.preventDefault();
-  
-  // Obtener valores del formulario
-  const nombre = document.getElementById('proveedor-nombre').value.trim();
-  const telefono = document.getElementById('proveedor-telefono').value.trim();
-  const email = document.getElementById('proveedor-email').value.trim();
-  
-  // Validaciones
-  const errores = [];
-  
-  // 1. Validar nombre
-  if (!nombre) {
-    errores.push('El nombre es obligatorio');
-  } else if (nombre.length > 100) {
-    errores.push('El nombre no puede exceder los 100 caracteres');
-  } else if (/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]/.test(nombre)) {
-    errores.push('El nombre solo puede contener letras, espacios y guiones');
-  }
-  
-  // 2. Validar teléfono
-  if (telefono) {
-    if (!/^[\d\s\+\-\(\)]{7,20}$/.test(telefono)) {
-      errores.push('El teléfono debe tener entre 7 y 20 dígitos y puede incluir +, -, (, )');
-    }
-  }
-  
-  // 3. Validar email
-  if (email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      errores.push('El email no tiene un formato válido');
-    } else if (email.length > 100) {
-      errores.push('El email no puede exceder los 100 caracteres');
-    }
-  } else {
-    errores.push('El email es obligatorio');
-  }
-  
-  // Mostrar errores si existen
-  if (errores.length > 0) {
-    alert('Errores en el formulario:\n\n' + errores.join('\n'));
+  const nombreInput = document.getElementById('proveedor-nombre');
+  const telefonoInput = document.getElementById('proveedor-telefono');
+  const emailInput = document.getElementById('proveedor-email');
+  if (!nombreInput || !telefonoInput || !emailInput) {
+    mostrarErroresValidacion(['Faltan campos obligatorios en el formulario de proveedor. Por favor, recarga la página.'], 'Error de formulario');
     return;
   }
-  
-  // Preparar datos para enviar
+  const nombre = nombreInput.value.trim();
+  const telefono = telefonoInput.value.trim();
+  const email = emailInput.value.trim();
+  let errores = [];
+  errores = errores.concat(validarNombre(nombre, 'nombre', 3, 100));
+  if (telefono) errores = errores.concat(validarTelefonoChileno(telefono, 'teléfono', false));
+  if (email) errores = errores.concat(validarEmail(email, 'email', false));
+  if (errores.length > 0) {
+    mostrarErroresValidacion(errores, 'Errores en el formulario de proveedor');
+    return;
+  }
   const formData = {
-    nombre: nombre,
-    telefono: telefono,
-    email: email
+    nombre,
+    telefono,
+    email,
   };
-  
-  // Enviar datos
   crearProveedor(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      alert('Proveedor creado exitosamente');
-      window.location.reload();
+      mostrarExitoValidacion('Proveedor creado exitosamente');
     })
     .catch(error => {
-      console.error('Error:', error);
-      alert('Error al crear proveedor: ' + error.message);
+      mostrarErroresValidacion([error.message], 'Error al crear proveedor');
     });
 }
+
 ////////////////////////////////////
 // INICIALIZACIÓN EVENT LISTENERS //
 ////////////////////////////////////
