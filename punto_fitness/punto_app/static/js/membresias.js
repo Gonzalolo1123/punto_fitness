@@ -88,6 +88,16 @@ function abrirModal(tipo, botonAbrir) {
         modalFondo.style.display = 'flex';
         botonAbrir.setAttribute('data-estado', 'abierto');
         botonAbrir.textContent = '-';
+        
+        // Si es el modal de cliente-membresia, inicializar la duración personalizada
+        if (tipo === 'cliente-membresia') {
+            setTimeout(() => {
+                const selectMembresia = document.getElementById('cliente-membresia-membresia');
+                if (selectMembresia) {
+                    mostrarOcultarDuracionPersonalizada(selectMembresia.value, 'duracion-personalizada-container');
+                }
+            }, 100);
+        }
     }
 }
 
@@ -106,6 +116,16 @@ function abrirModalEdicion(tipo, id) {
     const modalFondo = document.getElementById(`modal-fondo-editar-${tipo}-${id}`);
     if (modalFondo) {
         modalFondo.style.display = 'flex';
+        
+        // Si es el modal de edición de cliente-membresia, inicializar la duración personalizada
+        if (tipo === 'cliente-membresia') {
+            setTimeout(() => {
+                const selectMembresia = document.getElementById(`cliente-membresia-membresia-editar-${id}`);
+                if (selectMembresia) {
+                    mostrarOcultarDuracionPersonalizada(selectMembresia.value, `duracion-personalizada-container-editar-${id}`);
+                }
+            }, 100);
+        }
     }
 }
 
@@ -325,6 +345,55 @@ function inicializarEventListenersClienteMembresia() {
             actualizarClienteMembresia(id, this);
         });
     });
+
+    // Event listeners para mostrar/ocultar campo de duración personalizada
+    inicializarEventListenersDuracionPersonalizada();
+}
+
+// Funciones para manejar duración personalizada
+function inicializarEventListenersDuracionPersonalizada() {
+    console.log('Inicializando event listeners de duración personalizada...');
+    
+    // Para el formulario de creación
+    const selectMembresia = document.getElementById('cliente-membresia-membresia');
+    if (selectMembresia) {
+        console.log('Event listener agregado para formulario de creación');
+        selectMembresia.addEventListener('change', function() {
+            console.log('Membresía seleccionada en creación:', this.value);
+            mostrarOcultarDuracionPersonalizada(this.value, 'duracion-personalizada-container');
+        });
+    }
+
+    // Para los formularios de edición
+    document.querySelectorAll('[id^="cliente-membresia-membresia-editar-"]').forEach(select => {
+        select.addEventListener('change', function() {
+            const id = this.id.split('-').pop();
+            console.log('Membresía seleccionada en edición:', this.value, 'para ID:', id);
+            mostrarOcultarDuracionPersonalizada(this.value, `duracion-personalizada-container-editar-${id}`);
+        });
+    });
+}
+
+function mostrarOcultarDuracionPersonalizada(membresiaId, containerId) {
+    console.log('Verificando duración personalizada para membresía ID:', membresiaId, 'container:', containerId);
+    
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.log('Container no encontrado:', containerId);
+        return;
+    }
+
+    // Buscar la membresía seleccionada en los datos
+    const membresia = window.membresiasData.find(m => m.id == membresiaId);
+    console.log('Membresía encontrada:', membresia);
+    
+    if (membresia && membresia.duracion === 'personalizada') {
+        console.log('Mostrando campo de duración personalizada');
+        container.style.display = 'block';
+    } else {
+        console.log('Ocultando campo de duración personalizada');
+        container.style.display = 'none';
+    }
 }
 
 // Funciones CRUD para ClienteMembresia
@@ -340,10 +409,30 @@ async function crearClienteMembresia(form) {
             estado: formData.get('cliente-membresia-estado') === 'True',
             codigo_qr: formData.get('cliente-membresia-codigo-qr')
         };
+
+        // Agregar días personalizados si la membresía es personalizada
+        const membresia = window.membresiasData.find(m => m.id == data.membresia_id);
+        if (membresia && membresia.duracion === 'personalizada') {
+            const diasPersonalizados = formData.get('cliente-membresia-dias-personalizados');
+            if (diasPersonalizados) {
+                data.dias_personalizados = diasPersonalizados;
+            } else {
+                // Si es personalizada pero no se proporcionaron días, usar valor por defecto
+                data.dias_personalizados = 30;
+            }
+        }
         let errores = [];
         errores = errores.concat(validarNumeroEntero(data.usuario_id, 'usuario', 1, 999999));
         errores = errores.concat(validarNumeroEntero(data.membresia_id, 'membresía', 1, 999999));
         errores = errores.concat(validarFecha(data.fecha_inicio, 'fecha de inicio', true, false, true));
+        
+        // Validar días personalizados si la membresía es personalizada
+        if (membresia && membresia.duracion === 'personalizada') {
+            const diasPersonalizados = data.dias_personalizados;
+            if (!diasPersonalizados || diasPersonalizados < 1 || diasPersonalizados > 365) {
+                errores.push('La duración personalizada debe estar entre 1 y 365 días.');
+            }
+        }
         if (errores.length > 0) {
             mostrarErroresValidacion(errores, 'Errores en el formulario de cliente-membresía');
             return;
@@ -394,10 +483,30 @@ async function actualizarClienteMembresia(id, form) {
             estado: formData.get(`cliente-membresia-estado-editar-${id}`) === 'True',
             codigo_qr: formData.get(`cliente-membresia-codigo-qr-editar-${id}`)
         };
+
+        // Agregar días personalizados si la membresía es personalizada
+        const membresia = window.membresiasData.find(m => m.id == data.membresia_id);
+        if (membresia && membresia.duracion === 'personalizada') {
+            const diasPersonalizados = formData.get(`cliente-membresia-dias-personalizados-editar-${id}`);
+            if (diasPersonalizados) {
+                data.dias_personalizados = diasPersonalizados;
+            } else {
+                // Si es personalizada pero no se proporcionaron días, usar valor por defecto
+                data.dias_personalizados = 30;
+            }
+        }
         let errores = [];
         errores = errores.concat(validarNumeroEntero(data.usuario_id, 'usuario', 1, 999999));
         errores = errores.concat(validarNumeroEntero(data.membresia_id, 'membresía', 1, 999999));
         errores = errores.concat(validarFecha(data.fecha_inicio, 'fecha de inicio', true, false, true));
+        
+        // Validar días personalizados si la membresía es personalizada
+        if (membresia && membresia.duracion === 'personalizada') {
+            const diasPersonalizados = data.dias_personalizados;
+            if (!diasPersonalizados || diasPersonalizados < 1 || diasPersonalizados > 365) {
+                errores.push('La duración personalizada debe estar entre 1 y 365 días.');
+            }
+        }
         if (errores.length > 0) {
             mostrarErroresValidacion(errores, 'Errores en la edición de cliente-membresía');
             return;

@@ -2529,6 +2529,9 @@ def admin_membresia_actualizar(request, membresia_id):
                 cm.fecha_fin = cm.fecha_inicio + relativedelta(months=1)
             elif membresia.duracion == 'anual':
                 cm.fecha_fin = cm.fecha_inicio + relativedelta(years=1)
+            elif membresia.duracion == 'personalizada':
+                # Para membresías personalizadas existentes, usar 30 días por defecto
+                cm.fecha_fin = cm.fecha_inicio + timedelta(days=30)
             else:
                 cm.fecha_fin = cm.fecha_inicio
             cm.save()
@@ -2574,6 +2577,11 @@ def admin_cliente_membresia_crear(request):
         elif membresia.duracion == 'anual':
             from dateutil.relativedelta import relativedelta
             fecha_fin = fecha_inicio + relativedelta(years=1)
+        elif membresia.duracion == 'personalizada':
+            from datetime import timedelta
+            # Obtener días personalizados del request, si no se proporciona, usar 30 días por defecto
+            dias_personalizados = data.get('dias_personalizados', 30)
+            fecha_fin = fecha_inicio + timedelta(days=int(dias_personalizados))
         else:
             fecha_fin = fecha_inicio
         
@@ -2624,6 +2632,11 @@ def admin_cliente_membresia_actualizar(request, cliente_membresia_id):
             elif membresia.duracion == 'anual':
                 from dateutil.relativedelta import relativedelta
                 fecha_fin = fecha_inicio + relativedelta(years=1)
+            elif membresia.duracion == 'personalizada':
+                from datetime import timedelta
+                # Obtener días personalizados del request, si no se proporciona, usar 30 días por defecto
+                dias_personalizados = data.get('dias_personalizados', 30)
+                fecha_fin = fecha_inicio + timedelta(days=int(dias_personalizados))
             else:
                 fecha_fin = fecha_inicio
             cliente_membresia.fecha_inicio = fecha_inicio

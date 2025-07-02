@@ -6,6 +6,21 @@
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
+<script>
+// Pasar datos de membresías al JavaScript
+window.membresiasData = [
+    {% for membresia in membresias %}
+    {
+        id: {{ membresia.id }},
+        nombre: "{{ membresia.nombre }}",
+        duracion: "{{ membresia.duracion }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+// Debug: Verificar que los datos se cargaron correctamente
+console.log('Datos de membresías cargados:', window.membresiasData);
+</script>
 {% endblock %}
 
 {% block content %}
@@ -331,6 +346,17 @@
                          required>
                 </div>
 
+                <div class="form-fila" id="duracion-personalizada-container-editar-{{ cliente_membresia.id }}" style="display: none;">
+                  <label for="cliente-membresia-dias-personalizados-editar-{{ cliente_membresia.id }}">Duración Personalizada (días):</label>
+                  <input type="number" 
+                         id="cliente-membresia-dias-personalizados-editar-{{ cliente_membresia.id }}" 
+                         name="cliente-membresia-dias-personalizados-editar-{{ cliente_membresia.id }}" 
+                         min="1"
+                         max="365"
+                         value="30"
+                         placeholder="Ingrese número de días">
+                </div>
+
                 <div class="form-fila">
                   <label for="cliente-membresia-estado-editar-{{ cliente_membresia.id }}">Estado:</label>
                   <select id="cliente-membresia-estado-editar-{{ cliente_membresia.id }}" 
@@ -396,6 +422,17 @@
                    id="cliente-membresia-fecha-inicio" 
                    name="cliente-membresia-fecha-inicio" 
                    required>
+          </div>
+
+          <div class="form-fila" id="duracion-personalizada-container" style="display: none;">
+            <label for="cliente-membresia-dias-personalizados">Duración Personalizada (días):</label>
+            <input type="number" 
+                   id="cliente-membresia-dias-personalizados" 
+                   name="cliente-membresia-dias-personalizados" 
+                   min="1"
+                   max="365"
+                   value="30"
+                   placeholder="Ingrese número de días">
           </div>
 
           <div class="form-fila">
