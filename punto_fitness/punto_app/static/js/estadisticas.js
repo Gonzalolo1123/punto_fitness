@@ -414,6 +414,68 @@ document.addEventListener('DOMContentLoaded', function() {
         (membresiasDiariasData.length === 0 && membresiasMensualesData.length === 0)) {
         mostrarInfoDatos();
     }
+
+    // Lógica para los botones de vista de gráficos
+    const viewModeButtons = document.querySelectorAll('.view-mode-btn');
+    function setViewModeActive(mode) {
+        viewModeButtons.forEach(b => b.classList.remove('active'));
+        if (mode === 'small') document.getElementById('btn-small').classList.add('active');
+        else if (mode === 'medium') document.getElementById('btn-medium').classList.add('active');
+        else if (mode === 'large') document.getElementById('btn-large').classList.add('active');
+        // Actualizar todos los canvas al tamaño seleccionado y borrar height/width
+        document.querySelectorAll('canvas').forEach(canvas => {
+            canvas.classList.remove('chart-small', 'chart-medium', 'chart-large');
+            canvas.classList.add(`chart-${mode}`);
+            canvas.removeAttribute('height');
+            canvas.removeAttribute('width');
+        });
+    }
+    viewModeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            let mode = 'medium';
+            if (this.id === 'btn-small') mode = 'small';
+            else if (this.id === 'btn-medium') mode = 'medium';
+            else if (this.id === 'btn-large') mode = 'large';
+            setViewModeActive(mode);
+        });
+    });
+    // Al cargar la página, dejar "Mediano" activo y aplicar tamaño a los canvas
+    setViewModeActive('medium');
+
+    // --- Botones de periodo para Estadísticas Monetarias ---
+    const moneyPeriodButtons = document.querySelectorAll('#time-filter button');
+    function setActiveButtonGroup(btns, idx) {
+        btns.forEach(b => b.classList.remove('active'));
+        if (btns[idx]) btns[idx].classList.add('active');
+    }
+    moneyPeriodButtons.forEach((btn, idx) => {
+        btn.addEventListener('click', function() {
+            setActiveButtonGroup(moneyPeriodButtons, idx);
+        });
+    });
+    setActiveButtonGroup(moneyPeriodButtons, 2); // Mensual por defecto
+
+    // --- Botones de periodo para Ventas por Producto ---
+    // Selecciono el grupo correcto de botones de la sección de producto
+    const productSections = document.querySelectorAll('.section');
+    const productPeriodButtons = productSections[1].querySelectorAll('.button-group')[1].querySelectorAll('button');
+    productPeriodButtons.forEach((btn, idx) => {
+        btn.addEventListener('click', function() {
+            setActiveButtonGroup(productPeriodButtons, idx);
+        });
+    });
+    setActiveButtonGroup(productPeriodButtons, 2); // Mensual por defecto
+
+    // --- Botones de periodo para Membresías ---
+    // Selecciono el grupo correcto de botones de la última sección
+    const membershipSections = document.querySelectorAll('.section');
+    const membershipPeriodButtons = membershipSections[membershipSections.length-1].querySelectorAll('.button-group button');
+    membershipPeriodButtons.forEach((btn, idx) => {
+        btn.addEventListener('click', function() {
+            setActiveButtonGroup(membershipPeriodButtons, idx);
+        });
+    });
+    setActiveButtonGroup(membershipPeriodButtons, 2); // Mensual por defecto
 });
 
 // Función para exportar datos

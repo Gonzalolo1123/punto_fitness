@@ -10,13 +10,11 @@
 
 {% block content %}
 <div class="content">
-  <div class="button-group">
-    <label for="view-mode">Vista de gráficos:</label>
-    <select id="view-mode" onchange="changeViewMode(this.value)">
-      <option value="small">Pequeño</option>
-      <option value="medium" selected>Mediano</option>
-      <option value="large">Grande</option>
-    </select>
+  <div class="button-group" id="view-mode-group">
+    <label>Vista de gráficos:</label>
+    <button type="button" id="btn-small" class="view-mode-btn">Pequeño</button>
+    <button type="button" id="btn-medium" class="view-mode-btn active">Mediano</button>
+    <button type="button" id="btn-large" class="view-mode-btn">Grande</button>
   </div>
 
   <!-- Sección de Estadísticas Monetarias -->
