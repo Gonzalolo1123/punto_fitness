@@ -541,9 +541,6 @@ def admin_categoria_crear(request):
 
         if CategoriaProducto.objects.filter(nombre__iexact=data['nombre']).exists():
             return JsonResponse({'error': '¡Ya existe una categoría con este nombre!'}, status=400)
-
-        if CategoriaProducto.objects.filter(descripcion__iexact=data['descripcion']).exists():
-            return JsonResponse({'error': '¡Ya existe una categoría con esta descripción!'}, status=400)
         
         categoria = CategoriaProducto.objects.create(
             nombre=data['nombre'],

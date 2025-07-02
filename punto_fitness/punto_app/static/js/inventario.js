@@ -569,12 +569,13 @@ function manejoCrearProducto(e) {
   const nombreInput = document.getElementById('producto-nombre');
   const descripcionInput = document.getElementById('producto-descripcion');
   const precioInput = document.getElementById('producto-precio');
-  const stockActualInput = document.getElementById('producto-stock_actual');
-  const stockMinimoInput = document.getElementById('producto-stock_minimo');
+  const stockActualInput = document.getElementById('producto-stock-actual');
+  const stockMinimoInput = document.getElementById('producto-stock-minimo');
   const categoriaInput = document.getElementById('producto-categoria');
   const establecimientoInput = document.getElementById('producto-establecimiento');
   const imagenInput = document.getElementById('producto-imagen');
-  if (!nombreInput || !descripcionInput || !precioInput || !stockActualInput || !stockMinimoInput || !categoriaInput || !establecimientoInput || !imagenInput) {
+  const compraInput = document.getElementById('producto-compra');
+  if (!nombreInput || !descripcionInput || !precioInput || !stockActualInput || !stockMinimoInput || !categoriaInput || !establecimientoInput || !imagenInput || !compraInput) {
     mostrarErroresValidacion(['Faltan campos obligatorios en el formulario de producto. Por favor, recarga la página.'], 'Error de formulario');
     return;
   }
@@ -586,6 +587,7 @@ function manejoCrearProducto(e) {
   const categoria_id = categoriaInput.value;
   const establecimiento_id = establecimientoInput.value;
   const imagen = imagenInput.value;
+  const compra_id = compraInput.value;
 
   let errores = [];
   errores = errores.concat(validarNombre(nombre, 'nombre', 3, 30));
@@ -610,7 +612,8 @@ function manejoCrearProducto(e) {
     stock_minimo,
     categoria_id,
     establecimiento_id,
-    imagen
+    imagen,
+    compra_id
   };
   crearProducto(formData)
     .then(data => {
@@ -644,6 +647,9 @@ function manejoCrearCategoria(e) {
   crearCategoria(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
+      if (data.id) {
+        sessionStorage.setItem('categoriaRecienCreada', data.id);
+      }
       mostrarExitoValidacion('Categoría creada exitosamente');
     })
     .catch(error => {
