@@ -480,501 +480,75 @@ Traceback (most recent call last):
     )
 django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 26: ''principal''. Did you forget to register or load this tag?
 ERROR 2025-06-09 13:49:16,179 basehttp 13980 7508 "GET / HTTP/1.1" 500 188014
-ERROR 2025-06-11 23:57:30,764 exception 9348 17152 Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+ERROR 2025-06-10 10:51:38,348 log 35876 38352 Internal Server Error: /usuarios/crear_usuario/
+ERROR 2025-06-10 10:51:38,349 basehttp 35876 38352 "POST /usuarios/crear_usuario/ HTTP/1.1" 500 64
+ERROR 2025-06-10 10:51:49,586 log 35876 14384 Internal Server Error: /usuarios/crear_usuario/
+ERROR 2025-06-10 10:51:49,587 basehttp 35876 14384 "POST /usuarios/crear_usuario/ HTTP/1.1" 500 64
+ERROR 2025-06-11 16:25:10,444 log 39100 15600 Internal Server Error: /venta_producto/
 Traceback (most recent call last):
-  File "C:\Users\Gonzalo\Desktop\punto_fitness\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Gonzalo\Desktop\punto_fitness\env\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
-    response = self.process_request(request)
-  File "C:\Users\Gonzalo\Desktop\punto_fitness\env\Lib\site-packages\django\middleware\common.py", line 48, in process_request
-    host = request.get_host()
-  File "C:\Users\Gonzalo\Desktop\punto_fitness\env\Lib\site-packages\django\http\request.py", line 191, in get_host
-    raise DisallowedHost(msg)
-django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
-ERROR 2025-06-12 00:01:27,329 log 17348 14276 Internal Server Error: /enviar-codigo-verificacion/
-ERROR 2025-06-12 00:01:27,330 basehttp 17348 14276 "POST /enviar-codigo-verificacion/ HTTP/1.1" 500 39
-ERROR 2025-06-12 00:26:02,638 log 7336 13364 Internal Server Error: /registro/
-ERROR 2025-06-12 00:26:02,643 basehttp 7336 13364 "POST /registro/ HTTP/1.1" 500 38
-ERROR 2025-06-29 22:35:28,404 log 8080 15940 Internal Server Error: /verificar-sesion/
-Traceback (most recent call last):
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 105, in _execute
-    return self.cursor.execute(sql, params)
-           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-psycopg2.errors.UndefinedTable: no existe la relación «cliente»
-LINE 1: ...liente"."fecha_registro", "cliente"."estado" FROM "cliente" ...
-                                                             ^
-
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\views.py", line 1395, in verificar_sesion
-    cliente = Cliente.objects.get(id=cliente_id)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\manager.py", line 87, in manager_method
-    return getattr(self.get_queryset(), name)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 629, in get
-    num = len(clone)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 366, in __len__
-    self._fetch_all()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 1949, in _fetch_all
-    self._result_cache = list(self._iterable_class(self))
-                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 91, in __iter__
-    results = compiler.execute_sql(
-        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\query.py", line 2234, in add_fields
+    join_info = self.setup_joins(
+        name.split(LOOKUP_SEP), opts, alias, allow_many=allow_m2m
     )
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
-    cursor.execute(sql, params)
-    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 122, in execute
-    return super().execute(sql, params)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 79, in execute
-    return self._execute_with_wrappers(
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        sql, params, many=False, executor=self._execute
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\query.py", line 1897, in setup_joins
+    path, final_field, targets, rest = self.names_to_path(
+                                       ~~~~~~~~~~~~~~~~~~^
+        names[:pivot],
+        ^^^^^^^^^^^^^^
+    ...<2 lines>...
+        fail_on_missing=True,
+        ^^^^^^^^^^^^^^^^^^^^^
     )
     ^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
-    return executor(sql, params, many, context)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 100, in _execute
-    with self.db.wrap_database_errors:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\utils.py", line 91, in __exit__
-    raise dj_exc_value.with_traceback(traceback) from exc_value
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 105, in _execute
-    return self.cursor.execute(sql, params)
-           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-django.db.utils.ProgrammingError: no existe la relación «cliente»
-LINE 1: ...liente"."fecha_registro", "cliente"."estado" FROM "cliente" ...
-                                                             ^
-
-ERROR 2025-06-29 22:35:28,414 basehttp 8080 15940 "GET /verificar-sesion/ HTTP/1.1" 500 137688
-ERROR 2025-06-29 22:36:29,305 log 8080 15940 Internal Server Error: /verificar-sesion/
-Traceback (most recent call last):
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\contrib\sessions\backends\base.py", line 244, in _get_session
-    return self._session_cache
-           ^^^^^^^^^^^^^^^^^^^
-AttributeError: 'SessionStore' object has no attribute '_session_cache'
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\query.py", line 1802, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'precio' into field. Choices are: administrador, compravendedor, curso, direccion, email, horario_apertura, horario_cierre, id, maquina, membresia, nombre, producto, proveedor, proveedor_id, registroacceso, telefono, ventacliente
 
 During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 105, in _execute
-    return self.cursor.execute(sql, params)
-           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-psycopg2.errors.UndefinedTable: no existe la relación «django_session»
-LINE 1: ...ession_data", "django_session"."expire_date" FROM "django_se...
-                                                             ^
-
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\views.py", line 1391, in verificar_sesion
-    cliente_id = request.session.get('cliente_id')
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\contrib\sessions\backends\base.py", line 74, in get
-    return self._session.get(key, default)
-           ^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\contrib\sessions\backends\base.py", line 249, in _get_session
-    self._session_cache = self.load()
-                          ~~~~~~~~~^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\contrib\sessions\backends\db.py", line 55, in load
-    s = self._get_session_from_db()
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\contrib\sessions\backends\db.py", line 34, in _get_session_from_db
-    return self.model.objects.get(
-           ~~~~~~~~~~~~~~~~~~~~~~^
-        session_key=self.session_key, expire_date__gt=timezone.now()
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\manager.py", line 87, in manager_method
-    return getattr(self.get_queryset(), name)(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 629, in get
-    num = len(clone)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 366, in __len__
-    self._fetch_all()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 1949, in _fetch_all
-    self._result_cache = list(self._iterable_class(self))
-                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\query.py", line 91, in __iter__
-    results = compiler.execute_sql(
-        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
-    )
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
-    cursor.execute(sql, params)
-    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 122, in execute
-    return super().execute(sql, params)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 79, in execute
-    return self._execute_with_wrappers(
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        sql, params, many=False, executor=self._execute
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
-    return executor(sql, params, many, context)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 100, in _execute
-    with self.db.wrap_database_errors:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\utils.py", line 91, in __exit__
-    raise dj_exc_value.with_traceback(traceback) from exc_value
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\db\backends\utils.py", line 105, in _execute
-    return self.cursor.execute(sql, params)
-           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-django.db.utils.ProgrammingError: no existe la relación «django_session»
-LINE 1: ...ession_data", "django_session"."expire_date" FROM "django_se...
-                                                             ^
-
-ERROR 2025-06-29 22:36:29,316 basehttp 8080 15940 "GET /verificar-sesion/ HTTP/1.1" 500 157844
-ERROR 2025-06-29 23:25:35,391 log 4524 15584 Internal Server Error: /venta_producto/
-Traceback (most recent call last):
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\views.py", line 2242, in venta_producto
-    return render(request, 'punto_app/ventaproducto.html',{'productos': productos,'categorias': categorias})
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\shortcuts.py", line 25, in render
-    content = loader.render_to_string(template_name, context, request, using=using)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader.py", line 61, in render_to_string
-    template = get_template(template_name, using=using)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader.py", line 19, in get_template
-    raise TemplateDoesNotExist(template_name, chain=chain)
-django.template.exceptions.TemplateDoesNotExist: punto_app/ventaproducto.html
-ERROR 2025-06-29 23:25:35,396 basehttp 4524 15584 "GET /venta_producto/ HTTP/1.1" 500 86018
-ERROR 2025-06-29 23:43:22,612 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:43:22,613 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
-ERROR 2025-06-29 23:43:55,787 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:43:55,787 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
-ERROR 2025-06-29 23:44:02,259 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:02,260 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
-ERROR 2025-06-29 23:44:03,523 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:03,523 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
-ERROR 2025-06-29 23:44:04,443 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:04,444 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
-ERROR 2025-06-29 23:44:41,473 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:41,474 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
-ERROR 2025-06-29 23:44:42,518 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:42,518 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
-ERROR 2025-06-29 23:44:43,505 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:43,506 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
-ERROR 2025-06-29 23:44:44,414 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:44,414 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 135
-ERROR 2025-06-29 23:44:45,279 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:45,279 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
-ERROR 2025-06-29 23:44:46,096 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:46,097 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
-ERROR 2025-06-29 23:44:46,921 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:46,922 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
-ERROR 2025-06-29 23:44:47,832 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:47,833 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
-ERROR 2025-06-29 23:44:48,604 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:48,605 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
-ERROR 2025-06-29 23:44:49,380 log 1220 11412 Internal Server Error: /venta_confirmada/
-ERROR 2025-06-29 23:44:49,380 basehttp 1220 11412 "POST /venta_confirmada/ HTTP/1.1" 500 136
-ERROR 2025-06-30 00:11:47,953 log 16544 9620 Internal Server Error: /membresias/
-Traceback (most recent call last):
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\decorators.py", line 22, in _wrapped_view
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\views.py", line 2509, in membresias
-    return render(request, 'punto_app/admin_membresias.html', {
-        'membresias': membresias,
-    ...<2 lines>...
-        'clientes': clientes
-    })
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\shortcuts.py", line 25, in render
-    content = loader.render_to_string(template_name, context, request, using=using)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader.py", line 61, in render_to_string
-    template = get_template(template_name, using=using)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader.py", line 19, in get_template
-    raise TemplateDoesNotExist(template_name, chain=chain)
-django.template.exceptions.TemplateDoesNotExist: punto_app/admin_membresias.html
-ERROR 2025-06-30 00:11:47,957 basehttp 16544 9620 "GET /membresias/ HTTP/1.1" 500 105009
-ERROR 2025-06-30 23:41:59,443 log 16068 3964 Internal Server Error: /venta_producto/
-Traceback (most recent call last):
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\views.py", line 2250, in venta_producto
-    return render(request, 'punto_app/ventaproducto.html',{'productos': productos,'categorias': categorias})
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\shortcuts.py", line 25, in render
-    content = loader.render_to_string(template_name, context, request, using=using)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader.py", line 62, in render_to_string
-    return template.render(context, request)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\backends\django.py", line 107, in render
-    return self.template.render(context)
-           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 171, in render
-    return self._render(context)
-           ~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 163, in _render
-    return self.nodelist.render(context)
-           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 1016, in render
-    return SafeString("".join([node.render_annotated(context) for node in self]))
-                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 977, in render_annotated
-    return self.render(context)
-           ~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader_tags.py", line 134, in render
-    compiled_parent = self.get_parent(context)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader_tags.py", line 131, in get_parent
-    return self.find_template(parent, context)
-           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader_tags.py", line 109, in find_template
-    template, origin = context.template.engine.find_template(
-                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        template_name,
-        ^^^^^^^^^^^^^^
-        skip=history,
-        ^^^^^^^^^^^^^
-    )
-    ^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\engine.py", line 159, in find_template
-    template = loader.get_template(name, skip=skip)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loaders\cached.py", line 57, in get_template
-    template = super().get_template(template_name, skip)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loaders\base.py", line 28, in get_template
-    return Template(
-        contents,
-    ...<2 lines>...
-        self.engine,
-    )
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 154, in __init__
-    self.nodelist = self.compile_nodelist()
-                    ~~~~~~~~~~~~~~~~~~~~~^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 196, in compile_nodelist
-    nodelist = parser.parse()
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 518, in parse
-    raise self.error(token, e)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 516, in parse
-    compiled_result = compile_func(self, token)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader_tags.py", line 228, in do_block
-    raise TemplateSyntaxError(
-        "'%s' tag with name '%s' appears more than once" % (bits[0], block_name)
-    )
-django.template.exceptions.TemplateSyntaxError: 'block' tag with name 'extra_head' appears more than once
-ERROR 2025-06-30 23:41:59,453 basehttp 16068 3964 "GET /venta_producto/ HTTP/1.1" 500 205229
-ERROR 2025-06-30 23:42:00,288 log 16068 3964 Internal Server Error: /venta_producto/
-Traceback (most recent call last):
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Gonzalo\Desktop\Taller Ing. Software\punto_fitness\punto_fitness\punto_app\views.py", line 2250, in venta_producto
-    return render(request, 'punto_app/ventaproducto.html',{'productos': productos,'categorias': categorias})
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\shortcuts.py", line 25, in render
-    content = loader.render_to_string(template_name, context, request, using=using)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader.py", line 62, in render_to_string
-    return template.render(context, request)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\backends\django.py", line 107, in render
-    return self.template.render(context)
-           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 171, in render
-    return self._render(context)
-           ~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 163, in _render
-    return self.nodelist.render(context)
-           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 1016, in render
-    return SafeString("".join([node.render_annotated(context) for node in self]))
-                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 977, in render_annotated
-    return self.render(context)
-           ~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader_tags.py", line 134, in render
-    compiled_parent = self.get_parent(context)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader_tags.py", line 131, in get_parent
-    return self.find_template(parent, context)
-           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader_tags.py", line 109, in find_template
-    template, origin = context.template.engine.find_template(
-                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        template_name,
-        ^^^^^^^^^^^^^^
-        skip=history,
-        ^^^^^^^^^^^^^
-    )
-    ^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\engine.py", line 159, in find_template
-    template = loader.get_template(name, skip=skip)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loaders\cached.py", line 57, in get_template
-    template = super().get_template(template_name, skip)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loaders\base.py", line 28, in get_template
-    return Template(
-        contents,
-    ...<2 lines>...
-        self.engine,
-    )
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 154, in __init__
-    self.nodelist = self.compile_nodelist()
-                    ~~~~~~~~~~~~~~~~~~~~~^^
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 196, in compile_nodelist
-    nodelist = parser.parse()
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 518, in parse
-    raise self.error(token, e)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\base.py", line 516, in parse
-    compiled_result = compile_func(self, token)
-  File "C:\Users\Gonzalo\AppData\Roaming\Python\Python313\site-packages\django\template\loader_tags.py", line 228, in do_block
-    raise TemplateSyntaxError(
-        "'%s' tag with name '%s' appears more than once" % (bits[0], block_name)
-    )
-django.template.exceptions.TemplateSyntaxError: 'block' tag with name 'extra_head' appears more than once
-ERROR 2025-06-30 23:42:00,343 basehttp 16068 3964 "GET /venta_producto/ HTTP/1.1" 500 205229
-ERROR 2025-07-01 23:36:41,786 log 13364 31904 Internal Server Error: /
-Traceback (most recent call last):
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\base.py", line 244, in _get_session
-    return self._session_cache
-           ^^^^^^^^^^^^^^^^^^^
-AttributeError: 'SessionStore' object has no attribute '_session_cache'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
-    return self.cursor.execute(sql, params)
-           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-psycopg2.errors.UndefinedTable: no existe la relación «django_session»
-LINE 1: ...ession_data", "django_session"."expire_date" FROM "django_se...
-                                                             ^
-
-
-The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
   File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
     response = get_response(request)
   File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
     response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\damia\Desktop\inge_software\punto_fitness\punto_app\views.py", line 33, in principal
-    return render(request, 'punto_app/principal.html')
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
-    content = loader.render_to_string(template_name, context, request, using=using)
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
-    return template.render(context, request)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 107, in render
-    return self.template.render(context)
-           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 169, in render
-    with context.bind_template(self):
-         ~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\contextlib.py", line 141, in __enter__
-    return next(self.gen)
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\context.py", line 259, in bind_template
-    context = processor(self.request)
-  File "C:\Users\damia\Desktop\inge_software\punto_fitness\punto_app\context_processors.py", line 4, in user_info
-    cliente_id = request.session.get('cliente_id')
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\base.py", line 74, in get
-    return self._session.get(key, default)
-           ^^^^^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\base.py", line 249, in _get_session
-    self._session_cache = self.load()
-                          ~~~~~~~~~^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\db.py", line 55, in load
-    s = self._get_session_from_db()
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\db.py", line 34, in _get_session_from_db
-    return self.model.objects.get(
-           ~~~~~~~~~~~~~~~~~~~~~~^
-        session_key=self.session_key, expire_date__gt=timezone.now()
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1435, in venta_producto
+    productos = Establecimiento.objects.values('id','nombre','precio','stock_actual','establecimiento','stock_minimo')
   File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
     return getattr(self.get_queryset(), name)(*args, **kwargs)
            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 629, in get
-    num = len(clone)
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 366, in __len__
-    self._fetch_all()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1949, in _fetch_all
-    self._result_cache = list(self._iterable_class(self))
-                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
-    results = compiler.execute_sql(
-        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1365, in values
+    clone = self._values(*fields, **expressions)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1360, in _values
+    clone.query.set_values(fields)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\query.py", line 2557, in set_values
+    self.add_fields(field_names, True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\query.py", line 2262, in add_fields
+    raise FieldError(
+    ...<2 lines>...
     )
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
-    cursor.execute(sql, params)
-    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
-    return super().execute(sql, params)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
-    return self._execute_with_wrappers(
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        sql, params, many=False, executor=self._execute
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
-    return executor(sql, params, many, context)
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
-    with self.db.wrap_database_errors:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
-    raise dj_exc_value.with_traceback(traceback) from exc_value
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
-    return self.cursor.execute(sql, params)
-           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
-django.db.utils.ProgrammingError: no existe la relación «django_session»
-LINE 1: ...ession_data", "django_session"."expire_date" FROM "django_se...
-                                                             ^
-
-ERROR 2025-07-01 23:36:41,796 basehttp 13364 31904 "GET / HTTP/1.1" 500 181882
-ERROR 2025-07-01 23:46:29,805 log 26104 33720 Internal Server Error: /venta_producto/
+django.core.exceptions.FieldError: Cannot resolve keyword 'precio' into field. Choices are: administrador, compravendedor, curso, direccion, email, horario_apertura, horario_cierre, id, maquina, membresia, nombre, producto, proveedor, proveedor_id, registroacceso, telefono, ventacliente
+ERROR 2025-06-11 16:25:10,450 basehttp 39100 15600 "GET /venta_producto/ HTTP/1.1" 500 113280
+ERROR 2025-06-11 19:16:32,003 log 37300 16056 Internal Server Error: /finalizar_compra/
 Traceback (most recent call last):
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 891, in _resolve_lookup
-    current = current[bit]
-              ~~~~~~~^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\functional.py", line 253, in inner
-    return func(_wrapped, *args)
-TypeError: 'AnonymousUser' object is not subscriptable
-
-During handling of the above exception, another exception occurred:
-
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1446, in finalizar_compra
+    print(f"- ID: {prod['id']}, Nombre: {prod['nombre']}, Cantidad: {prod['cantidad']}, Precio: {prod['precio']}")
+                                         ~~~~^^^^^^^^^^
+KeyError: 'nombre'
+ERROR 2025-06-11 19:16:32,006 basehttp 37300 16056 "POST /finalizar_compra/ HTTP/1.1" 500 69279
+ERROR 2025-06-11 22:35:52,766 log 39844 16964 Internal Server Error: /venta_producto/
 Traceback (most recent call last):
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 901, in _resolve_lookup
-    current = getattr(current, bit)
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\functional.py", line 253, in inner
-    return func(_wrapped, *args)
-AttributeError: 'AnonymousUser' object has no attribute 'email'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 907, in _resolve_lookup
-    current = current[int(bit)]
-                      ~~~^^^^^
-ValueError: invalid literal for int() with base 10: 'email'
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\smartif.py", line 180, in translate_token
+    op = OPERATORS[token]
+         ~~~~~~~~~^^^^^^^
+KeyError: 'producto.stock_actual==0'
 
 During handling of the above exception, another exception occurred:
 
@@ -983,63 +557,217 @@ Traceback (most recent call last):
     response = get_response(request)
   File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
     response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\damia\Desktop\inge_software\punto_fitness\punto_app\views.py", line 2253, in venta_producto
-    return render(request, 'punto_app/ventaproducto.html',{'productos': productos,'categorias': categorias})
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1517, in venta_producto
+    return render(request, 'punto_app/ventaproducto.html',{'productos': productos})
   File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
     content = loader.render_to_string(template_name, context, request, using=using)
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
-    return template.render(context, request)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 107, in render
-    return self.template.render(context)
-           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 171, in render
-    return self._render(context)
-           ~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 163, in _render
-    return self.nodelist.render(context)
-           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 1016, in render
-    return SafeString("".join([node.render_annotated(context) for node in self]))
-                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 977, in render_annotated
-    return self.render(context)
-           ~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 159, in render
-    return compiled_parent._render(context)
-           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 163, in _render
-    return self.nodelist.render(context)
-           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 1016, in render
-    return SafeString("".join([node.render_annotated(context) for node in self]))
-                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 977, in render_annotated
-    return self.render(context)
-           ~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 1075, in render
-    output = self.filter_expression.resolve(context)
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 743, in resolve
-    arg_vals.append(arg.resolve(context))
-                    ~~~~~~~~~~~^^^^^^^^^
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 854, in resolve
-    value = self._resolve_lookup(context)
-  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 914, in _resolve_lookup
-    raise VariableDoesNotExist(
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
     ...<2 lines>...
-    )  # missing attribute
-    ^
-django.template.base.VariableDoesNotExist: Failed lookup for key [email] in <SimpleLazyObject: <django.contrib.auth.models.AnonymousUser object at 0x0000015E686FC590>>
-ERROR 2025-07-01 23:46:29,816 basehttp 26104 33720 "GET /venta_producto/ HTTP/1.1" 500 169146
-ERROR 2025-07-02 04:04:39,404 log 28412 39548 Internal Server Error: /planes/
+        self.engine,
+    )
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+        (
+    ...<2 lines>...
+        )
+    )
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 961, in do_if
+    condition = TemplateIfParser(parser, bits).parse()
+                ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 894, in __init__
+    super().__init__(*args, **kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\smartif.py", line 171, in __init__
+    mapped_tokens.append(self.translate_token(token))
+                         ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\smartif.py", line 182, in translate_token
+    return self.create_var(token)
+           ~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 897, in create_var
+    return TemplateLiteral(self.template_parser.compile_filter(value), value)
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 710, in __init__
+    raise TemplateSyntaxError(
+    ...<2 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Could not parse the remainder: '==0' from 'producto.stock_actual==0'
+ERROR 2025-06-11 22:35:52,780 basehttp 39844 16964 "GET /venta_producto/ HTTP/1.1" 500 245633
+ERROR 2025-06-12 18:48:32,692 basehttp 3596 9052 "GET /static/images/maquinas/maquina%7B'id':%204,%20'nombre':%20'press%20banca%202',%20'descripcion':%20'maquina%20de%20pecho1',%20'cantidad':%203,%20'establecimiento_id':%201,%20'imagen':%20'images/maquinas/maquina6.jpg'%7D.jpg HTTP/1.1" 500 59
+ERROR 2025-06-13 01:30:56,152 log 15216 20340 Internal Server Error: /mostrar_voucher/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 510, in parse
+    compile_func = self.tags[command]
+                   ~~~~~~~~~^^^^^^^^^
+KeyError: 'static'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1669, in mostrar_voucher
+    return render(request, 'punto_app/voucher_venta.html', {'voucher': voucher_data})
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 512, in parse
+    self.invalid_block_tag(token, command, parse_until)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 577, in invalid_block_tag
+    raise self.error(
+    ...<3 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 6: 'static'. Did you forget to register or load this tag?
+
+During handling of the above exception, another exception occurred:
+
 Traceback (most recent call last):
   File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
     response = get_response(request)
   File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
     response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\damia\Desktop\inge_software\punto_fitness\punto_app\views.py", line 596, in planes
-    planes=membresias.objects.values('id', 'nombre', 'descripcion', 'precio', 'duracion', 'imagen')
-           ^^^^^^^^^^^^^^^^^^
-AttributeError: 'function' object has no attribute 'objects'
-ERROR 2025-07-02 04:04:39,407 basehttp 28412 39548 "GET /planes/ HTTP/1.1" 500 69363
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1671, in mostrar_voucher
+    return render(request, 'error.html', {'mensaje': 'Error al mostrar voucher.'})
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: error.html
+ERROR 2025-06-13 01:30:56,160 basehttp 15216 20340 "POST /mostrar_voucher/ HTTP/1.1" 500 175086
+ERROR 2025-06-13 02:47:37,258 log 16656 29848 Internal Server Error: /venta_confirmada/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1687, in venta_confirmada
+    return render(request, 'venta_confirmada.html', {
+        'nombre': nombre,
+    ...<4 lines>...
+        'productos': productos,
+    })
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: venta_confirmada.html
+ERROR 2025-06-13 02:47:37,263 basehttp 16656 29848 "POST /venta_confirmada/ HTTP/1.1" 500 94207
+ERROR 2025-06-13 02:48:44,608 log 31380 8564 Internal Server Error: /venta_confirmada/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1695, in venta_confirmada
+    return render(request, 'error.html')
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: error.html
+ERROR 2025-06-13 02:48:44,612 basehttp 31380 8564 "POST /venta_confirmada/ HTTP/1.1" 500 91469
+ERROR 2025-06-13 04:33:21,419 log 31216 31152 Internal Server Error: /venta_confirmada/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 204, in _get_response
+    self.check_response(response, callback)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 332, in check_response
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: The view punto_app.views.venta_confirmada didn't return an HttpResponse object. It returned None instead.
+ERROR 2025-06-13 04:33:21,422 basehttp 31216 31152 "POST /venta_confirmada/ HTTP/1.1" 500 72352
+ERROR 2025-06-13 04:34:00,305 log 24752 31956 Internal Server Error: /venta_confirmada/
+Traceback (most recent call last):
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\damia\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\damia\OneDrive\Documentos\proyecto_software\punto_fitness\punto_app\views.py", line 1698, in venta_confirmada
+    return JsonResponse({'mensaje': 'Compra finalizada', 'voucher': voucher})
+                                                                    ^^^^^^^
+NameError: name 'voucher' is not defined
+ERROR 2025-06-13 04:34:00,308 basehttp 24752 31956 "POST /venta_confirmada/ HTTP/1.1" 500 77246
+ERROR 2025-06-15 19:44:20,776 log 51932 48860 Internal Server Error: /venta_confirmada/
+ERROR 2025-06-15 19:44:20,778 basehttp 51932 48860 "POST /venta_confirmada/ HTTP/1.1" 500 68
