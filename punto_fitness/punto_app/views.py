@@ -541,6 +541,9 @@ def admin_categoria_crear(request):
 
         if CategoriaProducto.objects.filter(nombre__iexact=data['nombre']).exists():
             return JsonResponse({'error': '¡Ya existe una categoría con este nombre!'}, status=400)
+
+        if CategoriaProducto.objects.filter(descripcion__iexact=data['descripcion']).exists():
+            return JsonResponse({'error': '¡Ya existe una categoría con esta descripción!'}, status=400)
         
         categoria = CategoriaProducto.objects.create(
             nombre=data['nombre'],
@@ -590,12 +593,12 @@ def admin_categoria_borrar(request, categoria_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 def planes(request):
-    ##cursos = list(Curso.objects.values('id', 'nombre', 'cupos', 'fecha_realizacion', 'estado','establecimiento'))
-    ##inscritos =list(Inscripcion.objects.values('usuario', 'curso', 'fecha_inscripcion','fecha_realizacion'))
-    # Subquery: cantidad de inscritos por curso y fecha_realizacion
+    planes=Membresia.objects.values('id', 'nombre', 'descripcion', 'precio', 'duracion', 'imagen')
+    productos=Producto.objects.values('id', 'nombre', 'descripcion', 'precio', 'stock_actual', 'stock_minimo', 'imagen', 'categoria_id')
+    categorias=CategoriaProducto.objects.values('id', 'nombre')
     cliente_id = request.session.get('cliente_id')
     print('tu cliente_id', cliente_id)
-    # Subconsulta: cantidad de inscritos por curso y fecha_realizacion
+    # Subquery: cantidad de inscritos por curso y fecha_realizacion
     inscripciones_subquery = Inscripcion.objects.filter(
         curso=OuterRef('pk'),
         fecha_realizacion=OuterRef('fecha_realizacion')
@@ -619,7 +622,7 @@ def planes(request):
             'establecimiento', 'inscritos', 'inscrito'
         )
     )
-    return render(request, 'punto_app/planes.html', {'cursos': cursos})
+    return render(request, 'punto_app/planes.html', {'cursos': cursos,'planes':planes,'productos':productos,'categorias':categorias})
 def inscribir_curso(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -657,7 +660,8 @@ def cancelar_inscripcion(request):
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 def maquinas(request):
-    return render(request,'punto_app/maquinas.html', {'maquinas': range(1, 9)})
+    maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id', 'imagen')
+    return render(request,'punto_app/maquinas.html', {'maquinas': maquinas})
 
 @requiere_admin
 def admin_maquinas(request):
@@ -673,10 +677,10 @@ def admin_maquina_crear(request):
     try:
         data = json.loads(request.body)
 
-        if Maquina.objects.filter(nombreiexact=data['nombre']).exists():
+        if Maquina.objects.filter(nombre__iexact=data['nombre']).exists():
             return JsonResponse({'error': '¡Ya existe una máquina con este nombre!'}, status=400)
 
-        if Maquina.objects.filter(descripcioniexact=data['descripcion']).exists():
+        if Maquina.objects.filter(descripcion__iexact=data['descripcion']).exists():
             return JsonResponse({'error': '¡Ya existe una máquina con esta descripción!'}, status=400)
 
         maquina = Maquina.objects.create(
@@ -704,11 +708,11 @@ def admin_maquina_actualizar(request, maquina_id):
 
         # Validaciones de unicidad excluyendo a la máquina actual
         if 'nombre' in data and data['nombre'] != maquina.nombre:
-            if Maquina.objects.filter(nombreiexact=data['nombre']).exclude(id=maquina_id).exists():
+            if Maquina.objects.filter(nombre__iexact=data['nombre']).exclude(id=maquina_id).exists():
                 return JsonResponse({'error': '¡Ya existe una máquina con este nombre!'}, status=400)
 
         if 'descripcion' in data and data['descripcion'] != maquina.descripcion:
-            if Maquina.objects.filter(descripcioniexact=data['descripcion']).exclude(id=maquina_id).exists():
+            if Maquina.objects.filter(descripcion__iexact=data['descripcion']).exclude(id=maquina_id).exists():
                 return JsonResponse({'error': '¡Ya existe una máquina con esta descripción!'}, status=400)
 
         maquina.nombre = data.get('nombre', maquina.nombre)
