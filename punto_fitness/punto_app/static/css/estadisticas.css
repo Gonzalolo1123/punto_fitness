@@ -63,14 +63,17 @@
 
 /* Tamaños de gráficos */
 .chart-small {
+  height: 200px !important;
   max-height: 200px !important;
 }
 
 .chart-medium {
+  height: 300px !important;
   max-height: 300px !important;
 }
 
 .chart-large {
+  height: 400px !important;
   max-height: 400px !important;
 }
 

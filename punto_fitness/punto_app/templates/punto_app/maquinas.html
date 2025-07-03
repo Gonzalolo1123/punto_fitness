@@ -11,15 +11,18 @@
   <div class="contenedor-blanco">
     <h2 class="titulo-seccion">Nuestras máquinas</h2>
     <div class="carrusel-container">
-      <button class="flecha izquierda">&#10094;</button>
-      <div class="carrusel-maquinas">
-        {% for i in maquinas %}
-        <div class="maquina">
-          <img src="{% static 'images/maquinas/' %}maquina{{ i }}.jpg" alt="Máquina {{ i }}">
+      <button class="flecha izquierda" id="prevMaquina">&#10094;</button>
+      <div class="carrusel-maquinas-viewport">
+        <div class="carrusel-maquinas" id="maquinasCarrusel">
+          {% for i in maquinas %}
+          <div class="maquina-card">
+            <img src="{% static i.imagen %}" alt="{{ i.nombre }}" class="maquina-img">
+            <div class="maquina-nombre">{{ i.nombre }}</div>
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
       </div>
-      <button class="flecha derecha">&#10095;</button>
+      <button class="flecha derecha" id="nextMaquina">&#10095;</button>
     </div>
   </div>
 </section>

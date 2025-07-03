@@ -78,7 +78,6 @@ async function verificarSesion() {
                     usuarioBtn.setAttribute('href', '#');
                 }
             }
-            
             // Si estamos en una página que requiere autenticación, redirigir al login
             if (data.requires_auth) {
                 window.location.replace('/');

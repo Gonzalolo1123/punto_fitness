@@ -107,13 +107,14 @@ botonesFiltro.forEach(boton => {
     });
   });
 });
+
 function formatearFecha(fechaISO) {
   const fecha = new Date(fechaISO + 'T00:00:00'); // hora local
   const opciones = { day: '2-digit', month: 'long', year: 'numeric' };
   return fecha.toLocaleDateString('es-ES', opciones);
 }
-document.getElementById('btnMostrarCursos').addEventListener('click', () => {
 
+document.getElementById('btnMostrarCursos').addEventListener('click', () => {
   const cursos = JSON.parse(document.getElementById('cursos-json').textContent);
 
   let tablaHTML = `
@@ -272,8 +273,6 @@ document.getElementById('btnMostrarCursos').addEventListener('click', () => {
     `;
 
   cursos.forEach(curso => {
-
-
     const cuposDisponibles = curso.cupos - curso.inscritos;
     const porcentajeDisponible = (cuposDisponibles / curso.cupos) * 100;
 
@@ -457,3 +456,69 @@ function cancelarInscripcion(idCurso) {
     }
   });
 }
+
+// Carrusel de productos tienda (360°)
+document.addEventListener('DOMContentLoaded', function() {
+  const carrusel = document.getElementById('productosCarrusel');
+  const prevBtn = document.getElementById('prevProducto');
+  const nextBtn = document.getElementById('nextProducto');
+  if (!carrusel || !prevBtn || !nextBtn) return;
+  const cards = carrusel.querySelectorAll('.producto-card');
+  function getCardsPerView() {
+    if (window.innerWidth < 700) return 1;
+    if (window.innerWidth < 1000) return 2;
+    return 3;
+  }
+  let cardsPerView = getCardsPerView();
+  let currentIndex = 0;
+
+  function updateCarrusel() {
+    cardsPerView = getCardsPerView();
+    const cardWidth = cards[0].offsetWidth + 32; // 32px gap
+    carrusel.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+  }
+
+  prevBtn.addEventListener('click', function() {
+    if (currentIndex > 0) {
+      currentIndex--;
+    } else {
+      currentIndex = cards.length - cardsPerView;
+    }
+    updateCarrusel();
+  });
+
+  nextBtn.addEventListener('click', function() {
+    if (currentIndex < cards.length - cardsPerView) {
+      currentIndex++;
+    } else {
+      currentIndex = 0;
+    }
+    updateCarrusel();
+  });
+
+  window.addEventListener('resize', function() {
+    updateCarrusel();
+  });
+
+  updateCarrusel();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const filtroBtns = document.querySelectorAll('.filtro-producto-btn');
+  const productos = document.querySelectorAll('.producto-card');
+
+  filtroBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      filtroBtns.forEach(b => b.classList.remove('activo'));
+      btn.classList.add('activo');
+      const categoria = btn.getAttribute('data-categoria');
+      productos.forEach(card => {
+        if (categoria === 'todos' || card.getAttribute('data-categoria') === categoria) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+});

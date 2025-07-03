@@ -74,3 +74,49 @@ function cargarRutina(zona) {
 // Mostrar por defecto Full Body
 mostrarZona('fullbody');
 cargarRutina('fullbody');
+
+// Carrusel de máquinas (3 a la vez, 360°)
+document.addEventListener('DOMContentLoaded', function() {
+  const carrusel = document.getElementById('maquinasCarrusel');
+  const prevBtn = document.getElementById('prevMaquina');
+  const nextBtn = document.getElementById('nextMaquina');
+  if (!carrusel || !prevBtn || !nextBtn) return;
+  const cards = carrusel.querySelectorAll('.maquina-card');
+  function getCardsPerView() {
+    if (window.innerWidth < 700) return 1;
+    if (window.innerWidth < 1000) return 2;
+    return 3;
+  }
+  let cardsPerView = getCardsPerView();
+  let currentIndex = 0;
+
+  function updateCarrusel() {
+    cardsPerView = getCardsPerView();
+    const cardWidth = cards[0].offsetWidth + 32; // 32px gap
+    carrusel.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+  }
+
+  prevBtn.addEventListener('click', function() {
+    if (currentIndex > 0) {
+      currentIndex--;
+    } else {
+      currentIndex = cards.length - cardsPerView;
+    }
+    updateCarrusel();
+  });
+
+  nextBtn.addEventListener('click', function() {
+    if (currentIndex < cards.length - cardsPerView) {
+      currentIndex++;
+    } else {
+      currentIndex = 0;
+    }
+    updateCarrusel();
+  });
+
+  window.addEventListener('resize', function() {
+    updateCarrusel();
+  });
+
+  updateCarrusel();
+});

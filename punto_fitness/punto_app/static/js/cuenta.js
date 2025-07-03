@@ -30,9 +30,33 @@ document.addEventListener('DOMContentLoaded', function() {
   // --- Modal de usuario (abrir/cerrar) ---
   const userBtn = document.getElementById('openUserModal');
   if(userBtn && userModal && closeUserModal) {
-    userBtn.addEventListener('click', function() {
-      userModal.classList.remove('hidden');
-      userModal.classList.add('active');
+    userBtn.addEventListener('click', async function() {
+      // Verificar autenticación con fetch a /verificar-sesion/
+      try {
+        const response = await fetch('/verificar-sesion/', {
+          method: 'GET',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          credentials: 'same-origin'
+        });
+        const data = await response.json();
+        if (data.is_authenticated) {
+          // Mostrar modal de cuenta
+          userModal.classList.remove('hidden');
+          userModal.classList.add('active');
+        } else {
+          // Mostrar modal de login/registro
+          const authModal = document.getElementById('authModal');
+          if (authModal) {
+            authModal.classList.remove('hidden');
+          }
+        }
+      } catch (error) {
+        // Si hay error, por defecto mostrar login
+        const authModal = document.getElementById('authModal');
+        if (authModal) {
+          authModal.classList.remove('hidden');
+        }
+      }
     });
     closeUserModal.addEventListener('click', function() {
       userModal.classList.add('hidden');
