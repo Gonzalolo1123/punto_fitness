@@ -157,6 +157,9 @@ async function crearMembresia(form) {
             errores.push('La duración es obligatoria.');
         }
         errores = errores.concat(validarNumeroEntero(data.dias_por_semana, 'días por semana', 1, 7));
+        if (!data.imagen) {
+            errores.push('La imagen es obligatoria.');
+        }
         if (errores.length > 0) {
             mostrarErroresValidacion(errores, 'Errores en el formulario de membresía');
             return;
@@ -200,7 +203,7 @@ async function actualizarMembresia(id, form) {
             precio: formData.get(`membresia-precio-editar-${id}`),
             duracion: formData.get(`membresia-duracion-editar-${id}`),
             dias_por_semana: formData.get(`membresia-dias-por-semana-editar-${id}`),
-            establecimiento_id: formData.get(`membresia-establecimiento-editar-${id}`),
+            establecimiento_id: formData.get(`membresia-establecimiento-editar-${id}`) || 1,
             imagen: formData.get(`membresia-imagen-editar-${id}`)
         };
         let errores = [];
@@ -211,8 +214,11 @@ async function actualizarMembresia(id, form) {
             errores.push('La duración es obligatoria.');
         }
         errores = errores.concat(validarNumeroEntero(data.dias_por_semana, 'días por semana', 1, 7));
+        if (!data.imagen) {
+            errores.push('La imagen es obligatoria.');
+        }
         if (errores.length > 0) {
-            mostrarErroresValidacion(errores, 'Errores en la edición de membresía');
+            mostrarErroresValidacion(errores, 'Errores en el formulario de membresía');
             return;
         }
 

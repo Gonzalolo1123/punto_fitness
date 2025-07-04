@@ -152,13 +152,64 @@ function inicializarEventListeners() {
 
     // Formularios de edición
     document.querySelectorAll('[name="form-editar-admin"]').forEach(form => {
+        // Agregar validaciones en tiempo real a los campos
+        const adminId = form.dataset.id;
+        
+        // Validación en tiempo real para nombre
+        const nombreField = form.querySelector(`[name="admin-nombre-editar-${adminId}"]`) || document.getElementById(`admin-nombre-editar-${adminId}`);
+        if (nombreField) {
+            nombreField.addEventListener('blur', function() {
+                const errores = validarNombre(this.value, 'nombre', 3, 30, false);
+                mostrarErroresCampo(this, errores);
+            });
+            
+            nombreField.addEventListener('input', function() {
+                limpiarErroresCampo(this);
+            });
+        }
+        
+        // Validación en tiempo real para apellido
+        const apellidoField = form.querySelector(`[name="admin-apellido-editar-${adminId}"]`) || document.getElementById(`admin-apellido-editar-${adminId}`);
+        if (apellidoField) {
+            apellidoField.addEventListener('blur', function() {
+                const errores = validarNombre(this.value, 'apellido', 3, 30, false);
+                mostrarErroresCampo(this, errores);
+            });
+            
+            apellidoField.addEventListener('input', function() {
+                limpiarErroresCampo(this);
+            });
+        }
+        
+        // Validación en tiempo real para correo
+        const correoField = form.querySelector(`[name="admin-correo-editar-${adminId}"]`) || document.getElementById(`admin-correo-editar-${adminId}`);
+        if (correoField) {
+            correoField.addEventListener('blur', function() {
+                const errores = validarEmail(this.value, 'correo electrónico', 100, true);
+                mostrarErroresCampo(this, errores);
+            });
+            
+            correoField.addEventListener('input', function() {
+                limpiarErroresCampo(this);
+            });
+        }
+        
+        // Validación en tiempo real para teléfono
+        const telefonoField = form.querySelector(`[name="admin-telefono-editar-${adminId}"]`) || document.getElementById(`admin-telefono-editar-${adminId}`);
+        if (telefonoField) {
+            telefonoField.addEventListener('blur', function() {
+                const errores = validarTelefonoChileno(this.value, 'teléfono', true);
+                mostrarErroresCampo(this, errores);
+            });
+            
+            telefonoField.addEventListener('input', function() {
+                limpiarErroresCampo(this);
+            });
+        }
+        
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             const adminId = this.dataset.id;
-            
-            // Debug: verificar que el ID se obtiene correctamente
-            console.log('Admin ID obtenido:', adminId);
-            console.log('Tipo de adminId:', typeof adminId);
             
             if (!adminId || adminId === '') {
                 alert('Error: No se pudo obtener el ID del administrador. Por favor, recarga la página.');
@@ -170,44 +221,59 @@ function inicializarEventListeners() {
             const apellidoField = this.querySelector(`[name="admin-apellido-editar-${adminId}"]`);
             const correoField = this.querySelector(`[name="admin-correo-editar-${adminId}"]`);
             const telefonoField = this.querySelector(`[name="admin-telefono-editar-${adminId}"]`);
-            const nivelField = this.querySelector(`[name="admin-nivel-editar-${adminId}"]`);
             
-            // Debug: verificar que los campos se encuentran
-            console.log('Campos encontrados:', {
-                nombre: nombreField,
-                apellido: apellidoField,
-                correo: correoField,
-                telefono: telefonoField,
-                nivel: nivelField
-            });
+            // Estrategia alternativa: buscar por ID en lugar de por nombre
+            const nombreFieldById = document.getElementById(`admin-nombre-editar-${adminId}`);
+            const apellidoFieldById = document.getElementById(`admin-apellido-editar-${adminId}`);
+            const correoFieldById = document.getElementById(`admin-correo-editar-${adminId}`);
+            const telefonoFieldById = document.getElementById(`admin-telefono-editar-${adminId}`);
             
-            if (!nombreField || !apellidoField || !correoField || !telefonoField || !nivelField) {
+            // Usar los campos encontrados por ID si los de nombre no funcionan
+            const finalNombreField = nombreField || nombreFieldById;
+            const finalApellidoField = apellidoField || apellidoFieldById;
+            const finalCorreoField = correoField || correoFieldById;
+            const finalTelefonoField = telefonoField || telefonoFieldById;
+            
+            if (!finalNombreField || !finalApellidoField || !finalCorreoField || !finalTelefonoField) {
                 alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
                 return;
             }
             
-            const formData = {
-                nombre: nombreField.value,
-                apellido: apellidoField.value,
-                correo: correoField.value,
-                telefono: telefonoField.value,
-                nivel_acceso: nivelField.value
-            };
+            // Aplicar validaciones usando las funciones de validaciones.js
+            const validaciones = [
+                () => validarNombre(finalNombreField.value, 'nombre', 3, 30, false),
+                () => validarNombre(finalApellidoField.value, 'apellido', 3, 30, false),
+                () => validarEmail(finalCorreoField.value, 'correo electrónico', 100, true),
+                () => validarTelefonoChileno(finalTelefonoField.value, 'teléfono', true)
+            ];
             
-            // Debug: verificar los datos del formulario
-            console.log('Datos del formulario de administrador:', formData);
+            // Validar el formulario completo
+            if (!validarFormulario(validaciones, 'Errores en el Formulario de Administrador')) {
+                return; // Detener el envío si hay errores
+            }
+            
+            // Obtener el nivel de acceso actual de la fila de la tabla
+            const filaTabla = document.querySelector(`tr[data-id="${adminId}"]`);
+            const nivelAccesoActual = filaTabla ? filaTabla.cells[4].textContent.trim() : 'admin';
+            
+            const formData = {
+                nombre: finalNombreField.value.trim(),
+                apellido: finalApellidoField.value.trim(),
+                correo: finalCorreoField.value.trim(),
+                telefono: finalTelefonoField.value.trim(),
+                nivel_acceso: nivelAccesoActual
+            };
 
             actualizarAdmin(adminId, formData)
                 .then(data => {
                     if (data.error) throw new Error(data.error);
                     actualizarVista(data);
                     cerrarModalEdicion('admin', adminId);
-                    alert('Administrador actualizado correctamente');
-                    window.location.reload();
+                    mostrarExitoValidacion('Administrador actualizado correctamente', '¡Actualización Exitosa!');
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error al actualizar: ' + error.message);
+                    mostrarErroresValidacion([error.message], 'Error al Actualizar Administrador');
                 });
         });
     });
@@ -343,6 +409,40 @@ function mostrarAdminsParaTransferir() {
     });
     
     console.log('✅ [TRANSFERENCIA] Event listeners configurados correctamente');
+}
+
+// Funciones auxiliares para validaciones en tiempo real
+function mostrarErroresCampo(campo, errores) {
+    if (errores.length === 0) {
+        limpiarErroresCampo(campo);
+        return;
+    }
+    
+    // Limpiar errores anteriores
+    limpiarErroresCampo(campo);
+    
+    // Agregar clase de error al campo
+    campo.classList.add('error');
+    
+    // Crear elemento de error
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-mensaje';
+    errorDiv.style.color = '#d33';
+    errorDiv.style.fontSize = '12px';
+    errorDiv.style.marginTop = '5px';
+    errorDiv.textContent = errores[0]; // Mostrar solo el primer error
+    
+    // Insertar después del campo
+    campo.parentNode.appendChild(errorDiv);
+}
+
+function limpiarErroresCampo(campo) {
+    // Remover clase de error
+    campo.classList.remove('error');
+    
+    // Remover mensajes de error existentes
+    const errorMensajes = campo.parentNode.querySelectorAll('.error-mensaje');
+    errorMensajes.forEach(mensaje => mensaje.remove());
 }
 
 function seleccionarAdminParaTransferir(adminId) {

@@ -150,7 +150,7 @@ console.log('Datos de membresías cargados:', window.membresiasData);
                 <div class="form-fila">
                   <label for="membresia-imagen-editar-{{ membresia.id }}">Imagen:</label>
                   <div class="imagen-selector">
-                    <input type="hidden" id="membresia-imagen-editar-{{ membresia.id }}" name="membresia-imagen-editar-{{ membresia.id }}" value="{{ membresia.imagen }}">
+                    <input type="hidden" id="membresia-imagen-editar-{{ membresia.id }}" name="membresia-imagen-editar-{{ membresia.id }}" value="{{ membresia.imagen }}" required>
                     <button type="button" class="filtro-btn" id="btn-seleccionar-imagen-editar-{{ membresia.id }}">Seleccionar Imagen</button>
                   </div>
                   <div id="vista-previa-imagen-editar-{{ membresia.id }}" class="vista-previa-imagen{% if not membresia.imagen %} d-none{% endif %}">
@@ -246,7 +246,7 @@ console.log('Datos de membresías cargados:', window.membresiasData);
           <div class="form-fila">
             <label for="membresia-imagen">Imagen:</label>
             <div class="imagen-selector">
-              <input type="hidden" id="membresia-imagen" name="membresia-imagen">
+              <input type="hidden" id="membresia-imagen" name="membresia-imagen" required>
               <button type="button" class="filtro-btn" id="btn-seleccionar-imagen">Seleccionar Imagen</button>
             </div>
             <div id="vista-previa-imagen" class="vista-previa-imagen" style="display: none;">

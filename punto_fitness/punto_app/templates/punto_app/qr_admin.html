@@ -1,0 +1,43 @@
+{% extends 'punto_app/base_admin.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/qr_admin.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content">
+  <h1>Generador de QR para Asistencias</h1>
+  
+  <div class="qr-container">
+    <div class="qr-info">
+      <h2>QR Activo</h2>
+      <p>Este código QR debe ser escaneado por los clientes para registrar su entrada/salida.</p>
+      <p><strong>Código:</strong> {{ qr_code }}</p>
+      <p><strong>Generado:</strong> {{ qr_code|slice:"15:"|date:"d/m/Y H:i:s" }}</p>
+    </div>
+    
+    <div class="qr-display">
+      <img src="data:image/png;base64,{{ qr_image }}" alt="QR Code" class="qr-image">
+    </div>
+    
+    <div class="qr-actions">
+      <button class="btn-generar-qr" onclick="generarNuevoQR()">Generar Nuevo QR</button>
+      <button class="btn-refrescar" onclick="location.reload()">Refrescar</button>
+    </div>
+  </div>
+  
+  <div class="instrucciones">
+    <h3>Instrucciones:</h3>
+    <ul>
+      <li>Los clientes deben escanear este QR desde su aplicación</li>
+      <li>El sistema automáticamente registrará entrada o salida según corresponda</li>
+      <li>Puedes generar un nuevo QR en cualquier momento</li>
+    </ul>
+  </div>
+</div>
+{% endblock %} 
+
+{% block extra_scripts %}
+<script src="{% static 'js/qr_admin.js' %}"></script>
+{% endblock %}

@@ -97,4 +97,8 @@ urlpatterns = [
     path('estadisticas/', views.estadisticas_view, name='estadisticas'),
     path('obtener_imagenes_membresias/', views.obtener_imagenes_membresias, name='obtener_imagenes_membresias'),
     path('subir_imagen_membresia/', views.subir_imagen_membresia, name='subir_imagen_membresia'),
+    # Asistencia cliente
+    path('asistencia-cliente/', views.asistencia_cliente, name='asistencia_cliente'),
+    path('generar-qr/', views.generar_qr_asistencia, name='generar_qr'),
+    path('escanear-qr/', views.escanear_qr_asistencia, name='escanear_qr'),
 ]

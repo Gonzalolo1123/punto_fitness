@@ -26,6 +26,12 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models.functions import TruncDay, TruncWeek, TruncMonth, TruncYear
 logger = logging.getLogger('punto_app')
+# Sistema de QR para asistencias
+import qrcode
+import io
+import base64
+from django.http import JsonResponse
+from django.utils import timezone
 
 # Create your views here.
 def principal(request):
@@ -486,12 +492,20 @@ def admin_producto_actualizar(request, producto_id):
     try:
         producto = get_object_or_404(Producto, pk=producto_id)
         data = json.loads(request.body)
-        
-        # Validar la imagen si se proporciona
-        if 'imagen' in data and data['imagen']:
-            if not data['imagen'].startswith('images/productos/'):
-                return JsonResponse({'error': 'La imagen debe estar en la carpeta images/productos/'}, status=400)
-        
+        # Validaciones consistentes con creación
+        if 'nombre' in data and data['nombre']:
+            if Producto.objects.filter(nombre__iexact=data['nombre']).exclude(id=producto_id).exists():
+                return JsonResponse({'error': '¡Ya existe un producto con este nombre!'}, status=400)
+        if not data.get('categoria_id') or data['categoria_id'] == '':
+            return JsonResponse({'error': 'Debe seleccionar una categoría'}, status=400)
+        if not data.get('compra_id') or data['compra_id'] == '':
+            return JsonResponse({'error': 'Debe seleccionar una compra'}, status=400)
+        if not data.get('establecimiento_id') or data['establecimiento_id'] == '':
+            return JsonResponse({'error': 'Debe seleccionar un establecimiento'}, status=400)
+        if not data.get('imagen') or data['imagen'] == '':
+            return JsonResponse({'error': 'Debe proporcionar una ruta de imagen'}, status=400)
+        if not data['imagen'].startswith('images/productos/'):
+            return JsonResponse({'error': 'La imagen debe estar en la carpeta images/productos/'}, status=400)
         producto.nombre = data.get('nombre', producto.nombre)
         producto.descripcion = data.get('descripcion', producto.descripcion)
         producto.precio = data.get('precio', producto.precio)
@@ -499,7 +513,7 @@ def admin_producto_actualizar(request, producto_id):
         producto.stock_minimo = data.get('stock_minimo', producto.stock_minimo)
         producto.imagen = data.get('imagen', producto.imagen)
         producto.categoria_id = data.get('categoria_id', producto.categoria_id)
-        producto.compra_id = data.get('compra', producto.compra_id)
+        producto.compra_id = data.get('compra_id', producto.compra_id)
         producto.establecimiento_id = data.get('establecimiento_id', producto.establecimiento_id)
         producto.save()
         
@@ -2478,7 +2492,9 @@ def subir_imagen_membresia(request):
 def admin_membresia_crear(request):
     try:
         data = json.loads(request.body)
-        
+        # Validación de imagen obligatoria
+        if not data.get('imagen'):
+            return JsonResponse({'error': 'La imagen es obligatoria.'}, status=400)
         membresia = Membresia.objects.create(
             nombre=data['nombre'],
             descripcion=data['descripcion'],
@@ -2508,6 +2524,10 @@ def admin_membresia_actualizar(request, membresia_id):
     try:
         membresia = get_object_or_404(Membresia, pk=membresia_id)
         data = json.loads(request.body)
+        
+        # Validación de imagen obligatoria
+        if 'imagen' in data and not data['imagen']:
+            return JsonResponse({'error': 'La imagen es obligatoria.'}, status=400)
         
         membresia.nombre = data.get('nombre', membresia.nombre)
         membresia.descripcion = data.get('descripcion', membresia.descripcion)
@@ -3117,3 +3137,112 @@ def subir_imagen_maquina(request):
             return JsonResponse({'error': str(e)}, status=500)
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+# Asistencia cliente
+
+@requiere_admin
+def generar_qr_asistencia(request):
+    """Vista para administradores: genera y muestra un QR para escanear"""
+    try:
+        # Generar un código único para la sesión de QR
+        qr_code = f"PUNTO_FITNESS_QR_{timezone.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        # Crear el QR
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(qr_code)
+        qr.make(fit=True)
+        
+        # Crear imagen del QR
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Convertir a base64 para mostrar en HTML
+        buffer = io.BytesIO()
+        img.save(buffer, format='PNG')
+        qr_base64 = base64.b64encode(buffer.getvalue()).decode()
+        
+        return render(request, 'punto_app/qr_admin.html', {
+            'qr_code': qr_code,
+            'qr_image': qr_base64
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+def escanear_qr_asistencia(request):
+    """API para procesar el escaneo de QR y registrar entrada/salida"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            qr_code = data.get('qr_code')
+            cliente_id = request.session.get('cliente_id')
+            
+            if not cliente_id:
+                return JsonResponse({'error': 'Usuario no autenticado'}, status=401)
+            
+            if not qr_code:
+                return JsonResponse({'error': 'Código QR no válido'}, status=400)
+            
+            # Verificar que el QR sea válido (puedes agregar más validaciones)
+            if not qr_code.startswith('PUNTO_FITNESS_QR_'):
+                return JsonResponse({'error': 'QR no válido'}, status=400)
+            
+            cliente = Cliente.objects.get(id=cliente_id)
+            
+            # Buscar el último registro del cliente
+            ultimo_registro = RegistroAcceso.objects.filter(
+                usuario=cliente
+            ).order_by('-fecha_hora_entrada').first()
+            
+            if not ultimo_registro or ultimo_registro.fecha_hora_salida:
+                # No hay registro previo o ya tiene salida -> registrar entrada
+                # Usar el primer establecimiento disponible (puedes modificarlo)
+                establecimiento = Establecimiento.objects.first()
+                if not establecimiento:
+                    return JsonResponse({'error': 'No hay establecimientos configurados'}, status=500)
+                
+                nuevo_registro = RegistroAcceso.objects.create(
+                    usuario=cliente,
+                    establecimiento=establecimiento,
+                    fecha_hora_entrada=timezone.now(),
+                    fecha_hora_salida=None
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'tipo': 'entrada',
+                    'mensaje': f'Entrada registrada a las {timezone.now().strftime("%H:%M:%S")}',
+                    'establecimiento': establecimiento.nombre
+                })
+            else:
+                # Tiene entrada sin salida -> registrar salida
+                ultimo_registro.fecha_hora_salida = timezone.now()
+                ultimo_registro.save()
+                
+                return JsonResponse({
+                    'success': True,
+                    'tipo': 'salida',
+                    'mensaje': f'Salida registrada a las {timezone.now().strftime("%H:%M:%S")}',
+                    'establecimiento': ultimo_registro.establecimiento.nombre
+                })
+                
+        except Cliente.DoesNotExist:
+            return JsonResponse({'error': 'Cliente no encontrado'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def asistencia_cliente(request):
+    """Vista para clientes: página con escáner de QR"""
+    cliente_id = request.session.get('cliente_id')
+    if not cliente_id:
+        return redirect('login')
+    
+    # Verificar si el usuario es admin (no debe ver esta página)
+    try:
+        admin = Administrador.objects.get(cliente_id=cliente_id)
+        return redirect('asistencias')  # Los admins van a la vista de admin
+    except Administrador.DoesNotExist:
+        pass  # Cliente normal, puede usar el QR
+    
+    return render(request, 'punto_app/asistencia_cliente.html')

@@ -811,7 +811,8 @@
             <label for="producto-compra-editar">Compra:</label>
             <select id="producto-compra-editar" 
                     name="producto-compra"
-                    title="Seleccione una compra (opcional)">
+                    title="Seleccione una compra (opcional)"
+                    required>
               <option value="">Seleccione</option>
               {% for compra in compras %}
               <option value="{{ compra.id }}">{{ compra.fecha|date:"d/m/y" }} - {{ compra.total }}</option>
@@ -849,7 +850,7 @@
           <div class="form-fila">
             <label for="producto-imagen-editar">Imágen:</label>
             <div class="imagen-selector">
-              <input type="hidden" id="producto-imagen-editar" name="producto-imagen">
+              <input type="hidden" id="producto-imagen-editar" name="producto-imagen" required>
               <button type="button" class="filtro-btn" id="btn-seleccionar-imagen-editar">Seleccionar Imagen</button>
             </div>
             <div id="vista-previa-imagen-editar" class="vista-previa-imagen" style="display: none;">

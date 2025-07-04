@@ -182,6 +182,21 @@ tr:nth-child(even):hover {
   transform: translateY(-1px);
 }
 
+/* Estilos para campos con error */
+.form-fila input.error,
+.form-fila select.error,
+.form-fila textarea.error {
+  border-color: #d33;
+  box-shadow: 0 0 0 2px rgba(211, 51, 51, 0.2);
+}
+
+.form-fila input.error:focus,
+.form-fila select.error:focus,
+.form-fila textarea.error:focus {
+  border-color: #d33;
+  box-shadow: 0 0 0 2px rgba(211, 51, 51, 0.3);
+}
+
 .form-fila input:hover,
 .form-fila select:hover,
 .form-fila textarea:hover {

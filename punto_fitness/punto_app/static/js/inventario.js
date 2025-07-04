@@ -195,22 +195,12 @@ function actualizarProducto(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: '¡Actualizacion Exitosa!',
-        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
-      });
+      return response.json();
     } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Error al actualizar producto');
+      });
     }
-  })
-  .catch(error => {
-    console.error(error);
-    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
   });
 }
 
@@ -647,10 +637,73 @@ function manejoCrearCategoria(e) {
   crearCategoria(formData)
     .then(data => {
       if (data.error) throw new Error(data.error);
-      if (data.id) {
-        sessionStorage.setItem('categoriaRecienCreada', data.id);
+      
+      // Verificar si venimos del flujo de producto
+      const creandoDesdeProducto = sessionStorage.getItem('creandoCategoriaDesdeProducto');
+      const creandoDesdeProductoEditar = sessionStorage.getItem('creandoCategoriaDesdeProductoEditar');
+      
+      if (creandoDesdeProducto === 'true' || creandoDesdeProductoEditar === 'true') {
+        // Guardar la información de la categoría recién creada
+        sessionStorage.setItem('categoriaRecienCreada', JSON.stringify({
+          id: data.id,
+          nombre: data.nombre,
+          descripcion: data.descripcion
+        }));
+        
+        // Cerrar el modal de categoría
+        cerrarModal('categoria');
+        
+        // Reabrir el modal correspondiente
+        if (creandoDesdeProducto === 'true') {
+          // Cerrar el modal de categoría
+          cerrarModal('categoria');
+          // Recargar la página inmediatamente
+          location.reload();
+          return;
+        } else if (creandoDesdeProductoEditar === 'true') {
+          // Volver al formulario de edición de producto
+          const datosProducto = sessionStorage.getItem('datosProductoEdicion');
+          if (datosProducto) {
+            const datos = JSON.parse(datosProducto);
+            abrirModalEdicion('producto', sessionStorage.getItem('productoEditandoId'), datos);
+            // Obtener la categoría recién creada y preseleccionarla
+            const categoriaRecienCreada = sessionStorage.getItem('categoriaRecienCreada');
+            if (categoriaRecienCreada) {
+              try {
+                const categoria = JSON.parse(categoriaRecienCreada);
+                preseleccionarCategoriaRecienCreada('producto-categoria-editar', categoria);
+              } catch (e) {
+                console.error('Error al parsear categoría recién creada:', e);
+              }
+            }
+          } else {
+            // Si no hay datos guardados, recargar la página
+            location.reload();
+          }
+        }
+        
+        // Limpiar las flags de sessionStorage
+        sessionStorage.removeItem('creandoCategoriaDesdeProducto');
+        sessionStorage.removeItem('creandoCategoriaDesdeProductoEditar');
+        sessionStorage.removeItem('datosProductoEdicion');
+        sessionStorage.removeItem('productoEditandoId');
+        
+        // Mostrar mensaje de éxito sin recargar la página
+        if (typeof Swal !== 'undefined' && Swal.fire) {
+          Swal.fire({
+            title: '¡Éxito!',
+            text: 'Categoría creada exitosamente y preseleccionada en el formulario de producto',
+            icon: 'success',
+            confirmButtonColor: '#28a745',
+            confirmButtonText: 'Aceptar'
+          });
+        } else {
+          alert('Categoría creada exitosamente y preseleccionada en el formulario de producto');
+        }
+      } else {
+        // Flujo normal de creación de categoría
+        mostrarExitoValidacion('Categoría creada exitosamente');
       }
-      mostrarExitoValidacion('Categoría creada exitosamente');
     })
     .catch(error => {
       mostrarErroresValidacion([error.message], 'Error al crear categoría');
@@ -845,26 +898,49 @@ function inicializarEventListeners() {
   const creandoDesdeProducto = sessionStorage.getItem('creandoCategoriaDesdeProducto');
   
   if (categoriaRecienCreada && creandoDesdeProducto === 'true') {
-    // Limpiar el sessionStorage
-    sessionStorage.removeItem('categoriaRecienCreada');
-    sessionStorage.removeItem('creandoCategoriaDesdeProducto');
-    
-    // Abrir el modal de producto
-    setTimeout(() => {
+    try {
+      const categoria = JSON.parse(categoriaRecienCreada);
+      sessionStorage.removeItem('categoriaRecienCreada');
+      sessionStorage.removeItem('creandoCategoriaDesdeProducto');
+      // Abrir el modal de producto de forma directa y robusta
       const modalProducto = document.getElementById('modal-fondo-producto');
       const botonProducto = document.getElementById('abrir-form-producto');
       if (modalProducto && botonProducto) {
         modalProducto.style.display = 'flex';
         botonProducto.setAttribute('data-estado', 'abierto');
         botonProducto.textContent = '-';
-        
-        // Preseleccionar la categoría recién creada
-        const selectCategoria = document.getElementById('producto-categoria');
-        if (selectCategoria) {
-          selectCategoria.value = categoriaRecienCreada;
-        }
+        preseleccionarCategoriaRecienCreada('producto-categoria', categoria);
+        // Recargar la página automáticamente
+        location.reload();
       }
-    }, 100);
+    } catch (e) {
+      console.error('Error al parsear categoría recién creada:', e);
+      sessionStorage.removeItem('categoriaRecienCreada');
+      sessionStorage.removeItem('creandoCategoriaDesdeProducto');
+    }
+  }
+
+  const editandoProductoId = sessionStorage.getItem('editandoProductoId');
+  if (categoriaRecienCreada && creandoDesdeProducto === 'edicion' && editandoProductoId) {
+    try {
+      const categoria = JSON.parse(categoriaRecienCreada);
+      sessionStorage.removeItem('categoriaRecienCreada');
+      sessionStorage.removeItem('creandoCategoriaDesdeProducto');
+      setTimeout(() => {
+        const modalEditar = document.getElementById('modal-fondo-editar-producto');
+        if (modalEditar) {
+          modalEditar.style.display = 'flex';
+          // Preseleccionar la categoría recién creada
+          preseleccionarCategoriaRecienCreada('producto-categoria-editar', categoria);
+        }
+      }, 100);
+      sessionStorage.removeItem('editandoProductoId');
+    } catch (e) {
+      console.error('Error al parsear categoría recién creada:', e);
+      sessionStorage.removeItem('categoriaRecienCreada');
+      sessionStorage.removeItem('creandoCategoriaDesdeProducto');
+      sessionStorage.removeItem('editandoProductoId');
+    }
   }
 
   // Event listeners para formularios de creación
@@ -874,6 +950,75 @@ function inicializarEventListeners() {
   document.getElementById('form-crear-vendedor').addEventListener('submit', manejoCrearVendedor);
   document.getElementById('form-crear-establecimiento').addEventListener('submit', manejoCrearEstablecimiento);
   document.getElementById('form-crear-proveedor').addEventListener('submit', manejoCrearProveedor);
+
+  // Event listeners para formularios de edición
+  document.getElementById('form-editar-producto').addEventListener('submit', function(e) {
+    e.preventDefault();
+    console.log('🎯 Event listener de form-editar-producto ejecutado');
+    
+    // Verificar que el campo ID esté presente antes de enviar
+    const idInput = e.target.querySelector('input[name="producto-id"]');
+    console.log('🔍 Campo ID en submit:', idInput);
+    console.log('🔍 Valor del campo ID:', idInput ? idInput.value : 'NO ENCONTRADO');
+    
+    const formData = new FormData(e.target);
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+      data[key] = value;
+    }
+    console.log('📋 Datos recopilados del formulario:', data);
+    manejarFormularioEdicion('producto', data);
+  });
+  
+  document.getElementById('form-editar-categoria').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+      data[key] = value;
+    }
+    manejarFormularioEdicion('categoria', data);
+  });
+  
+  document.getElementById('form-editar-compra').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+      data[key] = value;
+    }
+    manejarFormularioEdicion('compra', data);
+  });
+  
+  document.getElementById('form-editar-vendedor').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+      data[key] = value;
+    }
+    manejarFormularioEdicion('vendedor', data);
+  });
+  
+  document.getElementById('form-editar-establecimiento').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+      data[key] = value;
+    }
+    manejarFormularioEdicion('establecimiento', data);
+  });
+  
+  document.getElementById('form-editar-proveedor').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+      data[key] = value;
+    }
+    manejarFormularioEdicion('proveedor', data);
+  });
 
   // Event listeners para botones de eliminación
   document.querySelectorAll('[name="btn-eliminar-producto"]').forEach(boton => {
@@ -1071,6 +1216,17 @@ function abrirModal(tipo, boton = null) {
       }
     }, 100);
     
+    // Verificar si hay una categoría recién creada para preseleccionar (solo para producto)
+    const categoriaRecienCreada = sessionStorage.getItem('categoriaRecienCreada');
+    if (categoriaRecienCreada && tipo === 'producto') {
+      try {
+        const categoria = JSON.parse(categoriaRecienCreada);
+        preseleccionarCategoriaRecienCreada('producto-categoria', categoria);
+      } catch (e) {
+        console.error('Error al parsear categoría recién creada:', e);
+      }
+    }
+    
     console.log(`✅ Modal ${tipo} abierto correctamente`);
   } else {
     console.error(`❌ No se encontró el modal o botón para ${tipo}`);
@@ -1120,6 +1276,11 @@ function abrirModalEdicion(tipo, id, datos) {
   const modalFondo = document.getElementById(`modal-fondo-editar-${tipo}`);
   
   if (modalFondo) {
+    // Si es un producto, guardar el ID para el flujo de categoría
+    if (tipo === 'producto') {
+      sessionStorage.setItem('productoEditandoId', id);
+    }
+    
     // Llenar el formulario con los datos actuales
     llenarFormularioEdicion(tipo, datos);
     
@@ -1133,6 +1294,17 @@ function abrirModalEdicion(tipo, id, datos) {
         primerInput.focus();
       }
     }, 100);
+    
+    // Verificar si hay una categoría recién creada para preseleccionar
+    const categoriaRecienCreada = sessionStorage.getItem('categoriaRecienCreada');
+    if (categoriaRecienCreada && tipo === 'producto') {
+      try {
+        const categoria = JSON.parse(categoriaRecienCreada);
+        preseleccionarCategoriaRecienCreada('producto-categoria-editar', categoria);
+      } catch (e) {
+        console.error('Error al parsear categoría recién creada:', e);
+      }
+    }
     
     console.log(`✅ Modal de edición ${tipo} abierto correctamente`);
   } else {
@@ -1179,8 +1351,13 @@ function llenarFormularioEdicion(tipo, datos) {
   
   // Llenar el campo ID oculto
   const idInput = form.querySelector(`input[name="${tipo}-id"]`);
+  console.log('🔍 Buscando campo ID:', `input[name="${tipo}-id"]`);
+  console.log('🔍 Campo ID encontrado:', idInput);
   if (idInput) {
     idInput.value = datos.id;
+    console.log('✅ Campo ID llenado con valor:', datos.id);
+  } else {
+    console.error('❌ No se encontró el campo ID para', tipo);
   }
   
   // Llenar los campos según el tipo
@@ -1254,14 +1431,14 @@ function llenarFormularioEdicion(tipo, datos) {
 
 // Función para manejar el envío de formularios de edición
 function manejarFormularioEdicion(tipo, formData) {
+  console.log('📝 Formulario de edición', tipo, 'enviado');
+  console.log('📋 Datos del formulario:', formData);
+  
   const id = formData[`${tipo}-id`];
+  console.log('🆔 ID extraído:', id);
   
-  // Eliminar el campo ID del formData
   delete formData[`${tipo}-id`];
-  
-  // Mapear los nombres de campos según el tipo
   let dataToSend = {};
-  
   switch (tipo) {
     case 'producto':
       dataToSend = {
@@ -1270,20 +1447,33 @@ function manejarFormularioEdicion(tipo, formData) {
         precio: formData['producto-precio'],
         stock_actual: formData['producto-stock-actual'],
         stock_minimo: formData['producto-stock-minimo'],
-        compra: formData['producto-compra'],
+        compra_id: formData['producto-compra'],
         categoria_id: formData['producto-categoria'],
         establecimiento_id: formData['producto-establecimiento'],
         imagen: formData['producto-imagen']
       };
+      // Validaciones consistentes con creación
+      let errores = [];
+      errores = errores.concat(validarNombre(dataToSend.nombre, 'nombre', 3, 30));
+      errores = errores.concat(validarDescripcion(dataToSend.descripcion, 'descripción', 5, 50));
+      errores = errores.concat(validarPrecioChileno(dataToSend.precio));
+      errores = errores.concat(validarNumeroEntero(dataToSend.stock_actual, 'stock actual', 0, 99999));
+      errores = errores.concat(validarNumeroEntero(dataToSend.stock_minimo, 'stock mínimo', 0, 99999));
+      if (!dataToSend.categoria_id) errores.push('Debe seleccionar una categoría');
+      if (!dataToSend.establecimiento_id) errores.push('Debe seleccionar un establecimiento');
+      if (!dataToSend.imagen) errores.push('Debe seleccionar una imagen');
+      if (!dataToSend.compra_id) errores.push('Debe seleccionar una compra');
+      if (errores.length > 0) {
+        mostrarErroresValidacion(errores, 'Errores en el formulario de producto');
+        return;
+      }
       break;
-      
     case 'categoria':
       dataToSend = {
         nombre: formData['categoria-nombre'],
         descripcion: formData['categoria-descripcion']
       };
       break;
-      
     case 'compra':
       dataToSend = {
         fecha: formData['compra-fecha'],
@@ -1294,7 +1484,6 @@ function manejarFormularioEdicion(tipo, formData) {
         vendedor_id: formData['compra-vendedor']
       };
       break;
-      
     case 'vendedor':
       dataToSend = {
         nombre: formData['vendedor-nombre'],
@@ -1303,7 +1492,6 @@ function manejarFormularioEdicion(tipo, formData) {
         proveedor_id: formData['vendedor-proveedor']
       };
       break;
-      
     case 'establecimiento':
       dataToSend = {
         nombre: formData['establecimiento-nombre'],
@@ -1315,7 +1503,6 @@ function manejarFormularioEdicion(tipo, formData) {
         proveedor_id: formData['establecimiento-proveedor']
       };
       break;
-      
     case 'proveedor':
       dataToSend = {
           nombre: formData['proveedor-nombre'],
@@ -1340,16 +1527,13 @@ function manejarFormularioEdicion(tipo, formData) {
     funcionActualizacion(id, dataToSend)
       .then(response => {
         if (!response.error) {
-          console.log(`✅ ${tipo} actualizado correctamente`);
           actualizarVista(response, tipo);
           cerrarModalEdicion(tipo);
         } else {
-          console.error(`❌ Error al actualizar ${tipo}:`, response.error);
           Swal.fire('Error', response.error || `Hubo un problema al actualizar el ${tipo}.`, 'error');
         }
       })
       .catch(error => {
-        console.error(`❌ Error en la petición de actualización de ${tipo}:`, error);
         Swal.fire('Error', 'Ocurrió un error de red.', 'error');
       });
   }
@@ -1592,6 +1776,11 @@ function inicializarSelectorImagenes() {
     btnSeleccionarImagenEditar.addEventListener('click', () => {
       modalImagenes.style.display = 'block';
       modalImagenes.dataset.target = 'edicion';
+      // Guardar el id del producto que se está editando
+      const formEditar = btnSeleccionarImagenEditar.closest('form');
+      if (formEditar) {
+        modalImagenes.dataset.productoEditarId = formEditar.querySelector('[name="producto-id"]').value;
+      }
     });
   }
 
@@ -1628,6 +1817,15 @@ function inicializarSelectorImagenes() {
               if (imgPrevia) {
                 imgPrevia.src = `/static/${data.ruta}`;
                 vistaPreviaEditar.style.display = 'block';
+              }
+              // Actualizar la fila de la tabla si está visible
+              const productoId = modalImagenes.dataset.productoEditarId;
+              if (productoId) {
+                const row = document.querySelector(`tr[data-id="${productoId}"]`);
+                if (row) {
+                  const imgCell = row.querySelector('td img');
+                  if (imgCell) imgCell.src = `/static/${data.ruta}`;
+                }
               }
             }
             
@@ -1760,13 +1958,15 @@ function abrirModalCategoriaDesdeProductoEditar() {
   // Obtener los datos actuales del formulario de producto
   const formProducto = document.getElementById('form-editar-producto');
   const datosProducto = {
+    id: formProducto.querySelector('#producto-id-editar').value, // <-- AGREGO EL ID
     nombre: formProducto.querySelector('#producto-nombre-editar').value,
     descripcion: formProducto.querySelector('#producto-descripcion-editar').value,
     precio: formProducto.querySelector('#producto-precio-editar').value,
     stock_actual: formProducto.querySelector('#producto-stock-actual-editar').value,
     stock_minimo: formProducto.querySelector('#producto-stock-minimo-editar').value,
-    compra: formProducto.querySelector('#producto-compra-editar').value,
-    establecimiento: formProducto.querySelector('#producto-establecimiento-editar').value,
+    compra_id: formProducto.querySelector('#producto-compra-editar').value,
+    categoria_id: formProducto.querySelector('#producto-categoria-editar').value,
+    establecimiento_id: formProducto.querySelector('#producto-establecimiento-editar').value,
     imagen: formProducto.querySelector('#producto-imagen-editar').value
   };
   
@@ -1778,4 +1978,38 @@ function abrirModalCategoriaDesdeProductoEditar() {
   cerrarModalEdicion('producto');
   // Abrir el modal de categoría
   abrirModal('categoria');
+}
+
+// Función para preseleccionar una categoría recién creada en el select
+function preseleccionarCategoriaRecienCreada(selectId, categoria) {
+  const select = document.getElementById(selectId);
+  if (!select) {
+    console.error(`No se encontró el select con ID: ${selectId}`);
+    return;
+  }
+  
+  // Verificar si la categoría ya existe en el select
+  let categoriaExiste = false;
+  for (let i = 0; i < select.options.length; i++) {
+    if (select.options[i].value === categoria.id.toString()) {
+      categoriaExiste = true;
+      break;
+    }
+  }
+  
+  if (!categoriaExiste) {
+    // Agregar la nueva categoría al select
+    const option = document.createElement('option');
+    option.value = categoria.id;
+    option.textContent = categoria.nombre;
+    select.appendChild(option);
+  }
+  
+  // Preseleccionar la categoría
+  select.value = categoria.id;
+  
+  // Limpiar la categoría recién creada del sessionStorage
+  sessionStorage.removeItem('categoriaRecienCreada');
+  
+  console.log(`✅ Categoría "${categoria.nombre}" preseleccionada en ${selectId}`);
 }

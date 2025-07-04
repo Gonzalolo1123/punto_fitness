@@ -1,0 +1,50 @@
+{% extends 'punto_app/base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/asistencia_cliente.css' %}">
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="asistencia-container">
+  <h1>Registro de Asistencia</h1>
+  
+  <div class="qr-scanner-section">
+    <h2>Escanear QR</h2>
+    <p>Posiciona el código QR dentro del área de escaneo para registrar tu entrada o salida.</p>
+    
+    <div class="scanner-container">
+      <video id="qr-video" autoplay playsinline></video>
+      <canvas id="qr-canvas" style="display: none;"></canvas>
+      
+      <div class="scanner-overlay">
+        <div class="scanner-frame"></div>
+        <p class="scanner-text">Coloca el QR aquí</p>
+      </div>
+      
+      <div class="scanner-controls">
+        <button id="btn-iniciar-camara" class="btn-camara">Iniciar Cámara</button>
+        <button id="btn-detener-camara" class="btn-camara" style="display: none;">Detener Cámara</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="resultado-section" id="resultado-section" style="display: none;">
+    <h3>Resultado del Escaneo</h3>
+    <div id="resultado-mensaje"></div>
+  </div>
+  
+  <div class="estado-section">
+    <h3>Tu Estado Actual</h3>
+    <div id="estado-actual">
+      <p>Cargando estado...</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="{% static 'js/asistencia_cliente.js' %}"></script>
+{% endblock %}
