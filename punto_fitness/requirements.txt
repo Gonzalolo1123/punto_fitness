@@ -6,3 +6,4 @@ gunicorn
 whitenoise
 pytz
 python-dateutil
+qrcode[pil]

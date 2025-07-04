@@ -1,10 +1,6 @@
 {% extends 'punto_app/base.html' %}
 {% load static %}
 
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/asistencia_cliente.css' %}">
-{% endblock %}
-
 {% block content %}
 {% csrf_token %}
 <div class="asistencia-container">
@@ -42,9 +38,232 @@
     </div>
   </div>
 </div>
-{% endblock %}
 
-{% block extra_scripts %}
+<style>
+.asistencia-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.qr-scanner-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.scanner-container {
+  position: relative;
+  display: inline-block;
+  margin: 2rem 0;
+}
+
+#qr-video {
+  width: 400px;
+  height: 300px;
+  border-radius: 12px;
+  background: #000;
+}
+
+.scanner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.scanner-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  border: 3px solid #e74c3c;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+}
+
+.scanner-text {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  background: rgba(0,0,0,0.7);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.scanner-controls {
+  margin-top: 1rem;
+}
+
+.btn-camara {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin: 0 0.5rem;
+}
+
+.btn-camara:hover {
+  background: #c0392b;
+}
+
+.resultado-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.estado-section {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 600px) {
+  #qr-video {
+    width: 100%;
+    max-width: 350px;
+    height: 250px;
+  }
+  
+  .scanner-frame {
+    width: 150px;
+    height: 150px;
+  }
+}
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-<script src="{% static 'js/asistencia_cliente.js' %}"></script>
+<script>
+let videoStream = null;
+let scanning = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+  const video = document.getElementById('qr-video');
+  const canvas = document.getElementById('qr-canvas');
+  const btnIniciar = document.getElementById('btn-iniciar-camara');
+  const btnDetener = document.getElementById('btn-detener-camara');
+  
+  // Cargar estado actual
+  cargarEstadoActual();
+  
+  btnIniciar.addEventListener('click', iniciarCamara);
+  btnDetener.addEventListener('click', detenerCamara);
+  
+  function iniciarCamara() {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(function(stream) {
+        videoStream = stream;
+        video.srcObject = stream;
+        btnIniciar.style.display = 'none';
+        btnDetener.style.display = 'inline-block';
+        scanning = true;
+        escanearQR();
+      })
+      .catch(function(err) {
+        alert('Error al acceder a la cámara: ' + err.message);
+      });
+  }
+  
+  function detenerCamara() {
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop());
+      videoStream = null;
+    }
+    btnIniciar.style.display = 'inline-block';
+    btnDetener.style.display = 'none';
+    scanning = false;
+  }
+  
+  function escanearQR() {
+    if (!scanning) return;
+    
+    const context = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
+    
+    if (code) {
+      procesarQR(code.data);
+      detenerCamara();
+    } else {
+      requestAnimationFrame(escanearQR);
+    }
+  }
+  
+  function procesarQR(qrData) {
+    fetch('/escanear-qr/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: JSON.stringify({ qr_code: qrData })
+    })
+    .then(response => response.json())
+    .then(data => {
+      mostrarResultado(data);
+      cargarEstadoActual();
+    })
+    .catch(error => {
+      mostrarResultado({ error: 'Error al procesar el QR' });
+    });
+  }
+  
+  function mostrarResultado(data) {
+    const resultadoSection = document.getElementById('resultado-section');
+    const resultadoMensaje = document.getElementById('resultado-mensaje');
+    
+    resultadoSection.style.display = 'block';
+    
+    if (data.success) {
+      const color = data.tipo === 'entrada' ? '#27ae60' : '#e74c3c';
+      resultadoMensaje.innerHTML = `
+        <div style="color: ${color}; font-weight: bold; font-size: 1.2rem;">
+          ${data.mensaje}
+        </div>
+        <p>Establecimiento: ${data.establecimiento}</p>
+      `;
+    } else {
+      resultadoMensaje.innerHTML = `
+        <div style="color: #e74c3c; font-weight: bold;">
+          Error: ${data.error}
+        </div>
+      `;
+    }
+    
+    setTimeout(() => {
+      resultadoSection.style.display = 'none';
+    }, 5000);
+  }
+  
+  function cargarEstadoActual() {
+    // Aquí podrías hacer una llamada AJAX para obtener el estado actual del usuario
+    // Por ahora, mostramos un mensaje genérico
+    document.getElementById('estado-actual').innerHTML = `
+      <p>Tu estado se actualizará después de escanear el QR.</p>
+    `;
+  }
+});
+</script>
 {% endblock %}

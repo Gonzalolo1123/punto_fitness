@@ -771,3 +771,19 @@ NameError: name 'voucher' is not defined
 ERROR 2025-06-13 04:34:00,308 basehttp 24752 31956 "POST /venta_confirmada/ HTTP/1.1" 500 77246
 ERROR 2025-06-15 19:44:20,776 log 51932 48860 Internal Server Error: /venta_confirmada/
 ERROR 2025-06-15 19:44:20,778 basehttp 51932 48860 "POST /venta_confirmada/ HTTP/1.1" 500 68
+ERROR 2025-07-04 04:14:32,822 log 17160 2788 Internal Server Error: /generar-qr/
+ERROR 2025-07-04 04:14:32,860 basehttp 17160 2788 "GET /generar-qr/ HTTP/1.1" 500 34
+ERROR 2025-07-04 04:16:14,165 log 17160 5216 Internal Server Error: /generar-qr/
+ERROR 2025-07-04 04:16:14,165 basehttp 17160 5216 "GET /generar-qr/ HTTP/1.1" 500 34
+ERROR 2025-07-04 04:16:16,300 log 17160 5216 Internal Server Error: /generar-qr/
+ERROR 2025-07-04 04:16:16,301 basehttp 17160 5216 "GET /generar-qr/ HTTP/1.1" 500 34
+ERROR 2025-07-04 04:16:16,914 log 17160 5216 Internal Server Error: /generar-qr/
+ERROR 2025-07-04 04:16:16,914 basehttp 17160 5216 "GET /generar-qr/ HTTP/1.1" 500 34
+ERROR 2025-07-04 04:18:36,090 log 17160 5216 Internal Server Error: /generar-qr/
+ERROR 2025-07-04 04:18:36,091 basehttp 17160 5216 "GET /generar-qr/ HTTP/1.1" 500 34
+ERROR 2025-07-04 04:18:37,138 log 17160 5216 Internal Server Error: /generar-qr/
+ERROR 2025-07-04 04:18:37,188 basehttp 17160 5216 "GET /generar-qr/ HTTP/1.1" 500 34
+ERROR 2025-07-04 04:18:40,826 log 17160 15124 Internal Server Error: /generar-qr/
+ERROR 2025-07-04 04:18:40,826 basehttp 17160 15124 "GET /generar-qr/ HTTP/1.1" 500 34
+ERROR 2025-07-04 04:19:39,187 log 17160 15124 Internal Server Error: /generar-qr/
+ERROR 2025-07-04 04:19:39,188 basehttp 17160 15124 "GET /generar-qr/ HTTP/1.1" 500 34

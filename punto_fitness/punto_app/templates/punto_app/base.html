@@ -195,6 +195,7 @@
         <p><strong>Correo:</strong> {{cliente_email}}</p>
         <p><strong>Teléfono:</strong> {{cliente_telefono}}</p>
         <p><strong>Rol:</strong> {{nivel_acceso|default:"Cliente"}}</p>
+        <a class= "admin-btn admin-btn" href="{% url 'asistencia_cliente' %}" >QR_SCANN</a>
         <div class="admin-buttons" style="display: none;">
           <a href="{% url 'super_admin' %}" class="admin-btn superadmin-btn" style="display: none;">Panel Super Admin</a>
           <a href="{% url 'estadisticas' %}" class="admin-btn admin-btn" style="display: none;">Panel Estadísticas</a>

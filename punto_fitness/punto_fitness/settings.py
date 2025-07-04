@@ -52,7 +52,6 @@ DATABASES = {
        'PORT': '5432',
    }
 }
-
 # -----------------------------------
 
 # Application definition
