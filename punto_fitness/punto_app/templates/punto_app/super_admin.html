@@ -1,0 +1,234 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gestión de administradores - Punto Fitness</title>
+  <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base_admin.css' %}">
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">Punto Fitness</div>
+    <nav>
+      <ul>
+        <li><a href="{% url 'estadisticas' %}">Pagina Admin</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="content">
+    <div class="header-content">
+      <h2>Gestión de administradores</h2>
+      <!-- Botón para agregar nuevo administrador -->
+      <button id="abrir-form-admin" class="filtro-btn" data-estado="cerrado">
+        +
+      </button>
+      <!-- Botón para transferir superadmin (solo visible para superadmin actual) -->
+      <button id="transferir-superadmin-btn" class="filtro-btn btn-transferir" style="background-color: #dc3545; color: white;">
+        🔄 Transferir Super Admin
+      </button>
+    </div>
+    <!-- Tabla de administradores -->
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Correo electrónico</th>
+          <th>Teléfono</th>
+          <th>Nivel de acceso</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% with admin_count=0 %}
+        {% for admin in administradores %}
+        {% if admin.nivel_acceso == 'admin' %}  <!-- Solo muestra los de nivel admin -->
+        {% with admin_count=admin_count|add:1 %}
+        <tr data-id="{{ admin.id }}">
+          <td>{{ admin.cliente.nombre }}</td>
+          <td>{{ admin.cliente.apellido }}</td>
+          <td>{{ admin.cliente.email }}</td>
+          <td>{{ admin.cliente.telefono }}</td>
+          <td>{{ admin.nivel_acceso }}</td>
+          <td>
+            <div class="action-buttons-container">
+              <button class="filtro-btn" name="btn-editar-admin" data-id="{{ admin.id }}">Actualizar</button>
+              <button class="filtro-btn" name="btn-eliminar-admin" data-id="{{ admin.id }}">Eliminar</button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Modal para editar administrador -->
+        <div id="modal-fondo-editar-admin-{{ admin.id }}" class="modal-fondo" style="display:none;">
+          <div id="modal-form-editar-admin-{{ admin.id }}" class="modal-form">
+            <div class="modal-header">
+              <h3>Actualizar administrador</h3>
+              <button class="cerrar-modal" onclick="cerrarModalEdicion('admin', '{{ admin.id }}')">×</button>
+            </div>
+            <div class="modal-body">
+              <form class="formulario" name="form-editar-admin" data-id="{{ admin.id }}">
+                {% csrf_token %}
+                
+                <div class="form-fila">
+                  <label for="admin-nombre-editar-{{ admin.id }}">Nombre:</label>
+                  <input type="text" id="admin-nombre-editar-{{ admin.id }}" name="admin-nombre-editar-{{ admin.id }}" value="{{ admin.cliente.nombre }}" required>
+                </div>
+              
+                <div class="form-fila">
+                  <label for="admin-apellido-editar-{{ admin.id }}">Apellido:</label>
+                  <input type="text" id="admin-apellido-editar-{{ admin.id }}" name="admin-apellido-editar-{{ admin.id }}" value="{{ admin.cliente.apellido }}" required>
+                </div>
+              
+                <div class="form-fila">
+                  <label for="admin-correo-editar-{{ admin.id }}">Correo electrónico:</label>
+                  <input type="email" id="admin-correo-editar-{{ admin.id }}" name="admin-correo-editar-{{ admin.id }}" value="{{ admin.cliente.email }}" required>
+                </div>
+              
+                <div class="form-fila">
+                  <label for="admin-telefono-editar-{{ admin.id }}">Teléfono:</label>
+                  <input type="tel" id="admin-telefono-editar-{{ admin.id }}" name="admin-telefono-editar-{{ admin.id }}" value="{{ admin.cliente.telefono }}" required>
+                </div>
+                <div class="modal-actions">
+                  <button class="filtro-btn" type="submit">Guardar</button>
+                  <button class="filtro-btn btn-cancelar" type="button" onclick="cerrarModalEdicion('admin', '{{ admin.id }}')">Cancelar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endwith %}
+        {% endif %}
+        {% endfor %}
+        
+        {% if admin_count == 0 %}
+        <tr>
+          <td colspan="6">No hay administradores registrados</td>
+        </tr>
+        {% endif %}
+        {% endwith %}
+      </tbody>
+    </table>
+
+    <!-- Modal para otorgar rol de administrador -->
+    <div id="modal-fondo-admin" class="modal-fondo" style="display:none;">
+      <div id="modal-form-admin" class="modal-form">
+        <div class="modal-header">
+          <h3>Otorgar Rol de Administrador</h3>
+          <button class="cerrar-modal" onclick="cerrarModal('admin')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-content">
+            <h4>Selecciona un cliente para otorgarle el rol de administrador:</h4>
+            <div class="clientes-lista">
+              {% for cliente in clientes %}
+              <div class="cliente-item" data-cliente-id="{{ cliente.id }}">
+                <div class="cliente-info">
+                  <strong>{{ cliente.nombre }} {{ cliente.apellido }}</strong>
+                  <span class="cliente-email">{{ cliente.email }}</span>
+                  <span class="cliente-telefono">{{ cliente.telefono }}</span>
+                </div>
+                <div class="cliente-acciones">
+                  <select class="select-establecimiento-modal" data-cliente-id="{{ cliente.id }}" required>
+                    <option value="" disabled selected>Selecciona establecimiento</option>
+                    {% for est in establecimientos %}
+                      <option value="{{ est.id }}">{{ est.nombre }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="filtro-btn btn-hacer-admin-modal" data-cliente-id="{{ cliente.id }}">Hacer Admin</button>
+                </div>
+              </div>
+              {% empty %}
+              <p class="no-clientes">No hay clientes disponibles para otorgar rol de administrador.</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div id="modal-fondo-confirmacion" class="modal-fondo" style="display:none;">
+      <div id="modal-form-confirmacion" class="modal-form">
+        <div class="modal-header">
+          <h3>Confirmar Acción</h3>
+          <button class="cerrar-modal" onclick="cerrarModal('confirmacion')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-content">
+            <p id="mensaje-confirmacion"></p>
+            <div class="modal-actions">
+              <button class="filtro-btn" id="confirmar-accion">Confirmar</button>
+              <button class="filtro-btn btn-cancelar" id="cancelar-accion">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para transferir Super Admin -->
+    <div id="modal-fondo-transferir-superadmin" class="modal-fondo" style="display:none;">
+      <div id="modal-form-transferir-superadmin" class="modal-form" style="max-width: 800px;">
+        <div class="modal-header">
+          <h3>🔄 Transferir Rol de Super Administrador</h3>
+          <button class="cerrar-modal" onclick="cerrarModal('transferir-superadmin')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-content">
+            <div class="warning-box" style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+              <h4>⚠️ ADVERTENCIA DE SEGURIDAD</h4>
+              <p>Esta acción transferirá el control total del sistema a otro administrador. Esta operación es <strong>IRREVERSIBLE</strong> y requiere múltiples verificaciones de seguridad.</p>
+            </div>
+
+            <h4>Selecciona un administrador para transferir el rol de Super Admin:</h4>
+            
+            <div class="admins-lista" id="admins-lista-transferir">
+              <!-- Los admins se cargarán dinámicamente -->
+            </div>
+
+            <div id="form-transferir-superadmin" style="display:none;">
+              <h4>Verificaciones de Seguridad</h4>
+              
+              <div class="form-fila">
+                <label for="password-superadmin">Contraseña del Super Admin actual:</label>
+                <input type="password" id="password-superadmin" name="password-superadmin" required>
+              </div>
+
+              <div class="form-fila">
+                <label for="codigo-verificacion">Código de verificación del admin destino (enviado por email):</label>
+                <input type="text" id="codigo-verificacion" name="codigo-verificacion" placeholder="Ingresa el código de 6 dígitos">
+                <button type="button" id="enviar-codigo-btn" class="filtro-btn">Enviar Código</button>
+              </div>
+
+              <div class="form-fila">
+                <label for="codigo-superadmin-actual">Código de verificación del Super Admin actual (enviado por email):</label>
+                <input type="text" id="codigo-superadmin-actual" name="codigo-superadmin-actual" placeholder="Ingresa el código de 6 dígitos" required>
+                <button type="button" id="enviar-codigo-superadmin-actual-btn" class="filtro-btn">Enviar Código</button>
+              </div>
+
+              <div class="form-fila">
+                <label for="confirmacion-final">Escribe "TRANSFERIR" para confirmar:</label>
+                <input type="text" id="confirmacion-final" name="confirmacion-final" placeholder="TRANSFERIR" required>
+              </div>
+
+              <div class="modal-actions">
+                <button class="filtro-btn" id="confirmar-transferir-superadmin" style="background-color: #dc3545; color: white;">🔄 Confirmar Transferencia</button>
+                <button class="filtro-btn btn-cancelar" onclick="cerrarModal('transferir-superadmin')">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/validaciones.js' %}"></script>
+  <script src="{% static 'js/super_admin.js' %}"></script>
+</body>
+
+</html>
