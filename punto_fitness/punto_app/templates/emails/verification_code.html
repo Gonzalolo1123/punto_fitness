@@ -1,0 +1,41 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<div class="email-title">
+    🔐 Código de Verificación
+</div>
+
+<div class="email-message">
+    <p>¡Hola! 👋</p>
+    
+    <p>Has solicitado crear una cuenta en <strong>Punto Fitness</strong>. Para completar tu registro, necesitamos verificar tu dirección de correo electrónico.</p>
+    
+    <p>Por favor, utiliza el siguiente código de verificación:</p>
+</div>
+
+<div class="code-container">
+    <div class="code-label">Tu código de verificación es:</div>
+    <div class="verification-code">{{ codigo }}</div>
+    <div class="expiry-info">⏰ Este código expira en 10 minutos</div>
+</div>
+
+<div class="info-box">
+    <strong>📋 Instrucciones:</strong>
+    <ul style="margin: 10px 0; padding-left: 20px;">
+        <li>Ingresa este código en la página de verificación</li>
+        <li>El código es válido por 10 minutos</li>
+        <li>Si no solicitaste este código, puedes ignorar este mensaje</li>
+    </ul>
+</div>
+
+<div class="warning-box">
+    <strong>⚠️ Importante:</strong>
+    <p style="margin: 10px 0;">Por seguridad, nunca compartas este código con nadie. Nuestro equipo nunca te pedirá este código por teléfono o mensaje.</p>
+</div>
+
+<div style="text-align: center; margin-top: 30px;">
+    <p style="color: #666; font-size: 14px;">
+        ¿Tienes problemas? Contacta nuestro soporte técnico
+    </p>
+</div>
+{% endblock %} 
