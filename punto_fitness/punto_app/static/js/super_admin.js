@@ -6,8 +6,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Función para obtener csrf token
 function getCSRFToken() {
-    const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
-    return csrfInput ? csrfInput.value : '';
+    const name = 'csrftoken';
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + '=')) {
+            return decodeURIComponent(cookie.substring(name.length + 1));
+        }
+    }
+    return '';
 }
 
 // Funciones para modal
@@ -104,15 +111,14 @@ function otorgarRolAdmin(clienteId, establecimientoId) {
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                alert('Rol de administrador otorgado con éxito.');
-                window.location.reload(); // Recargar la página para ver los cambios
+                mostrarExitoValidacion('Rol de administrador otorgado con éxito.', '¡Rol Otorgado!');
             } else {
-                alert('Error al otorgar rol de administrador: ' + result.error);
+                mostrarErroresValidacion([result.error], 'Error al Otorgar Rol');
             }
         })
         .catch(error => {
             console.error('Error en la petición:', error);
-            alert('Ocurrió un error al intentar cambiar el rol.');
+            mostrarErroresValidacion(['Ocurrió un error al intentar cambiar el rol.'], 'Error de Conexión');
         });
 }
 
@@ -212,7 +218,7 @@ function inicializarEventListeners() {
             const adminId = this.dataset.id;
             
             if (!adminId || adminId === '') {
-                alert('Error: No se pudo obtener el ID del administrador. Por favor, recarga la página.');
+                mostrarErroresValidacion(['No se pudo obtener el ID del administrador. Por favor, recarga la página.'], 'Error del Sistema');
                 return;
             }
             
@@ -235,7 +241,7 @@ function inicializarEventListeners() {
             const finalTelefonoField = telefonoField || telefonoFieldById;
             
             if (!finalNombreField || !finalApellidoField || !finalCorreoField || !finalTelefonoField) {
-                alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
+                mostrarErroresValidacion(['No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.'], 'Error del Sistema');
                 return;
             }
             
@@ -292,7 +298,7 @@ function inicializarEventListeners() {
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error al eliminar administrador: ' + error.message);
+                        mostrarErroresValidacion([error.message], 'Error al Eliminar Administrador');
                     });
             });
         });
@@ -307,7 +313,7 @@ function inicializarEventListeners() {
             const establecimientoId = selectEst ? selectEst.value : '';
 
             if (!establecimientoId) {
-                alert('Por favor, selecciona un establecimiento antes de continuar.');
+                mostrarErroresValidacion(['Por favor, selecciona un establecimiento antes de continuar.'], 'Establecimiento Requerido');
                 return;
             }
 
@@ -316,6 +322,169 @@ function inicializarEventListeners() {
             });
         });
     });
+
+    // MODALES DE ESTABLECIMIENTOS
+
+    // Abrir modal de agregar establecimiento
+    const btnAbrirEst = document.getElementById('abrir-form-establecimiento');
+    const modalFondoEst = document.getElementById('modal-fondo-establecimiento');
+    if (btnAbrirEst && modalFondoEst) {
+        btnAbrirEst.addEventListener('click', function() {
+            modalFondoEst.style.display = 'flex';
+            btnAbrirEst.setAttribute('data-estado', 'abierto');
+            btnAbrirEst.textContent = '-';
+        });
+        // Cerrar modal al hacer click fuera del formulario
+        modalFondoEst.addEventListener('click', function(event) {
+            if (event.target === modalFondoEst) {
+                modalFondoEst.style.display = 'none';
+                btnAbrirEst.setAttribute('data-estado', 'cerrado');
+                btnAbrirEst.textContent = '+';
+            }
+        });
+    }
+
+    // Cerrar modal con botón cancelar
+    const btnCancelarEst = document.querySelector('#modal-form-establecimiento .btn-cancelar');
+    if (btnCancelarEst && modalFondoEst) {
+        btnCancelarEst.addEventListener('click', function() {
+            modalFondoEst.style.display = 'none';
+            btnAbrirEst.setAttribute('data-estado', 'cerrado');
+            btnAbrirEst.textContent = '+';
+        });
+    }
+
+    // Abrir modal de edición de establecimiento
+    document.querySelectorAll('[name="btn-editar-establecimiento"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            
+            // Rellenar el formulario con los datos de la fila
+            const fila = this.closest('tr');
+            if (fila) {
+                document.getElementById('establecimiento-id-editar').value = id;
+                document.getElementById('establecimiento-nombre-editar').value = fila.children[0].textContent;
+                document.getElementById('establecimiento-direccion-editar').value = fila.children[1].textContent;
+                document.getElementById('establecimiento-telefono-editar').value = fila.children[2].textContent;
+                document.getElementById('establecimiento-email-editar').value = fila.children[3].textContent;
+                document.getElementById('establecimiento-horario_apertura-editar').value = fila.children[4].textContent;
+                document.getElementById('establecimiento-horario_cierre-editar').value = fila.children[5].textContent;
+                // Seleccionar proveedor
+                const proveedorNombre = fila.children[6].textContent;
+                const selectProveedor = document.getElementById('establecimiento-proveedor-editar');
+                if (selectProveedor) {
+                    for (let opt of selectProveedor.options) {
+                        if (opt.textContent === proveedorNombre) {
+                            opt.selected = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Abrir el modal usando la función estándar
+            abrirModal('editar-establecimiento');
+        });
+    });
+
+    // SUBMIT EDITAR ESTABLECIMIENTO
+    const formEditarEst = document.getElementById('form-editar-establecimiento');
+    if (formEditarEst) {
+        formEditarEst.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('establecimiento-id-editar').value;
+            const formData = {
+                nombre: formEditarEst['establecimiento-nombre'].value,
+                direccion: formEditarEst['establecimiento-direccion'].value,
+                telefono: formEditarEst['establecimiento-telefono'].value,
+                email: formEditarEst['establecimiento-email'].value,
+                horario_apertura: formEditarEst['establecimiento-horario_apertura'].value,
+                horario_cierre: formEditarEst['establecimiento-horario_cierre'].value,
+                proveedor_id: formEditarEst['establecimiento-proveedor'].value,
+            };
+            actualizarEstablecimiento(id, formData)
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    mostrarExitoValidacion('Establecimiento actualizado exitosamente', '¡Actualización Exitosa!');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarErroresValidacion([error.message], 'Error al Actualizar Establecimiento');
+                });
+        });
+    }
+
+    // ELIMINAR ESTABLECIMIENTO
+    document.querySelectorAll('[name="btn-eliminar-establecimiento"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            mostrarModalConfirmacion('¿Está seguro de que desea eliminar este establecimiento?', function() {
+                eliminarEstablecimiento(id)
+                    .then(data => {
+                        if (data.error) throw new Error(data.error);
+                        mostrarExitoValidacion('Establecimiento eliminado exitosamente', '¡Eliminación Exitosa!');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        mostrarErroresValidacion([error.message], 'Error al Eliminar Establecimiento');
+                    });
+            });
+        });
+    });
+
+    // (Opcional) Cerrar modales con ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const modalFondoEst = document.getElementById('modal-fondo-establecimiento');
+            const modalFondoEditarEst = document.getElementById('modal-fondo-editar-establecimiento');
+            const btnAbrirEst = document.getElementById('abrir-form-establecimiento');
+            
+            if (modalFondoEst && modalFondoEst.style.display === 'flex') {
+                modalFondoEst.style.display = 'none';
+                if (btnAbrirEst) {
+                    btnAbrirEst.setAttribute('data-estado', 'cerrado');
+                    btnAbrirEst.textContent = '+';
+                }
+            }
+            if (modalFondoEditarEst && modalFondoEditarEst.style.display === 'flex') {
+                modalFondoEditarEst.style.display = 'none';
+            }
+        }
+    });
+
+    // CREAR ESTABLECIMIENTO
+    const formCrearEst = document.getElementById('form-crear-establecimiento');
+    if (formCrearEst) {
+        formCrearEst.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const modalFondoEst = document.getElementById('modal-fondo-establecimiento');
+            const btnAbrirEst = document.getElementById('abrir-form-establecimiento');
+            // Recolectar datos
+            const formData = {
+                nombre: formCrearEst['establecimiento-nombre'].value,
+                direccion: formCrearEst['establecimiento-direccion'].value,
+                telefono: formCrearEst['establecimiento-telefono'].value,
+                email: formCrearEst['establecimiento-email'].value,
+                horario_apertura: formCrearEst['establecimiento-horario_apertura'].value,
+                horario_cierre: formCrearEst['establecimiento-horario_cierre'].value,
+                proveedor_id: formCrearEst['establecimiento-proveedor'].value,
+            };
+            crearEstablecimiento(formData)
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    mostrarExitoValidacion('Establecimiento creado exitosamente', '¡Creación Exitosa!');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarErroresValidacion([error.message], 'Error al Crear Establecimiento');
+                })
+                .finally(() => {
+                    modalFondoEst.style.display = 'none';
+                    btnAbrirEst.setAttribute('data-estado', 'cerrado');
+                    btnAbrirEst.textContent = '+';
+                });
+        });
+    }
 }
 
 // Funciones para transferencia de Super Admin
@@ -497,20 +666,27 @@ function verificarElegibilidadAdmin(adminId) {
         if (data.success) {
             if (data.elegible) {
                 console.log(`✅ [TRANSFERENCIA] Admin ${data.admin.nombre} ${data.admin.apellido} es elegible`);
-                alert(`✅ ${data.admin.nombre} ${data.admin.apellido} es elegible para ser Super Admin.`);
+                mostrarExitoValidacion(`${data.admin.nombre} ${data.admin.apellido} es elegible para ser Super Admin.`, '✅ Elegibilidad Confirmada');
             } else {
                 console.log(`❌ [TRANSFERENCIA] Admin ${data.admin.nombre} ${data.admin.apellido} NO es elegible`);
-                alert(`❌ ${data.admin.nombre} ${data.admin.apellido} NO es elegible para ser Super Admin.\n\nCriterios no cumplidos:\n- Debe ser admin actual\n- Debe tener actividad regular\n- No debe tener incidentes de seguridad`);
+                mostrarErroresValidacion([
+                    `${data.admin.nombre} ${data.admin.apellido} NO es elegible para ser Super Admin.`,
+                    '',
+                    'Criterios no cumplidos:',
+                    '• Debe ser admin actual',
+                    '• Debe tener actividad regular', 
+                    '• No debe tener incidentes de seguridad'
+                ], '❌ No Elegible');
             }
         } else {
             console.log(`❌ [TRANSFERENCIA] Error en verificación: ${data.error}`);
-            alert('Error al verificar elegibilidad: ' + data.error);
+            mostrarErroresValidacion([data.error], 'Error al Verificar Elegibilidad');
         }
     })
-    .catch(error => {
-        console.error('❌ [TRANSFERENCIA] Error en la petición:', error);
-        alert('Error al verificar elegibilidad del administrador.');
-    });
+            .catch(error => {
+            console.error('❌ [TRANSFERENCIA] Error en la petición:', error);
+            mostrarErroresValidacion(['Error al verificar elegibilidad del administrador.'], 'Error de Conexión');
+        });
 }
 
 function enviarCodigoVerificacion() {
@@ -518,7 +694,7 @@ function enviarCodigoVerificacion() {
     
     if (!window.adminSeleccionado) {
         console.log('❌ [TRANSFERENCIA] No hay admin seleccionado');
-        alert('Debes seleccionar un administrador primero.');
+        mostrarErroresValidacion(['Debes seleccionar un administrador primero.'], 'Administrador Requerido');
         return;
     }
     
@@ -547,18 +723,18 @@ function enviarCodigoVerificacion() {
         
         if (data.success) {
             console.log('✅ [TRANSFERENCIA] Código enviado exitosamente');
-            alert('✅ Código de verificación enviado al email del administrador seleccionado.');
+            mostrarExitoValidacion('Código de verificación enviado al email del administrador seleccionado.', '✅ Código Enviado');
             document.getElementById('enviar-codigo-btn').disabled = true;
             document.getElementById('enviar-codigo-btn').textContent = 'Código Enviado';
         } else {
             console.log(`❌ [TRANSFERENCIA] Error al enviar código: ${data.error}`);
-            alert('Error al enviar código: ' + data.error);
+            mostrarErroresValidacion([data.error], 'Error al Enviar Código');
         }
     })
-    .catch(error => {
-        console.error('❌ [TRANSFERENCIA] Error en envío de código:', error);
-        alert('Error al enviar código de verificación.');
-    });
+            .catch(error => {
+            console.error('❌ [TRANSFERENCIA] Error en envío de código:', error);
+            mostrarErroresValidacion(['Error al enviar código de verificación.'], 'Error de Conexión');
+        });
 }
 
 function enviarCodigoVerificacionSuperadminActual() {
@@ -581,18 +757,18 @@ function enviarCodigoVerificacionSuperadminActual() {
         
         if (data.success) {
             console.log('✅ [TRANSFERENCIA] Código enviado al superadmin actual exitosamente');
-            alert('✅ Código de verificación enviado al email del superadmin actual.');
+            mostrarExitoValidacion('Código de verificación enviado al email del superadmin actual.', '✅ Código Enviado');
             document.getElementById('enviar-codigo-superadmin-actual-btn').disabled = true;
             document.getElementById('enviar-codigo-superadmin-actual-btn').textContent = 'Código Enviado';
         } else {
             console.log(`❌ [TRANSFERENCIA] Error al enviar código al superadmin actual: ${data.error}`);
-            alert('Error al enviar código al superadmin actual: ' + data.error);
+            mostrarErroresValidacion([data.error], 'Error al Enviar Código');
         }
     })
-    .catch(error => {
-        console.error('❌ [TRANSFERENCIA] Error en envío de código al superadmin actual:', error);
-        alert('Error al enviar código de verificación al superadmin actual.');
-    });
+            .catch(error => {
+            console.error('❌ [TRANSFERENCIA] Error en envío de código al superadmin actual:', error);
+            mostrarErroresValidacion(['Error al enviar código de verificación al superadmin actual.'], 'Error de Conexión');
+        });
 }
 
 function transferirSuperAdmin() {
@@ -612,25 +788,25 @@ function transferirSuperAdmin() {
     
     if (!password) {
         console.log('❌ [TRANSFERENCIA] Falta contraseña');
-        alert('Debes ingresar tu contraseña de Super Admin.');
+        mostrarErroresValidacion(['Debes ingresar tu contraseña de Super Admin.'], 'Contraseña Requerida');
         return;
     }
     
     if (!codigo) {
         console.log('❌ [TRANSFERENCIA] Falta código de verificación');
-        alert('Debes ingresar el código de verificación.');
+        mostrarErroresValidacion(['Debes ingresar el código de verificación.'], 'Código Requerido');
         return;
     }
     
     if (!codigoSuperadminActual) {
         console.log('❌ [TRANSFERENCIA] Falta código de verificación del superadmin actual');
-        alert('Debes ingresar el código de verificación del superadmin actual.');
+        mostrarErroresValidacion(['Debes ingresar el código de verificación del superadmin actual.'], 'Código Requerido');
         return;
     }
     
     if (confirmacion !== 'TRANSFERIR') {
         console.log('❌ [TRANSFERENCIA] Confirmación incorrecta');
-        alert('Debes escribir exactamente "TRANSFERIR" para confirmar.');
+        mostrarErroresValidacion(['Debes escribir exactamente "TRANSFERIR" para confirmar.'], 'Confirmación Incorrecta');
         return;
     }
     
@@ -682,21 +858,26 @@ function transferirSuperAdmin() {
         
         if (data.success) {
             console.log('✅ [TRANSFERENCIA] Transferencia completada exitosamente');
-            alert('✅ Transferencia de Super Admin completada exitosamente.\n\nEl sistema se cerrará automáticamente.');
-            // Cerrar sesión y redirigir
-            setTimeout(() => {
+            Swal.fire({
+                title: '✅ Transferencia Completada',
+                text: 'Transferencia de Super Admin completada exitosamente. El sistema se cerrará automáticamente.',
+                icon: 'success',
+                confirmButtonColor: '#28a745',
+                confirmButtonText: 'Entendido'
+            }).then(() => {
+                // Cerrar sesión y redirigir
                 console.log('🔄 [TRANSFERENCIA] Redirigiendo a logout...');
                 window.location.href = '/logout/';
-            }, 3000);
+            });
         } else {
             console.log(`❌ [TRANSFERENCIA] Error en transferencia: ${data.error}`);
-            alert('Error en la transferencia: ' + data.error);
+            mostrarErroresValidacion([data.error], 'Error en la Transferencia');
         }
     })
-    .catch(error => {
-        console.error('❌ [TRANSFERENCIA] Error durante la transferencia:', error);
-        alert('Error durante la transferencia de Super Admin.');
-    });
+            .catch(error => {
+            console.error('❌ [TRANSFERENCIA] Error durante la transferencia:', error);
+            mostrarErroresValidacion(['Error durante la transferencia de Super Admin.'], 'Error de Conexión');
+        });
 }
 
 // Agregar event listeners para transferencia de superadmin
@@ -745,3 +926,40 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ [TRANSFERENCIA] Event listeners para transferencia configurados');
 });
+
+// Función para crear establecimiento
+function crearEstablecimiento(formData) {
+    return fetch(`${BASE_URL}crear_establecimiento/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify(formData),
+    })
+        .then(res => res.json());
+}
+
+// Función para actualizar establecimiento
+function actualizarEstablecimiento(id, formData) {
+    return fetch(`${BASE_URL}actualizar_establecimiento/${id}/`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify(formData),
+    })
+        .then(res => res.json());
+}
+
+// Función para eliminar establecimiento
+function eliminarEstablecimiento(id) {
+    return fetch(`${BASE_URL}borrar_establecimiento/${id}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+        },
+    })
+        .then(res => res.json());
+}

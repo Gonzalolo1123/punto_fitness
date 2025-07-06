@@ -62,7 +62,7 @@ class Cliente(models.Model):
 class Administrador(models.Model):
     cliente =models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True) 
     nivel_acceso = models.CharField(max_length=100)
-    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         db_table = 'administrador'

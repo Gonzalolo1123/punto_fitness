@@ -82,18 +82,6 @@ function actualizarVista(objeto, id_tipo) {
       // cells[4] es la columna de acciones, no se actualiza
     }
   }
-  if (id_tipo=='establecimiento') {
-    if (cells.length >= 7) {
-      cells[0].textContent = objeto.nombre || '';
-      cells[1].textContent = objeto.direccion || '';
-      cells[2].textContent = objeto.telefono || '';
-      cells[3].textContent = objeto.email || '';
-      cells[4].textContent = objeto.horario_apertura || '';
-      cells[5].textContent = objeto.horario_cierre || '';
-      cells[6].textContent = objeto.proveedor__nombre || '';
-      // cells[7] es la columna de acciones, no se actualiza
-    }
-  }
   if (id_tipo=='proveedor') {
     if (cells.length >= 3) {
       cells[0].textContent = objeto.nombre || '';
@@ -147,18 +135,6 @@ function crearCompraVendedor(formData) {
 // Función para crear vendedor
 function crearVendedor(formData) {
   return fetch(`${BASE_URL}crear_vendedor/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken()
-    },
-    body: JSON.stringify(formData)
-  }).then(response => response.json());
-}
-
-// Función para crear establecimiento
-function crearEstablecimiento(formData) {
-  return fetch(`${BASE_URL}crear_establecimiento/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -267,36 +243,6 @@ function actualizarCompraVendedor(id, data) {
 // Función para actualizar vendedor
 function actualizarVendedor(id, data) {
   return fetch(`${BASE_URL}actualizar_vendedor/${id}/`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken()
-    },
-    body: JSON.stringify(data)
-  }).then(response => {
-    if (response.ok) {
-      Swal.fire({
-        title: '¡Actualizacion Exitosa!',
-        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
-      });
-    } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
-    }
-  })
-  .catch(error => {
-    console.error(error);
-    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
-  });
-}
-
-// Función para actualizar establecimiento
-function actualizarEstablecimiento(id, data) {
-  return fetch(`${BASE_URL}actualizar_establecimiento/${id}/`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -487,35 +433,6 @@ function eliminarVendedor(id) {
     console.error('Error al eliminar proveedor:', error);
     Swal.fire('Error', 'Ocurrió un error al eliminar el vendedor: ' + error.message, 'error');
   });}
-
-// Función para eliminar establecimiento
-function eliminarEstablecimiento(id) {
-  return fetch(`${BASE_URL}borrar_establecimiento/${id}/`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken()
-    }
-  }).then(response => {
-    if (response.ok) {
-      Swal.fire({
-        title: 'Eliminación Exitosa!',
-        html: `<p style="color: #555;">Tu Eliminación ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
-      });
-    } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
-    }
-  })
-  .catch(error => {
-    console.error(error);
-    Swal.fire('Error', 'Ocurrió un error de red.', 'error');
-  });
-}
 
 // Función para eliminar proveedor
 function eliminarProveedor(id) {
@@ -798,58 +715,6 @@ function manejoCrearVendedor(e) {
     });
 }
 
-// Función para manejar la creación de establecimiento
-function manejoCrearEstablecimiento(e) {
-  e.preventDefault();
-  const nombreInput = document.getElementById('establecimiento-nombre');
-  const direccionInput = document.getElementById('establecimiento-direccion');
-  const telefonoInput = document.getElementById('establecimiento-telefono');
-  const emailInput = document.getElementById('establecimiento-email');
-  const aperturaInput = document.getElementById('establecimiento-horario_apertura');
-  const cierreInput = document.getElementById('establecimiento-horario_cierre');
-  const proveedorInput = document.getElementById('establecimiento-proveedor');
-  if (!nombreInput || !direccionInput || !telefonoInput || !emailInput || !aperturaInput || !cierreInput || !proveedorInput) {
-    mostrarErroresValidacion(['Faltan campos obligatorios en el formulario de establecimiento. Por favor, recarga la página.'], 'Error de formulario');
-    return;
-  }
-  const nombre = nombreInput.value.trim();
-  const direccion = direccionInput.value.trim();
-  const telefono = telefonoInput.value.trim();
-  const email = emailInput.value.trim();
-  const apertura = aperturaInput.value;
-  const cierre = cierreInput.value;
-  const proveedorId = proveedorInput.value;
-  let errores = [];
-  errores = errores.concat(validarNombre(nombre, 'nombre', 3, 100));
-  errores = errores.concat(validarDireccionChilena(direccion, 'dirección', 5, 200));
-  if (telefono) errores = errores.concat(validarTelefonoChileno(telefono, 'teléfono', false));
-  if (email) errores = errores.concat(validarEmail(email, 'email', false));
-  if (!apertura) errores.push('Debe ingresar el horario de apertura');
-  if (!cierre) errores.push('Debe ingresar el horario de cierre');
-  if (!proveedorId) errores.push('Debe seleccionar un proveedor');
-  if (errores.length > 0) {
-    mostrarErroresValidacion(errores, 'Errores en el formulario de establecimiento');
-    return;
-  }
-  const formData = {
-    nombre,
-    direccion,
-    telefono,
-    email,
-    horario_apertura: apertura,
-    horario_cierre: cierre,
-    proveedor_id: proveedorId,
-  };
-  crearEstablecimiento(formData)
-    .then(data => {
-      if (data.error) throw new Error(data.error);
-      mostrarExitoValidacion('Establecimiento creado exitosamente');
-    })
-    .catch(error => {
-      mostrarErroresValidacion([error.message], 'Error al crear establecimiento');
-    });
-}
-
 // Función para manejar la creación de proveedor
 function manejoCrearProveedor(e) {
   e.preventDefault();
@@ -948,7 +813,6 @@ function inicializarEventListeners() {
   document.getElementById('form-crear-categoria').addEventListener('submit', manejoCrearCategoria);
   document.getElementById('form-crear-compra').addEventListener('submit', manejoCrearCompraVendedor);
   document.getElementById('form-crear-vendedor').addEventListener('submit', manejoCrearVendedor);
-  document.getElementById('form-crear-establecimiento').addEventListener('submit', manejoCrearEstablecimiento);
   document.getElementById('form-crear-proveedor').addEventListener('submit', manejoCrearProveedor);
 
   // Event listeners para formularios de edición
@@ -1000,16 +864,6 @@ function inicializarEventListeners() {
     manejarFormularioEdicion('vendedor', data);
   });
   
-  document.getElementById('form-editar-establecimiento').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-      data[key] = value;
-    }
-    manejarFormularioEdicion('establecimiento', data);
-  });
-  
   document.getElementById('form-editar-proveedor').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -1057,15 +911,6 @@ function inicializarEventListeners() {
     });
   });
 
-  document.querySelectorAll('[name="btn-eliminar-establecimiento"]').forEach(boton => {
-    boton.addEventListener('click', function() {
-      const id = this.getAttribute('data-id');
-      if (confirm('¿Está seguro de que desea eliminar este establecimiento?')) {
-        eliminarEstablecimiento(id);
-      }
-    });
-  });
-
   document.querySelectorAll('[name="btn-eliminar-proveedor"]').forEach(boton => {
     boton.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
@@ -1101,7 +946,6 @@ function inicializarModales() {
     'categoria': document.getElementById('abrir-form-categoria'),
     'compra': document.getElementById('abrir-form-compra'),
     'vendedor': document.getElementById('abrir-form-vendedor'),
-    'establecimiento': document.getElementById('abrir-form-establecimiento'),
     'proveedor': document.getElementById('abrir-form-proveedor')
   };
 
@@ -1135,7 +979,7 @@ function inicializarModales() {
   });
 
   // Event listeners para cerrar modales de edición con click en fondo
-  const tiposEdicion = ['producto', 'categoria', 'compra', 'vendedor', 'establecimiento', 'proveedor'];
+  const tiposEdicion = ['producto', 'categoria', 'compra', 'vendedor', 'proveedor'];
   tiposEdicion.forEach(tipo => {
     const modalFondo = document.getElementById(`modal-fondo-editar-${tipo}`);
     if (modalFondo) {
@@ -1405,16 +1249,6 @@ function llenarFormularioEdicion(tipo, datos) {
       form.querySelector('#vendedor-proveedor-editar').value = datos.proveedor_id || '';
       break;
       
-    case 'establecimiento':
-      form.querySelector('#establecimiento-nombre-editar').value = datos.nombre || '';
-      form.querySelector('#establecimiento-direccion-editar').value = datos.direccion || '';
-      form.querySelector('#establecimiento-telefono-editar').value = datos.telefono || '';
-      form.querySelector('#establecimiento-email-editar').value = datos.email || '';
-      form.querySelector('#establecimiento-horario_apertura-editar').value = datos.horario_apertura || '';
-      form.querySelector('#establecimiento-horario_cierre-editar').value = datos.horario_cierre || '';
-      form.querySelector('#establecimiento-proveedor-editar').value = datos.proveedor_id || '';
-      break;
-      
     case 'proveedor':
       if (form.querySelector('#proveedor-nombre-editar')) {
           form.querySelector('#proveedor-nombre-editar').value = datos.nombre || '';
@@ -1492,17 +1326,6 @@ function manejarFormularioEdicion(tipo, formData) {
         proveedor_id: formData['vendedor-proveedor']
       };
       break;
-    case 'establecimiento':
-      dataToSend = {
-        nombre: formData['establecimiento-nombre'],
-        direccion: formData['establecimiento-direccion'],
-        telefono: formData['establecimiento-telefono'],
-        email: formData['establecimiento-email'],
-        horario_apertura: formData['establecimiento-horario_apertura'],
-        horario_cierre: formData['establecimiento-horario_cierre'],
-        proveedor_id: formData['establecimiento-proveedor']
-      };
-      break;
     case 'proveedor':
       dataToSend = {
           nombre: formData['proveedor-nombre'],
@@ -1518,7 +1341,6 @@ function manejarFormularioEdicion(tipo, formData) {
     'categoria': actualizarCategoria,
     'compra': actualizarCompraVendedor,
     'vendedor': actualizarVendedor,
-    'establecimiento': actualizarEstablecimiento,
     'proveedor': actualizarProveedor
   };
   
@@ -1549,7 +1371,6 @@ function obtenerDatosFila(tipo, id) {
     'categoria': 'categorias',
     'compra': 'compras',
     'vendedor': 'vendedores',
-    'establecimiento': 'establecimientos',
     'proveedor': 'proveedores'
   };
   
@@ -1629,21 +1450,6 @@ function obtenerDatosFila(tipo, id) {
       }
       break;
       
-    case 'establecimiento':
-      if (cells.length >= 7) {
-        datos = {
-          id: id,
-          nombre: cells[0].textContent,
-          direccion: cells[1].textContent,
-          telefono: cells[2].textContent,
-          email: cells[3].textContent,
-          horario_apertura: cells[4].textContent,
-          horario_cierre: cells[5].textContent,
-          proveedor_id: row.getAttribute('data-proveedor-id') || ''
-        };
-      }
-      break;
-      
     case 'proveedor':
       if (cells.length >= 3) {
         datos = {
@@ -1684,7 +1490,7 @@ function inicializarBotonesEdicion() {
   console.log('🎯 Inicializando botones de edición...');
   
   // Botones de edición para cada tipo
-  const tipos = ['producto', 'categoria', 'compra', 'vendedor', 'establecimiento', 'proveedor'];
+  const tipos = ['producto', 'categoria', 'compra', 'vendedor', 'proveedor'];
   
   tipos.forEach(tipo => {
     const botones = document.querySelectorAll(`[name="btn-editar-${tipo}"]`);

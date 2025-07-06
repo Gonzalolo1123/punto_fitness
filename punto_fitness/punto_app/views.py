@@ -831,9 +831,14 @@ def admin_vendedor_crear(request):
     try:
         data = json.loads(request.body)
         
+        # Limpiar el teléfono de caracteres no numéricos y convertir a entero
+        telefono_limpio = ''.join(filter(str.isdigit, str(data['telefono'])))
+        if not telefono_limpio:
+            return JsonResponse({'error': 'El teléfono debe contener al menos un dígito'}, status=400)
+        
         vendedor = Vendedor.objects.create(
             nombre=data['nombre'],
-            telefono=data['telefono'],
+            telefono=int(telefono_limpio),
             email=data['email'],
             proveedor_id=data['proveedor_id'],
         )
@@ -859,7 +864,14 @@ def admin_vendedor_actualizar(request, vendedor_id):
         data = json.loads(request.body)
         
         vendedor.nombre = data.get('nombre', vendedor.nombre)
-        vendedor.telefono = data.get('telefono', vendedor.telefono)
+        
+        # Procesar teléfono si se proporciona
+        if 'telefono' in data:
+            telefono_limpio = ''.join(filter(str.isdigit, str(data['telefono'])))
+            if not telefono_limpio:
+                return JsonResponse({'error': 'El teléfono debe contener al menos un dígito'}, status=400)
+            vendedor.telefono = int(telefono_limpio)
+        
         vendedor.email = data.get('email', vendedor.email)
         vendedor.proveedor_id = data.get('proveedor', vendedor.proveedor_id)
         vendedor.save()
@@ -893,10 +905,15 @@ def admin_establecimiento_crear(request):
     try:
         data = json.loads(request.body)
         
+        # Limpiar el teléfono de caracteres no numéricos y convertir a entero
+        telefono_limpio = ''.join(filter(str.isdigit, str(data['telefono'])))
+        if not telefono_limpio:
+            return JsonResponse({'error': 'El teléfono debe contener al menos un dígito'}, status=400)
+        
         establecimiento = Establecimiento.objects.create(
             nombre=data['nombre'],
             direccion=data['direccion'],
-            telefono=data['telefono'],
+            telefono=int(telefono_limpio),
             email=data['email'],
             horario_apertura=data['horario_apertura'],
             horario_cierre=data['horario_cierre'],
@@ -928,7 +945,14 @@ def admin_establecimiento_actualizar(request, establecimiento_id):
         
         establecimiento.nombre = data.get('nombre', establecimiento.nombre)
         establecimiento.direccion = data.get('direccion', establecimiento.direccion)
-        establecimiento.telefono = data.get('telefono', establecimiento.telefono)
+        
+        # Procesar teléfono si se proporciona
+        if 'telefono' in data:
+            telefono_limpio = ''.join(filter(str.isdigit, str(data['telefono'])))
+            if not telefono_limpio:
+                return JsonResponse({'success': False, 'error': 'El teléfono debe contener al menos un dígito'}, status=400)
+            establecimiento.telefono = int(telefono_limpio)
+        
         establecimiento.email = data.get('email', establecimiento.email)
         establecimiento.horario_apertura = data.get('horario_apertura', establecimiento.horario_apertura)
         establecimiento.horario_cierre = data.get('horario_cierre', establecimiento.horario_cierre)
@@ -966,9 +990,14 @@ def admin_proveedor_crear(request):
     try:
         data = json.loads(request.body)
         
+        # Limpiar el teléfono de caracteres no numéricos y convertir a entero
+        telefono_limpio = ''.join(filter(str.isdigit, str(data['telefono'])))
+        if not telefono_limpio:
+            return JsonResponse({'error': 'El teléfono debe contener al menos un dígito'}, status=400)
+        
         proveedor = Proveedor.objects.create(
             nombre=data['nombre'],
-            telefono=data['telefono'],
+            telefono=int(telefono_limpio),
             email=data['email'],
         )
         return JsonResponse({
@@ -988,7 +1017,14 @@ def admin_proveedor_actualizar(request, proveedor_id):
         data = json.loads(request.body)
         
         proveedor.nombre = data.get('nombre', proveedor.nombre)
-        proveedor.telefono = data.get('telefono', proveedor.telefono)
+        
+        # Procesar teléfono si se proporciona
+        if 'telefono' in data:
+            telefono_limpio = ''.join(filter(str.isdigit, str(data['telefono'])))
+            if not telefono_limpio:
+                return JsonResponse({'success': False, 'error': 'El teléfono debe contener al menos un dígito'}, status=400)
+            proveedor.telefono = int(telefono_limpio)
+        
         proveedor.email = data.get('email', proveedor.email)
         proveedor.save()
         
@@ -1262,12 +1298,14 @@ def super_admin(request):
         
         # Obtener solo clientes que NO son administradores
         clientes_no_admin = Cliente.objects.filter(administrador__isnull=True)
-        administradores = Administrador.objects.select_related('cliente').all()
+        administradores = Administrador.objects.select_related('cliente').filter(nivel_acceso='admin')
+        proveedores = Proveedor.objects.all()
 
         return render(request, 'punto_app/super_admin.html', {
             'clientes': clientes_no_admin,
             'administradores': administradores,
-            'establecimientos': Establecimiento.objects.all()
+            'establecimientos': Establecimiento.objects.all(),
+            'proveedores': proveedores
         })
             
     except Cliente.DoesNotExist:
@@ -1472,15 +1510,19 @@ def recuperar_contrasena(request):
             if not cliente:
                 return JsonResponse({'error': 'No existe una cuenta con este correo electrónico'}, status=404)
             
-            # Aquí normalmente se enviaría un email con un enlace de recuperación
-            # Por ahora, solo simulamos el envío exitoso
+            # Generar URL de recuperación (en un entorno real, esto sería un token único)
+            # Por simplicidad, usamos una URL de ejemplo
+            reset_url = f"https://tudominio.com/reset-password?email={correo}&token=ejemplo_token"
             
-            # En un entorno real, aquí se generaría un token único y se enviaría por email
-            # Por simplicidad, solo retornamos un mensaje de éxito
+            # Enviar email de recuperación con plantilla HTML
+            from .email_utils import enviar_recuperacion_contrasena
             
-            return JsonResponse({
-                'message': f'Se ha enviado un enlace de recuperación a {correo}. Por favor, revise su bandeja de entrada.'
-            }, status=200)
+            if enviar_recuperacion_contrasena(correo, reset_url):
+                return JsonResponse({
+                    'message': f'Se ha enviado un enlace de recuperación a {correo}. Por favor, revise su bandeja de entrada.'
+                }, status=200)
+            else:
+                return JsonResponse({'error': 'Error al enviar el email de recuperación'}, status=500)
             
         except json.JSONDecodeError:
             return JsonResponse({'error': 'JSON inválido'}, status=400)
@@ -1530,38 +1572,17 @@ def limpiar_datos_temporales():
         logger.error(f"Error en limpieza de datos temporales: {str(e)}")
 
 def enviar_email_verificacion(correo, codigo):
-    """Envía un email con el código de verificación"""
+    """Envía un email con el código de verificación usando plantilla HTML"""
     try:
-        subject = 'Código de Verificación - Punto Fitness'
-        message = f"""
-        Hola,
-
-        Tu código de verificación para crear tu cuenta en Punto Fitness es:
-
-        {codigo}
-
-        Este código expira en 10 minutos.
-
-        Si no solicitaste este código, puedes ignorar este mensaje.
-
-        Saludos,
-        Equipo Punto Fitness
-        """
+        from .email_utils import enviar_codigo_verificacion as enviar_codigo_html
         
         # En un entorno de producción, aquí se configuraría el envío real de emails
         # Por ahora, solo simulamos el envío exitoso
         print(f"📧 Email enviado a {correo} con código: {codigo}")
         
-        # Si tienes configurado el envío de emails en settings.py, descomenta estas líneas:
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [correo],
-            fail_silently=False,
-        )
+        # Enviar email con plantilla HTML
+        return enviar_codigo_html(correo, codigo)
         
-        return True
     except Exception as e:
         logger.error(f"Error al enviar email: {str(e)}")
         return False
@@ -1914,37 +1935,24 @@ def registrar_auditoria_superadmin(superadmin_origen, cliente_destino, accion):
 
 def enviar_notificacion_transferencia(cliente_destino, superadmin_origen):
     """
-    Envía notificaciones sobre la transferencia de superadmin
+    Envía notificaciones sobre la transferencia de superadmin usando plantillas HTML
     """
     print(f"📧 [SERVIDOR] Iniciando envío de notificaciones de transferencia...")
     print(f"   - Nuevo superadmin: {cliente_destino.nombre} {cliente_destino.apellido}")
     print(f"   - Superadmin anterior: {superadmin_origen.nombre} {superadmin_origen.apellido}")
     
     try:
+        from .email_utils import (
+            enviar_notificacion_superadmin_transfer,
+            enviar_notificacion_admin_cambio
+        )
+        
         # Notificar al nuevo superadmin
         print(f"📧 [SERVIDOR] Enviando notificación al nuevo superadmin: {cliente_destino.email}")
-        subject = "Has sido nombrado Super Administrador"
-        message = f"""
-        Felicitaciones {cliente_destino.nombre} {cliente_destino.apellido},
-        
-        Has sido nombrado Super Administrador del sistema Punto Fitness por {superadmin_origen.nombre} {superadmin_origen.apellido}.
-        
-        Ahora tienes acceso completo a todas las funciones administrativas del sistema.
-        
-        Por favor, inicia sesión para verificar tu nuevo rol.
-        
-        Saludos,
-        Equipo Punto Fitness
-        """
-        
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_HOST_USER,
-            [cliente_destino.email],
-            fail_silently=False,
-        )
-        print("✅ [SERVIDOR] Notificación enviada al nuevo superadmin")
+        if enviar_notificacion_superadmin_transfer(cliente_destino, superadmin_origen):
+            print("✅ [SERVIDOR] Notificación enviada al nuevo superadmin")
+        else:
+            print("❌ [SERVIDOR] Error enviando notificación al nuevo superadmin")
         
         # Notificar a todos los admins
         print("📧 [SERVIDOR] Enviando notificaciones a todos los admins...")
@@ -1954,25 +1962,10 @@ def enviar_notificacion_transferencia(cliente_destino, superadmin_origen):
         for admin in admins:
             if admin.cliente.email != cliente_destino.email:
                 print(f"📧 [SERVIDOR] Enviando notificación a admin: {admin.cliente.email}")
-                subject_admin = "Cambio en la Administración del Sistema"
-                message_admin = f"""
-                Estimado {admin.cliente.nombre} {admin.cliente.apellido},
-                
-                Se ha realizado un cambio en la administración del sistema.
-                {cliente_destino.nombre} {cliente_destino.apellido} ha sido nombrado Super Administrador.
-                
-                Saludos,
-                Equipo Punto Fitness
-                """
-                
-                send_mail(
-                    subject_admin,
-                    message_admin,
-                    settings.EMAIL_HOST_USER,
-                    [admin.cliente.email],
-                    fail_silently=True,
-                )
-                print(f"✅ [SERVIDOR] Notificación enviada a {admin.cliente.email}")
+                if enviar_notificacion_admin_cambio(admin, cliente_destino):
+                    print(f"✅ [SERVIDOR] Notificación enviada a {admin.cliente.email}")
+                else:
+                    print(f"❌ [SERVIDOR] Error enviando notificación a {admin.cliente.email}")
         
         print("✅ [SERVIDOR] Todas las notificaciones enviadas exitosamente")
                 
@@ -2059,29 +2052,10 @@ def enviar_codigo_verificacion_superadmin(request):
             
             # Enviar código por email
             print(f"📧 [SERVIDOR] Enviando código por email a: {admin.cliente.email}")
-            subject = "Código de Verificación - Transferencia de Super Admin"
-            message = f"""
-            Estimado {admin.cliente.nombre} {admin.cliente.apellido},
+            from .email_utils import enviar_codigo_verificacion_superadmin as enviar_codigo_superadmin_html
             
-            Se ha solicitado otorgarte el rol de Super Administrador.
-            
-            Tu código de verificación es: {codigo}
-            
-            Este código expira en 10 minutos.
-            
-            Si no solicitaste este cambio, por favor ignora este mensaje.
-            
-            Saludos,
-            Equipo Punto Fitness
-            """
-            
-            send_mail(
-                subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [admin.cliente.email],
-                fail_silently=False,
-            )
+            if not enviar_codigo_superadmin_html(admin, codigo):
+                raise Exception("Error enviando código de verificación")
             
             print("✅ [SERVIDOR] Código de verificación enviado exitosamente")
             return JsonResponse({
@@ -2132,29 +2106,10 @@ def enviar_codigo_verificacion_superadmin_actual(request):
             
             # Enviar código por email
             print(f"📧 [SERVIDOR] Enviando código por email a: {superadmin_actual.email}")
-            subject = "Código de Verificación - Confirmación de Transferencia de Super Admin"
-            message = f"""
-            Estimado {superadmin_actual.nombre} {superadmin_actual.apellido},
+            from .email_utils import enviar_codigo_verificacion_superadmin_actual as enviar_codigo_actual_html
             
-            Se ha solicitado transferir tu rol de Super Administrador a otro usuario.
-            
-            Tu código de verificación para confirmar esta acción es: {codigo}
-            
-            Este código expira en 10 minutos.
-            
-            Si no solicitaste esta transferencia, por favor ignora este mensaje y contacta al soporte técnico inmediatamente.
-            
-            Saludos,
-            Equipo Punto Fitness
-            """
-            
-            send_mail(
-                subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [superadmin_actual.email],
-                fail_silently=False,
-            )
+            if not enviar_codigo_verificacion_superadmin_actual(superadmin_actual, codigo):
+                raise Exception("Error enviando código de verificación al superadmin actual")
             
             print("✅ [SERVIDOR] Código de verificación enviado al superadmin actual exitosamente")
             return JsonResponse({

@@ -1,0 +1,47 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<div class="email-title">
+    👑 Has sido nombrado Super Administrador
+</div>
+
+<div class="email-message">
+    <p>¡Felicitaciones <strong>{{ nombre_destino }} {{ apellido_destino }}</strong>! 🎉</p>
+    
+    <p>Has sido nombrado <strong>Super Administrador</strong> del sistema Punto Fitness por <strong>{{ nombre_origen }} {{ apellido_origen }}</strong>.</p>
+    
+    <p>Como Super Administrador, ahora tienes acceso completo a todas las funciones administrativas del sistema, incluyendo:</p>
+</div>
+
+<div class="info-box">
+    <strong>🔧 Nuevas funciones disponibles:</strong>
+    <ul style="margin: 10px 0; padding-left: 20px;">
+        <li>Gestión completa de administradores</li>
+        <li>Transferencia de roles de superadmin</li>
+        <li>Acceso a todas las configuraciones del sistema</li>
+        <li>Auditoría de actividades administrativas</li>
+        <li>Gestión de permisos y niveles de acceso</li>
+    </ul>
+</div>
+
+<div class="success-box">
+    <strong>✅ Próximos pasos:</strong>
+    <ol style="margin: 10px 0; padding-left: 20px;">
+        <li>Inicia sesión en tu cuenta</li>
+        <li>Verifica tu nuevo rol en el panel de administración</li>
+        <li>Revisa las nuevas opciones disponibles</li>
+        <li>Familiarízate con las funciones de superadmin</li>
+    </ol>
+</div>
+
+<div class="warning-box">
+    <strong>⚠️ Responsabilidades importantes:</strong>
+    <p style="margin: 10px 0;">Como Super Administrador, eres responsable de la seguridad y el buen funcionamiento del sistema. Por favor, utiliza estos privilegios con responsabilidad.</p>
+</div>
+
+<div style="text-align: center; margin-top: 30px;">
+    <p style="color: #666; font-size: 14px;">
+        Si tienes alguna pregunta sobre tus nuevas responsabilidades, no dudes en contactarnos.
+    </p>
+</div>
+{% endblock %} 
