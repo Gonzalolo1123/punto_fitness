@@ -688,21 +688,19 @@ def admin_maquinas(request):
 
 @csrf_exempt
 def admin_maquina_crear(request):
-    try:
-        data = json.loads(request.body)
-
-        if Maquina.objects.filter(nombre__iexact=data['nombre']).exists():
-            return JsonResponse({'error': '¡Ya existe una máquina con este nombre!'}, status=400)
-
-        if Maquina.objects.filter(descripcion__iexact=data['descripcion']).exists():
-            return JsonResponse({'error': '¡Ya existe una máquina con esta descripción!'}, status=400)
+    if request.method == "POST":
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        cantidad = request.POST.get('cantidad', 1)
+        establecimiento_id = request.POST.get('establecimiento_id')
+        imagen = request.FILES.get('imagen')
 
         maquina = Maquina.objects.create(
-            nombre=data['nombre'],
-            descripcion=data['descripcion'],
-            cantidad=data.get('cantidad', 1),
-            establecimiento_id=data['establecimiento_id'],
-            imagen=data['imagen']
+            nombre=nombre,
+            descripcion=descripcion,
+            cantidad=cantidad,
+            establecimiento_id=establecimiento_id,
+            imagen=imagen
         )
         return JsonResponse({
             'id': maquina.id,
@@ -710,30 +708,24 @@ def admin_maquina_crear(request):
             'descripcion': maquina.descripcion,
             'cantidad': maquina.cantidad
         }, status=201)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
-
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 @csrf_exempt
 def admin_maquina_actualizar(request, maquina_id):
-    try:
+    if request.method == "POST":
         maquina = get_object_or_404(Maquina, pk=maquina_id)
-        data = json.loads(request.body)
+        nombre = request.POST.get('nombre', maquina.nombre)
+        descripcion = request.POST.get('descripcion', maquina.descripcion)
+        cantidad = request.POST.get('cantidad', maquina.cantidad)
+        establecimiento_id = request.POST.get('establecimiento_id', maquina.establecimiento_id)
+        imagen = request.FILES.get('imagen')
 
-        # Validaciones de unicidad excluyendo a la máquina actual
-        if 'nombre' in data and data['nombre'] != maquina.nombre:
-            if Maquina.objects.filter(nombre__iexact=data['nombre']).exclude(id=maquina_id).exists():
-                return JsonResponse({'error': '¡Ya existe una máquina con este nombre!'}, status=400)
-
-        if 'descripcion' in data and data['descripcion'] != maquina.descripcion:
-            if Maquina.objects.filter(descripcion__iexact=data['descripcion']).exclude(id=maquina_id).exists():
-                return JsonResponse({'error': '¡Ya existe una máquina con esta descripción!'}, status=400)
-
-        maquina.nombre = data.get('nombre', maquina.nombre)
-        maquina.descripcion = data.get('descripcion', maquina.descripcion)
-        maquina.cantidad = data.get('cantidad', maquina.cantidad)
-        maquina.establecimiento_id = data.get('establecimiento_id', maquina.establecimiento_id)
-        maquina.imagen = data.get('imagen', maquina.imagen)
+        maquina.nombre = nombre
+        maquina.descripcion = descripcion
+        maquina.cantidad = cantidad
+        maquina.establecimiento_id = establecimiento_id
+        if imagen:
+            maquina.imagen = imagen
         maquina.save()
 
         return JsonResponse({
@@ -743,8 +735,7 @@ def admin_maquina_actualizar(request, maquina_id):
             'cantidad': maquina.cantidad,
             'establecimiento_id': maquina.establecimiento_id
         })
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
     
 @csrf_exempt
 @requiere_admin

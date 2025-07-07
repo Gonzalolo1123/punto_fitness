@@ -57,7 +57,7 @@
               <button class="cerrar-modal" onclick="cerrarModalEdicion('maquina', '{{ maquina.id }}')">×</button>
             </div>
             <div class="modal-body">
-              <form class="formulario" name="form-editar-maquina" data-id="{{ maquina.id }}">
+              <form class="formulario" name="form-editar-maquina" data-id="{{ maquina.id }}" enctype="multipart/form-data">
                 {% csrf_token %}
                 
                 <div class="form-fila">
@@ -114,8 +114,7 @@
                 <div class="form-fila">
                   <label for="maquina-imagen-editar-{{ maquina.id }}">Imágen:</label>
                   <div class="imagen-selector">
-                    <input type="hidden" id="maquina-imagen-editar-{{ maquina.id }}" name="maquina-imagen-editar-{{ maquina.id }}" value="{{ maquina.imagen }}">
-                    <button type="button" class="filtro-btn" id="btn-seleccionar-imagen-editar-{{ maquina.id }}">Seleccionar Imagen</button>
+                    <input type="file" id="maquina-imagen-editar-{{ maquina.id }}" name="imagen" accept="image/*">
                   </div>
                   <div id="vista-previa-imagen-editar-{{ maquina.id }}" class="vista-previa-imagen{% if not maquina.imagen %} d-none{% endif %}">
                     {% if maquina.imagen %}
@@ -150,7 +149,7 @@
         <button class="cerrar-modal" onclick="cerrarModal('maquina')">×</button>
       </div>
       <div class="modal-body">
-        <form class="formulario" id="form-crear-maquina">
+        <form class="formulario" id="form-crear-maquina" enctype="multipart/form-data">
           {% csrf_token %}
           
           <div class="form-fila">
@@ -207,8 +206,7 @@
           <div class="form-fila">
             <label for="maquina-imagen">Imágen:</label>
             <div class="imagen-selector">
-              <input type="hidden" id="maquina-imagen" name="maquina-imagen">
-              <button type="button" class="filtro-btn" id="btn-seleccionar-imagen">Seleccionar Imagen</button>
+              <input type="file" id="maquina-imagen" name="imagen" accept="image/*">
             </div>
             <div id="vista-previa-imagen" class="vista-previa-imagen" style="display: none;">
               <img src="" alt="Vista previa" style="max-width: 200px; max-height: 200px;">

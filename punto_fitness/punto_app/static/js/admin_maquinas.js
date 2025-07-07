@@ -105,57 +105,35 @@ function actualizarVista(maquina) {
   }
 }
 
-// Función para crear maquina
-function crearMaquina(formData) {
-  console.log('📤 Enviando datos para crear máquina:', formData);
-  return fetch(`${BASE_URL}crear_maquina/`, {
+// Función para crear máquina
+function crearMaquina() {
+  const form = document.getElementById('form-crear-maquina');
+  const formData = new FormData(form);
+  fetch('/maquinas/crear_maquina/', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken()
-    },
-    body: JSON.stringify(formData)
-  }).then(response => response.json());
-}
-
-// Función para actualizar maquina
-function actualizarMaquina(id, data) {
-  console.log('📤 Actualizando máquina ID:', id, 'con datos:', data);
-  return fetch(`${BASE_URL}actualizar_maquina/${id}/`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken()
-    },
-    body: JSON.stringify(data)
-  }).then(response => {
-    if (response.ok) {
-      return response.json().then(responseData => {
-        Swal.fire({
-          title: 'Actualización Exitosa!',
-          html: `<p style="color: #555;">La máquina ha sido actualizada correctamente.</p>`,
-          icon: 'success',
-          confirmButtonColor: '#28a745'
-        }).then(() => {
-          // Recarga la página cuando se cierra el SweetAlert
-          location.reload();
-        });
-        return responseData; // Devolver los datos para que el event listener los pueda usar
-      });
-    } else {
-      return response.json().then(errorData => {
-        throw new Error(errorData.error || 'Error al actualizar la máquina');
-      });
-    }
+    body: formData
   })
-  .catch(error => {
-    console.error('Error al actualizar máquina:', error);
-    Swal.fire('Error', 'Ocurrió un error al actualizar la máquina: ' + error.message, 'error');
-    throw error; // Re-lanzar el error para que el event listener lo pueda manejar
+  .then(response => response.json())
+  .then(data => {
+    // Manejar respuesta
   });
 }
 
-// Función para eliminar maquina
+// Función para actualizar máquina
+function actualizarMaquina(id) {
+  const form = document.querySelector(`form[name='form-editar-maquina'][data-id='${id}']`);
+  const formData = new FormData(form);
+  fetch(`/maquinas/actualizar_maquina/${id}/`, {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    // Manejar respuesta
+  });
+}
+
+// Función para eliminar máquina
 function eliminarMaquina(id) {
   console.log('🗑️ Eliminando máquina ID:', id);
   return fetch(`${BASE_URL}borrar_maquina/${id}/`, {
