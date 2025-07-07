@@ -109,28 +109,22 @@ function actualizarVista(maquina) {
 function crearMaquina() {
   const form = document.getElementById('form-crear-maquina');
   const formData = new FormData(form);
-  fetch('/maquinas/crear_maquina/', {
+  return fetch('/maquinas/crear_maquina/', {
     method: 'POST',
     body: formData
   })
-  .then(response => response.json())
-  .then(data => {
-    // Manejar respuesta
-  });
+  .then(response => response.json());
 }
 
 // Función para actualizar máquina
 function actualizarMaquina(id) {
   const form = document.querySelector(`form[name='form-editar-maquina'][data-id='${id}']`);
   const formData = new FormData(form);
-  fetch(`/maquinas/actualizar_maquina/${id}/`, {
+  return fetch(`/maquinas/actualizar_maquina/${id}/`, {
     method: 'POST',
     body: formData
   })
-  .then(response => response.json())
-  .then(data => {
-    // Manejar respuesta
-  });
+  .then(response => response.json());
 }
 
 // Función para eliminar máquina
@@ -174,62 +168,14 @@ function inicializarEventListeners() {
   if (formCrearMaquina) {
     formCrearMaquina.addEventListener('submit', function(e) {
       e.preventDefault();
-      console.log('🎯 Evento submit del formulario crear máquina');
-      
-      const nombreInput = document.getElementById('maquina-nombre');
-      const descripcionInput = document.getElementById('maquina-descripcion');
-      const cantidadInput = document.getElementById('maquina-cantidad');
-      const establecimientoSelect = document.getElementById('maquina-establecimiento');
-      const imagenInput = document.getElementById('maquina-imagen');
-      
-      console.log('🔍 Campos del formulario:');
-      console.log('  - Nombre input:', nombreInput ? 'SÍ' : 'NO', nombreInput?.value);
-      console.log('  - Descripción input:', descripcionInput ? 'SÍ' : 'NO', descripcionInput?.value);
-      console.log('  - Cantidad input:', cantidadInput ? 'SÍ' : 'NO', cantidadInput?.value);
-      console.log('  - Establecimiento select:', establecimientoSelect ? 'SÍ' : 'NO', establecimientoSelect?.value);
-      console.log('  - Imagen input:', imagenInput ? 'SÍ' : 'NO', imagenInput?.value);
-      
-      // Obtener y limpiar valores
-      const nombre = nombreInput?.value.trim() || '';
-      const descripcion = descripcionInput?.value.trim() || '';
-      const cantidad = cantidadInput?.value.trim() || '';
-      const establecimientoId = establecimientoSelect?.value || '';
-      const imagen = imagenInput?.value || '';
-      
-      // Validaciones
-      const errores = [];
-      errores.push(...validarNombre(nombre, 'nombre', 3, 30, false));
-      errores.push(...validarDescripcion(descripcion, 'descripción', 5, 50, false));
-      errores.push(...validarNumeroEntero(cantidad, 'cantidad', 0, 999, true, false));
-      if (!establecimientoId) errores.push('Debe seleccionar un establecimiento');
-      if (!imagen) {
-        errores.push('Debe seleccionar una imagen');
-      }
-      if (errores.length > 0) {
-        mostrarErroresValidacion(errores, 'Errores en el formulario de máquina');
-        return;
-      }
-      
-      const formData = {
-        nombre: nombre,
-        descripcion: descripcion,
-        cantidad: parseInt(cantidad),
-        establecimiento_id: establecimientoId,
-        imagen: imagen
-      };
-      
-      console.log('📋 Datos del formulario:', formData);
-      
-      crearMaquina(formData)
+      crearMaquina()
         .then(data => {
-          console.log('✅ Respuesta del servidor:', data);
           if (data.error) throw new Error(data.error);
           alert('Máquina creada exitosamente');
           cerrarModal('maquina');
           window.location.reload();
         })
         .catch(error => {
-          console.error('💥 Error al crear máquina:', error);
           alert('Error al crear máquina: ' + error.message);
         });
     });
@@ -343,7 +289,6 @@ function inicializarEventListeners() {
 
   // Modal Functionality
   inicializarModales();
-  inicializarSelectorImagenes();
   
   console.log('✅ Event listeners de máquinas inicializados correctamente');
 }
@@ -465,216 +410,6 @@ function cerrarModal(tipo, boton = null) {
     console.log(`✅ Modal ${tipo} cerrado correctamente`);
   } else {
     console.error(`❌ No se encontró el modal o botón para ${tipo}`);
-  }
-}
-
-///////////////////////////
-// SELECCIÓN DE IMÁGENES //
-///////////////////////////
-
-// Función para inicializar el selector de imágenes
-function inicializarSelectorImagenes() {
-  // Elementos del formulario de creación
-  const btnSeleccionarImagen = document.getElementById('btn-seleccionar-imagen');
-  const btnSubirImagen = document.getElementById('btn-subir-imagen');
-  const inputSubirImagen = document.getElementById('input-subir-imagen');
-  const modalImagenes = document.getElementById('modal-imagenes');
-  const galeriaImagenes = document.getElementById('galeria-imagenes');
-  const inputImagen = document.getElementById('maquina-imagen');
-  const vistaPrevia = document.getElementById('vista-previa-imagen');
-  const cerrarModal = document.querySelector('.cerrar-modal-imagenes');
-
-  // Cargar las imágenes disponibles
-  cargarImagenesDisponibles();
-
-  // Función para manejar la selección de imagen
-  function manejarSeleccionImagen(input, vistaPrevia) {
-    return (imagen) => {
-      input.value = imagen;
-      const imgPrevia = vistaPrevia.querySelector('img');
-      if (imgPrevia) {
-        imgPrevia.src = `/static/${imagen}`;
-        vistaPrevia.style.display = 'block';
-      }
-      modalImagenes.style.display = 'none';
-    };
-  }
-
-  // Event listener para el botón de seleccionar imagen (creación)
-  if (btnSeleccionarImagen) {
-    btnSeleccionarImagen.addEventListener('click', () => {
-      modalImagenes.style.display = 'block';
-      modalImagenes.dataset.target = 'creacion';
-    });
-  }
-
-  // Event listeners para los botones de seleccionar imagen (edición)
-  document.querySelectorAll('[id^="btn-seleccionar-imagen-editar-"]').forEach(btn => {
-    const id = btn.id.split('-').pop();
-    const inputImagen = document.getElementById(`maquina-imagen-editar-${id}`);
-    const vistaPrevia = document.getElementById(`vista-previa-imagen-editar-${id}`);
-    
-    btn.addEventListener('click', () => {
-      modalImagenes.style.display = 'block';
-      modalImagenes.dataset.target = `edicion-${id}`;
-    });
-  });
-
-  // Event listener para el botón de subir imagen
-  if (btnSubirImagen) {
-    btnSubirImagen.addEventListener('click', () => {
-      inputSubirImagen.click();
-    });
-  }
-
-  // Event listener para cuando se selecciona un archivo
-  if (inputSubirImagen) {
-    inputSubirImagen.addEventListener('change', (e) => {
-      const archivo = e.target.files[0];
-      if (archivo) {
-        const formData = new FormData();
-        formData.append('imagen', archivo);
-
-        fetch('/subir_imagen_maquina/', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Actualizar el input y la vista previa según el formulario activo
-            const target = modalImagenes.dataset.target;
-            if (target === 'creacion' && inputImagen) {
-              inputImagen.value = data.ruta;
-              actualizarVistaPrevia();
-            } else if (target.startsWith('edicion-')) {
-              const id = target.split('-')[1];
-              const inputImagenEditar = document.getElementById(`maquina-imagen-editar-${id}`);
-              const vistaPreviaEditar = document.getElementById(`vista-previa-imagen-editar-${id}`);
-              if (inputImagenEditar && vistaPreviaEditar) {
-                inputImagenEditar.value = data.ruta;
-                const imgPrevia = vistaPreviaEditar.querySelector('img');
-                if (imgPrevia) {
-                  imgPrevia.src = `/static/${data.ruta}`;
-                  vistaPreviaEditar.style.display = 'block';
-                }
-              }
-            }
-            
-            // Recargar la galería de imágenes
-            cargarImagenesDisponibles();
-            
-            // Cerrar el modal
-            modalImagenes.style.display = 'none';
-          } else {
-            alert('Error al subir la imagen: ' + data.error);
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error al subir la imagen');
-        });
-      }
-    });
-  }
-
-  // Event listener para cerrar el modal
-  if (cerrarModal) {
-    cerrarModal.addEventListener('click', () => {
-      modalImagenes.style.display = 'none';
-    });
-  }
-
-  // Cerrar modal al hacer clic fuera
-  window.addEventListener('click', (e) => {
-    if (e.target === modalImagenes) {
-      modalImagenes.style.display = 'none';
-    }
-  });
-
-  // Event listeners para los inputs de imagen
-  if (inputImagen) {
-    inputImagen.addEventListener('change', actualizarVistaPrevia);
-  }
-  if (inputImagenEditar) {
-    inputImagenEditar.addEventListener('change', () => {
-      const imgPrevia = vistaPreviaEditar.querySelector('img');
-      if (imgPrevia && inputImagenEditar.value) {
-        imgPrevia.src = `/static/${inputImagenEditar.value}`;
-        vistaPreviaEditar.style.display = 'block';
-      } else {
-        vistaPreviaEditar.style.display = 'none';
-      }
-    });
-  }
-}
-
-// Función para cargar las imágenes disponibles
-function cargarImagenesDisponibles() {
-  const galeriaImagenes = document.getElementById('galeria-imagenes');
-  const modalImagenes = document.getElementById('modal-imagenes');
-
-  if (!galeriaImagenes) return;
-
-  // Hacer una petición al servidor para obtener la lista de imágenes
-  fetch('/obtener_imagenes_maquinas/')
-    .then(response => response.json())
-    .then(data => {
-      galeriaImagenes.innerHTML = '';
-      data.imagenes.forEach(imagen => {
-        const div = document.createElement('div');
-        div.className = 'imagen-item';
-        div.innerHTML = `
-          <img src="/static/${imagen}" alt="${imagen.split('/').pop()}" data-ruta="${imagen}">
-        `;
-        
-        // Event listener para seleccionar imagen
-        div.addEventListener('click', () => {
-          const target = modalImagenes.dataset.target;
-          if (target === 'creacion') {
-            const inputImagen = document.getElementById('maquina-imagen');
-            const vistaPrevia = document.getElementById('vista-previa-imagen');
-            if (inputImagen && vistaPrevia) {
-              inputImagen.value = imagen;
-              const imgPrevia = vistaPrevia.querySelector('img');
-              if (imgPrevia) {
-                imgPrevia.src = `/static/${imagen}`;
-                vistaPrevia.style.display = 'block';
-              }
-            }
-          } else if (target.startsWith('edicion-')) {
-            const id = target.split('-')[1];
-            const inputImagenEditar = document.getElementById(`maquina-imagen-editar-${id}`);
-            const vistaPreviaEditar = document.getElementById(`vista-previa-imagen-editar-${id}`);
-            if (inputImagenEditar && vistaPreviaEditar) {
-              inputImagenEditar.value = imagen;
-              const imgPrevia = vistaPreviaEditar.querySelector('img');
-              if (imgPrevia) {
-                imgPrevia.src = `/static/${imagen}`;
-                vistaPreviaEditar.style.display = 'block';
-              }
-            }
-          }
-          modalImagenes.style.display = 'none';
-        });
-        
-        galeriaImagenes.appendChild(div);
-      });
-    })
-    .catch(error => console.error('Error al cargar imágenes:', error));
-}
-
-// Función para actualizar la vista previa de la imagen
-function actualizarVistaPrevia() {
-  const inputImagen = document.getElementById('maquina-imagen');
-  const vistaPrevia = document.getElementById('vista-previa-imagen');
-  const imgPrevia = vistaPrevia.querySelector('img');
-  
-  if (inputImagen.value) {
-    imgPrevia.src = `/static/${inputImagen.value}`;
-    vistaPrevia.style.display = 'block';
-  } else {
-    vistaPrevia.style.display = 'none';
   }
 }
 
