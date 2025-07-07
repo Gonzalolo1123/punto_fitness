@@ -35,7 +35,11 @@
           <td>{{ maquina.descripcion }}</td>
           <td>{{ maquina.cantidad }}</td>
           <td>
-            <img src="{% static maquina.imagen %}" alt="{{ maquina.nombre }}" width="200">
+            {% if maquina.imagen %}
+                <img src="{{ maquina.imagen.url }}" alt="{{ maquina.nombre }}" width="200">
+            {% else %}
+                Sin imagen
+            {% endif %}
           </td>
           <td>
             <div class="action-buttons-container">
@@ -114,7 +118,9 @@
                     <button type="button" class="filtro-btn" id="btn-seleccionar-imagen-editar-{{ maquina.id }}">Seleccionar Imagen</button>
                   </div>
                   <div id="vista-previa-imagen-editar-{{ maquina.id }}" class="vista-previa-imagen{% if not maquina.imagen %} d-none{% endif %}">
-                    <img src="{% if maquina.imagen %}{% static maquina.imagen %}{% endif %}" alt="Vista previa" style="max-width: 200px; max-height: 200px;">
+                    {% if maquina.imagen %}
+                        <img src="{{ maquina.imagen.url }}" alt="Vista previa" style="max-width: 200px; max-height: 200px;">
+                    {% endif %}
                   </div>
                 </div>
                 

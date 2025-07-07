@@ -202,3 +202,20 @@ except ImportError:
     EMAIL_HOST_USER = 'tu_correo@gmail.com'
     EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicacion'
     DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Configuración de archivos de medios (imágenes subidas por usuarios)
+if DEBUG:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Puedes cambiar esto a un almacenamiento externo en el futuro
+
+if not DEBUG:
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': 'dhxgu5ifk',
+        'API_KEY': '451741164829985',
+        'API_SECRET': '84hQxWjjkyb5-gvll6hmjPELNPs',
+    }
+    MEDIA_URL = 'https://res.cloudinary.com/dhxgu5ifk/'

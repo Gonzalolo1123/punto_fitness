@@ -16,7 +16,11 @@
         <div class="carrusel-maquinas" id="maquinasCarrusel">
           {% for i in maquinas %}
           <div class="maquina-card">
-            <img src="{% static i.imagen %}" alt="{{ i.nombre }}" class="maquina-img">
+            {% if i.imagen %}
+                <img src="{{ i.imagen.url }}" alt="{{ i.nombre }}" class="maquina-img">
+            {% else %}
+                <span>Sin imagen</span>
+            {% endif %}
             <div class="maquina-nombre">{{ i.nombre }}</div>
           </div>
           {% endfor %}
