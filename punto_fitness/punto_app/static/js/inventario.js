@@ -730,8 +730,8 @@ function manejoCrearProveedor(e) {
   const email = emailInput.value.trim();
   let errores = [];
   errores = errores.concat(validarNombre(nombre, 'nombre', 3, 100));
-  if (telefono) errores = errores.concat(validarTelefonoChileno(telefono, 'teléfono', false));
-  if (email) errores = errores.concat(validarEmail(email, 'email', false));
+  errores = errores.concat(validarTelefonoChileno(telefono, 'teléfono'));
+  errores = errores.concat(validarEmail(email, 'email'));
   if (errores.length > 0) {
     mostrarErroresValidacion(errores, 'Errores en el formulario de proveedor');
     return;
@@ -815,64 +815,7 @@ function inicializarEventListeners() {
   document.getElementById('form-crear-vendedor').addEventListener('submit', manejoCrearVendedor);
   document.getElementById('form-crear-proveedor').addEventListener('submit', manejoCrearProveedor);
 
-  // Event listeners para formularios de edición
-  document.getElementById('form-editar-producto').addEventListener('submit', function(e) {
-    e.preventDefault();
-    console.log('🎯 Event listener de form-editar-producto ejecutado');
-    
-    // Verificar que el campo ID esté presente antes de enviar
-    const idInput = e.target.querySelector('input[name="producto-id"]');
-    console.log('🔍 Campo ID en submit:', idInput);
-    console.log('🔍 Valor del campo ID:', idInput ? idInput.value : 'NO ENCONTRADO');
-    
-    const formData = new FormData(e.target);
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-      data[key] = value;
-    }
-    console.log('📋 Datos recopilados del formulario:', data);
-    manejarFormularioEdicion('producto', data);
-  });
-  
-  document.getElementById('form-editar-categoria').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-      data[key] = value;
-    }
-    manejarFormularioEdicion('categoria', data);
-  });
-  
-  document.getElementById('form-editar-compra').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-      data[key] = value;
-    }
-    manejarFormularioEdicion('compra', data);
-  });
-  
-  document.getElementById('form-editar-vendedor').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-      data[key] = value;
-    }
-    manejarFormularioEdicion('vendedor', data);
-  });
-  
-  document.getElementById('form-editar-proveedor').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-      data[key] = value;
-    }
-    manejarFormularioEdicion('proveedor', data);
-  });
+  // Los event listeners para formularios de edición se manejan en inicializarBotonesEdicion()
 
   // Event listeners para botones de eliminación
   document.querySelectorAll('[name="btn-eliminar-producto"]').forEach(boton => {
@@ -1287,18 +1230,17 @@ function manejarFormularioEdicion(tipo, formData) {
         imagen: formData['producto-imagen']
       };
       // Validaciones consistentes con creación
-      let errores = [];
-      errores = errores.concat(validarNombre(dataToSend.nombre, 'nombre', 3, 30));
-      errores = errores.concat(validarDescripcion(dataToSend.descripcion, 'descripción', 5, 50));
-      errores = errores.concat(validarPrecioChileno(dataToSend.precio));
-      errores = errores.concat(validarNumeroEntero(dataToSend.stock_actual, 'stock actual', 0, 99999));
-      errores = errores.concat(validarNumeroEntero(dataToSend.stock_minimo, 'stock mínimo', 0, 99999));
-      if (!dataToSend.categoria_id) errores.push('Debe seleccionar una categoría');
-      if (!dataToSend.establecimiento_id) errores.push('Debe seleccionar un establecimiento');
-      if (!dataToSend.imagen) errores.push('Debe seleccionar una imagen');
-      if (!dataToSend.compra_id) errores.push('Debe seleccionar una compra');
-      if (errores.length > 0) {
-        mostrarErroresValidacion(errores, 'Errores en el formulario de producto');
+      let erroresProducto = [];
+      erroresProducto = erroresProducto.concat(validarNombre(dataToSend.nombre, 'nombre', 3, 30));
+      erroresProducto = erroresProducto.concat(validarDescripcion(dataToSend.descripcion, 'descripción', 5, 50));
+      erroresProducto = erroresProducto.concat(validarPrecioChileno(dataToSend.precio));
+      erroresProducto = erroresProducto.concat(validarNumeroEntero(dataToSend.stock_actual, 'stock actual', 0, 99999));
+      erroresProducto = erroresProducto.concat(validarNumeroEntero(dataToSend.stock_minimo, 'stock mínimo', 0, 99999));
+      if (!dataToSend.categoria_id) erroresProducto.push('Debe seleccionar una categoría');
+      if (!dataToSend.establecimiento_id) erroresProducto.push('Debe seleccionar un establecimiento');
+      if (!dataToSend.imagen) erroresProducto.push('Debe seleccionar una imagen');
+      if (erroresProducto.length > 0) {
+        mostrarErroresValidacion(erroresProducto, 'Errores en el formulario de producto');
         return;
       }
       break;
@@ -1307,6 +1249,14 @@ function manejarFormularioEdicion(tipo, formData) {
         nombre: formData['categoria-nombre'],
         descripcion: formData['categoria-descripcion']
       };
+      // Validaciones consistentes con creación
+      let erroresCategoria = [];
+      erroresCategoria = erroresCategoria.concat(validarNombre(dataToSend.nombre, 'nombre', 3, 30));
+      erroresCategoria = erroresCategoria.concat(validarDescripcion(dataToSend.descripcion, 'descripción', 5, 50));
+      if (erroresCategoria.length > 0) {
+        mostrarErroresValidacion(erroresCategoria, 'Errores en el formulario de categoría');
+        return;
+      }
       break;
     case 'compra':
       dataToSend = {
@@ -1317,6 +1267,18 @@ function manejarFormularioEdicion(tipo, formData) {
         establecimiento_id: formData['compra-establecimiento'],
         vendedor_id: formData['compra-vendedor']
       };
+      // Validaciones consistentes con creación
+      let erroresCompra = [];
+      erroresCompra = erroresCompra.concat(validarFecha(dataToSend.fecha, 'fecha'));
+      erroresCompra = erroresCompra.concat(validarPrecioChileno(dataToSend.total, 'total'));
+      erroresCompra = erroresCompra.concat(validarPorcentaje(dataToSend.iva, 'IVA', 0, 100));
+      if (!dataToSend.estado) erroresCompra.push('Debe seleccionar un estado');
+      if (!dataToSend.establecimiento_id) erroresCompra.push('Debe seleccionar un establecimiento');
+      if (!dataToSend.vendedor_id) erroresCompra.push('Debe seleccionar un vendedor');
+      if (erroresCompra.length > 0) {
+        mostrarErroresValidacion(erroresCompra, 'Errores en el formulario de compra');
+        return;
+      }
       break;
     case 'vendedor':
       dataToSend = {
@@ -1325,6 +1287,16 @@ function manejarFormularioEdicion(tipo, formData) {
         email: formData['vendedor-email'],
         proveedor_id: formData['vendedor-proveedor']
       };
+      // Validaciones consistentes con creación
+      let erroresVendedor = [];
+      erroresVendedor = erroresVendedor.concat(validarNombre(dataToSend.nombre, 'nombre', 3, 30));
+      erroresVendedor = erroresVendedor.concat(validarTelefonoChileno(dataToSend.telefono, 'teléfono'));
+      erroresVendedor = erroresVendedor.concat(validarEmail(dataToSend.email, 'email'));
+      if (!dataToSend.proveedor_id) erroresVendedor.push('Debe seleccionar un proveedor');
+      if (erroresVendedor.length > 0) {
+        mostrarErroresValidacion(erroresVendedor, 'Errores en el formulario de vendedor');
+        return;
+      }
       break;
     case 'proveedor':
       dataToSend = {
@@ -1332,6 +1304,15 @@ function manejarFormularioEdicion(tipo, formData) {
           telefono: formData['proveedor-telefono'],
           email: formData['proveedor-email']
       };
+      // Validaciones consistentes con creación
+      let erroresProveedor = [];
+      erroresProveedor = erroresProveedor.concat(validarNombre(dataToSend.nombre, 'nombre', 3, 100));
+      erroresProveedor = erroresProveedor.concat(validarTelefonoChileno(dataToSend.telefono, 'teléfono'));
+      erroresProveedor = erroresProveedor.concat(validarEmail(dataToSend.email, 'email'));
+      if (erroresProveedor.length > 0) {
+        mostrarErroresValidacion(erroresProveedor, 'Errores en el formulario de proveedor');
+        return;
+      }
       break;
   }
   
@@ -1410,7 +1391,10 @@ function obtenerDatosFila(tipo, id) {
           precio: cells[2].textContent,
           stock_actual: cells[3].textContent,
           stock_minimo: cells[4].textContent,
-          // Los IDs se obtendrán del backend
+          compra_id: row.getAttribute('data-compra-id') || '',
+          categoria_id: row.getAttribute('data-categoria-id') || '',
+          establecimiento_id: row.getAttribute('data-establecimiento-id') || '',
+          imagen: row.querySelector('img') ? row.querySelector('img').src.split('/static/')[1] || '' : ''
         };
       }
       break;
@@ -1432,8 +1416,9 @@ function obtenerDatosFila(tipo, id) {
           fecha: cells[0].textContent,
           total: cells[1].textContent,
           iva: cells[2].textContent,
-          estado: cells[3].textContent === 'True',
-          // Los IDs se obtendrán del backend
+          estado: cells[3].textContent === 'Hecho',
+          establecimiento_id: row.getAttribute('data-establecimiento-id') || '',
+          vendedor_id: row.getAttribute('data-vendedor-id') || ''
         };
       }
       break;

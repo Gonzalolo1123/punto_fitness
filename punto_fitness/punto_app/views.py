@@ -249,10 +249,10 @@ def admin_usuario_crear(request):
         if email_clean.count('@') != 1:
             return JsonResponse({'error': 'El correo electrónico debe contener exactamente un símbolo @'}, status=400)
         
-        # Validación de formato de teléfono (solo números, 9-11 dígitos)
+        # Validación de formato de teléfono (solo números, 8-15 dígitos)
         telefono_str = str(data['telefono']).replace(' ', '').replace('-', '').replace('+', '')
-        if not telefono_str.isdigit() or len(telefono_str) < 9 or len(telefono_str) > 11:
-            return JsonResponse({'error': 'El teléfono debe contener entre 9 y 11 dígitos numéricos'}, status=400)
+        if not telefono_str.isdigit() or len(telefono_str) < 8 or len(telefono_str) > 15:
+            return JsonResponse({'error': 'El teléfono debe contener entre 8 y 15 dígitos numéricos'}, status=400)
         
         # Validación de longitud de nombres
         if len(data['nombre'].strip()) < 2:
@@ -265,8 +265,8 @@ def admin_usuario_crear(request):
         if Cliente.objects.filter(email__iexact=data['correo']).exists():
             return JsonResponse({'error': '¡Ya existe un usuario con este correo!'}, status=400)
 
-        # Validación de unicidad de teléfono (case-insensitive)
-        if Cliente.objects.filter(telefono__iexact=telefono_str).exists():
+        # Validación de unicidad de teléfono
+        if Cliente.objects.filter(telefono=int(telefono_str)).exists():
             return JsonResponse({'error': '¡Ya existe un usuario con este teléfono!'}, status=400)
         
         # Crear el usuario con datos limpios y contraseña por defecto
@@ -321,10 +321,10 @@ def admin_usuario_actualizar(request, usuario_id):
         if email_clean.count('@') != 1:
             return JsonResponse({'error': 'El correo electrónico debe contener exactamente un símbolo @'}, status=400)
         
-        # Validación de formato de teléfono (solo números, 9-11 dígitos)
+        # Validación de formato de teléfono (solo números, 8-15 dígitos)
         telefono_str = str(data['telefono']).replace(' ', '').replace('-', '').replace('+', '')
-        if not telefono_str.isdigit() or len(telefono_str) < 9 or len(telefono_str) > 11:
-            return JsonResponse({'error': 'El teléfono debe contener entre 9 y 11 dígitos numéricos'}, status=400)
+        if not telefono_str.isdigit() or len(telefono_str) < 8 or len(telefono_str) > 15:
+            return JsonResponse({'error': 'El teléfono debe contener entre 8 y 15 dígitos numéricos'}, status=400)
         
         # Validación de longitud de nombres
         if len(data['nombre'].strip()) < 2:
@@ -338,7 +338,7 @@ def admin_usuario_actualizar(request, usuario_id):
             return JsonResponse({'error': '¡Ya existe un usuario con este correo!'}, status=400)
 
         # Verificar si existe otro usuario con el mismo teléfono (excluyendo al usuario actual)
-        if Cliente.objects.filter(telefono__iexact=telefono_str).exclude(pk=usuario_id).exists():
+        if Cliente.objects.filter(telefono=int(telefono_str)).exclude(pk=usuario_id).exists():
             return JsonResponse({'error': '¡Ya existe un usuario con este teléfono!'}, status=400)
         
         # Actualizar el usuario con datos limpios
@@ -1207,6 +1207,7 @@ def asistencias(request):
     clientes = Cliente.objects.values('id', 'nombre', 'apellido', 'email')
     establecimientos = Establecimiento.objects.values('id','nombre','direccion')
     return render(request,'punto_app/asistencias.html', {'clientes': clientes,'establecimientos':establecimientos})
+
 def confirmar_asistencia(request):
     if request.method == 'POST':
         cliente_id = request.POST.get('cliente_id')
@@ -1223,11 +1224,25 @@ def confirmar_asistencia(request):
             return redirect('asistencias')
         
         try:
+            # Verificar si el cliente ya tiene una entrada sin salida
+            entrada_pendiente = RegistroAcceso.objects.filter(
+                usuario_id=cliente_id,
+                fecha_hora_salida__isnull=True
+            ).first()
+            
+            if entrada_pendiente:
+                messages.error(request, 
+                    f"El cliente ya tiene una entrada registrada en {entrada_pendiente.establecimiento.nombre} "
+                    f"a las {localtime(entrada_pendiente.fecha_hora_entrada).strftime('%H:%M:%S')}. "
+                    f"Debe registrar la salida antes de una nueva entrada."
+                )
+                return redirect('asistencias')
+            
             # Registrar la asistencia
             cliente = Cliente.objects.get(id=cliente_id)
             establecimiento = Establecimiento.objects.get(id=establecimiento_id)
             
-            # Registrar solo la hora de entrada (salida será NULL inicialmente)
+            # Registrar solo la hora de entrada (salida serÃ¡ NULL inicialmente)
             asistencia = RegistroAcceso.objects.create(
                 usuario=cliente,
                 establecimiento=establecimiento,
@@ -1304,7 +1319,10 @@ def super_admin(request):
         return render(request, 'punto_app/super_admin.html', {
             'clientes': clientes_no_admin,
             'administradores': administradores,
-            'establecimientos': Establecimiento.objects.all(),
+            'establecimientos': Establecimiento.objects.select_related('proveedor').values(
+                'id', 'nombre', 'direccion', 'telefono', 'email', 'horario_apertura', 'horario_cierre', 
+                'proveedor_id', 'proveedor__nombre'
+            ),
             'proveedores': proveedores
         })
             
@@ -2378,7 +2396,7 @@ def membresias(request):
         'id', 'nombre', 'descripcion', 'precio', 'duracion', 'dias_por_semana',
         'establecimiento_id', 'establecimiento__nombre', 'imagen'
     )
-    establecimientos = Establecimiento.objects.all()
+    establecimientos = Establecimiento.objects.select_related('proveedor').all()
     
     # Agregar datos de ClienteMembresia con fechas formateadas para input date
     cliente_membresias_raw = ClienteMembresia.objects.select_related('usuario', 'membresia').values(

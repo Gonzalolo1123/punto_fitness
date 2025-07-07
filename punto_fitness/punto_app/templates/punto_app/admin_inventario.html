@@ -32,7 +32,10 @@
       </thead>
       <tbody>
         {% for producto in productos %}
-        <tr data-id="{{ producto.id }}">
+        <tr data-id="{{ producto.id }}" 
+            data-compra-id="{{ producto.compra_id }}"
+            data-categoria-id="{{ producto.categoria_id }}"
+            data-establecimiento-id="{{ producto.establecimiento_id }}">
           <td>{{ producto.nombre }}</td>
           <td>{{ producto.descripcion }}</td>
           <td>{{ producto.precio }}</td>
@@ -127,7 +130,7 @@
           <td>{{ compra.fecha|date:"d/m/y" }}</td>
           <td>{{ compra.total }}</td>
           <td>{{ compra.iva }}</td>
-          <td>{{ compra.estado }}</td>
+          <td>{% if compra.estado %}Hecho{% else %}No hecho{% endif %}</td>
           <td>{{ compra.establecimiento__nombre }}</td>
           <td>{{ compra.vendedor__nombre }}</td>
           <td>
@@ -509,8 +512,8 @@
                    name="vendedor-nombre" 
                    maxlength="30"
                    minlength="3"
-                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s\-]+"
-                   title="Solo letras, espacios y guiones"
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s]+"
+                   title="Solo letras y espacios"
                    required>
           </div>
           
@@ -520,9 +523,9 @@
                    id="vendedor-telefono" 
                    name="vendedor-telefono" 
                    maxlength="15"
-                   minlength="7"
-                   pattern="[\d\s\+\-\(\)]{7,15}"
-                   title="7-15 dígitos, puede incluir +, -, (, )"
+                   minlength="8"
+                   pattern="[\d\s\+\-\(\)]{8,15}"
+                   title="8-15 dígitos, puede incluir +, -, (, )"
                    required>
           </div>
           
@@ -574,7 +577,7 @@
           </div>
           <div class="form-fila">
             <label for="proveedor-telefono">Teléfono:</label>
-            <input type="tel" id="proveedor-telefono" name="proveedor-telefono" minlength="9" maxlength="11"  required>
+            <input type="tel" id="proveedor-telefono" name="proveedor-telefono" minlength="8" maxlength="15" pattern="[\d]{8,15}" title="8-15 dígitos numéricos" required>
           </div>
           <div class="form-fila">
             <label for="proveedor-email">Correo electrónico:</label>
@@ -860,8 +863,8 @@
                    name="vendedor-nombre" 
                    maxlength="30"
                    minlength="3"
-                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s\-]+"
-                   title="Solo letras, espacios y guiones"
+                   pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s]+"
+                   title="Solo letras y espacios"
                    required>
           </div>
           <div class="form-fila">
@@ -870,9 +873,9 @@
                    id="vendedor-telefono-editar" 
                    name="vendedor-telefono" 
                    maxlength="15"
-                   minlength="7"
-                   pattern="[\d\s\+\-\(\)]{7,15}"
-                   title="7-15 dígitos, puede incluir +, -, (, )"
+                   minlength="8"
+                   pattern="[\d\s\+\-\(\)]{8,15}"
+                   title="8-15 dígitos, puede incluir +, -, (, )"
                    required>
           </div>
           <div class="form-fila">
@@ -933,10 +936,10 @@
             <input type="tel" 
                    id="proveedor-telefono-editar" 
                    name="proveedor-telefono" 
-                   minlength="9" 
-                   maxlength="11"
-                   pattern="[\d]{9,11}"
-                   title="9-11 dígitos numéricos"
+                   minlength="8" 
+                   maxlength="15"
+                   pattern="[\d]{8,15}"
+                   title="8-15 dígitos numéricos"
                    required>
           </div>
           <div class="form-fila">

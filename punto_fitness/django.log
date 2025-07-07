@@ -1,0 +1,4 @@
+ERROR 2025-07-06 22:03:31,126 log 15904 12644 Internal Server Error: /recuperar-contrasena/
+ERROR 2025-07-06 22:03:31,127 basehttp 15904 12644 "POST /recuperar-contrasena/ HTTP/1.1" 500 58
+ERROR 2025-07-06 22:03:42,783 log 15904 16148 Internal Server Error: /recuperar-contrasena/
+ERROR 2025-07-06 22:03:42,784 basehttp 15904 16148 "POST /recuperar-contrasena/ HTTP/1.1" 500 58
