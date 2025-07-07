@@ -1,0 +1,12 @@
+ERROR 2025-07-06 18:09:56,041 log 22044 22660 Internal Server Error: /usuarios/actualizar_usuario/16/
+ERROR 2025-07-06 18:09:56,066 basehttp 22044 22660 "PUT /usuarios/actualizar_usuario/16/ HTTP/1.1" 500 64
+ERROR 2025-07-06 18:10:01,528 log 22044 22660 Internal Server Error: /usuarios/actualizar_usuario/16/
+ERROR 2025-07-06 18:10:01,530 basehttp 22044 22660 "PUT /usuarios/actualizar_usuario/16/ HTTP/1.1" 500 64
+ERROR 2025-07-06 19:14:27,342 log 23344 13524 Internal Server Error: /usuarios/actualizar_usuario/16/
+ERROR 2025-07-06 19:14:27,386 basehttp 23344 13524 "PUT /usuarios/actualizar_usuario/16/ HTTP/1.1" 500 64
+ERROR 2025-07-06 19:21:56,929 log 30908 19240 Internal Server Error: /usuarios/actualizar_usuario/17/
+ERROR 2025-07-06 19:21:56,932 basehttp 30908 19240 "PUT /usuarios/actualizar_usuario/17/ HTTP/1.1" 500 64
+ERROR 2025-07-06 20:25:35,185 log 7408 13168 Internal Server Error: /usuarios/actualizar_usuario/1/
+ERROR 2025-07-06 20:25:35,190 basehttp 7408 13168 "PUT /usuarios/actualizar_usuario/1/ HTTP/1.1" 500 64
+ERROR 2025-07-06 20:31:14,887 log 7408 6796 Internal Server Error: /usuarios/actualizar_usuario/5/
+ERROR 2025-07-06 20:31:14,890 basehttp 7408 6796 "PUT /usuarios/actualizar_usuario/5/ HTTP/1.1" 500 64

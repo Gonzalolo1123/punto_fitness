@@ -367,8 +367,21 @@ function inicializarEventListeners() {
                 document.getElementById('establecimiento-direccion-editar').value = fila.children[1].textContent;
                 document.getElementById('establecimiento-telefono-editar').value = fila.children[2].textContent;
                 document.getElementById('establecimiento-email-editar').value = fila.children[3].textContent;
-                document.getElementById('establecimiento-horario_apertura-editar').value = fila.children[4].textContent;
-                document.getElementById('establecimiento-horario_cierre-editar').value = fila.children[5].textContent;
+                // Formatear horarios para inputs de tipo time (HH:MM)
+                const horarioApertura = fila.children[4].textContent.trim();
+                const horarioCierre = fila.children[5].textContent.trim();
+                
+                // Convertir formato HH:MM:SS a HH:MM si es necesario
+                const formatearHora = (hora) => {
+                    if (hora && hora.includes(':')) {
+                        const partes = hora.split(':');
+                        return `${partes[0]}:${partes[1]}`;
+                    }
+                    return hora;
+                };
+                
+                document.getElementById('establecimiento-horario_apertura-editar').value = formatearHora(horarioApertura);
+                document.getElementById('establecimiento-horario_cierre-editar').value = formatearHora(horarioCierre);
                 // Seleccionar proveedor
                 const proveedorNombre = fila.children[6].textContent;
                 const selectProveedor = document.getElementById('establecimiento-proveedor-editar');
@@ -394,18 +407,30 @@ function inicializarEventListeners() {
             e.preventDefault();
             const id = document.getElementById('establecimiento-id-editar').value;
             const formData = {
-                nombre: formEditarEst['establecimiento-nombre'].value,
-                direccion: formEditarEst['establecimiento-direccion'].value,
-                telefono: formEditarEst['establecimiento-telefono'].value,
-                email: formEditarEst['establecimiento-email'].value,
-                horario_apertura: formEditarEst['establecimiento-horario_apertura'].value,
-                horario_cierre: formEditarEst['establecimiento-horario_cierre'].value,
-                proveedor_id: formEditarEst['establecimiento-proveedor'].value,
+                nombre: formEditarEst['establecimiento-nombre'].value.trim(),
+                direccion: formEditarEst['establecimiento-direccion'].value.trim(),
+                telefono: formEditarEst['establecimiento-telefono'].value.trim(),
+                email: formEditarEst['establecimiento-email'].value.trim(),
+                horario_apertura: formEditarEst['establecimiento-horario_apertura'].value.trim(),
+                horario_cierre: formEditarEst['establecimiento-horario_cierre'].value.trim(),
+                proveedor: formEditarEst['establecimiento-proveedor'].value
             };
+            // Para validación, proveedor_id = proveedor
+            console.log('🔍 [EDITAR] Validando formulario antes de enviar...');
+            const errores = validarFormularioEstablecimiento({...formData, proveedor_id: formData.proveedor});
+            console.log('🔍 [EDITAR] Resultado de validación:', errores);
+            if (errores.length > 0) {
+                console.log('❌ [EDITAR] Errores encontrados, mostrando alerta...');
+                mostrarErroresValidacion(errores, 'Errores en el formulario de establecimiento');
+                return;
+            }
+            console.log('✅ [EDITAR] Validación exitosa, procediendo a actualizar establecimiento...');
             actualizarEstablecimiento(id, formData)
                 .then(data => {
                     if (data.error) throw new Error(data.error);
                     mostrarExitoValidacion('Establecimiento actualizado exitosamente', '¡Actualización Exitosa!');
+                    actualizarFilaEstablecimiento(id, data.data);
+                    cerrarModal('editar-establecimiento');
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -423,6 +448,7 @@ function inicializarEventListeners() {
                     .then(data => {
                         if (data.error) throw new Error(data.error);
                         mostrarExitoValidacion('Establecimiento eliminado exitosamente', '¡Eliminación Exitosa!');
+                        eliminarFilaEstablecimiento(id);
                     })
                     .catch(error => {
                         console.error('Error:', error);
@@ -461,18 +487,28 @@ function inicializarEventListeners() {
             const btnAbrirEst = document.getElementById('abrir-form-establecimiento');
             // Recolectar datos
             const formData = {
-                nombre: formCrearEst['establecimiento-nombre'].value,
-                direccion: formCrearEst['establecimiento-direccion'].value,
-                telefono: formCrearEst['establecimiento-telefono'].value,
-                email: formCrearEst['establecimiento-email'].value,
-                horario_apertura: formCrearEst['establecimiento-horario_apertura'].value,
-                horario_cierre: formCrearEst['establecimiento-horario_cierre'].value,
-                proveedor_id: formCrearEst['establecimiento-proveedor'].value,
+                nombre: formCrearEst['establecimiento-nombre'].value.trim(),
+                direccion: formCrearEst['establecimiento-direccion'].value.trim(),
+                telefono: formCrearEst['establecimiento-telefono'].value.trim(),
+                email: formCrearEst['establecimiento-email'].value.trim(),
+                horario_apertura: formCrearEst['establecimiento-horario_apertura'].value.trim(),
+                horario_cierre: formCrearEst['establecimiento-horario_cierre'].value.trim(),
+                proveedor_id: formCrearEst['establecimiento-proveedor'].value
             };
+            console.log('🔍 [CREAR] Validando formulario antes de enviar...');
+            const errores = validarFormularioEstablecimiento(formData);
+            console.log('🔍 [CREAR] Resultado de validación:', errores);
+            if (errores.length > 0) {
+                console.log('❌ [CREAR] Errores encontrados, mostrando alerta...');
+                mostrarErroresValidacion(errores, 'Errores en el formulario de establecimiento');
+                return;
+            }
+            console.log('✅ [CREAR] Validación exitosa, procediendo a crear establecimiento...');
             crearEstablecimiento(formData)
                 .then(data => {
                     if (data.error) throw new Error(data.error);
                     mostrarExitoValidacion('Establecimiento creado exitosamente', '¡Creación Exitosa!');
+                    agregarFilaEstablecimiento(data);
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -962,4 +998,175 @@ function eliminarEstablecimiento(id) {
         },
     })
         .then(res => res.json());
+}
+
+// Función para actualizar fila de establecimiento en la tabla
+function actualizarFilaEstablecimiento(id, data) {
+    const fila = document.querySelector(`tr[data-id="${id}"]`);
+    if (fila) {
+        const cells = fila.cells;
+        cells[0].textContent = data.nombre || '';
+        cells[1].textContent = data.direccion || '';
+        cells[2].textContent = data.telefono || '';
+        cells[3].textContent = data.email || '';
+        cells[4].textContent = formatearHoraParaMostrar(data.horario_apertura);
+        cells[5].textContent = formatearHoraParaMostrar(data.horario_cierre);
+        cells[6].textContent = data.proveedor__nombre || '';
+    }
+}
+
+// Función para eliminar fila de establecimiento de la tabla
+function eliminarFilaEstablecimiento(id) {
+    const fila = document.querySelector(`tr[data-id="${id}"]`);
+    if (fila) {
+        fila.remove();
+    }
+}
+
+// Función para agregar nueva fila de establecimiento a la tabla
+function agregarFilaEstablecimiento(data) {
+    const tbody = document.querySelector('section[name="seccion-establecimientos"] tbody');
+    if (tbody) {
+        const nuevaFila = document.createElement('tr');
+        nuevaFila.setAttribute('data-id', data.id);
+        nuevaFila.setAttribute('data-proveedor-id', data.proveedor_id);
+        
+        nuevaFila.innerHTML = `
+            <td>${data.nombre || ''}</td>
+            <td>${data.direccion || ''}</td>
+            <td>${data.telefono || ''}</td>
+            <td>${data.email || ''}</td>
+            <td>${formatearHoraParaMostrar(data.horario_apertura)}</td>
+            <td>${formatearHoraParaMostrar(data.horario_cierre)}</td>
+            <td>${data.proveedor__nombre || ''}</td>
+            <td>
+                <div class="action-buttons-container">
+                    <button class="filtro-btn" name="btn-editar-establecimiento" data-id="${data.id}">Actualizar</button>
+                    <button class="filtro-btn" name="btn-eliminar-establecimiento" data-id="${data.id}">Eliminar</button>
+                </div>
+            </td>
+        `;
+        
+        tbody.appendChild(nuevaFila);
+        
+        // Agregar event listeners a los nuevos botones
+        const btnEditar = nuevaFila.querySelector('[name="btn-editar-establecimiento"]');
+        const btnEliminar = nuevaFila.querySelector('[name="btn-eliminar-establecimiento"]');
+        
+        if (btnEditar) {
+            btnEditar.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const fila = this.closest('tr');
+                if (fila) {
+                    document.getElementById('establecimiento-id-editar').value = id;
+                    document.getElementById('establecimiento-nombre-editar').value = fila.children[0].textContent;
+                    document.getElementById('establecimiento-direccion-editar').value = fila.children[1].textContent;
+                    document.getElementById('establecimiento-telefono-editar').value = fila.children[2].textContent;
+                    document.getElementById('establecimiento-email-editar').value = fila.children[3].textContent;
+                    
+                    const horarioApertura = fila.children[4].textContent.trim();
+                    const horarioCierre = fila.children[5].textContent.trim();
+                    
+                    const formatearHora = (hora) => {
+                        if (hora && hora.includes(':')) {
+                            const partes = hora.split(':');
+                            return `${partes[0]}:${partes[1]}`;
+                        }
+                        return hora;
+                    };
+                    
+                    document.getElementById('establecimiento-horario_apertura-editar').value = formatearHora(horarioApertura);
+                    document.getElementById('establecimiento-horario_cierre-editar').value = formatearHora(horarioCierre);
+                    
+                    const proveedorNombre = fila.children[6].textContent;
+                    const selectProveedor = document.getElementById('establecimiento-proveedor-editar');
+                    if (selectProveedor) {
+                        for (let opt of selectProveedor.options) {
+                            if (opt.textContent === proveedorNombre) {
+                                opt.selected = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                abrirModal('editar-establecimiento');
+            });
+        }
+        
+        if (btnEliminar) {
+            btnEliminar.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                mostrarModalConfirmacion('¿Está seguro de que desea eliminar este establecimiento?', function() {
+                    eliminarEstablecimiento(id)
+                        .then(data => {
+                            if (data.error) throw new Error(data.error);
+                            mostrarExitoValidacion('Establecimiento eliminado exitosamente', '¡Eliminación Exitosa!');
+                            eliminarFilaEstablecimiento(id);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            mostrarErroresValidacion([error.message], 'Error al Eliminar Establecimiento');
+                        });
+                });
+            });
+        }
+    }
+}
+
+// Función para formatear hora para mostrar en la tabla
+function formatearHoraParaMostrar(hora) {
+    if (!hora) return '';
+    if (typeof hora === 'string') {
+        // Si ya es string, verificar si tiene formato HH:MM:SS
+        if (hora.includes(':')) {
+            const partes = hora.split(':');
+            return `${partes[0]}:${partes[1]}`;
+        }
+        return hora;
+    }
+    // Si es un objeto Time, convertirlo a string
+    return hora.toString().substring(0, 5);
+}
+
+// VALIDACIONES PARA FORMULARIO DE ESTABLECIMIENTO (SUPERADMIN)
+
+function validarFormularioEstablecimiento({nombre, direccion, telefono, email, horario_apertura, horario_cierre, proveedor_id}) {
+    console.log('🔍 [VALIDACIÓN] Iniciando validación de formulario de establecimiento');
+    console.log('📋 [VALIDACIÓN] Datos recibidos:', {nombre, direccion, telefono, email, horario_apertura, horario_cierre, proveedor_id});
+    
+    let errores = [];
+    
+    const erroresNombre = validarNombre(nombre, 'nombre', 3, 30, false, false);
+    console.log('🔍 [VALIDACIÓN] Errores en nombre:', erroresNombre);
+    errores = errores.concat(erroresNombre);
+    
+    const erroresDireccion = validarDireccionChilena(direccion, 'dirección', 5, 100, false);
+    console.log('🔍 [VALIDACIÓN] Errores en dirección:', erroresDireccion);
+    errores = errores.concat(erroresDireccion);
+    
+    const erroresTelefono = validarTelefonoChileno(telefono, 'teléfono', true, false);
+    console.log('🔍 [VALIDACIÓN] Errores en teléfono:', erroresTelefono);
+    errores = errores.concat(erroresTelefono);
+    
+    const erroresEmail = validarEmail(email, 'correo electrónico', 100, true, false);
+    console.log('🔍 [VALIDACIÓN] Errores en email:', erroresEmail);
+    errores = errores.concat(erroresEmail);
+    
+    const erroresHorarioApertura = validarHorario(horario_apertura, 'horario de apertura', 6, 12, true, false);
+    console.log('🔍 [VALIDACIÓN] Errores en horario apertura:', erroresHorarioApertura);
+    errores = errores.concat(erroresHorarioApertura);
+    
+    const erroresHorarioCierre = validarHorario(horario_cierre, 'horario de cierre', 12, 23, true, false);
+    console.log('🔍 [VALIDACIÓN] Errores en horario cierre:', erroresHorarioCierre);
+    errores = errores.concat(erroresHorarioCierre);
+    
+    if (!proveedor_id) {
+        console.log('🔍 [VALIDACIÓN] Error: No se seleccionó proveedor');
+        errores.push('Debe seleccionar un proveedor');
+    }
+    
+    console.log('🔍 [VALIDACIÓN] Total de errores encontrados:', errores.length);
+    console.log('🔍 [VALIDACIÓN] Lista de errores:', errores);
+    
+    return errores;
 }

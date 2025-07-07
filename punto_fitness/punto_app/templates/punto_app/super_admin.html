@@ -8,6 +8,7 @@
   <title>Gestión de administradores - Punto Fitness</title>
   <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
   <link rel="stylesheet" href="{% static 'css/base_admin.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -92,10 +93,10 @@
           <tr data-id="{{ establecimiento.id }}" data-proveedor-id="{{ establecimiento.proveedor_id }}">
             <td>{{ establecimiento.nombre }}</td>
             <td>{{ establecimiento.direccion }}</td>
-            <td>{{ establecimiento.telefono }}</td>
+            <td>{{ establecimiento.telefono|stringformat:"s" }}</td>
             <td>{{ establecimiento.email }}</td>
-            <td>{{ establecimiento.horario_apertura }}</td>
-            <td>{{ establecimiento.horario_cierre }}</td>
+            <td>{{ establecimiento.horario_apertura|time:"H:i" }}</td>
+            <td>{{ establecimiento.horario_cierre|time:"H:i" }}</td>
             <td>{{ establecimiento.proveedor__nombre }}</td>
             <td>
               <div class="action-buttons-container">
@@ -236,7 +237,7 @@
             {% csrf_token %}
             <div class="form-fila">
               <label for="establecimiento-nombre">Nombre:</label>
-              <input type="text" id="establecimiento-nombre" name="establecimiento-nombre" minlength="3" maxlength="30" required pattern="[-A-Za-zÑñÁÉÍÓÚáéíóú0-9\s'.,()&]+" title="Solo letras, números, espacios y los caracteres especiales: -'.,()&" placeholder="Ej: GYM Osorno">
+              <input type="text" id="establecimiento-nombre" name="establecimiento-nombre" minlength="3" maxlength="30" required pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s'.,()&]+" title="Solo letras, espacios y los caracteres especiales: '.,()&" placeholder="Ej: GYM Osorno">
             </div>
             <div class="form-fila">
               <label for="establecimiento-direccion">Dirección:</label>
@@ -244,7 +245,7 @@
             </div>
             <div class="form-fila">
               <label for="establecimiento-telefono">Teléfono:</label>
-              <input type="tel" id="establecimiento-telefono" name="establecimiento-telefono" maxlength="20" minlength="7" required pattern="[\d\s\+\-\(\)]{7,20}" title="El teléfono debe tener entre 7 y 20 dígitos (puede incluir +, -, (, ) o espacios)" placeholder="Ej: +51 123 456 789">
+              <input type="tel" id="establecimiento-telefono" name="establecimiento-telefono" maxlength="15" minlength="8" required pattern="[\d\s\+\-\(\)]{8,15}" title="El teléfono debe tener entre 8 y 15 dígitos (puede incluir +, -, (, ) o espacios)" placeholder="Ej: +51 123 456 789">
             </div>
             <div class="form-fila">
               <label for="establecimiento-email">Correo electrónico:</label>
@@ -289,7 +290,7 @@
             <input type="hidden" id="establecimiento-id-editar" name="establecimiento-id">
             <div class="form-fila">
               <label for="establecimiento-nombre-editar">Nombre:</label>
-              <input type="text" id="establecimiento-nombre-editar" name="establecimiento-nombre" minlength="3" maxlength="30" required pattern="[-A-Za-zÑñÁÉÍÓÚáéíóú0-9\s'.,()&]+" title="Solo letras, números, espacios y los caracteres especiales: -'.,()&" placeholder="Ej: GYM Osorno">
+              <input type="text" id="establecimiento-nombre-editar" name="establecimiento-nombre" minlength="3" maxlength="30" required pattern="[A-Za-zÑñÁÉÍÓÚáéíóú\s'.,()&]+" title="Solo letras, espacios y los caracteres especiales: '.,()&" placeholder="Ej: GYM Osorno">
             </div>
             <div class="form-fila">
               <label for="establecimiento-direccion-editar">Dirección:</label>
@@ -297,7 +298,7 @@
             </div>
             <div class="form-fila">
               <label for="establecimiento-telefono-editar">Teléfono:</label>
-              <input type="tel" id="establecimiento-telefono-editar" name="establecimiento-telefono" maxlength="20" minlength="7" required pattern="[\d\s\+\-\(\)]{7,20}" title="El teléfono debe tener entre 7 y 20 dígitos (puede incluir +, -, (, ) o espacios)" placeholder="Ej: +51 123 456 789">
+              <input type="tel" id="establecimiento-telefono-editar" name="establecimiento-telefono" maxlength="15" minlength="8" required pattern="[\d\s\+\-\(\)]{8,15}" title="El teléfono debe tener entre 8 y 15 dígitos (puede incluir +, -, (, ) o espacios)" placeholder="Ej: +51 123 456 789">
             </div>
             <div class="form-fila">
               <label for="establecimiento-email-editar">Correo electrónico:</label>

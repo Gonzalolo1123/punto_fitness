@@ -46,7 +46,7 @@
           </td>
           <td>
             <div class="action-buttons-container">
-              <button class="filtro-btn" name="btn-editar-curso" data-id="{{ curso.id }}" data-fecha="{{ curso.fecha_realizacion|date:'d/m/y' }}">Actualizar</button>
+              <button class="filtro-btn" name="btn-editar-curso" data-id="{{ curso.id }}" data-fecha="{{ curso.fecha_realizacion|date:'Y-m-d' }}">Actualizar</button>
               <button class="filtro-btn" name="btn-eliminar-curso" data-id="{{ curso.id }}">Eliminar</button>
             </div>
           </td>
@@ -93,11 +93,20 @@
                   <input type="date" 
                          id="curso-fecha_realizacion-editar-modal-{{ curso.id }}" 
                          name="curso-fecha_realizacion" 
-                         value="{{ curso.fecha_realizacion|date:'d/m/y' }}"
-                         min="{{ now|date:'d-m-Y' }}"
+                         value="{{ curso.fecha_realizacion|date:'Y-m-d' }}"
+                         min="{{ now|date:'Y-m-d' }}"
                          max="2030-12-31"
                          title="Seleccione una fecha válida entre 2000 y 2030"
                          required>
+                </div>
+
+                <div class="form-fila">
+                  <label for="curso-estado-editar-modal-{{ curso.id }}">Estado:</label>
+                  <select id="curso-estado-editar-modal-{{ curso.id }}" name="curso-estado" required>
+                    <option value="activo" {% if curso.estado == 'activo' %}selected{% endif %}>Activo</option>
+                    <option value="inactivo" {% if curso.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                    <option value="finalizado" {% if curso.estado == 'finalizado' %}selected{% endif %}>Finalizado</option>
+                  </select>
                 </div>
 
                 <div class="form-fila">
