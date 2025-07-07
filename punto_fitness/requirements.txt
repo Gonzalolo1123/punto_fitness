@@ -7,5 +7,3 @@ whitenoise
 pytz
 python-dateutil
 qrcode[pil]
-cloudinary 
-django-cloudinary-storage

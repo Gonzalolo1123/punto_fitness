@@ -679,12 +679,6 @@ def maquinas(request):
 
 @requiere_admin
 def admin_maquinas(request):
-    # DEPURACIÓN: Verificar variable de entorno CLOUDINARY_URL
-    cloudinary_url = os.environ.get("CLOUDINARY_URL")
-    print("CLOUDINARY_URL:", cloudinary_url)  # Esto aparecerá en los logs de Render
-    if not cloudinary_url:
-        from django.http import HttpResponse
-        return HttpResponse("No se detecta CLOUDINARY_URL en el entorno", status=500)
     maquinas = Maquina.objects.values('id', 'nombre', 'descripcion', 'cantidad', 'establecimiento_id', 'imagen')
     establecimientos = Establecimiento.objects.values('id', 'nombre')
     return render(request, 'punto_app/admin_maquinas.html', {
