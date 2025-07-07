@@ -25,5 +25,6 @@ urlpatterns = [
     path('', include('punto_app.urls')),
 ]
 
-if settings.DEBUG:
+# Permitir servir archivos de medios en desarrollo y en Render (proyectos pequeños)
+if settings.MEDIA_URL and settings.MEDIA_ROOT:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

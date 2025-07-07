@@ -28,31 +28,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure--srandy--wou)yx)bm6iyaiqllk37!#t&nn_&e=yqgb*#ocyq$'
 
-# ----------- PRODUCCIÓN -----------
-# Uncomment this block for production and comment the development one
+# ===================== ENTORNOS =====================
+# Cambia entre PRODUCCIÓN y DESARROLLO comentando/descomentando el bloque correspondiente.
 
+# ----------- PRODUCCIÓN Y DESARROLLO LOCAL -----------
 DEBUG = False
 ALLOWED_HOSTS = ['punto-fitness.onrender.com']
 DATABASES = {
      'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
 }
-
-# ----------- DESARROLLO -----------
-# Uncomment this block for development and comment the production one
-
-#DEBUG = True
-#ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-#DATABASES = {
-#       'default': {
-#       'ENGINE': 'django.db.backends.postgresql',
-#       'NAME': 'punto_fitness',
-#       'USER': 'postgres',
-#       'PASSWORD': 'hola1234',
-#       'HOST': 'localhost',
-#       'PORT': '5432',
-#   }
-#}
-# -----------------------------------
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# =====================================================
 
 # Application definition
 
@@ -202,19 +189,3 @@ except ImportError:
     EMAIL_HOST_USER = 'tu_correo@gmail.com'
     EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicacion'
     DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-# === CONFIGURACIÓN DE ALMACENAMIENTO DE IMÁGENES ===
-#
-# Para PRODUCCIÓN (Cloudinary):
-#   - Descomenta el bloque de Cloudinary y comenta el de local.
-# Para DESARROLLO (local):
-#   - Comenta el bloque de Cloudinary y descomenta el de local.
-
-# --- DESARROLLO (local) ---
-#MEDIA_URL = '/media/'
-#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# --- PRODUCCIÓN (Cloudinary) ---
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-# Cloudinary se configura automáticamente usando la variable de entorno CLOUDINARY_URL
-# Ejemplo en .env: CLOUDINARY_URL=cloudinary://451741164829985:84hQxWjjkyb5-gvll6hmjPELNPs@dhxgu5ifk
