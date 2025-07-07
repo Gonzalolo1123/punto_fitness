@@ -116,7 +116,7 @@ class Producto(models.Model):
     compra = models.ForeignKey(CompraVendedor, on_delete=models.CASCADE)
     categoria = models.ForeignKey(CategoriaProducto, on_delete=models.CASCADE)
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
-    imagen = models.CharField(max_length=200, null=True, blank=True)
+    imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
 
     class Meta:
         db_table = 'producto'
@@ -172,7 +172,7 @@ class Membresia(models.Model):
     precio = models.IntegerField()
     duracion = models.CharField(max_length=15, choices=DURACIONES)
     dias_por_semana = models.IntegerField(null=True, blank=True)  # Para "3 veces por semana", etc.
-    imagen = models.CharField(max_length=200, null=True, blank=True)  # Imagen de la membresía
+    imagen = models.ImageField(upload_to='membresias/', null=True, blank=True)  # Imagen de la membresía
 
     class Meta:
         db_table = 'membresia'
@@ -195,7 +195,7 @@ class Maquina(models.Model):
     descripcion = models.CharField(max_length=100)
     cantidad = models.IntegerField()
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
-    imagen = models.CharField(max_length=200, null=True, blank=True)
+    imagen = models.ImageField(upload_to='maquinas/', null=True, blank=True)
     class Meta:
         db_table = 'maquina'
         
