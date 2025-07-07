@@ -216,8 +216,5 @@ except ImportError:
 
 # --- PRODUCCIÓN (Cloudinary) ---
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-}
+# Cloudinary se configura automáticamente usando la variable de entorno CLOUDINARY_URL
+# Ejemplo en .env: CLOUDINARY_URL=cloudinary://451741164829985:84hQxWjjkyb5-gvll6hmjPELNPs@dhxgu5ifk

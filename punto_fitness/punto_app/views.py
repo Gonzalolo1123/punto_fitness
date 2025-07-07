@@ -694,7 +694,6 @@ def admin_maquina_crear(request):
         cantidad = request.POST.get('maquina-cantidad', 1)
         establecimiento_id = request.POST.get('maquina-establecimiento')
         imagen = request.FILES.get('imagen')
-
         maquina = Maquina.objects.create(
             nombre=nombre,
             descripcion=descripcion,
