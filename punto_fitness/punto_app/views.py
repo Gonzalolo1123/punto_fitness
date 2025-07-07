@@ -689,10 +689,10 @@ def admin_maquinas(request):
 @csrf_exempt
 def admin_maquina_crear(request):
     if request.method == "POST":
-        nombre = request.POST.get('nombre')
-        descripcion = request.POST.get('descripcion')
-        cantidad = request.POST.get('cantidad', 1)
-        establecimiento_id = request.POST.get('establecimiento_id')
+        nombre = request.POST.get('maquina-nombre')
+        descripcion = request.POST.get('maquina-descripcion')
+        cantidad = request.POST.get('maquina-cantidad', 1)
+        establecimiento_id = request.POST.get('maquina-establecimiento')
         imagen = request.FILES.get('imagen')
 
         maquina = Maquina.objects.create(
@@ -706,18 +706,20 @@ def admin_maquina_crear(request):
             'id': maquina.id,
             'nombre': maquina.nombre,
             'descripcion': maquina.descripcion,
-            'cantidad': maquina.cantidad
-        }, status=201)
+            'cantidad': maquina.cantidad,
+            'establecimiento_id': maquina.establecimiento_id,
+            'imagen_url': maquina.imagen.url if maquina.imagen else None
+        })
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 @csrf_exempt
-def admin_maquina_actualizar(request, maquina_id):
+def admin_maquina_actualizar(request, id):
     if request.method == "POST":
-        maquina = get_object_or_404(Maquina, pk=maquina_id)
-        nombre = request.POST.get('nombre', maquina.nombre)
-        descripcion = request.POST.get('descripcion', maquina.descripcion)
-        cantidad = request.POST.get('cantidad', maquina.cantidad)
-        establecimiento_id = request.POST.get('establecimiento_id', maquina.establecimiento_id)
+        maquina = get_object_or_404(Maquina, id=id)
+        nombre = request.POST.get('maquina-nombre-editar-' + str(id))
+        descripcion = request.POST.get('maquina-descripcion-editar-' + str(id))
+        cantidad = request.POST.get('maquina-cantidad-editar-' + str(id))
+        establecimiento_id = request.POST.get('maquina-establecimiento-editar-' + str(id))
         imagen = request.FILES.get('imagen')
 
         maquina.nombre = nombre
@@ -727,13 +729,13 @@ def admin_maquina_actualizar(request, maquina_id):
         if imagen:
             maquina.imagen = imagen
         maquina.save()
-
         return JsonResponse({
             'id': maquina.id,
             'nombre': maquina.nombre,
             'descripcion': maquina.descripcion,
             'cantidad': maquina.cantidad,
-            'establecimiento_id': maquina.establecimiento_id
+            'establecimiento_id': maquina.establecimiento_id,
+            'imagen_url': maquina.imagen.url if maquina.imagen else None
         })
     return JsonResponse({'error': 'Método no permitido'}, status=405)
     
