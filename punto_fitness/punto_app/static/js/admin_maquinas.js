@@ -204,8 +204,6 @@ function inicializarEventListeners() {
       if (!establecimientoId) errores.push('Debe seleccionar un establecimiento');
       if (!imagen) {
         errores.push('Debe seleccionar una imagen');
-      } else if (!imagen.startsWith('images/maquinas/')) {
-        errores.push('La imagen debe estar en la carpeta images/maquinas/');
       }
       if (errores.length > 0) {
         mostrarErroresValidacion(errores, 'Errores en el formulario de máquina');
@@ -288,8 +286,6 @@ function inicializarEventListeners() {
       if (!establecimientoId) errores.push('Debe seleccionar un establecimiento');
       if (!imagen) {
         errores.push('Debe seleccionar una imagen');
-      } else if (!imagen.startsWith('images/maquinas/')) {
-        errores.push('La imagen debe estar en la carpeta images/maquinas/');
       }
       if (errores.length > 0) {
         mostrarErroresValidacion(errores, 'Errores en el formulario de máquina');
