@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '/mostrar_voucher/';
-                    form.target = '_blank';
+                    form.target = '_self';
                     const csrfToken = getCookie('csrftoken');
                     const csrfInput = document.createElement('input');
                     csrfInput.type = 'hidden';

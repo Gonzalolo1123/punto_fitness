@@ -91,8 +91,8 @@ function validarNombre(nombre, campo = 'nombre', minLength = 3, maxLength = 30, 
     errores.push(`El ${campo} no puede contener solo espacios en blanco`);
   } else {
     const regex = permitirNumeros 
-      ? /^[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s.,()&]+$/
-      : /^[A-Za-zÑñÁÉÍÓÚáéíóú\s]+$/;
+      ? /^[A-Za-zÑñÁÉÍÓÚáéíóú0-9\s\-.,()&]+$/
+      : /^[A-Za-zÑñÁÉÍÓÚáéíóú\s\-]+$/;
     if (!regex.test(nombre)) {
       errores.push(`El ${campo} contiene caracteres no permitidos`);
     }
@@ -250,9 +250,9 @@ function validarTelefonoNumericoChileno(telefono, campo = 'teléfono', obligator
   if (!telefono && obligatorio) {
     errores.push(`El ${campo} es obligatorio`);
   } else if (telefono) {
-    // Teléfonos chilenos: entre 8 y 15 dígitos
-    if (!/^[\d]{8,15}$/.test(telefono)) {
-      errores.push(`El ${campo} debe tener entre 8 y 15 dígitos numéricos`);
+    // Teléfonos chilenos: 9 dígitos (móvil) o 8 dígitos (fijo)
+    if (!/^[\d]{8,9}$/.test(telefono)) {
+      errores.push(`El ${campo} debe tener 8 o 9 dígitos numéricos`);
     }
   }
   

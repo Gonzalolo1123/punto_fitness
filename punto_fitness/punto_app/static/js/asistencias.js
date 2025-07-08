@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('DOMContentLoaded', function () {
     const buscador = document.getElementById('buscador');
-    const filas = document.querySelectorAll('table tbody tr');
+    const filas = document.querySelectorAll('.tabla-asistencias tbody tr');
 
     buscador.addEventListener('input', function () {
         const termino = buscador.value.toLowerCase();

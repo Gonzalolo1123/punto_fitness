@@ -67,18 +67,14 @@ urlpatterns = [
     path('super_admin/crear_admin/', views.crear_o_actualizar_admin, name='crear_o_actualizar_admin'),
     path('super_admin/actualizar_admin/<int:admin_id>/', views.actualizar_admin, name='actualizar_admin'),
     path('super_admin/borrar_admin/<int:admin_id>/', views.borrar_admin, name='borrar_admin'),
-    # Establecimientos para SuperAdmin
-    path('super_admin/crear_establecimiento/', views.admin_establecimiento_crear, name='super_admin_crear_establecimiento'),
-    path('super_admin/actualizar_establecimiento/<int:establecimiento_id>/', views.admin_establecimiento_actualizar, name='super_admin_actualizar_establecimiento'),
-    path('super_admin/borrar_establecimiento/<int:establecimiento_id>/', views.admin_establecimiento_borrar, name='super_admin_borrar_establecimiento'),
     path('asistencias/', views.asistencias, name='asistencias'),
     path('confirmar_asistencia/', views.confirmar_asistencia, name='confirmar_asistencia'),
     path('confirmar-salida/', views.confirmar_salida, name='confirmar_salida'),
     path('cambiar-rol-admin/', views.cambiar_rol_admin, name='cambiar_rol_admin'),
     # Nuevas URLs para transferencia de superadmin
     path('super_admin/transferir_superadmin/', views.transferir_superadmin, name='transferir_superadmin'),
-    path('super_admin/verificar_elegibilidad/<int:admin_id>/', views.verificar_elegibilidad_admin_superadmin, name='verificar_elegibilidad_admin'),
-    path('super_admin/enviar_codigo_verificacion/', views.enviar_codigo_verificacion_superadmin, name='enviar_codigo_verificacion_admin'),
+    path('super_admin/verificar_elegibilidad/<int:admin_id>/', views.verificar_elegibilidad_admin_superadmin, name='verificar_elegibilidad_admin_superadmin'),
+    path('super_admin/enviar_codigo_verificacion/', views.enviar_codigo_verificacion_superadmin, name='enviar_codigo_verificacion_superadmin'),
     path('super_admin/enviar_codigo_verificacion_actual/', views.enviar_codigo_verificacion_superadmin_actual, name='enviar_codigo_verificacion_superadmin_actual'),
     
     #Venta Productos

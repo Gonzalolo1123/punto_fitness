@@ -86,7 +86,25 @@ function crearUsuario(formData) {
         },
         body: JSON.stringify(formData)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('📥 Respuesta recibida del servidor:', response);
+        console.log('📊 Status:', response.status);
+        console.log('📋 Headers:', response.headers);
+        
+        if (!response.ok) {
+            console.error('❌ Error HTTP:', response.status, response.statusText);
+            // Intentar leer el mensaje de error del servidor
+            return response.json().then(errorData => {
+                console.error('📋 Datos de error del servidor:', errorData);
+                throw new Error(errorData.error || `Error HTTP: ${response.status} ${response.statusText}`);
+            }).catch(() => {
+                // Si no se puede leer el JSON, lanzar error genérico
+                throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+            });
+        }
+        
+        return response.json();
+    })
     .then(data => {
         console.log('✅ Datos procesados del servidor:', data);
         return data;
@@ -111,7 +129,25 @@ function actualizarUsuario(id, data) {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('📥 Respuesta recibida del servidor:', response);
+        console.log('📊 Status:', response.status);
+        console.log('🌐 URL de la respuesta:', response.url);
+        
+        if (!response.ok) {
+            console.error('❌ Error HTTP:', response.status, response.statusText);
+            // Intentar leer el mensaje de error del servidor
+            return response.json().then(errorData => {
+                console.error('📋 Datos de error del servidor:', errorData);
+                throw new Error(errorData.error || `Error HTTP: ${response.status} ${response.statusText}`);
+            }).catch(() => {
+                // Si no se puede leer el JSON, lanzar error genérico
+                throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+            });
+        }
+        
+        return response.json();
+    })
     .then(data => {
         console.log('✅ Datos procesados del servidor:', data);
         return data;
@@ -131,7 +167,24 @@ function eliminarUsuario(id) {
             'X-CSRFToken': getCSRFToken()
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('📥 Respuesta recibida del servidor:', response);
+        console.log('📊 Status:', response.status);
+        
+        if (!response.ok) {
+            console.error('❌ Error HTTP:', response.status, response.statusText);
+            // Intentar leer el mensaje de error del servidor
+            return response.json().then(errorData => {
+                console.error('📋 Datos de error del servidor:', errorData);
+                throw new Error(errorData.error || `Error HTTP: ${response.status} ${response.statusText}`);
+            }).catch(() => {
+                // Si no se puede leer el JSON, lanzar error genérico
+                throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+            });
+        }
+        
+        return response.json();
+    })
     .then(data => {
         console.log('✅ Datos procesados del servidor:', data);
         return data;
@@ -299,23 +352,35 @@ function manejarFormularioEdicion(tipo, formData) {
     if (funcionActualizacion) {
         funcionActualizacion(id, dataToSend)
             .then(response => {
-                if (response.error) {
+                if (response.success) {
+                    console.log(`✅ ${tipo} actualizado correctamente`);
+                    
+                    // Usar mostrarExitoValidacion para consistencia
+                    mostrarExitoValidacion(`El usuario ${response.data.nombre} ${response.data.apellido} ha sido actualizado exitosamente.`, '¡Usuario Actualizado!').then(() => {
+                        actualizarVista(response.data);
+                        cerrarModalEdicion(tipo);
+                        window.location.reload();
+                    });
+                } else {
                     console.error(`❌ Error al actualizar ${tipo}:`, response.error);
-                    throw new Error(response.error);
+                    Swal.fire({
+                        title: 'Error al Actualizar Usuario',
+                        html: `<p style="color: #555;">${response.error}</p>`,
+                        icon: 'error',
+                        confirmButtonColor: '#dc3545',
+                        confirmButtonText: 'Entendido'
+                    });
                 }
-                
-                console.log(`✅ ${tipo} actualizado correctamente`);
-                
-                // Usar mostrarExitoValidacion para consistencia
-                mostrarExitoValidacion(`El usuario ${response.data.nombre} ${response.data.apellido} ha sido actualizado exitosamente.`, '¡Usuario Actualizado!').then(() => {
-                    actualizarVista(response.data);
-                    cerrarModalEdicion(tipo);
-                    window.location.reload();
-                });
             })
             .catch(error => {
                 console.error(`❌ Error en la petición de actualización de ${tipo}:`, error);
-                mostrarErroresValidacion([error.message], 'Error al Actualizar Usuario');
+                Swal.fire({
+                    title: 'Error al Actualizar Usuario',
+                    html: `<p style="color: #555;">${error.message}</p>`,
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: 'Entendido'
+                });
             });
     }
 }
@@ -506,8 +571,14 @@ function inicializarEventListeners() {
                 console.error('💥 Error al crear usuario:', error);
                 console.error('📋 Stack trace:', error.stack);
                 
-                // Usar mostrarErroresValidacion para consistencia con inventario
-                mostrarErroresValidacion([error.message], 'Error al Crear Usuario');
+                // Usar SweetAlert2 para mostrar error
+                Swal.fire({
+                    title: 'Error al Crear Usuario',
+                    html: `<p style="color: #555;">${error.message}</p>`,
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: 'Entendido'
+                });
             });
     }
     
@@ -541,19 +612,31 @@ function inicializarEventListeners() {
                 if (result.isConfirmed) {
                     eliminarUsuario(id)
                         .then(response => {
-                            if (response.error) {
+                            if (response.message) {
+                                console.log('✅ Usuario eliminado correctamente');
+                                mostrarExitoValidacion('El usuario ha sido eliminado exitosamente.', '¡Usuario Eliminado!').then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
                                 console.error('❌ Error al eliminar usuario:', response.error);
-                                throw new Error(response.error);
+                                Swal.fire({
+                                    title: 'Error al Eliminar Usuario',
+                                    html: `<p style="color: #555;">${response.error}</p>`,
+                                    icon: 'error',
+                                    confirmButtonColor: '#dc3545',
+                                    confirmButtonText: 'Entendido'
+                                });
                             }
-                            
-                            console.log('✅ Usuario eliminado correctamente');
-                            mostrarExitoValidacion('El usuario ha sido eliminado exitosamente.', '¡Usuario Eliminado!').then(() => {
-                                window.location.reload();
-                            });
                         })
                         .catch(error => {
                             console.error('❌ Error en la petición de eliminación:', error);
-                            mostrarErroresValidacion([error.message], 'Error al Eliminar Usuario');
+                            Swal.fire({
+                                title: 'Error al Eliminar Usuario',
+                                html: `<p style="color: #555;">${error.message}</p>`,
+                                icon: 'error',
+                                confirmButtonColor: '#dc3545',
+                                confirmButtonText: 'Entendido'
+                            });
                         });
                 }
             });

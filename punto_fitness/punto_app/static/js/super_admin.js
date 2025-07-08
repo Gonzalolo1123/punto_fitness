@@ -6,15 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Función para obtener csrf token
 function getCSRFToken() {
-    const name = 'csrftoken';
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.startsWith(name + '=')) {
-            return decodeURIComponent(cookie.substring(name.length + 1));
-        }
-    }
-    return '';
+    const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    return csrfInput ? csrfInput.value : '';
 }
 
 // Funciones para modal
@@ -111,14 +104,15 @@ function otorgarRolAdmin(clienteId, establecimientoId) {
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                mostrarExitoValidacion('Rol de administrador otorgado con éxito.', '¡Rol Otorgado!');
+                alert('Rol de administrador otorgado con éxito.');
+                window.location.reload(); // Recargar la página para ver los cambios
             } else {
-                mostrarErroresValidacion([result.error], 'Error al Otorgar Rol');
+                alert('Error al otorgar rol de administrador: ' + result.error);
             }
         })
         .catch(error => {
             console.error('Error en la petición:', error);
-            mostrarErroresValidacion(['Ocurrió un error al intentar cambiar el rol.'], 'Error de Conexión');
+            alert('Ocurrió un error al intentar cambiar el rol.');
         });
 }
 
@@ -218,7 +212,7 @@ function inicializarEventListeners() {
             const adminId = this.dataset.id;
             
             if (!adminId || adminId === '') {
-                mostrarErroresValidacion(['No se pudo obtener el ID del administrador. Por favor, recarga la página.'], 'Error del Sistema');
+                alert('Error: No se pudo obtener el ID del administrador. Por favor, recarga la página.');
                 return;
             }
             
@@ -241,7 +235,7 @@ function inicializarEventListeners() {
             const finalTelefonoField = telefonoField || telefonoFieldById;
             
             if (!finalNombreField || !finalApellidoField || !finalCorreoField || !finalTelefonoField) {
-                mostrarErroresValidacion(['No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.'], 'Error del Sistema');
+                alert('Error: No se pudieron encontrar todos los campos del formulario. Por favor, recarga la página.');
                 return;
             }
             
@@ -298,7 +292,7 @@ function inicializarEventListeners() {
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        mostrarErroresValidacion([error.message], 'Error al Eliminar Administrador');
+                        alert('Error al eliminar administrador: ' + error.message);
                     });
             });
         });
@@ -313,7 +307,7 @@ function inicializarEventListeners() {
             const establecimientoId = selectEst ? selectEst.value : '';
 
             if (!establecimientoId) {
-                mostrarErroresValidacion(['Por favor, selecciona un establecimiento antes de continuar.'], 'Establecimiento Requerido');
+                alert('Por favor, selecciona un establecimiento antes de continuar.');
                 return;
             }
 
@@ -322,205 +316,6 @@ function inicializarEventListeners() {
             });
         });
     });
-
-    // MODALES DE ESTABLECIMIENTOS
-
-    // Abrir modal de agregar establecimiento
-    const btnAbrirEst = document.getElementById('abrir-form-establecimiento');
-    const modalFondoEst = document.getElementById('modal-fondo-establecimiento');
-    if (btnAbrirEst && modalFondoEst) {
-        btnAbrirEst.addEventListener('click', function() {
-            modalFondoEst.style.display = 'flex';
-            btnAbrirEst.setAttribute('data-estado', 'abierto');
-            btnAbrirEst.textContent = '-';
-        });
-        // Cerrar modal al hacer click fuera del formulario
-        modalFondoEst.addEventListener('click', function(event) {
-            if (event.target === modalFondoEst) {
-                modalFondoEst.style.display = 'none';
-                btnAbrirEst.setAttribute('data-estado', 'cerrado');
-                btnAbrirEst.textContent = '+';
-            }
-        });
-    }
-
-    // Cerrar modal con botón cancelar
-    const btnCancelarEst = document.querySelector('#modal-form-establecimiento .btn-cancelar');
-    if (btnCancelarEst && modalFondoEst) {
-        btnCancelarEst.addEventListener('click', function() {
-            modalFondoEst.style.display = 'none';
-            btnAbrirEst.setAttribute('data-estado', 'cerrado');
-            btnAbrirEst.textContent = '+';
-        });
-    }
-
-    // Abrir modal de edición de establecimiento
-    document.querySelectorAll('[name="btn-editar-establecimiento"]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            
-            // Rellenar el formulario con los datos de la fila
-            const fila = this.closest('tr');
-            if (fila) {
-                document.getElementById('establecimiento-id-editar').value = id;
-                document.getElementById('establecimiento-nombre-editar').value = fila.children[0].textContent;
-                document.getElementById('establecimiento-direccion-editar').value = fila.children[1].textContent;
-                document.getElementById('establecimiento-telefono-editar').value = fila.children[2].textContent;
-                document.getElementById('establecimiento-email-editar').value = fila.children[3].textContent;
-                // Formatear horarios para inputs de tipo time (HH:MM)
-                const horarioApertura = fila.children[4].textContent.trim();
-                const horarioCierre = fila.children[5].textContent.trim();
-                
-                // Convertir formato HH:MM:SS a HH:MM si es necesario
-                const formatearHora = (hora) => {
-                    if (hora && hora.includes(':')) {
-                        const partes = hora.split(':');
-                        return `${partes[0]}:${partes[1]}`;
-                    }
-                    return hora;
-                };
-                
-                document.getElementById('establecimiento-horario_apertura-editar').value = formatearHora(horarioApertura);
-                document.getElementById('establecimiento-horario_cierre-editar').value = formatearHora(horarioCierre);
-                // Seleccionar proveedor
-                const proveedorNombre = fila.children[6].textContent;
-                const selectProveedor = document.getElementById('establecimiento-proveedor-editar');
-                if (selectProveedor) {
-                    for (let opt of selectProveedor.options) {
-                        if (opt.textContent === proveedorNombre) {
-                            opt.selected = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            // Abrir el modal usando la función estándar
-            abrirModal('editar-establecimiento');
-        });
-    });
-
-    // SUBMIT EDITAR ESTABLECIMIENTO
-    const formEditarEst = document.getElementById('form-editar-establecimiento');
-    if (formEditarEst) {
-        formEditarEst.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const id = document.getElementById('establecimiento-id-editar').value;
-            const formData = {
-                nombre: formEditarEst['establecimiento-nombre'].value.trim(),
-                direccion: formEditarEst['establecimiento-direccion'].value.trim(),
-                telefono: formEditarEst['establecimiento-telefono'].value.trim(),
-                email: formEditarEst['establecimiento-email'].value.trim(),
-                horario_apertura: formEditarEst['establecimiento-horario_apertura'].value.trim(),
-                horario_cierre: formEditarEst['establecimiento-horario_cierre'].value.trim(),
-                proveedor: formEditarEst['establecimiento-proveedor'].value
-            };
-            // Para validación, proveedor_id = proveedor
-            console.log('🔍 [EDITAR] Validando formulario antes de enviar...');
-            const errores = validarFormularioEstablecimiento({...formData, proveedor_id: formData.proveedor});
-            console.log('🔍 [EDITAR] Resultado de validación:', errores);
-            if (errores.length > 0) {
-                console.log('❌ [EDITAR] Errores encontrados, mostrando alerta...');
-                mostrarErroresValidacion(errores, 'Errores en el formulario de establecimiento');
-                return;
-            }
-            console.log('✅ [EDITAR] Validación exitosa, procediendo a actualizar establecimiento...');
-            actualizarEstablecimiento(id, formData)
-                .then(data => {
-                    if (data.error) throw new Error(data.error);
-                    mostrarExitoValidacion('Establecimiento actualizado exitosamente', '¡Actualización Exitosa!');
-                    actualizarFilaEstablecimiento(id, data.data);
-                    cerrarModal('editar-establecimiento');
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    mostrarErroresValidacion([error.message], 'Error al Actualizar Establecimiento');
-                });
-        });
-    }
-
-    // ELIMINAR ESTABLECIMIENTO
-    document.querySelectorAll('[name="btn-eliminar-establecimiento"]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            mostrarModalConfirmacion('¿Está seguro de que desea eliminar este establecimiento?', function() {
-                eliminarEstablecimiento(id)
-                    .then(data => {
-                        if (data.error) throw new Error(data.error);
-                        mostrarExitoValidacion('Establecimiento eliminado exitosamente', '¡Eliminación Exitosa!');
-                        eliminarFilaEstablecimiento(id);
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        mostrarErroresValidacion([error.message], 'Error al Eliminar Establecimiento');
-                    });
-            });
-        });
-    });
-
-    // (Opcional) Cerrar modales con ESC
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            const modalFondoEst = document.getElementById('modal-fondo-establecimiento');
-            const modalFondoEditarEst = document.getElementById('modal-fondo-editar-establecimiento');
-            const btnAbrirEst = document.getElementById('abrir-form-establecimiento');
-            
-            if (modalFondoEst && modalFondoEst.style.display === 'flex') {
-                modalFondoEst.style.display = 'none';
-                if (btnAbrirEst) {
-                    btnAbrirEst.setAttribute('data-estado', 'cerrado');
-                    btnAbrirEst.textContent = '+';
-                }
-            }
-            if (modalFondoEditarEst && modalFondoEditarEst.style.display === 'flex') {
-                modalFondoEditarEst.style.display = 'none';
-            }
-        }
-    });
-
-    // CREAR ESTABLECIMIENTO
-    const formCrearEst = document.getElementById('form-crear-establecimiento');
-    if (formCrearEst) {
-        formCrearEst.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const modalFondoEst = document.getElementById('modal-fondo-establecimiento');
-            const btnAbrirEst = document.getElementById('abrir-form-establecimiento');
-            // Recolectar datos
-            const formData = {
-                nombre: formCrearEst['establecimiento-nombre'].value.trim(),
-                direccion: formCrearEst['establecimiento-direccion'].value.trim(),
-                telefono: formCrearEst['establecimiento-telefono'].value.trim(),
-                email: formCrearEst['establecimiento-email'].value.trim(),
-                horario_apertura: formCrearEst['establecimiento-horario_apertura'].value.trim(),
-                horario_cierre: formCrearEst['establecimiento-horario_cierre'].value.trim(),
-                proveedor_id: formCrearEst['establecimiento-proveedor'].value
-            };
-            console.log('🔍 [CREAR] Validando formulario antes de enviar...');
-            const errores = validarFormularioEstablecimiento(formData);
-            console.log('🔍 [CREAR] Resultado de validación:', errores);
-            if (errores.length > 0) {
-                console.log('❌ [CREAR] Errores encontrados, mostrando alerta...');
-                mostrarErroresValidacion(errores, 'Errores en el formulario de establecimiento');
-                return;
-            }
-            console.log('✅ [CREAR] Validación exitosa, procediendo a crear establecimiento...');
-            crearEstablecimiento(formData)
-                .then(data => {
-                    if (data.error) throw new Error(data.error);
-                    mostrarExitoValidacion('Establecimiento creado exitosamente', '¡Creación Exitosa!');
-                    agregarFilaEstablecimiento(data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    mostrarErroresValidacion([error.message], 'Error al Crear Establecimiento');
-                })
-                .finally(() => {
-                    modalFondoEst.style.display = 'none';
-                    btnAbrirEst.setAttribute('data-estado', 'cerrado');
-                    btnAbrirEst.textContent = '+';
-                });
-        });
-    }
 }
 
 // Funciones para transferencia de Super Admin
@@ -702,27 +497,20 @@ function verificarElegibilidadAdmin(adminId) {
         if (data.success) {
             if (data.elegible) {
                 console.log(`✅ [TRANSFERENCIA] Admin ${data.admin.nombre} ${data.admin.apellido} es elegible`);
-                mostrarExitoValidacion(`${data.admin.nombre} ${data.admin.apellido} es elegible para ser Super Admin.`, '✅ Elegibilidad Confirmada');
+                alert(`✅ ${data.admin.nombre} ${data.admin.apellido} es elegible para ser Super Admin.`);
             } else {
                 console.log(`❌ [TRANSFERENCIA] Admin ${data.admin.nombre} ${data.admin.apellido} NO es elegible`);
-                mostrarErroresValidacion([
-                    `${data.admin.nombre} ${data.admin.apellido} NO es elegible para ser Super Admin.`,
-                    '',
-                    'Criterios no cumplidos:',
-                    '• Debe ser admin actual',
-                    '• Debe tener actividad regular', 
-                    '• No debe tener incidentes de seguridad'
-                ], '❌ No Elegible');
+                alert(`❌ ${data.admin.nombre} ${data.admin.apellido} NO es elegible para ser Super Admin.\n\nCriterios no cumplidos:\n- Debe ser admin actual\n- Debe tener actividad regular\n- No debe tener incidentes de seguridad`);
             }
         } else {
             console.log(`❌ [TRANSFERENCIA] Error en verificación: ${data.error}`);
-            mostrarErroresValidacion([data.error], 'Error al Verificar Elegibilidad');
+            alert('Error al verificar elegibilidad: ' + data.error);
         }
     })
-            .catch(error => {
-            console.error('❌ [TRANSFERENCIA] Error en la petición:', error);
-            mostrarErroresValidacion(['Error al verificar elegibilidad del administrador.'], 'Error de Conexión');
-        });
+    .catch(error => {
+        console.error('❌ [TRANSFERENCIA] Error en la petición:', error);
+        alert('Error al verificar elegibilidad del administrador.');
+    });
 }
 
 function enviarCodigoVerificacion() {
@@ -730,7 +518,7 @@ function enviarCodigoVerificacion() {
     
     if (!window.adminSeleccionado) {
         console.log('❌ [TRANSFERENCIA] No hay admin seleccionado');
-        mostrarErroresValidacion(['Debes seleccionar un administrador primero.'], 'Administrador Requerido');
+        alert('Debes seleccionar un administrador primero.');
         return;
     }
     
@@ -759,18 +547,18 @@ function enviarCodigoVerificacion() {
         
         if (data.success) {
             console.log('✅ [TRANSFERENCIA] Código enviado exitosamente');
-            mostrarExitoValidacion('Código de verificación enviado al email del administrador seleccionado.', '✅ Código Enviado');
+            alert('✅ Código de verificación enviado al email del administrador seleccionado.');
             document.getElementById('enviar-codigo-btn').disabled = true;
             document.getElementById('enviar-codigo-btn').textContent = 'Código Enviado';
         } else {
             console.log(`❌ [TRANSFERENCIA] Error al enviar código: ${data.error}`);
-            mostrarErroresValidacion([data.error], 'Error al Enviar Código');
+            alert('Error al enviar código: ' + data.error);
         }
     })
-            .catch(error => {
-            console.error('❌ [TRANSFERENCIA] Error en envío de código:', error);
-            mostrarErroresValidacion(['Error al enviar código de verificación.'], 'Error de Conexión');
-        });
+    .catch(error => {
+        console.error('❌ [TRANSFERENCIA] Error en envío de código:', error);
+        alert('Error al enviar código de verificación.');
+    });
 }
 
 function enviarCodigoVerificacionSuperadminActual() {
@@ -793,18 +581,18 @@ function enviarCodigoVerificacionSuperadminActual() {
         
         if (data.success) {
             console.log('✅ [TRANSFERENCIA] Código enviado al superadmin actual exitosamente');
-            mostrarExitoValidacion('Código de verificación enviado al email del superadmin actual.', '✅ Código Enviado');
+            alert('✅ Código de verificación enviado al email del superadmin actual.');
             document.getElementById('enviar-codigo-superadmin-actual-btn').disabled = true;
             document.getElementById('enviar-codigo-superadmin-actual-btn').textContent = 'Código Enviado';
         } else {
             console.log(`❌ [TRANSFERENCIA] Error al enviar código al superadmin actual: ${data.error}`);
-            mostrarErroresValidacion([data.error], 'Error al Enviar Código');
+            alert('Error al enviar código al superadmin actual: ' + data.error);
         }
     })
-            .catch(error => {
-            console.error('❌ [TRANSFERENCIA] Error en envío de código al superadmin actual:', error);
-            mostrarErroresValidacion(['Error al enviar código de verificación al superadmin actual.'], 'Error de Conexión');
-        });
+    .catch(error => {
+        console.error('❌ [TRANSFERENCIA] Error en envío de código al superadmin actual:', error);
+        alert('Error al enviar código de verificación al superadmin actual.');
+    });
 }
 
 function transferirSuperAdmin() {
@@ -824,25 +612,25 @@ function transferirSuperAdmin() {
     
     if (!password) {
         console.log('❌ [TRANSFERENCIA] Falta contraseña');
-        mostrarErroresValidacion(['Debes ingresar tu contraseña de Super Admin.'], 'Contraseña Requerida');
+        alert('Debes ingresar tu contraseña de Super Admin.');
         return;
     }
     
     if (!codigo) {
         console.log('❌ [TRANSFERENCIA] Falta código de verificación');
-        mostrarErroresValidacion(['Debes ingresar el código de verificación.'], 'Código Requerido');
+        alert('Debes ingresar el código de verificación.');
         return;
     }
     
     if (!codigoSuperadminActual) {
         console.log('❌ [TRANSFERENCIA] Falta código de verificación del superadmin actual');
-        mostrarErroresValidacion(['Debes ingresar el código de verificación del superadmin actual.'], 'Código Requerido');
+        alert('Debes ingresar el código de verificación del superadmin actual.');
         return;
     }
     
     if (confirmacion !== 'TRANSFERIR') {
         console.log('❌ [TRANSFERENCIA] Confirmación incorrecta');
-        mostrarErroresValidacion(['Debes escribir exactamente "TRANSFERIR" para confirmar.'], 'Confirmación Incorrecta');
+        alert('Debes escribir exactamente "TRANSFERIR" para confirmar.');
         return;
     }
     
@@ -894,26 +682,21 @@ function transferirSuperAdmin() {
         
         if (data.success) {
             console.log('✅ [TRANSFERENCIA] Transferencia completada exitosamente');
-            Swal.fire({
-                title: '✅ Transferencia Completada',
-                text: 'Transferencia de Super Admin completada exitosamente. El sistema se cerrará automáticamente.',
-                icon: 'success',
-                confirmButtonColor: '#28a745',
-                confirmButtonText: 'Entendido'
-            }).then(() => {
-                // Cerrar sesión y redirigir
+            alert('✅ Transferencia de Super Admin completada exitosamente.\n\nEl sistema se cerrará automáticamente.');
+            // Cerrar sesión y redirigir
+            setTimeout(() => {
                 console.log('🔄 [TRANSFERENCIA] Redirigiendo a logout...');
                 window.location.href = '/logout/';
-            });
+            }, 3000);
         } else {
             console.log(`❌ [TRANSFERENCIA] Error en transferencia: ${data.error}`);
-            mostrarErroresValidacion([data.error], 'Error en la Transferencia');
+            alert('Error en la transferencia: ' + data.error);
         }
     })
-            .catch(error => {
-            console.error('❌ [TRANSFERENCIA] Error durante la transferencia:', error);
-            mostrarErroresValidacion(['Error durante la transferencia de Super Admin.'], 'Error de Conexión');
-        });
+    .catch(error => {
+        console.error('❌ [TRANSFERENCIA] Error durante la transferencia:', error);
+        alert('Error durante la transferencia de Super Admin.');
+    });
 }
 
 // Agregar event listeners para transferencia de superadmin
@@ -962,212 +745,3 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ [TRANSFERENCIA] Event listeners para transferencia configurados');
 });
-
-// Función para crear establecimiento
-function crearEstablecimiento(formData) {
-    return fetch(`${BASE_URL}crear_establecimiento/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken(),
-        },
-        body: JSON.stringify(formData),
-    })
-        .then(res => res.json());
-}
-
-// Función para actualizar establecimiento
-function actualizarEstablecimiento(id, formData) {
-    return fetch(`${BASE_URL}actualizar_establecimiento/${id}/`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken(),
-        },
-        body: JSON.stringify(formData),
-    })
-        .then(res => res.json());
-}
-
-// Función para eliminar establecimiento
-function eliminarEstablecimiento(id) {
-    return fetch(`${BASE_URL}borrar_establecimiento/${id}/`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRFToken': getCSRFToken(),
-        },
-    })
-        .then(res => res.json());
-}
-
-// Función para actualizar fila de establecimiento en la tabla
-function actualizarFilaEstablecimiento(id, data) {
-    const fila = document.querySelector(`tr[data-id="${id}"]`);
-    if (fila) {
-        const cells = fila.cells;
-        cells[0].textContent = data.nombre || '';
-        cells[1].textContent = data.direccion || '';
-        cells[2].textContent = data.telefono || '';
-        cells[3].textContent = data.email || '';
-        cells[4].textContent = formatearHoraParaMostrar(data.horario_apertura);
-        cells[5].textContent = formatearHoraParaMostrar(data.horario_cierre);
-        cells[6].textContent = data.proveedor__nombre || '';
-    }
-}
-
-// Función para eliminar fila de establecimiento de la tabla
-function eliminarFilaEstablecimiento(id) {
-    const fila = document.querySelector(`tr[data-id="${id}"]`);
-    if (fila) {
-        fila.remove();
-    }
-}
-
-// Función para agregar nueva fila de establecimiento a la tabla
-function agregarFilaEstablecimiento(data) {
-    const tbody = document.querySelector('section[name="seccion-establecimientos"] tbody');
-    if (tbody) {
-        const nuevaFila = document.createElement('tr');
-        nuevaFila.setAttribute('data-id', data.id);
-        nuevaFila.setAttribute('data-proveedor-id', data.proveedor_id);
-        
-        nuevaFila.innerHTML = `
-            <td>${data.nombre || ''}</td>
-            <td>${data.direccion || ''}</td>
-            <td>${data.telefono || ''}</td>
-            <td>${data.email || ''}</td>
-            <td>${formatearHoraParaMostrar(data.horario_apertura)}</td>
-            <td>${formatearHoraParaMostrar(data.horario_cierre)}</td>
-            <td>${data.proveedor__nombre || ''}</td>
-            <td>
-                <div class="action-buttons-container">
-                    <button class="filtro-btn" name="btn-editar-establecimiento" data-id="${data.id}">Actualizar</button>
-                    <button class="filtro-btn" name="btn-eliminar-establecimiento" data-id="${data.id}">Eliminar</button>
-                </div>
-            </td>
-        `;
-        
-        tbody.appendChild(nuevaFila);
-        
-        // Agregar event listeners a los nuevos botones
-        const btnEditar = nuevaFila.querySelector('[name="btn-editar-establecimiento"]');
-        const btnEliminar = nuevaFila.querySelector('[name="btn-eliminar-establecimiento"]');
-        
-        if (btnEditar) {
-            btnEditar.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                const fila = this.closest('tr');
-                if (fila) {
-                    document.getElementById('establecimiento-id-editar').value = id;
-                    document.getElementById('establecimiento-nombre-editar').value = fila.children[0].textContent;
-                    document.getElementById('establecimiento-direccion-editar').value = fila.children[1].textContent;
-                    document.getElementById('establecimiento-telefono-editar').value = fila.children[2].textContent;
-                    document.getElementById('establecimiento-email-editar').value = fila.children[3].textContent;
-                    
-                    const horarioApertura = fila.children[4].textContent.trim();
-                    const horarioCierre = fila.children[5].textContent.trim();
-                    
-                    const formatearHora = (hora) => {
-                        if (hora && hora.includes(':')) {
-                            const partes = hora.split(':');
-                            return `${partes[0]}:${partes[1]}`;
-                        }
-                        return hora;
-                    };
-                    
-                    document.getElementById('establecimiento-horario_apertura-editar').value = formatearHora(horarioApertura);
-                    document.getElementById('establecimiento-horario_cierre-editar').value = formatearHora(horarioCierre);
-                    
-                    const proveedorNombre = fila.children[6].textContent;
-                    const selectProveedor = document.getElementById('establecimiento-proveedor-editar');
-                    if (selectProveedor) {
-                        for (let opt of selectProveedor.options) {
-                            if (opt.textContent === proveedorNombre) {
-                                opt.selected = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                abrirModal('editar-establecimiento');
-            });
-        }
-        
-        if (btnEliminar) {
-            btnEliminar.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                mostrarModalConfirmacion('¿Está seguro de que desea eliminar este establecimiento?', function() {
-                    eliminarEstablecimiento(id)
-                        .then(data => {
-                            if (data.error) throw new Error(data.error);
-                            mostrarExitoValidacion('Establecimiento eliminado exitosamente', '¡Eliminación Exitosa!');
-                            eliminarFilaEstablecimiento(id);
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            mostrarErroresValidacion([error.message], 'Error al Eliminar Establecimiento');
-                        });
-                });
-            });
-        }
-    }
-}
-
-// Función para formatear hora para mostrar en la tabla
-function formatearHoraParaMostrar(hora) {
-    if (!hora) return '';
-    if (typeof hora === 'string') {
-        // Si ya es string, verificar si tiene formato HH:MM:SS
-        if (hora.includes(':')) {
-            const partes = hora.split(':');
-            return `${partes[0]}:${partes[1]}`;
-        }
-        return hora;
-    }
-    // Si es un objeto Time, convertirlo a string
-    return hora.toString().substring(0, 5);
-}
-
-// VALIDACIONES PARA FORMULARIO DE ESTABLECIMIENTO (SUPERADMIN)
-
-function validarFormularioEstablecimiento({nombre, direccion, telefono, email, horario_apertura, horario_cierre, proveedor_id}) {
-    console.log('🔍 [VALIDACIÓN] Iniciando validación de formulario de establecimiento');
-    console.log('📋 [VALIDACIÓN] Datos recibidos:', {nombre, direccion, telefono, email, horario_apertura, horario_cierre, proveedor_id});
-    
-    let errores = [];
-    
-    const erroresNombre = validarNombre(nombre, 'nombre', 3, 30, false, false);
-    console.log('🔍 [VALIDACIÓN] Errores en nombre:', erroresNombre);
-    errores = errores.concat(erroresNombre);
-    
-    const erroresDireccion = validarDireccionChilena(direccion, 'dirección', 5, 100, false);
-    console.log('🔍 [VALIDACIÓN] Errores en dirección:', erroresDireccion);
-    errores = errores.concat(erroresDireccion);
-    
-    const erroresTelefono = validarTelefonoChileno(telefono, 'teléfono', true, false);
-    console.log('🔍 [VALIDACIÓN] Errores en teléfono:', erroresTelefono);
-    errores = errores.concat(erroresTelefono);
-    
-    const erroresEmail = validarEmail(email, 'correo electrónico', 100, true, false);
-    console.log('🔍 [VALIDACIÓN] Errores en email:', erroresEmail);
-    errores = errores.concat(erroresEmail);
-    
-    const erroresHorarioApertura = validarHorario(horario_apertura, 'horario de apertura', 6, 12, true, false);
-    console.log('🔍 [VALIDACIÓN] Errores en horario apertura:', erroresHorarioApertura);
-    errores = errores.concat(erroresHorarioApertura);
-    
-    const erroresHorarioCierre = validarHorario(horario_cierre, 'horario de cierre', 12, 23, true, false);
-    console.log('🔍 [VALIDACIÓN] Errores en horario cierre:', erroresHorarioCierre);
-    errores = errores.concat(erroresHorarioCierre);
-    
-    if (!proveedor_id) {
-        console.log('🔍 [VALIDACIÓN] Error: No se seleccionó proveedor');
-        errores.push('Debe seleccionar un proveedor');
-    }
-    
-    console.log('🔍 [VALIDACIÓN] Total de errores encontrados:', errores.length);
-    console.log('🔍 [VALIDACIÓN] Lista de errores:', errores);
-    
-    return errores;
-}
-

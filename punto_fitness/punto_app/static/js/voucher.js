@@ -255,6 +255,7 @@ function confirmarDatos(boton) {
                 confirmButtonColor: '#3085d6'
             }).then(() => {
                 document.getElementById("btnImprimir").disabled = false;
+                // Ya no se refresca ni redirige automáticamente. El usuario debe usar el botón 'Volver a la tienda'.
             });
         })
         .catch(error => {
