@@ -1170,3 +1170,4 @@ function validarFormularioEstablecimiento({nombre, direccion, telefono, email, h
     
     return errores;
 }
+
