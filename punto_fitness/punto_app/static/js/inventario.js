@@ -266,7 +266,7 @@ function actualizarCompraVendedor(id, data) {
 
 // Función para actualizar vendedor
 function actualizarVendedor(id, data) {
-  return fetch(`${BASE_URL}actualizar_vendedor/${id}/`, {
+  return fetch(${BASE_URL}actualizar_vendedor/${id}/, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -275,23 +275,29 @@ function actualizarVendedor(id, data) {
     body: JSON.stringify(data)
   }).then(response => {
     if (response.ok) {
-      Swal.fire({
-        title: '¡Actualizacion Exitosa!',
-        html: `<p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>`,
-        icon: 'success',
-        confirmButtonColor: '#28a745'
-      }).then(() => {
-        // Recarga la página cuando se cierra el SweetAlert
-        location.reload();
+      return response.json().then(data => {
+        Swal.fire({
+          title: '¡Actualizacion Exitosa!',
+          html: <p style="color: #555;">Tu Actualizacion ha sido registrada correctamente.</p>,
+          icon: 'success',
+          confirmButtonColor: '#28a745'
+        }).then(() => {
+          // Recarga la página cuando se cierra el SweetAlert
+          location.reload();
+        });
+        return data;
       });
     } else {
-      Swal.fire('Error', 'Hubo un problema al inscribirse.', 'error');
+      return response.json().then(errorData => {
+        throw new Error(errorData.error || 'Hubo un problema al inscribirse.');
+      });
     }
   })
   .catch(error => {
     console.error(error);
     Swal.fire('Error', 'Ocurrió un error de red.', 'error');
-  });
+    return { error: error.message };
+  });
 }
 
 // Función para actualizar establecimiento

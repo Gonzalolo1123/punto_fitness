@@ -219,7 +219,10 @@ def panel_principal(request):
 
 @requiere_admin
 def usuarios(request):
-    usuarios = Cliente.objects.values('id', 'nombre', 'apellido', 'email', 'telefono')
+    # Obtener IDs de clientes que son superadmins
+    superadmins_ids = Administrador.objects.filter(nivel_acceso='superadmin').values_list('cliente_id', flat=True)
+    # Excluir esos clientes del listado de usuarios
+    usuarios = Cliente.objects.exclude(id__in=superadmins_ids).values('id', 'nombre', 'apellido', 'email', 'telefono')
     return render(request, 'punto_app/admin_usuarios.html', {'usuarios': usuarios})
 
 @csrf_exempt
@@ -861,7 +864,7 @@ def admin_vendedor_actualizar(request, vendedor_id):
         vendedor.nombre = data.get('nombre', vendedor.nombre)
         vendedor.telefono = data.get('telefono', vendedor.telefono)
         vendedor.email = data.get('email', vendedor.email)
-        vendedor.proveedor_id = data.get('proveedor', vendedor.proveedor_id)
+        vendedor.proveedor_id = data.get('proveedor_id', vendedor.proveedor_id)
         vendedor.save()
         
         # Obtener los datos con las relaciones
@@ -1262,7 +1265,8 @@ def super_admin(request):
         
         # Obtener solo clientes que NO son administradores
         clientes_no_admin = Cliente.objects.filter(administrador__isnull=True)
-        administradores = Administrador.objects.select_related('cliente').all()
+        # Filtrar solo administradores con nivel_acceso 'admin'
+        administradores = Administrador.objects.select_related('cliente').filter(nivel_acceso='admin')
 
         return render(request, 'punto_app/super_admin.html', {
             'clientes': clientes_no_admin,

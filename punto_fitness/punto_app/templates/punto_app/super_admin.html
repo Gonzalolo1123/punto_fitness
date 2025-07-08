@@ -46,10 +46,7 @@
         </tr>
       </thead>
       <tbody>
-        {% with admin_count=0 %}
         {% for admin in administradores %}
-        {% if admin.nivel_acceso == 'admin' %}  <!-- Solo muestra los de nivel admin -->
-        {% with admin_count=admin_count|add:1 %}
         <tr data-id="{{ admin.id }}">
           <td>{{ admin.cliente.nombre }}</td>
           <td>{{ admin.cliente.apellido }}</td>
@@ -102,16 +99,11 @@
             </div>
           </div>
         </div>
-        {% endwith %}
-        {% endif %}
-        {% endfor %}
-        
-        {% if admin_count == 0 %}
+        {% empty %}
         <tr>
           <td colspan="6">No hay administradores registrados</td>
         </tr>
-        {% endif %}
-        {% endwith %}
+        {% endfor %}
       </tbody>
     </table>
 

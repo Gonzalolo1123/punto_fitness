@@ -101,3 +101,7 @@ main {
   text-decoration: underline;
 }
 
+.footer-negro, .footer-negro * {
+  color: white !important;
+}
+
