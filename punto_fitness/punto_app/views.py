@@ -3321,3 +3321,18 @@ def superadmin_establecimiento_borrar(request, establecimiento_id):
         return JsonResponse({'message': 'Establecimiento eliminado correctamente'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+def historial_asistencia_cliente(request):
+    cliente_id = request.session.get('cliente_id')
+    if not cliente_id:
+        return JsonResponse({'historial': []})
+    registros = RegistroAcceso.objects.filter(usuario_id=cliente_id).order_by('-fecha_hora_entrada')[:20]
+    historial = []
+    for reg in registros:
+        historial.append({
+            'fecha': reg.fecha_hora_entrada.strftime('%d/%m/%Y'),
+            'hora_entrada': reg.fecha_hora_entrada.strftime('%H:%M'),
+            'hora_salida': reg.fecha_hora_salida.strftime('%H:%M') if reg.fecha_hora_salida else '',
+            'establecimiento': reg.establecimiento.nombre if reg.establecimiento else '-',
+        })
+    return JsonResponse({'historial': historial})
