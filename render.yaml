@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: punto-fitness
+    env: python
+    buildCommand: |
+      python -m venv .venv
+      .venv\Scripts\activate
+      pip install --upgrade pip
+      pip install -r punto_fitness/requirements.txt
+      python punto_fitness/fix_migration_order.py
+      python punto_fitness/manage.py migrate
+      python punto_fitness/manage.py collectstatic --noinput
+    startCommand: gunicorn punto_fitness.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: DATABASE_URL
+        fromDatabase:
+          name: punto-fitness-db
+          property: connectionString 
