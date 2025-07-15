@@ -1,0 +1,198 @@
+/* Menú de escritorio */
+.encabezado {
+  width: 100%;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+.logo {
+  margin-left: 2rem;
+}
+.logo-img {
+  height: 60px;
+}
+.menu {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+}
+.menu-lista {
+  display: flex;
+  gap: 2.2rem;
+  list-style: none;
+  margin: 0 2rem 0 0;
+  padding: 0;
+}
+.menu-lista li a {
+  color: #fff;
+  font-size: 1.15rem;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+.menu-lista li a:hover {
+  color: #e74c3c;
+}
+/* Menú hamburguesa y menú móvil */
+.btn-hamburguesa {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 1100;
+  margin-right: 1.2rem;
+}
+.btn-hamburguesa span {
+  display: block;
+  width: 28px;
+  height: 4px;
+  margin: 4px 0;
+  background: #fff;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+.menu-movil {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #181818ee;
+  z-index: 2000;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 3.5rem;
+  transition: opacity 0.3s;
+}
+.menu-movil.activo {
+  display: flex;
+  opacity: 1;
+}
+.menu-movil-panel {
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.menu-movil-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.menu-movil-lista li {
+  margin: 1.5rem 0;
+  width: 90vw;
+  text-align: center;
+}
+.menu-movil-lista a {
+  color: #fff;
+  font-size: 1.5rem;
+  text-decoration: none;
+  display: block;
+  padding: 1rem 0;
+  border-radius: 8px;
+  background: none;
+  font-weight: bold;
+  transition: background 0.2s, color 0.2s;
+}
+.menu-movil-lista a:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+.btn-cerrar-menu {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.5rem;
+  font-size: 2.2rem;
+  color: #fff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 2100;
+}
+@media (max-width: 900px) {
+  .menu-lista {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+  }
+  .btn-hamburguesa {
+    display: flex;
+  }
+  .menu-movil {
+    display: none;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    background: #181818ee;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+    padding-top: 3.5rem;
+    transition: opacity 0.3s;
+  }
+  .menu-movil.activo {
+    display: flex !important;
+    opacity: 1;
+  }
+  .menu-movil-panel {
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .menu-movil-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  .menu-movil-lista li {
+    margin: 1.5rem 0;
+    width: 90vw;
+    text-align: center;
+    display: block !important;
+  }
+  .menu-movil-lista a {
+    color: #fff;
+    font-size: 1.5rem;
+    text-decoration: none;
+    display: block !important;
+    padding: 1rem 0;
+    border-radius: 8px;
+    background: none;
+    font-weight: bold;
+    transition: background 0.2s, color 0.2s;
+  }
+  .menu-movil-lista a:hover {
+    background: #e74c3c;
+    color: #fff;
+  }
+} 

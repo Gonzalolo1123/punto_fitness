@@ -28,6 +28,35 @@ document.addEventListener("DOMContentLoaded", function () {
       authModal.classList.add("hidden");
     }
   });
+
+  // --- CORRECCIÓN PARA MÓVIL ---
+  const signInContainer = document.querySelector('.sign-in-container');
+  const signUpContainer = document.querySelector('.sign-up-container');
+  const forgotContainer = document.querySelector('.forgot-password-container');
+  const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+  const volverLogin = document.getElementById("volverLogin");
+  const forgotPasswordForm = document.getElementById("forgotPasswordForm");
+
+  // Mostrar formulario de recuperación
+  if (forgotPasswordLink && forgotContainer && signInContainer) {
+    forgotPasswordLink.addEventListener("click", function(e) {
+      e.preventDefault();
+      signInContainer.classList.remove("mobile-active");
+      signUpContainer.classList.remove("mobile-active");
+      forgotContainer.style.display = "flex";
+      forgotContainer.style.flexDirection = "column";
+    });
+  }
+
+  // Volver al login
+  if (volverLogin && forgotContainer && signInContainer) {
+    volverLogin.addEventListener("click", function(e) {
+      e.preventDefault();
+      forgotContainer.style.display = "none";
+      signInContainer.classList.add("mobile-active");
+      signUpContainer.classList.remove("mobile-active");
+    });
+  }
 });
 
 //Registro 
@@ -365,12 +394,22 @@ document.addEventListener("DOMContentLoaded", function () {
             await crearUsuarioConValidacion(userDataForVerification);
             
             console.log("✅ Usuario creado exitosamente");
-            showSuccessAlert("Cuenta creada correctamente");
-            emailVerificationForm.reset();
-            
-            // Cerrar modal de verificación
+            // Cerrar modal de verificación de cuenta
             const emailVerificationModal = document.getElementById("emailVerificationModal");
             emailVerificationModal.classList.add("hidden");
+            emailVerificationModal.classList.remove("show", "closing");
+            emailVerificationModal.removeAttribute("style");
+
+            // Mostrar alerta de éxito y esperar a que desaparezca antes de mostrar el login
+            showSuccessAlert("Cuenta creada correctamente").then(() => {
+              emailVerificationForm.reset();
+              // Mostrar el modal de autenticación de forma simple y limpia
+              const authModal = document.getElementById("authModal");
+              if (authModal) {
+                authModal.classList.remove("hidden");
+                authModal.removeAttribute("style");
+              }
+            });
             
             // Cambiar a la vista de inicio de sesión
             const container = document.getElementById("container");
@@ -630,7 +669,14 @@ function showErrorAlert(message) {
 
 // Función específica para mostrar éxitos
 function showSuccessAlert(message) {
-  showCustomAlert(message, 'success');
+  return Swal.fire({
+    icon: 'success',
+    title: '¡Éxito!',
+    text: message,
+    timer: 1500,
+    showConfirmButton: false,
+    timerProgressBar: true
+  });
 }
 
 // Función específica para mostrar advertencias
@@ -868,23 +914,18 @@ window.hideModal = function() {
   }
 };
 
-// Función para cerrar el modal con transición suave
+// Unificar función de cierre del modal de verificación
 function closeEmailVerificationModal() {
-  console.log("🔒 Cerrando modal de verificación...");
-  
-  // Agregar clase para transición de cierre
-  emailVerificationModal.classList.add("closing");
-  
-  // Después de la transición, ocultar completamente
-  setTimeout(() => {
+  const emailVerificationModal = document.getElementById("emailVerificationModal");
+  if (emailVerificationModal) {
     emailVerificationModal.classList.add("hidden");
     emailVerificationModal.classList.remove("show", "closing");
-    emailVerificationModal.style.cssText = `
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-    `;
-    
-    console.log("✅ Modal de verificación cerrado");
-  }, 300);
+    emailVerificationModal.removeAttribute("style");
+  }
+  // Mostrar modal de autenticación de forma simple y limpia
+  const authModal = document.getElementById("authModal");
+  if (authModal) {
+    authModal.classList.remove("hidden");
+    authModal.removeAttribute("style");
+  }
 }

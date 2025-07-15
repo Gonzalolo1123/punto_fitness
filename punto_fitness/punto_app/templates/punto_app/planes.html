@@ -19,7 +19,7 @@
               <img src="{% static i.imagen %}" alt="{{ i.nombre }}" class="plan-img">
               <div class="plan-info">
                 <h3 class="plan-nombre">{{ i.nombre }}</h3>
-                <p class="plan-precio"><span>Precio:</span> ${{ i.precio }}</p>
+                <p class="plan-precio"><span>Precio:</span> <span class="precio-clp">${{ i.precio }}</span></p>
                 <p class="plan-duracion"><span>Duración:</span> {{ i.duracion }}</p>
                 <p class="plan-descripcion">{{ i.descripcion }}</p>
                 <button class="btn-inscribir">Inscribirme</button>
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
               <img src="{% static p.imagen %}" alt="{{ p.nombre }}" class="producto-img">
               <div class="producto-info">
                 <h3 class="producto-nombre">{{ p.nombre }}</h3>
-                <p class="producto-precio"><span>Precio:</span> ${{ p.precio }}</p>
+                <p class="producto-precio"><span>Precio:</span> <span class="precio-clp">${{ p.precio }}</span></p>
                 <p class="producto-descripcion">{{ p.descripcion }}</p>
                 <p class="producto-stock">Stock: {{ p.stock_actual }}</p>
                 <button class="btn-comprar">Comprar</button>

@@ -32,6 +32,8 @@ import io
 import base64
 from django.http import JsonResponse
 from django.utils import timezone
+# traducción de estadisticas
+import locale
 
 # Create your views here.
 def principal(request):
@@ -2979,16 +2981,20 @@ def estadisticas_view(request):
         return labels, data
     
     # Datos de ventas monetarias
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
     ventas_diarias_labels, ventas_diarias_data = format_ventas_data(ventas_diarias, '%d/%m')
     ventas_semanales_labels, ventas_semanales_data = format_ventas_data(ventas_semanales, '%d/%m')
     ventas_mensuales_labels, ventas_mensuales_data = format_ventas_data(ventas_mensuales, '%B %Y')
     ventas_anuales_labels, ventas_anuales_data = format_ventas_data(ventas_anuales, '%Y')
+    locale.setlocale(locale.LC_TIME, '')
     
     # Datos de ventas por categoría
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
     ventas_categoria_diarias_data = format_ventas_categoria_data(ventas_categoria_diarias, '%d/%m')
     ventas_categoria_semanales_data = format_ventas_categoria_data(ventas_categoria_semanales, '%d/%m')
     ventas_categoria_mensuales_data = format_ventas_categoria_data(ventas_categoria_mensuales, '%B %Y')
     ventas_categoria_anuales_data = format_ventas_categoria_data(ventas_categoria_anuales, '%Y')
+    locale.setlocale(locale.LC_TIME, '')
     
     # Obtener todas las categorías únicas
     categorias_unicas = set()
@@ -2997,9 +3003,11 @@ def estadisticas_view(request):
         categorias_unicas.update(data.keys())
     
     # Datos de membresías
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
     membresias_diarias_labels, membresias_diarias_data = format_membresias_data(membresias_diarias, '%d/%m')
     membresias_semanales_labels, membresias_semanales_data = format_membresias_data(membresias_semanales, '%d/%m')
     membresias_mensuales_labels, membresias_mensuales_data = format_membresias_data(membresias_mensuales, '%B %Y')
+    locale.setlocale(locale.LC_TIME, '')
     
     # Productos más vendidos
     productos = [p['producto__nombre'] for p in productos_mas_vendidos]

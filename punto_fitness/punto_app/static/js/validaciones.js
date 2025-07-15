@@ -504,3 +504,16 @@ function validarFormulario(validaciones, titulo = 'Errores en el Formulario') {
   
   return true;
 } 
+
+// Formatear automáticamente todos los precios en tablas al cargar la página
+if (typeof formatearPrecioChileno === 'function') {
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.precio-clp').forEach(function(el) {
+      // Extraer solo números
+      let valor = el.textContent.replace(/[^\d]/g, '');
+      if (valor) {
+        el.textContent = formatearPrecioChileno(parseInt(valor));
+      }
+    });
+  });
+} 

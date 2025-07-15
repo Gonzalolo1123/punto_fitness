@@ -35,7 +35,7 @@
         <tr data-id="{{ producto.id }}">
           <td>{{ producto.nombre }}</td>
           <td>{{ producto.descripcion }}</td>
-          <td>{{ producto.precio }}</td>
+          <td class="precio-clp">{{ producto.precio }}</td>
           <td>{{ producto.stock_actual }}</td>
           <td>{{ producto.stock_minimo }}</td>
           <td>{{ producto.categoria__nombre }}</td>
@@ -125,7 +125,7 @@
             data-establecimiento-id="{{ compra.establecimiento_id }}"
             data-vendedor-id="{{ compra.vendedor_id }}">
           <td>{{ compra.fecha|date:"d/m/y" }}</td>
-          <td>{{ compra.total }}</td>
+          <td class="precio-clp">{{ compra.total }}</td>
           <td>{{ compra.iva }}</td>
           <td>{{ compra.estado }}</td>
           <td>{{ compra.establecimiento__nombre }}</td>

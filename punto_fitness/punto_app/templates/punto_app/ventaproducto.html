@@ -4,6 +4,7 @@
 {% block title %}Tienda - Punto Fitness{% endblock %}
 
 {% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="{% static 'css/venta.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 {% endblock %}
@@ -56,9 +57,9 @@
                 <h3>{{ producto.nombre }}</h3>
                 <p class="product-category">{{ producto.categoria.nombre }}</p>
                 <div class="product-price">
-                    <span>${{ producto.precio }}</span>
+                    <span class="precio-clp">${{ producto.precio }}</span>
                     {% if producto.precio_original %}
-                    <span class="original-price">${{ producto.precio_original }}</span>
+                    <span class="original-price precio-clp">${{ producto.precio_original }}</span>
                     {% endif %}
                 </div>
                 
@@ -98,7 +99,7 @@
         <div class="cart-summary">
             <div class="cart-total">
                 <span>Total:</span>
-                <span class="total-amount">$0.00</span>
+                <span class="total-amount precio-clp">$0.00</span>
             </div>
             <div class="cart-buttons">
                 <button class="btn-clear">Vaciar Carrito</button>
@@ -110,5 +111,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="{% static 'js/validaciones.js' %}"></script>
 <script src="{% static 'js/venta.js' %}"></script>
 {% endblock %}

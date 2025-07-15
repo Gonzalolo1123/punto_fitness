@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const productCard = this.closest('.product-card');
             const productId = productCard.dataset.id;
             const productName = productCard.querySelector('h3').textContent;
-            const productPrice = parseFloat(productCard.querySelector('.product-price span').textContent.replace('$', ''));
+            const productPrice = parseInt(productCard.querySelector('.product-price span').textContent.replace(/[^\d]/g, ''));
             const productQty = parseInt(productCard.querySelector('.qty-input').value);
             const productImg = productCard.querySelector('.product-image img').src;
 
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
             cartItemsContainer.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-basket"></i><p>Tu carrito está vacío</p></div>';
         } else {
             cart.forEach(item => {
-                const itemTotal = item.price * item.quantity;
+                const itemTotal = Math.round(item.price) * item.quantity;
                 total += itemTotal;
 
                 const cartItem = document.createElement('div');
@@ -63,22 +63,23 @@ document.addEventListener('DOMContentLoaded', function () {
                     <img src="${item.img}" alt="${item.name}">
                     <div class="item-info">
                         <h4>${item.name}</h4>
-                        <div class="item-price">$${item.price.toFixed(2)}</div>
+                        <div class="item-price precio-clp">${window.formatearPrecioChileno(Math.round(item.price))}</div>
                         <div class="item-qty">
                             <button class="qty-change minus" data-id="${item.id}">-</button>
                             <span>${item.quantity}</span>
                             <button class="qty-change plus" data-id="${item.id}">+</button>
                         </div>
                     </div>
-                    <div class="item-total">$${itemTotal.toFixed(2)}</div>
+                    <div class="item-total precio-clp">${window.formatearPrecioChileno(itemTotal)}</div>
                     <button class="remove-item" data-id="${item.id}"><i class="fas fa-trash"></i></button>
                 `;
                 cartItemsContainer.appendChild(cartItem);
             });
         }
 
-        cartTotal.textContent = `$${total.toFixed(2)}`;
+        cartTotal.textContent = window.formatearPrecioChileno(total);
         attachCartEventListeners();
+        aplicarFormateoCLP();
     }
 
     function attachCartEventListeners() {
@@ -154,20 +155,31 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     document.querySelector('.btn-clear').addEventListener('click', function () {
             if (cart.length === 0) {
-                alert('El carrito ya está vacío');
+            mostrarErroresValidacion(['El carrito ya está vacío'], 'Carrito vacío');
                 return;
             }
 
-            if (confirm('¿Estás seguro que deseas vaciar el carrito?')) {
+        Swal.fire({
+            title: '¿Estás seguro que deseas vaciar el carrito?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, vaciar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
                 cart = [];
                 updateCartDisplay();
                 updateCartCount();
+                mostrarExitoValidacion('El carrito ha sido vaciado.', 'Carrito vaciado');
             }
+        });
         });
     // Finalizar compra
     document.querySelector('.btn-checkout').addEventListener('click', function () {
         if (cart.length === 0) {
-            alert('Tu carrito está vacío');
+            mostrarErroresValidacion(['Tu carrito está vacío'], 'Carrito vacío');
             return;
         }
 
@@ -207,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }, 500);
 
                 } else {
-                    alert(data.mensaje || 'Error al procesar la compra.');
+                    mostrarErroresValidacion([data.mensaje || 'Error al procesar la compra.'], 'Error en la compra');
                 }
 
                 cart = [];
@@ -250,3 +262,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// Definir la función globalmente
+window.formatearPrecioChileno = function(precio) {
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(precio);
+};
+
+function aplicarFormateoCLP() {
+  document.querySelectorAll('.precio-clp').forEach(function(el) {
+    let valor = el.textContent.replace(/[^\d]/g, '');
+    if (valor) {
+      el.textContent = window.formatearPrecioChileno(parseInt(valor));
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', aplicarFormateoCLP);

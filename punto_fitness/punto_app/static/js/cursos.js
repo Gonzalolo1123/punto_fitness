@@ -49,6 +49,34 @@ function mostrarFormularioEdicion(id, id_tipo, fecha_realizacion = null) {
       }
     }
 
+    // === Guardar valores originales al abrir el modal de edición de curso ===
+    if (id_tipo === 'curso') {
+      const form = modalFondo.querySelector('form[name="form-editar-curso"]');
+      if (form) {
+        const nombreInput = document.getElementById(`curso-nombre-editar-modal-${id}`);
+        const cuposInput = document.getElementById(`curso-cupos-editar-modal-${id}`);
+        const fechaInput = document.getElementById(`curso-fecha_realizacion-editar-modal-${id}`);
+        const establecimientoInput = document.getElementById(`curso-establecimiento-editar-modal-${id}`);
+        if (!nombreInput || !cuposInput || !fechaInput || !establecimientoInput) {
+          console.error('❌ No se encontró uno de los inputs al abrir el modal de edición de curso:', {
+            nombre: nombreInput,
+            cupos: cuposInput,
+            fecha: fechaInput,
+            establecimiento: establecimientoInput,
+            id: id
+          });
+        } else {
+          form._originalValues = {
+            nombre: nombreInput.value,
+            cupos: cuposInput.value,
+            fecha_realizacion: fechaInput.value,
+            establecimiento_id: establecimientoInput.value
+          };
+          console.log('🟢 Valores originales guardados al abrir modal de curso:', form._originalValues);
+        }
+      }
+    }
+
     setTimeout(() => {
       const primerInput = modalFondo.querySelector('input, select');
       if (primerInput) {
@@ -405,6 +433,20 @@ document.querySelectorAll('[name="btn-eliminar-inscripcion"]').forEach(btn => {
       const cupos = cuposInput.value.trim();
       const fecha_realizacion = fechaInput.value;
       const establecimiento_id = establecimientoInput.value;
+      
+      // === COMPARAR CON VALORES ORIGINALES ===
+      const orig = form._originalValues;
+      console.log('🟡 Comparando valores originales y actuales (curso):', { orig, actuales: { nombre, cupos, fecha_realizacion, establecimiento_id } });
+      if (orig && nombre === orig.nombre && cupos === orig.cupos && fecha_realizacion === orig.fecha_realizacion && establecimiento_id === orig.establecimiento_id) {
+        Swal.fire({
+          title: 'Sin cambios',
+          text: 'No hubo ningún cambio, no se realizó ninguna actualización.',
+          icon: 'info',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Entendido'
+        });
+        return;
+      }
       
       console.log('Valor de establecimiento_id a enviar:', establecimiento_id);
 

@@ -293,20 +293,20 @@
                 <tr>
                     <td>{{ p.nombre }} ({{ p.codigo }})</td>
                     <td>{{ p.cantidad }}</td>
-                    <td>${{ p.precio_unitario }}</td>
-                    <td>${{ p.total_producto }}</td>
+                    <td class="precio-clp">${{ p.precio_unitario }}</td>
+                    <td class="precio-clp">${{ p.total_producto }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
 
         <div class="total-section">
-            <p><strong>Subtotal:</strong> ${{ voucher.subtotal }}</p>
+            <p><strong>Subtotal:</strong> <span class="precio-clp">${{ voucher.subtotal }}</span></p>
             {% if voucher.descuento > 0 %}
-            <p><strong>Descuento:</strong> -${{ voucher.descuento }}</p>
+            <p><strong>Descuento:</strong> <span class="precio-clp">-${{ voucher.descuento }}</span></p>
             {% endif %}
-            <p><strong>IVA ({{ voucher.porcentaje_iva }}%):</strong> ${{ voucher.valor_iva }}</p>
-            <p><strong>Total General:</strong> <span class="total-amount">${{ voucher.total_general }}</span></p>
+            <p><strong>IVA ({{ voucher.porcentaje_iva }}%):</strong> <span class="precio-clp">${{ voucher.valor_iva }}</span></p>
+            <p><strong>Total General:</strong> <span class="total-amount precio-clp">${{ voucher.total_general }}</span></p>
         </div>
 
         <div class="footer">
@@ -343,6 +343,24 @@
         <button class="print-button" id="btnImprimir" onclick="window.print()" disabled>🖨️ Imprimir Comprobante</button>
         <button class="print-button" id="btnVolverTienda" onclick="window.location.href='/venta_producto/'">Volver a la tienda</button>
     </div>
+    <script>
+      function formatearPrecioChileno(precio) {
+        return new Intl.NumberFormat('es-CL', {
+          style: 'currency',
+          currency: 'CLP',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(precio);
+      }
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.precio-clp').forEach(function(el) {
+          let valor = el.textContent.replace(/[^\d]/g, '');
+          if (valor) {
+            el.textContent = formatearPrecioChileno(parseInt(valor));
+          }
+        });
+      });
+    </script>
 </body>
 
 </html>

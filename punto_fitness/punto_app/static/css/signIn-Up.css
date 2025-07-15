@@ -259,6 +259,7 @@ a {
   border-radius: 50%;
   padding: 2px 8px;
   border: 1px solid #ccc;
+  z-index: 2;
 }
 
 .close:hover {
@@ -898,4 +899,534 @@ a {
 #emailVerificationModal:not(.hidden):not(.closing) .form-container {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ===== MEJORAS PARA MÓVIL - MODAL PRINCIPAL SIGNIN/UP ===== */
+
+/* Tablets y pantallas medianas */
+@media (max-width: 768px) {
+  /* Modal principal */
+  #authModal .modal-content {
+    width: 95%;
+    max-width: 600px;
+    margin: 2% auto;
+    border-radius: 20px;
+    min-height: 500px;
+  }
+  
+  /* Contenedor principal */
+  #authModal .container {
+    width: 100%;
+    min-height: 500px;
+    border-radius: 20px;
+  }
+  
+  /* Formularios */
+  #authModal .form-container {
+    padding: 0 30px;
+  }
+  
+  #authModal .form-container form {
+    padding: 0 30px;
+  }
+  
+  /* Inputs */
+  #authModal .form-container input {
+    padding: 14px 18px;
+    font-size: 16px; /* Previene zoom en iOS */
+    margin: 10px 0;
+  }
+  
+  /* Botones */
+  #authModal .form-container button {
+    padding: 14px 35px;
+    font-size: 13px;
+    margin: 10px 0;
+  }
+  
+  /* Overlay */
+  #authModal .overlay-panel {
+    padding: 0 25px;
+  }
+  
+  #authModal .overlay-panel button {
+    padding: 14px 35px;
+    font-size: 13px;
+  }
+  
+  /* Títulos */
+  #authModal h1 {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+  
+  /* Párrafos */
+  #authModal p {
+    font-size: 13px;
+    margin: 15px 0 20px;
+  }
+  
+  /* Botón de cerrar */
+  #authModal .close {
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    width: 35px;
+    height: 35px;
+  }
+  
+  /* Contenedor de recuperación de contraseña */
+  #authModal .forgot-password-container {
+    padding: 0 25px;
+  }
+  
+  #authModal .forgot-password-container h1 {
+    font-size: 22px;
+  }
+  
+  #authModal .forgot-password-container input[type="email"] {
+    padding: 14px 18px;
+    font-size: 16px;
+  }
+  
+  #authModal .forgot-password-container button {
+    padding: 14px 35px;
+    font-size: 13px;
+  }
+}
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+  /* Modal principal */
+  #authModal .modal-content {
+    width: 98%;
+    margin: 1% auto;
+    border-radius: 15px;
+    min-height: 450px;
+  }
+  
+  /* Contenedor principal */
+  #authModal .container {
+    width: 100%;
+    min-height: 450px;
+    border-radius: 15px;
+  }
+  
+  /* Formularios */
+  #authModal .form-container {
+    padding: 0 20px;
+  }
+  
+  #authModal .form-container form {
+    padding: 0 20px;
+  }
+  
+  /* Inputs */
+  #authModal .form-container input {
+    padding: 12px 15px;
+    font-size: 16px;
+    margin: 8px 0;
+    border-radius: 25px;
+  }
+  
+  /* Botones */
+  #authModal .form-container button {
+    padding: 12px 25px;
+    font-size: 12px;
+    margin: 8px 0;
+    border-radius: 25px;
+  }
+  
+  /* Overlay */
+  #authModal .overlay-panel {
+    padding: 0 20px;
+  }
+  
+  #authModal .overlay-panel button {
+    padding: 12px 25px;
+    font-size: 12px;
+    border-radius: 25px;
+  }
+  
+  /* Títulos */
+  #authModal h1 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  
+  /* Párrafos */
+  #authModal p {
+    font-size: 12px;
+    margin: 12px 0 15px;
+    line-height: 18px;
+  }
+  
+  /* Botón de cerrar */
+  #authModal .close {
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    width: 30px;
+    height: 30px;
+  }
+  
+  /* Contenedor de recuperación de contraseña */
+  #authModal .forgot-password-container {
+    padding: 0 20px;
+  }
+  
+  #authModal .forgot-password-container h1 {
+    font-size: 18px;
+  }
+  
+  #authModal .forgot-password-container input[type="email"] {
+    padding: 12px 15px;
+    font-size: 16px;
+    border-radius: 25px;
+  }
+  
+  #authModal .forgot-password-container button {
+    padding: 12px 25px;
+    font-size: 12px;
+    border-radius: 25px;
+  }
+  
+  /* Enlaces */
+  #authModal a {
+    font-size: 12px;
+    margin: 10px 0;
+  }
+  
+  /* Indicador de fortaleza de contraseña */
+  #authModal .password-strength-wrapper {
+    margin: 8px 0;
+  }
+  
+  #authModal #password-strength-bar {
+    height: 4px;
+  }
+  
+  #authModal #password-strength-text {
+    font-size: 11px;
+  }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+  /* Modal principal */
+  #authModal .modal-content {
+    width: 99%;
+    margin: 0.5% auto;
+    border-radius: 12px;
+    min-height: 400px;
+  }
+  
+  /* Contenedor principal */
+  #authModal .container {
+    width: 100%;
+    min-height: 400px;
+    border-radius: 12px;
+  }
+  
+  /* Formularios */
+  #authModal .form-container {
+    padding: 0 15px;
+  }
+  
+  #authModal .form-container form {
+    padding: 0 15px;
+  }
+  
+  /* Inputs */
+  #authModal .form-container input {
+    padding: 10px 12px;
+    font-size: 16px;
+    margin: 6px 0;
+    border-radius: 20px;
+  }
+  
+  /* Botones */
+  #authModal .form-container button {
+    padding: 10px 20px;
+    font-size: 11px;
+    margin: 6px 0;
+    border-radius: 20px;
+  }
+  
+  /* Overlay */
+  #authModal .overlay-panel {
+    padding: 0 15px;
+  }
+  
+  #authModal .overlay-panel button {
+    padding: 10px 20px;
+    font-size: 11px;
+    border-radius: 20px;
+  }
+  
+  /* Títulos */
+  #authModal h1 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  /* Párrafos */
+  #authModal p {
+    font-size: 11px;
+    margin: 10px 0 12px;
+    line-height: 16px;
+  }
+  
+  /* Botón de cerrar */
+  #authModal .close {
+    top: 8px;
+    right: 12px;
+    font-size: 20px;
+    width: 25px;
+    height: 25px;
+  }
+  
+  /* Contenedor de recuperación de contraseña */
+  #authModal .forgot-password-container {
+    padding: 0 15px;
+  }
+  
+  #authModal .forgot-password-container h1 {
+    font-size: 16px;
+  }
+  
+  #authModal .forgot-password-container input[type="email"] {
+    padding: 10px 12px;
+    font-size: 16px;
+    border-radius: 20px;
+  }
+  
+  #authModal .forgot-password-container button {
+    padding: 10px 20px;
+    font-size: 11px;
+    border-radius: 20px;
+  }
+  
+  /* Enlaces */
+  #authModal a {
+    font-size: 11px;
+    margin: 8px 0;
+  }
+}
+
+/* Orientación landscape en móviles */
+@media (max-width: 768px) and (orientation: landscape) {
+  #authModal .modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  #authModal .container {
+    min-height: 350px;
+  }
+  
+  #authModal .form-container {
+    padding: 0 20px;
+  }
+  
+  #authModal .form-container form {
+    padding: 0 20px;
+  }
+  
+  #authModal .form-container input {
+    padding: 10px 15px;
+    margin: 6px 0;
+  }
+  
+  #authModal .form-container button {
+    padding: 10px 25px;
+    margin: 6px 0;
+  }
+  
+  #authModal h1 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  #authModal p {
+    font-size: 12px;
+    margin: 10px 0 12px;
+  }
+}
+
+/* Mejoras de accesibilidad para móvil */
+@media (max-width: 768px) {
+  /* Asegurar que los elementos sean tocables */
+  #authModal .form-container input,
+  #authModal .form-container button,
+  #authModal .overlay-panel button,
+  #authModal .close {
+    min-height: 44px; /* Tamaño mínimo recomendado para touch */
+  }
+  
+  /* Mejorar contraste en móvil */
+  #authModal .form-container input {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+  }
+  
+  #authModal .form-container input:focus {
+    background: #ffffff;
+    border-color: #000;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+  }
+  
+  /* Mejorar feedback visual en botones */
+  #authModal .form-container button:active,
+  #authModal .overlay-panel button:active {
+    transform: scale(0.95);
+  }
+  
+  /* Mejorar legibilidad del texto */
+  #authModal .form-container input::placeholder {
+    color: #999;
+    opacity: 1;
+  }
+}
+
+/* ===== BOTONES DE ALTERNANCIA LOGIN/REGISTRO EN MÓVIL ===== */
+.mobile-toggle-auth {
+  display: none;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.mobile-auth-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.mobile-auth-btn.active,
+.mobile-auth-btn:focus {
+  background: #e74c3c;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .mobile-toggle-auth {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto 18px auto;
+    padding-top: 10px;
+    z-index: 10;
+  }
+  #authModal .overlay-container,
+  #authModal .overlay {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+  .container {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: unset !important;
+    padding: 0 !important;
+    border-radius: 20px !important;
+    box-shadow: none !important;
+    background: #fff !important;
+  }
+  .form-container {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: unset !important;
+    display: none !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 0 20px 0 !important;
+  }
+  .form-container.mobile-active {
+    display: flex !important;
+    opacity: 1 !important;
+    z-index: 2 !important;
+  }
+  /* Refuerzo para máxima prioridad */
+  .form-container.sign-in-container.mobile-active,
+  .form-container.sign-up-container.mobile-active {
+    display: flex !important;
+    opacity: 1 !important;
+    z-index: 2 !important;
+  }
+  .form-container form {
+    width: 100% !important;
+    max-width: 350px;
+    margin: 0 auto;
+    padding: 0 10px !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  .form-container h1 {
+    text-align: center;
+    width: 100%;
+    font-size: 1.5rem;
+    margin-top: 10px;
+    margin-bottom: 18px;
+  }
+  .form-container label,
+  .form-container input,
+  .form-container button {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+  .form-container input {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  .form-container button {
+    margin-top: 12px;
+    font-size: 15px;
+    border-radius: 25px;
+    padding: 12px 0;
+  }
+  .forgot-password-container {
+    padding: 0 10px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-container input {
+    background: #fff !important;
+    color: #000 !important;
+    border: 1.5px solid #111 !important;
+    box-shadow: none !important;
+  }
+  .form-container input:focus {
+    background: #fff !important;
+    color: #000 !important;
+    border: 2px solid #e74c3c !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(231,76,60,0.08) !important;
+  }
+  .form-container input::placeholder {
+    color: #555 !important;
+    opacity: 1 !important;
+  }
 }

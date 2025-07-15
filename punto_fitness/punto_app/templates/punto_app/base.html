@@ -28,7 +28,8 @@
       <img src="{% static 'images/logo_gym2.png' %}" alt="Punto Fitness" class="logo-img">
     </div>
     <nav class="menu">
-      <ul>
+      <!-- Menú de escritorio -->
+      <ul class="menu-lista">
         <li><a href="{% url 'principal' %}">Inicio</a></li>
         <li><a href="#historia">Historia</a></li>
         <li><a href="#trabajadores">Trabajadores</a></li>
@@ -37,6 +38,21 @@
           <a href="#" id="openUserModal">Hola, {{ cliente_nombre|default:"Usuario" }}</a>
         </li>
       </ul>
+      <!-- Botón hamburguesa solo visible en móvil -->
+      <button id="btn-hamburguesa" class="btn-hamburguesa" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+      <!-- Menú hamburguesa solo para móvil -->
+      <div id="menu-movil" class="menu-movil">
+        <button id="btn-cerrar-menu" class="btn-cerrar-menu" aria-label="Cerrar menú">&times;</button>
+        <nav class="menu-movil-panel">
+          <ul class="menu-movil-lista">
+            <li><a href="{% url 'principal' %}">Inicio</a></li>
+            <li><a href="#historia">Historia</a></li>
+            <li><a href="#trabajadores">Trabajadores</a></li>
+            <li><a href="{% url 'maquinas' %}">Máquinas</a></li>
+            <li><a href="#" id="openUserModalMovil">Hola, {{ cliente_nombre|default:"Usuario" }}</a></li>
+          </ul>
+        </nav>
+      </div>
     </nav>
   </header>
 
@@ -62,9 +78,14 @@
   <!-- Modal de Login/Registro -->
   <div id="authModal" class="modal hidden">
     <div class="modal-content">
-      <span class="close" id="closeModal">&times;</span>
+      <span class="close" id="closeAuthModal">&times;</span>
       <section>
         <div class="container" id="container">
+          <!-- Botones de alternancia SOLO visibles en móvil -->
+          <div class="mobile-toggle-auth">
+            <button id="mobileShowLogin" type="button" class="mobile-auth-btn">Iniciar sesión</button>
+            <button id="mobileShowRegister" type="button" class="mobile-auth-btn">Crear cuenta</button>
+          </div>
           <div class="form-container sign-up-container">
             <form id="signUpForm" method="POST">
               {% csrf_token %}
@@ -200,6 +221,29 @@
   <script src="{% static 'js/session_check.js' %}"></script>
 
   {% block extra_scripts %}{% endblock %}
+  <script src="{% static 'js/menu.js' %}"></script>
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const btnHamburguesa = document.getElementById('btn-hamburguesa');
+  const menuMovil = document.getElementById('menu-movil');
+  const btnCerrarMenu = document.getElementById('btn-cerrar-menu');
+  btnHamburguesa.addEventListener('click', function() {
+    menuMovil.classList.add('activo');
+    document.body.style.overflow = 'hidden';
+  });
+  btnCerrarMenu.addEventListener('click', function() {
+    menuMovil.classList.remove('activo');
+    document.body.style.overflow = '';
+  });
+  // Cerrar menú al hacer click fuera
+  menuMovil.addEventListener('click', function(e) {
+    if (e.target === menuMovil) {
+      menuMovil.classList.remove('activo');
+      document.body.style.overflow = '';
+    }
+  });
+});
+</script>
 </body>
 
 </html>

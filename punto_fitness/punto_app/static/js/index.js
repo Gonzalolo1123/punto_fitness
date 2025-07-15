@@ -89,3 +89,136 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+///////////// CODIGO PARA MENÚ HAMBURGUESA ////////////
+
+document.addEventListener("DOMContentLoaded", function() {
+  const btnHamburguesa = document.getElementById("btn-hamburguesa");
+  const menuMovil = document.getElementById("menu-movil");
+  const btnCerrarMenu = document.getElementById("btn-cerrar-menu");
+  const openUserModal = document.getElementById("openUserModal");
+  const openUserModalMovil = document.getElementById("openUserModalMovil");
+
+  // Abrir menú hamburguesa
+  if (btnHamburguesa) {
+    btnHamburguesa.addEventListener("click", function() {
+      menuMovil.classList.add("activo");
+      document.body.style.overflow = "hidden"; // Prevenir scroll
+    });
+  }
+
+  // Cerrar menú hamburguesa
+  if (btnCerrarMenu) {
+    btnCerrarMenu.addEventListener("click", function() {
+      menuMovil.classList.remove("activo");
+      document.body.style.overflow = ""; // Restaurar scroll
+    });
+  }
+
+  // Cerrar menú al hacer clic en un enlace
+  const enlacesMenuMovil = menuMovil.querySelectorAll("a");
+  enlacesMenuMovil.forEach(enlace => {
+    enlace.addEventListener("click", function() {
+      menuMovil.classList.remove("activo");
+      document.body.style.overflow = "";
+    });
+  });
+
+  // Cerrar menú al hacer clic fuera del menú
+  menuMovil.addEventListener("click", function(e) {
+    if (e.target === menuMovil) {
+      menuMovil.classList.remove("activo");
+      document.body.style.overflow = "";
+    }
+  });
+
+  // Sincronizar el modal de usuario entre escritorio y móvil
+  if (openUserModal && openUserModalMovil) {
+    openUserModalMovil.addEventListener("click", function(e) {
+      e.preventDefault();
+      openUserModal.click(); // Simular clic en el botón de escritorio
+    });
+  }
+});
+
+///////////// TOGGLE LOGIN/REGISTRO EN MÓVIL ////////////
+document.addEventListener("DOMContentLoaded", function() {
+  const loginBtn = document.getElementById("mobileShowLogin");
+  const registerBtn = document.getElementById("mobileShowRegister");
+  const loginForm = document.querySelector(".sign-in-container");
+  const registerForm = document.querySelector(".sign-up-container");
+  const authModal = document.getElementById("authModal");
+  const closeAuthModal = document.getElementById("closeAuthModal");
+
+  function showLogin() {
+    loginForm.classList.add("mobile-active");
+    registerForm.classList.remove("mobile-active");
+    if (loginBtn && registerBtn) {
+      loginBtn.classList.add("active");
+      registerBtn.classList.remove("active");
+    }
+  }
+  function showRegister() {
+    registerForm.classList.add("mobile-active");
+    loginForm.classList.remove("mobile-active");
+    if (loginBtn && registerBtn) {
+      registerBtn.classList.add("active");
+      loginBtn.classList.remove("active");
+    }
+  }
+
+  // Mostrar login por defecto en móvil al abrir el modal
+  function onModalOpen() {
+    if (window.innerWidth <= 768) {
+      showLogin();
+    }
+  }
+
+  // Limpiar clases al cerrar el modal
+  function onModalClose() {
+    loginForm.classList.remove("mobile-active");
+    registerForm.classList.remove("mobile-active");
+    if (loginBtn && registerBtn) {
+      loginBtn.classList.remove("active");
+      registerBtn.classList.remove("active");
+    }
+  }
+
+  // Detectar apertura del modal
+  if (authModal) {
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === "class") {
+          if (!authModal.classList.contains("hidden")) {
+            onModalOpen();
+          } else {
+            onModalClose();
+          }
+        }
+      });
+    });
+    observer.observe(authModal, { attributes: true });
+  }
+
+  if (loginBtn && registerBtn) {
+    loginBtn.addEventListener("click", showLogin);
+    registerBtn.addEventListener("click", showRegister);
+  }
+
+  // Si cambia el tamaño de pantalla, restaurar lógica
+  window.addEventListener("resize", function() {
+    if (window.innerWidth <= 768) {
+      if (!loginForm.classList.contains("mobile-active") && !registerForm.classList.contains("mobile-active")) {
+        showLogin();
+      }
+    } else {
+      // Quitar clases en escritorio
+      loginForm.classList.remove("mobile-active");
+      registerForm.classList.remove("mobile-active");
+      if (loginBtn && registerBtn) {
+        loginBtn.classList.remove("active");
+        registerBtn.classList.remove("active");
+      }
+    }
+  });
+});

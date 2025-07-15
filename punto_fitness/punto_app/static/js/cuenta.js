@@ -69,4 +69,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+  const btnCerrarModalCuenta = document.querySelector('.btn-cerrar-modal-cuenta');
+  const modalCuenta = document.getElementById('modal-cuenta');
+  if (btnCerrarModalCuenta && modalCuenta) {
+    btnCerrarModalCuenta.addEventListener('click', function() {
+      modalCuenta.style.display = 'none';
+      document.body.style.overflow = '';
+    });
+  }
 });

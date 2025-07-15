@@ -14,10 +14,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const btnAbrirModal = document.getElementById('btn-abrir-modal');
   const modalScanner = document.getElementById('modal-scanner');
   const btnCerrarModal = document.getElementById('btn-cerrar-modal');
-
+  
   // Cargar estado actual
   cargarEstadoActual();
-
+  
   btnIniciar.addEventListener('click', iniciarCamara);
   btnDetener.addEventListener('click', detenerCamara);
   btnEnviarManual.addEventListener('click', enviarCodigoManual);
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
       detenerCamara();
     }
   });
-
+  
   function iniciarCamara() {
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
       .then(function(stream) {
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
           if (video.videoWidth > 0 && video.videoHeight > 0) {
             btnTomarFoto.style.display = 'inline-block';
             btnTomarFoto.disabled = false;
-            escanearQR();
+        escanearQR();
           } else {
             btnTomarFoto.style.display = 'none';
             btnTomarFoto.disabled = true;
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Error al acceder a la cámara: ' + err.message);
       });
   }
-
+  
   function detenerCamara() {
     if (escaneoAutomaticoTimeout) clearTimeout(escaneoAutomaticoTimeout);
     if (videoStream) {
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
     btnTomarFoto.disabled = true;
     scanning = false;
   }
-
+  
   async function tomarFotoQR() {
     if (!videoStream) return;
     // Esperar 500ms extra antes de capturar para asegurar que la cámara esté lista
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
       mostrarResultado({ error: 'No se detectó un código QR. Intenta de nuevo.' });
     }
   }
-
+  
   function procesarQR(qrData) {
     fetch('/escanear-qr/', {
       method: 'POST',
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
       mostrarResultado({ error: 'Error al procesar el QR' });
     });
   }
-
+  
   function mostrarResultado(data) {
     const resultadoSection = document.getElementById('resultado-section');
     const resultadoMensaje = document.getElementById('resultado-mensaje');
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
       resultadoSection.style.display = 'none';
     }, 5000);
   }
-
+  
   function cargarEstadoActual() {
     document.getElementById('estado-actual').innerHTML = `
       <p>Tu estado se actualizará después de escanear el QR o ingresar el código manualmente.</p>

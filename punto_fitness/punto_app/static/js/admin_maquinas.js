@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   inicializarEventListeners();
+
+  // === GUARDAR VALORES ORIGINALES AL ABRIR MODAL DE EDICIÓN ===
+  // (Eliminado el focusin)
 });
 
 // Función para obtener csrf token
@@ -55,6 +58,35 @@ function mostrarFormularioEdicion(id, id_tipo) {
   console.log(`🔍 Buscando modal con ID: modal-fondo-editar-${id_tipo}-${id}`);
   const modalFondo = document.getElementById(`modal-fondo-editar-${id_tipo}-${id}`);
   if (modalFondo) {
+    // Guardar valores originales al abrir el modal
+    const form = modalFondo.querySelector('form');
+    if (form) {
+      // Buscar cada input y verificar existencia
+      const nombreInput = form.querySelector(`[name="maquina-nombre-editar-${id}"]`);
+      const descripcionInput = form.querySelector(`[name="maquina-descripcion-editar-${id}"]`);
+      const cantidadInput = form.querySelector(`[name="maquina-cantidad-editar-${id}"]`);
+      const establecimientoInput = form.querySelector(`[name="maquina-establecimiento-editar-${id}"]`);
+      const imagenInput = form.querySelector(`[name="maquina-imagen-editar-${id}"]`);
+      if (!nombreInput || !descripcionInput || !cantidadInput || !establecimientoInput || !imagenInput) {
+        console.error('❌ No se encontró uno de los inputs al abrir el modal de edición:', {
+          nombre: nombreInput,
+          descripcion: descripcionInput,
+          cantidad: cantidadInput,
+          establecimiento: establecimientoInput,
+          imagen: imagenInput,
+          id: id
+        });
+      } else {
+        form._originalValues = {
+          nombre: nombreInput.value,
+          descripcion: descripcionInput.value,
+          cantidad: cantidadInput.value,
+          establecimiento: establecimientoInput.value,
+          imagen: imagenInput.value
+        };
+        console.log('🟢 Valores originales guardados al abrir modal:', form._originalValues);
+      }
+    }
     modalFondo.style.display = 'flex';
     setTimeout(() => {
       const primerInput = modalFondo.querySelector('input, select');
@@ -302,6 +334,20 @@ function inicializarEventListeners() {
       const establecimientoId = establecimientoInput.value;
       const imagen = imagenInput.value;
       
+      // === COMPARAR CON VALORES ORIGINALES ===
+      const orig = form._originalValues;
+      console.log('🟡 Comparando valores originales y actuales:', { orig, actuales: { nombre, descripcion, cantidad, establecimientoId, imagen } });
+      if (orig && nombre === orig.nombre && descripcion === orig.descripcion && cantidad === orig.cantidad && establecimientoId === orig.establecimiento && imagen === orig.imagen) {
+        Swal.fire({
+          title: 'Sin cambios',
+          text: 'No hubo ningún cambio, no se realizó ninguna actualización.',
+          icon: 'info',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Entendido'
+        });
+        return;
+      }
+      
       // Validaciones
       const errores = [];
       errores.push(...validarNombre(nombre, 'nombre', 3, 30, false));
@@ -345,7 +391,20 @@ function inicializarEventListeners() {
   document.querySelectorAll('[name="btn-editar-maquina"]').forEach(btn => {
     btn.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
+      console.log('🟦 Botón Actualizar clickeado para máquina ID:', id);
       mostrarFormularioEdicion(id, 'maquina');
+      // Verifica si el modal y el formulario existen
+      const modalFondo = document.getElementById(`modal-fondo-editar-maquina-${id}`);
+      if (!modalFondo) {
+        console.error('❌ No se encontró el modal de edición para la máquina con ID:', id);
+      } else {
+        const form = modalFondo.querySelector('form');
+        if (!form) {
+          console.error('❌ No se encontró el formulario dentro del modal para la máquina con ID:', id);
+        } else {
+          console.log('✅ Modal y formulario de edición encontrados para máquina ID:', id);
+        }
+      }
     });
   });
 
@@ -354,7 +413,18 @@ function inicializarEventListeners() {
     btn.addEventListener('click', function() {
       const id = this.getAttribute('data-id');
 
-      if (confirm('¿Eliminar esta máquina?')) {
+      Swal.fire({
+        title: '¿Eliminar esta máquina?',
+        text: 'Esta acción no se puede deshacer. ¿Estás seguro de que deseas eliminar la máquina?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        focusCancel: true
+      }).then((result) => {
+        if (result.isConfirmed) {
         eliminarMaquina(id)
           .then(data => {
             if (data.error) throw new Error(data.error);
@@ -364,6 +434,7 @@ function inicializarEventListeners() {
           })
           .catch(console.error);
       }
+      });
     });
   });
 
