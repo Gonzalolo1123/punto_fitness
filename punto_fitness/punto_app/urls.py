@@ -54,10 +54,10 @@ urlpatterns = [
     path('inventario/crear_vendedor/', views.admin_vendedor_crear, name='admin_vendedor_crear'),
     path('inventario/actualizar_vendedor/<int:vendedor_id>/', views.admin_vendedor_actualizar, name='admin_vendedor_actualizar'),
     path('inventario/borrar_vendedor/<int:vendedor_id>/', views.admin_vendedor_borrar, name='admin_vendedor_borrar'),
-    # Establecimientos
-    path('inventario/crear_establecimiento/', views.admin_establecimiento_crear, name='admin_establecimiento_crear'),
-    path('inventario/actualizar_establecimiento/<int:establecimiento_id>/', views.admin_establecimiento_actualizar, name='admin_establecimiento_actualizar'),
-    path('inventario/borrar_establecimiento/<int:establecimiento_id>/', views.admin_establecimiento_borrar, name='admin_establecimiento_borrar'),
+    # Establecimientos (nuevas rutas solo para superadmin)
+    path('super_admin/crear_establecimiento/', views.superadmin_establecimiento_crear, name='superadmin_establecimiento_crear'),
+    path('super_admin/actualizar_establecimiento/<int:establecimiento_id>/', views.superadmin_establecimiento_actualizar, name='superadmin_establecimiento_actualizar'),
+    path('super_admin/borrar_establecimiento/<int:establecimiento_id>/', views.superadmin_establecimiento_borrar, name='superadmin_establecimiento_borrar'),
     # Proveedores
     path('inventario/crear_proveedor/', views.admin_proveedor_crear, name='admin_proveedor_crear'),
     path('inventario/actualizar_proveedor/<int:proveedor_id>/', views.admin_proveedor_actualizar, name='admin_proveedor_actualizar'),
@@ -101,4 +101,5 @@ urlpatterns = [
     path('asistencia-cliente/', views.asistencia_cliente, name='asistencia_cliente'),
     path('generar-qr/', views.generar_qr_asistencia, name='generar_qr'),
     path('escanear-qr/', views.escanear_qr_asistencia, name='escanear_qr'),
+    path('asistencia-cliente/historial/', views.historial_asistencia_cliente, name='historial_asistencia_cliente'),
 ]

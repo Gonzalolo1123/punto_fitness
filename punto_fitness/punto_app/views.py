@@ -1271,7 +1271,8 @@ def super_admin(request):
         return render(request, 'punto_app/super_admin.html', {
             'clientes': clientes_no_admin,
             'administradores': administradores,
-            'establecimientos': Establecimiento.objects.all()
+            'establecimientos': Establecimiento.objects.all(),
+            'proveedores': Proveedor.objects.all(),
         })
             
     except Cliente.DoesNotExist:
@@ -3250,3 +3251,88 @@ def asistencia_cliente(request):
         pass  # Cliente normal, puede usar el QR
     
     return render(request, 'punto_app/asistencia_cliente.html')
+
+@csrf_exempt
+@requiere_superadmin
+def superadmin_establecimiento_crear(request):
+    try:
+        data = json.loads(request.body)
+        establecimiento = Establecimiento.objects.create(
+            nombre=data['nombre'],
+            direccion=data['direccion'],
+            telefono=data['telefono'],
+            email=data['email'],
+            horario_apertura=data['horario_apertura'],
+            horario_cierre=data['horario_cierre'],
+            proveedor_id=data['proveedor_id'],
+        )
+        establecimiento_con_relaciones = Establecimiento.objects.select_related('proveedor').get(id=establecimiento.id)
+        return JsonResponse({
+            'id': establecimiento.id,
+            'nombre': establecimiento.nombre,
+            'direccion': establecimiento.direccion,
+            'telefono': establecimiento.telefono,
+            'email': establecimiento.email,
+            'horario_apertura': establecimiento.horario_apertura,
+            'horario_cierre': establecimiento.horario_cierre,
+            'proveedor_id': establecimiento.proveedor_id,
+            'proveedor__nombre': establecimiento_con_relaciones.proveedor.nombre
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+@requiere_superadmin
+def superadmin_establecimiento_actualizar(request, establecimiento_id):
+    try:
+        establecimiento = get_object_or_404(Establecimiento, pk=establecimiento_id)
+        data = json.loads(request.body)
+        establecimiento.nombre = data.get('nombre', establecimiento.nombre)
+        establecimiento.direccion = data.get('direccion', establecimiento.direccion)
+        establecimiento.telefono = data.get('telefono', establecimiento.telefono)
+        establecimiento.email = data.get('email', establecimiento.email)
+        establecimiento.horario_apertura = data.get('horario_apertura', establecimiento.horario_apertura)
+        establecimiento.horario_cierre = data.get('horario_cierre', establecimiento.horario_cierre)
+        establecimiento.proveedor_id = data.get('proveedor', establecimiento.proveedor_id)
+        establecimiento.save()
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'id': establecimiento.id,
+                'nombre': establecimiento.nombre,
+                'direccion': establecimiento.direccion,
+                'telefono': establecimiento.telefono,
+                'email': establecimiento.email,
+                'horario_apertura': establecimiento.horario_apertura,
+                'horario_cierre': establecimiento.horario_cierre,
+                'proveedor_id': establecimiento.proveedor_id,
+                'proveedor__nombre': establecimiento.proveedor.nombre
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@csrf_exempt
+@requiere_superadmin
+def superadmin_establecimiento_borrar(request, establecimiento_id):
+    try:
+        establecimiento = get_object_or_404(Establecimiento, pk=establecimiento_id)
+        establecimiento.delete()
+        return JsonResponse({'message': 'Establecimiento eliminado correctamente'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+def historial_asistencia_cliente(request):
+    cliente_id = request.session.get('cliente_id')
+    if not cliente_id:
+        return JsonResponse({'historial': []})
+    registros = RegistroAcceso.objects.filter(usuario_id=cliente_id).order_by('-fecha_hora_entrada')[:20]
+    historial = []
+    for reg in registros:
+        historial.append({
+            'fecha': reg.fecha_hora_entrada.strftime('%d/%m/%Y'),
+            'hora_entrada': reg.fecha_hora_entrada.strftime('%H:%M'),
+            'hora_salida': reg.fecha_hora_salida.strftime('%H:%M') if reg.fecha_hora_salida else '',
+            'establecimiento': reg.establecimiento.nombre if reg.establecimiento else '-',
+        })
+    return JsonResponse({'historial': historial})

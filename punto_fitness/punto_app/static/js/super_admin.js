@@ -23,8 +23,14 @@ function abrirModalEdicion(tipo, id) {
     document.getElementById(`modal-fondo-editar-${tipo}-${id}`).style.display = 'flex';
 }
 
-function cerrarModalEdicion(tipo, id) {
-    document.getElementById(`modal-fondo-editar-${tipo}-${id}`).style.display = 'none';
+function cerrarModalEdicion(tipo, id = null) {
+    if (tipo === 'establecimiento') {
+        document.getElementById('modal-fondo-editar-establecimiento').style.display = 'none';
+    } else if (id !== null) {
+        document.getElementById(`modal-fondo-editar-${tipo}-${id}`).style.display = 'none';
+    } else {
+        document.getElementById(`modal-fondo-editar-${tipo}`).style.display = 'none';
+    }
 }
 
 function mostrarModalConfirmacion(mensaje, onConfirm) {
@@ -745,3 +751,165 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ [TRANSFERENCIA] Event listeners para transferencia configurados');
 });
+
+//////////////////////////////
+// CRUD DE ESTABLECIMIENTO //
+//////////////////////////////
+
+// Crear establecimiento
+function crearEstablecimiento(formData) {
+    return fetch(`${BASE_URL}crear_establecimiento/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(formData)
+    }).then(response => response.json());
+}
+
+// Actualizar establecimiento
+function actualizarEstablecimiento(id, data) {
+    return fetch(`${BASE_URL}actualizar_establecimiento/${id}/`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(data)
+    }).then(response => response.json());
+}
+
+// Borrar establecimiento
+function borrarEstablecimiento(id) {
+    return fetch(`${BASE_URL}borrar_establecimiento/${id}/`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        }
+    }).then(response => response.json());
+}
+
+// Validación y alertas personalizadas para establecimiento
+function validarEstablecimiento(formData, esEdicion = false) {
+    let errores = [];
+    errores = errores.concat(validarNombre(formData.nombre, 'nombre', 3, 30));
+    errores = errores.concat(validarDireccionChilena(formData.direccion, 'dirección', 5, 100));
+    errores = errores.concat(validarTelefonoChileno(formData.telefono, 'teléfono'));
+    errores = errores.concat(validarEmail(formData.email, 'correo electrónico'));
+    errores = errores.concat(validarHorario(formData.horario_apertura, 'horario de apertura', 6, 12));
+    errores = errores.concat(validarHorario(formData.horario_cierre, 'horario de cierre', 12, 23));
+    if (!formData.proveedor_id && !formData.proveedor) {
+        errores.push('Debe seleccionar un proveedor');
+    }
+    if (errores.length > 0) {
+        mostrarErroresValidacion(errores, esEdicion ? 'Errores al editar establecimiento' : 'Errores al crear establecimiento');
+        return false;
+    }
+    return true;
+}
+
+// Modificar listeners para usar validaciones y alertas
+function inicializarEstablecimientoListeners() {
+    // Crear
+    const formCrear = document.getElementById('form-crear-establecimiento');
+    if (formCrear) {
+        formCrear.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = {
+                nombre: formCrear['establecimiento-nombre'].value,
+                direccion: formCrear['establecimiento-direccion'].value,
+                telefono: formCrear['establecimiento-telefono'].value,
+                email: formCrear['establecimiento-email'].value,
+                horario_apertura: formCrear['establecimiento-horario_apertura'].value,
+                horario_cierre: formCrear['establecimiento-horario_cierre'].value,
+                proveedor_id: formCrear['establecimiento-proveedor'].value
+            };
+            if (!validarEstablecimiento(formData, false)) return;
+            crearEstablecimiento(formData).then(response => {
+                if (!response.error) {
+                    mostrarExitoValidacion('Establecimiento creado correctamente');
+                } else {
+                    mostrarErroresValidacion([response.error], 'Error al crear establecimiento');
+                }
+            });
+        });
+    }
+    // Editar
+    const formEditar = document.getElementById('form-editar-establecimiento');
+    if (formEditar) {
+        formEditar.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = formEditar['establecimiento-id'].value;
+            const formData = {
+                nombre: formEditar['establecimiento-nombre'].value,
+                direccion: formEditar['establecimiento-direccion'].value,
+                telefono: formEditar['establecimiento-telefono'].value,
+                email: formEditar['establecimiento-email'].value,
+                horario_apertura: formEditar['establecimiento-horario_apertura'].value,
+                horario_cierre: formEditar['establecimiento-horario_cierre'].value,
+                proveedor: formEditar['establecimiento-proveedor'].value
+            };
+            if (!validarEstablecimiento(formData, true)) return;
+            actualizarEstablecimiento(id, formData).then(response => {
+                if (response.success) {
+                    mostrarExitoValidacion('Establecimiento actualizado correctamente');
+                } else {
+                    mostrarErroresValidacion([response.error || 'No se pudo actualizar'], 'Error al actualizar establecimiento');
+                }
+            });
+        });
+    }
+    // Botones eliminar
+    document.querySelectorAll('[name="btn-eliminar-establecimiento"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            Swal.fire({
+                title: '¿Seguro que deseas eliminar este establecimiento?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    borrarEstablecimiento(id).then(response => {
+                        if (response.message) {
+                            mostrarExitoValidacion('Establecimiento eliminado correctamente');
+                        } else {
+                            mostrarErroresValidacion([response.error || 'No se pudo eliminar'], 'Error al eliminar establecimiento');
+                        }
+                    });
+                }
+            });
+        });
+    });
+    // Botones editar
+    document.querySelectorAll('[name="btn-editar-establecimiento"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            // Llenar el formulario de edición con los datos de la fila
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (row) {
+                document.getElementById('establecimiento-id-editar').value = id;
+                document.getElementById('establecimiento-nombre-editar').value = row.children[0].textContent;
+                document.getElementById('establecimiento-direccion-editar').value = row.children[1].textContent;
+                document.getElementById('establecimiento-telefono-editar').value = row.children[2].textContent;
+                document.getElementById('establecimiento-email-editar').value = row.children[3].textContent;
+                document.getElementById('establecimiento-horario_apertura-editar').value = row.children[4].textContent;
+                document.getElementById('establecimiento-horario_cierre-editar').value = row.children[5].textContent;
+                document.getElementById('establecimiento-proveedor-editar').value = row.getAttribute('data-proveedor-id');
+                abrirModal('editar-establecimiento');
+            }
+        });
+    });
+}
+
+// Llamar a la función de inicialización de listeners de establecimiento al cargar
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarEstablecimientoListeners);
+} else {
+    inicializarEstablecimientoListeners();
+}
