@@ -518,3 +518,24 @@ if (typeof formatearPrecioChileno === 'function') {
     });
   });
 } 
+
+// Validar que un usuario no tenga más de una membresía activa
+function validarUnicaMembresiaPorUsuario(usuarioId) {
+  return fetch(`/api/verificar_membresia_usuario/${usuarioId}/`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.tiene_membresia) {
+        mostrarErroresValidacion([
+          'Este usuario ya tiene una membresía activa. Solo puede renovarla o actualizarla, no agregar otra nueva.'
+        ], 'Membresía duplicada');
+        return false;
+      }
+      return true;
+    })
+    .catch(error => {
+      mostrarErroresValidacion([
+        'Error al verificar la membresía del usuario. Intente nuevamente.'
+      ], 'Error de validación');
+      return false;
+    });
+} 

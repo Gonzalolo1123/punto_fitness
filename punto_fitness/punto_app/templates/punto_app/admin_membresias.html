@@ -282,7 +282,7 @@ console.log('Datos de membresías cargados:', window.membresiasData);
       </thead>
       <tbody>
         {% for cliente_membresia in cliente_membresias %}
-        <tr data-id="{{ cliente_membresia.id }}">
+        <tr data-id="{{ cliente_membresia.id }}" data-usuario-id="{{ cliente_membresia.usuario_id }}">
           <td>{{ cliente_membresia.usuario__nombre }} {{ cliente_membresia.usuario__apellido }}</td>
           <td>{{ cliente_membresia.membresia__nombre }}</td>
           <td>{{ cliente_membresia.fecha_inicio|date:'d/m/Y' }}</td>
