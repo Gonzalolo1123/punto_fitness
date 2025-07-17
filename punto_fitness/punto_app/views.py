@@ -3362,3 +3362,8 @@ def historial_asistencia_cliente(request):
             'establecimiento': reg.establecimiento.nombre if reg.establecimiento else '-',
         })
     return JsonResponse({'historial': historial})
+
+def verificar_membresia_usuario(request, usuario_id):
+    hoy = timezone.now().date()
+    tiene_membresia = ClienteMembresia.objects.filter(usuario_id=usuario_id, estado=True, fecha_fin__gte=hoy).exists()
+    return JsonResponse({'tiene_membresia': tiene_membresia})

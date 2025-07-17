@@ -102,4 +102,5 @@ urlpatterns = [
     path('generar-qr/', views.generar_qr_asistencia, name='generar_qr'),
     path('escanear-qr/', views.escanear_qr_asistencia, name='escanear_qr'),
     path('asistencia-cliente/historial/', views.historial_asistencia_cliente, name='historial_asistencia_cliente'),
+    path('api/verificar_membresia_usuario/<int:usuario_id>/', views.verificar_membresia_usuario, name='verificar_membresia_usuario'),
 ]

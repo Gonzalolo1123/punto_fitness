@@ -112,11 +112,28 @@ function cerrarModal(tipo, botonAbrir = null) {
     }
 }
 
-function abrirModalEdicion(tipo, id) {
+function abrirModalEdicion(tipo, id, datos = null) {
     const modalFondo = document.getElementById(`modal-fondo-editar-${tipo}-${id}`);
     if (modalFondo) {
         modalFondo.style.display = 'flex';
-        
+        // Si se pasan datos, llenar el formulario
+        if (datos && tipo === 'cliente-membresia') {
+            const form = modalFondo.querySelector('form');
+            if (form) {
+                if (form.querySelector(`#cliente-membresia-usuario-editar-${id}`))
+                    form.querySelector(`#cliente-membresia-usuario-editar-${id}`).value = datos.usuario_id || '';
+                if (form.querySelector(`#cliente-membresia-membresia-editar-${id}`))
+                    form.querySelector(`#cliente-membresia-membresia-editar-${id}`).value = datos.membresia_id || '';
+                if (form.querySelector(`#cliente-membresia-fecha-inicio-editar-${id}`))
+                    form.querySelector(`#cliente-membresia-fecha-inicio-editar-${id}`).value = datos.fecha_inicio || '';
+                if (form.querySelector(`#cliente-membresia-fecha-fin-editar-${id}`))
+                    form.querySelector(`#cliente-membresia-fecha-fin-editar-${id}`).value = datos.fecha_fin || '';
+                if (form.querySelector(`#cliente-membresia-estado-editar-${id}`))
+                    form.querySelector(`#cliente-membresia-estado-editar-${id}`).value = datos.estado ? 'True' : 'False';
+                if (form.querySelector(`#cliente-membresia-codigo-qr-editar-${id}`))
+                    form.querySelector(`#cliente-membresia-codigo-qr-editar-${id}`).value = datos.codigo_qr || '';
+            }
+        }
         // Si es el modal de edición de cliente-membresia, inicializar la duración personalizada
         if (tipo === 'cliente-membresia') {
             setTimeout(() => {
@@ -407,6 +424,58 @@ async function crearClienteMembresia(form) {
     console.log('Iniciando creación de ClienteMembresia...');
     try {
         const formData = new FormData(form);
+        const usuario_id = formData.get('cliente-membresia-usuario');
+        // Validar si el usuario ya tiene membresía activa
+        const tieneMembresia = await validarUnicaMembresiaPorUsuario(usuario_id);
+        if (!tieneMembresia) {
+            // Buscar la fila de la membresía activa del usuario
+            const fila = document.querySelector(`tr[data-usuario-id="${usuario_id}"]`);
+            let clienteMembresiaId = null;
+            if (fila) {
+                clienteMembresiaId = fila.getAttribute('data-id');
+            } else {
+                // Buscar por otra forma si no hay data-usuario-id
+                const filas = document.querySelectorAll('tr[data-id]');
+                filas.forEach(f => {
+                    if (f.textContent.includes(usuario_id)) {
+                        clienteMembresiaId = f.getAttribute('data-id');
+                    }
+                });
+            }
+            cerrarModal('cliente-membresia');
+            Swal.fire({
+                title: 'Este usuario ya tiene una membresía activa',
+                text: '¿Desea actualizar la membresía existente?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, actualizar',
+                cancelButtonText: 'No, cancelar',
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed && clienteMembresiaId) {
+                    // Obtener datos de la fila para llenar el modal
+                    const fila = document.querySelector(`tr[data-id="${clienteMembresiaId}"]`);
+                    let datos = {};
+                    if (fila) {
+                        // Asume que las celdas están en el orden esperado
+                        const cells = fila.cells;
+                        datos = {
+                            usuario_id: usuario_id,
+                            membresia_id: cells[1]?.getAttribute('data-membresia-id') || '',
+                            fecha_inicio: cells[2]?.textContent.trim() || '',
+                            fecha_fin: cells[3]?.textContent.trim() || '',
+                            estado: cells[4]?.textContent.trim() === 'Activo',
+                            codigo_qr: cells[5]?.textContent.trim() || ''
+                        };
+                    }
+                    setTimeout(() => {
+                        abrirModalEdicion('cliente-membresia', clienteMembresiaId, datos);
+                    }, 300);
+                }
+            });
+            return;
+        }
         const data = {
             usuario_id: formData.get('cliente-membresia-usuario'),
             membresia_id: formData.get('cliente-membresia-membresia'),
