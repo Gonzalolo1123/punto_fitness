@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="{% static 'css/inventario.css' %}">
   <link rel="stylesheet" href="{% static 'css/base_admin.css' %}">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
 </head>
 
 <body>
@@ -175,13 +177,6 @@
                 {% for est in establecimientos %}
                 <option value="{{ est.id }}">{{ est.nombre }}</option>
                 {% endfor %}
-              </select>
-            </div>
-            <div class="form-fila">
-              <label for="admin-nivel">Nivel de acceso:</label>
-              <select id="admin-nivel" name="admin-nivel" required>
-                <option value="admin">Administrador</option>
-                <option value="superadmin">Superadmin</option>
               </select>
             </div>
             <div class="modal-actions">

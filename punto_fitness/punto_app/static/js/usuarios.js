@@ -448,17 +448,6 @@ function inicializarBotonesEdicion() {
         });
     }
     
-    // Event listeners para cerrar modal de edición con click en fondo
-    const modalFondo = document.getElementById('modal-fondo-editar-usuario');
-    if (modalFondo) {
-        modalFondo.addEventListener('click', function(event) {
-            if (event.target === modalFondo) {
-                console.log(`🖱️ Click en fondo del modal de edición usuario, cerrando...`);
-                cerrarModalEdicion('usuario');
-            }
-        });
-    }
-    
     // Event listener para cerrar modal de edición con ESC
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
@@ -652,14 +641,6 @@ function inicializarEventListeners() {
     const abrirFormUsuarioBtn = document.getElementById('abrir-form-usuario');
     const cerrarModalBtn = document.getElementById('cerrar-modal');
     const cancelarModalBtn = document.getElementById('cancelar-modal');
-
-    console.log('🎭 Elementos del modal encontrados:');
-    console.log('  - Modal fondo:', modalFondo ? 'SÍ' : 'NO');
-    console.log('  - Modal form:', modalForm ? 'SÍ' : 'NO');
-    console.log('  - Botón abrir:', abrirFormUsuarioBtn ? 'SÍ' : 'NO');
-    console.log('  - Botón cerrar:', cerrarModalBtn ? 'SÍ' : 'NO');
-    console.log('  - Botón cancelar:', cancelarModalBtn ? 'SÍ' : 'NO');
-
     // Función para abrir el modal
     function abrirModal() {
         console.log('🔓 Abriendo modal...');
@@ -679,7 +660,6 @@ function inicializarEventListeners() {
 
     // Función para cerrar el modal
     function cerrarModal() {
-        console.log('🔒 Cerrando modal...');
         modalFondo.style.display = 'none';
         abrirFormUsuarioBtn.setAttribute('data-estado', 'cerrado');
         abrirFormUsuarioBtn.textContent = '+';
@@ -689,7 +669,6 @@ function inicializarEventListeners() {
         if (form) {
             form.reset();
         }
-        console.log('✅ Modal cerrado correctamente');
     }
 
     if (abrirFormUsuarioBtn) {
@@ -715,15 +694,7 @@ function inicializarEventListeners() {
         cancelarModalBtn.addEventListener('click', cerrarModal);
     }
 
-    if (modalFondo) {
-        modalFondo.addEventListener('click', function (event) {
-            if (event.target === modalFondo) {
-                console.log('🖱️ Click en fondo del modal, cerrando...');
-                cerrarModal();
-            }
-        });
-    }
-
+    
     // Cerrar modal con ESC
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape' && modalFondo.style.display === 'flex') {

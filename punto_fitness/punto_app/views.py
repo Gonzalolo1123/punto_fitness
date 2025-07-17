@@ -32,7 +32,6 @@ import io
 import base64
 from django.http import JsonResponse
 from django.utils import timezone
-# traducción de estadisticas
 import locale
 
 # Create your views here.
@@ -2368,7 +2367,7 @@ def venta_confirmada(request):
             establecimiento = Establecimiento.objects.first()  # o según el usuario logueado
 
             # Calcular el total de la venta
-            total = sum(int(p['total_producto']) for p in productos)
+            total = sum(int(float(p['total_producto'])) for p in productos)
 
             if cliente_id == '00':
                 # Si no hay cliente registrado, puedes crear un cliente temporal si lo deseas
@@ -2394,8 +2393,8 @@ def venta_confirmada(request):
             for item in productos:
                 nombre_codigo = item['nombre_codigo']
                 cantidad = int(item['cantidad'])
-                precio_unitario = int(item['precio_unitario'])
-                subtotal = int(item['total_producto'])
+                precio_unitario = int(float(item['precio_unitario']))
+                subtotal = int(float(item['total_producto']))
                 iva = round(subtotal * 0.19, 2)  # o como sea que calcules el IVA
                 print(f"Buscando producto con nombre_codigo: {nombre_codigo}")
 
@@ -2985,6 +2984,7 @@ def estadisticas_view(request):
     ventas_diarias_labels, ventas_diarias_data = format_ventas_data(ventas_diarias, '%d/%m')
     ventas_semanales_labels, ventas_semanales_data = format_ventas_data(ventas_semanales, '%d/%m')
     ventas_mensuales_labels, ventas_mensuales_data = format_ventas_data(ventas_mensuales, '%B %Y')
+    ventas_mensuales_labels = [label.capitalize() for label in ventas_mensuales_labels]
     ventas_anuales_labels, ventas_anuales_data = format_ventas_data(ventas_anuales, '%Y')
     locale.setlocale(locale.LC_TIME, '')
     
@@ -2993,6 +2993,7 @@ def estadisticas_view(request):
     ventas_categoria_diarias_data = format_ventas_categoria_data(ventas_categoria_diarias, '%d/%m')
     ventas_categoria_semanales_data = format_ventas_categoria_data(ventas_categoria_semanales, '%d/%m')
     ventas_categoria_mensuales_data = format_ventas_categoria_data(ventas_categoria_mensuales, '%B %Y')
+    ventas_categoria_mensuales_data = {categoria: {k.capitalize(): v for k, v in ventas_categoria_mensuales_data[categoria].items()} for categoria in ventas_categoria_mensuales_data}
     ventas_categoria_anuales_data = format_ventas_categoria_data(ventas_categoria_anuales, '%Y')
     locale.setlocale(locale.LC_TIME, '')
     
@@ -3007,6 +3008,7 @@ def estadisticas_view(request):
     membresias_diarias_labels, membresias_diarias_data = format_membresias_data(membresias_diarias, '%d/%m')
     membresias_semanales_labels, membresias_semanales_data = format_membresias_data(membresias_semanales, '%d/%m')
     membresias_mensuales_labels, membresias_mensuales_data = format_membresias_data(membresias_mensuales, '%B %Y')
+    membresias_mensuales_labels = [label.capitalize() for label in membresias_mensuales_labels]
     locale.setlocale(locale.LC_TIME, '')
     
     # Productos más vendidos

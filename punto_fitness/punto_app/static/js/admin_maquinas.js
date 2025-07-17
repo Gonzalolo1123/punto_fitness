@@ -469,15 +469,15 @@ function inicializarModales() {
   }
 
   // Event listener para cerrar modal con click en fondo
-  const modalFondo = document.getElementById('modal-fondo-maquina');
-  if (modalFondo) {
-    modalFondo.addEventListener('click', function(event) {
-      if (event.target === modalFondo) {
-        console.log('🖱️ Click en fondo del modal máquina, cerrando...');
-        cerrarModal('maquina');
-      }
-    });
-  }
+  // const modalFondo = document.getElementById('modal-fondo-maquina');
+  // if (modalFondo) {
+  //   modalFondo.addEventListener('click', function(event) {
+  //     if (event.target === modalFondo) {
+  //       console.log('🖱️ Click en fondo del modal máquina, cerrando...');
+  //       cerrarModal('maquina');
+  //     }
+  //   });
+  // }
 
   // Event listeners para cerrar modales de edición con click en fondo
   document.querySelectorAll('.modal-fondo[id^="modal-fondo-editar-"]').forEach(modalFondo => {

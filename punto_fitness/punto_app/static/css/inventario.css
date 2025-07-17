@@ -67,9 +67,9 @@ th {
   color: white;
   font-weight: 600;
   font-size: 1.1em;
-  text-transform: uppercase;
   letter-spacing: 1px;
   position: relative;
+  text-transform: capitalize;
 }
 
 th:first-child {

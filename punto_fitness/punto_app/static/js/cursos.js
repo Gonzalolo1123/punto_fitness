@@ -609,17 +609,17 @@ function inicializarModales() {
   });
 
   // Event listeners para cerrar modales de creación con click en fondo
-  Object.keys(botonesModalesCreacion).forEach(tipo => {
-    const modalFondo = document.getElementById(`modal-fondo-${tipo}`);
-    if (modalFondo) {
-      modalFondo.addEventListener('click', function(event) {
-        if (event.target === modalFondo) {
-          console.log(`🖱️ Click en fondo del modal ${tipo}, cerrando...`);
-          cerrarModal(tipo);
-        }
-      });
-    }
-  });
+  // Object.keys(botonesModalesCreacion).forEach(tipo => {
+  //   const modalFondo = document.getElementById(`modal-fondo-${tipo}`);
+  //   if (modalFondo) {
+  //     modalFondo.addEventListener('click', function(event) {
+  //       if (event.target === modalFondo) {
+  //         console.log(`🖱️ Click en fondo del modal ${tipo}, cerrando...`);
+  //         cerrarModal(tipo);
+  //       }
+  //     });
+  //   }
+  // });
 
   // Event listeners para cerrar modales de edición con click en fondo
   document.querySelectorAll('.modal-fondo[id^="modal-fondo-editar-"]').forEach(modalFondo => {

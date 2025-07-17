@@ -110,15 +110,14 @@ function otorgarRolAdmin(clienteId, establecimientoId) {
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                alert('Rol de administrador otorgado con éxito.');
-                window.location.reload(); // Recargar la página para ver los cambios
+                mostrarExitoValidacion('Rol de administrador otorgado con éxito.', '¡Éxito!');
             } else {
-                alert('Error al otorgar rol de administrador: ' + result.error);
+                mostrarErroresValidacion([result.error || 'Error desconocido'], 'Error al otorgar rol de administrador');
             }
         })
         .catch(error => {
             console.error('Error en la petición:', error);
-            alert('Ocurrió un error al intentar cambiar el rol.');
+            mostrarErroresValidacion(['Ocurrió un error al intentar cambiar el rol.'], 'Error de red');
         });
 }
 
@@ -138,15 +137,6 @@ function inicializarEventListeners() {
             cerrarModal('confirmacion');
         });
     }
-
-    // Cerrar modales al hacer clic en el fondo
-    document.querySelectorAll('.modal-fondo').forEach(overlay => {
-        overlay.addEventListener('click', function (e) {
-            if (e.target === this) {
-                this.style.display = 'none';
-            }
-        });
-    });
 
     // Botones de edición
     document.querySelectorAll('[name="btn-editar-admin"]').forEach(btn => {
@@ -322,6 +312,21 @@ function inicializarEventListeners() {
             });
         });
     });
+
+    // FORMULARIO DE AGREGAR ADMINISTRADOR
+    const formCrearAdmin = document.getElementById('form-crear-admin');
+    if (formCrearAdmin) {
+        formCrearAdmin.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const clienteId = document.getElementById('admin-cliente').value;
+            const establecimientoId = document.getElementById('admin-establecimiento').value;
+            if (!clienteId || !establecimientoId) {
+                mostrarErroresValidacion(['Debes seleccionar cliente y establecimiento.'], 'Error al agregar administrador');
+                return;
+            }
+            otorgarRolAdmin(clienteId, establecimientoId);
+        });
+    }
 }
 
 // Funciones para transferencia de Super Admin
@@ -553,17 +558,30 @@ function enviarCodigoVerificacion() {
         
         if (data.success) {
             console.log('✅ [TRANSFERENCIA] Código enviado exitosamente');
-            alert('✅ Código de verificación enviado al email del administrador seleccionado.');
+            if (typeof Swal !== 'undefined' && Swal.fire) {
+                Swal.fire({
+                    title: '¡Código enviado!',
+                    html: 'Código de verificación enviado al email del administrador seleccionado.<br><br><b>Revisa tu correo.</b>',
+                    icon: 'success',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                });
+            } else {
+                alert('Código de verificación enviado al email del administrador seleccionado.');
+            }
             document.getElementById('enviar-codigo-btn').disabled = true;
             document.getElementById('enviar-codigo-btn').textContent = 'Código Enviado';
         } else {
             console.log(`❌ [TRANSFERENCIA] Error al enviar código: ${data.error}`);
-            alert('Error al enviar código: ' + data.error);
+            mostrarErroresValidacion([data.error || 'Error desconocido'], 'Error al enviar código');
         }
     })
     .catch(error => {
         console.error('❌ [TRANSFERENCIA] Error en envío de código:', error);
-        alert('Error al enviar código de verificación.');
+        mostrarErroresValidacion(['Error al enviar código de verificación.'], 'Error de red');
     });
 }
 
@@ -587,17 +605,30 @@ function enviarCodigoVerificacionSuperadminActual() {
         
         if (data.success) {
             console.log('✅ [TRANSFERENCIA] Código enviado al superadmin actual exitosamente');
-            alert('✅ Código de verificación enviado al email del superadmin actual.');
+            if (typeof Swal !== 'undefined' && Swal.fire) {
+                Swal.fire({
+                    title: '¡Código enviado!',
+                    html: 'Código de verificación enviado al email del superadmin actual.<br><br><b>Revisa tu correo.</b>',
+                    icon: 'success',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                });
+            } else {
+                alert('Código de verificación enviado al email del superadmin actual.');
+            }
             document.getElementById('enviar-codigo-superadmin-actual-btn').disabled = true;
             document.getElementById('enviar-codigo-superadmin-actual-btn').textContent = 'Código Enviado';
         } else {
             console.log(`❌ [TRANSFERENCIA] Error al enviar código al superadmin actual: ${data.error}`);
-            alert('Error al enviar código al superadmin actual: ' + data.error);
+            mostrarErroresValidacion([data.error || 'Error desconocido'], 'Error al enviar código');
         }
     })
     .catch(error => {
         console.error('❌ [TRANSFERENCIA] Error en envío de código al superadmin actual:', error);
-        alert('Error al enviar código de verificación al superadmin actual.');
+        mostrarErroresValidacion(['Error al enviar código de verificación al superadmin actual.'], 'Error de red');
     });
 }
 
@@ -618,25 +649,25 @@ function transferirSuperAdmin() {
     
     if (!password) {
         console.log('❌ [TRANSFERENCIA] Falta contraseña');
-        alert('Debes ingresar tu contraseña de Super Admin.');
+        mostrarErroresValidacion(['Debes ingresar tu contraseña de Super Admin.'], 'Error de transferencia');
         return;
     }
     
     if (!codigo) {
         console.log('❌ [TRANSFERENCIA] Falta código de verificación');
-        alert('Debes ingresar el código de verificación.');
+        mostrarErroresValidacion(['Debes ingresar el código de verificación.'], 'Error de transferencia');
         return;
     }
     
     if (!codigoSuperadminActual) {
         console.log('❌ [TRANSFERENCIA] Falta código de verificación del superadmin actual');
-        alert('Debes ingresar el código de verificación del superadmin actual.');
+        mostrarErroresValidacion(['Debes ingresar el código de verificación del superadmin actual.'], 'Error de transferencia');
         return;
     }
     
     if (confirmacion !== 'TRANSFERIR') {
         console.log('❌ [TRANSFERENCIA] Confirmación incorrecta');
-        alert('Debes escribir exactamente "TRANSFERIR" para confirmar.');
+        mostrarErroresValidacion(['Debes escribir exactamente "TRANSFERIR" para confirmar.'], 'Error de transferencia');
         return;
     }
     
@@ -652,6 +683,7 @@ function transferirSuperAdmin() {
     
     if (!confirmacionFinal) {
         console.log('❌ [TRANSFERENCIA] Usuario canceló la confirmación final');
+        mostrarErroresValidacion(['Transferencia cancelada por el usuario.'], 'Transferencia cancelada');
         return;
     }
     
@@ -688,20 +720,17 @@ function transferirSuperAdmin() {
         
         if (data.success) {
             console.log('✅ [TRANSFERENCIA] Transferencia completada exitosamente');
-            alert('✅ Transferencia de Super Admin completada exitosamente.\n\nEl sistema se cerrará automáticamente.');
-            // Cerrar sesión y redirigir
-            setTimeout(() => {
-                console.log('🔄 [TRANSFERENCIA] Redirigiendo a logout...');
+            mostrarExitoValidacion('Transferencia de Super Admin completada exitosamente. El sistema se cerrará automáticamente.', '¡Transferencia exitosa!').then(() => {
                 window.location.href = '/logout/';
-            }, 3000);
+            });
         } else {
             console.log(`❌ [TRANSFERENCIA] Error en transferencia: ${data.error}`);
-            alert('Error en la transferencia: ' + data.error);
+            mostrarErroresValidacion([data.error || 'Error desconocido'], 'Error en la transferencia');
         }
     })
     .catch(error => {
         console.error('❌ [TRANSFERENCIA] Error durante la transferencia:', error);
-        alert('Error durante la transferencia de Super Admin.');
+        mostrarErroresValidacion(['Error durante la transferencia de Super Admin.'], 'Error de red');
     });
 }
 

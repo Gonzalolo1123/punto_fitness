@@ -914,33 +914,6 @@ function inicializarModales() {
     }
   });
 
-  // Event listeners para cerrar modales con click en fondo (modales de creación)
-  Object.keys(botonesModales).forEach(tipo => {
-    const modalFondo = document.getElementById(`modal-fondo-${tipo}`);
-    if (modalFondo) {
-      modalFondo.addEventListener('click', function(event) {
-        if (event.target === modalFondo) {
-          console.log(`🖱️ Click en fondo del modal ${tipo}, cerrando...`);
-          cerrarModal(tipo);
-        }
-      });
-    }
-  });
-
-  // Event listeners para cerrar modales de edición con click en fondo
-  const tiposEdicion = ['producto', 'categoria', 'compra', 'vendedor', 'proveedor'];
-  tiposEdicion.forEach(tipo => {
-    const modalFondo = document.getElementById(`modal-fondo-editar-${tipo}`);
-    if (modalFondo) {
-      modalFondo.addEventListener('click', function(event) {
-        if (event.target === modalFondo) {
-          console.log(`🖱️ Click en fondo del modal de edición ${tipo}, cerrando...`);
-          cerrarModalEdicion(tipo);
-        }
-      });
-    }
-  });
-
   // Event listener para cerrar modales con ESC
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {

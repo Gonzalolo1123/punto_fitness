@@ -207,9 +207,10 @@ function validarEmail(email, campo = 'email', maxLength = 100, obligatorio = tru
     if (email.length > maxLength) {
       errores.push(`El ${campo} no puede exceder los ${maxLength} caracteres`);
     } else {
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      // Solo letras, números y puntos antes del @
+      const emailRegex = /^[a-zA-Z0-9.]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(email)) {
-        errores.push(`El ${campo} no tiene un formato válido (ejemplo: usuario@dominio.com)`);
+        errores.push(`El ${campo} solo permite letras (a-z), números (0-9) y puntos (.) antes del @, y debe tener un formato válido (ejemplo: usuario@gmail.com)`);
       }
     }
   }
