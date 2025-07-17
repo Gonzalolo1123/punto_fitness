@@ -168,6 +168,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const membresiasSemanalesData = JSON.parse(document.getElementById('membresias-semanales-data').textContent || '[]');
     const membresiasMensualesLabels = JSON.parse(document.getElementById('membresias-mensuales-labels').textContent || '[]');
     const membresiasMensualesData = JSON.parse(document.getElementById('membresias-mensuales-data').textContent || '[]');
+    const membresiasAnualesLabels = JSON.parse(document.getElementById('membresias-anuales-labels')?.textContent || '[]');
+    const membresiasAnualesData = JSON.parse(document.getElementById('membresias-anuales-data')?.textContent || '[]');
 
     // Inicialización de contextos de gráficos
     const moneyChartCtx = document.getElementById('moneyChart').getContext('2d');
@@ -219,6 +221,10 @@ document.addEventListener('DOMContentLoaded', function() {
         monthly: {
             labels: membresiasMensualesLabels.length > 0 ? membresiasMensualesLabels : ['Sin membresías registradas'],
             data: membresiasMensualesData.length > 0 ? membresiasMensualesData : [0]
+        },
+        yearly: {
+            labels: (typeof membresiasAnualesLabels !== 'undefined' && membresiasAnualesLabels.length > 0) ? membresiasAnualesLabels : ['Sin membresías registradas'],
+            data: (typeof membresiasAnualesData !== 'undefined' && membresiasAnualesData.length > 0) ? membresiasAnualesData : [0]
         }
     };
 

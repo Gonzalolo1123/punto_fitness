@@ -51,6 +51,7 @@
       <button onclick="updateMembershipChart('daily')">Diario</button>
       <button onclick="updateMembershipChart('weekly')">Semanal</button>
       <button onclick="updateMembershipChart('monthly')">Mensual</button>
+      <button onclick="updateMembershipChart('yearly')">Anual</button>
     </div>
     <canvas id="membershipChart"></canvas>
   </div>
@@ -89,6 +90,8 @@
 <div id="membresias-semanales-data" style="display: none;">{{ membresias_semanales_data|safe }}</div>
 <div id="membresias-mensuales-labels" style="display: none;">{{ membresias_mensuales_labels|safe }}</div>
 <div id="membresias-mensuales-data" style="display: none;">{{ membresias_mensuales_data|safe }}</div>
+<div id="membresias-anuales-labels" style="display: none;">{{ membresias_anuales_labels|safe }}</div>
+<div id="membresias-anuales-data" style="display: none;">{{ membresias_anuales_data|safe }}</div>
 {% endblock %}
 
 {% block extra_scripts %}

@@ -1131,7 +1131,7 @@ function llenarFormularioEdicion(tipo, datos) {
     case 'producto':
       form.querySelector('#producto-nombre-editar').value = datos.nombre || '';
       form.querySelector('#producto-descripcion-editar').value = datos.descripcion || '';
-      form.querySelector('#producto-precio-editar').value = datos.precio || '';
+      form.querySelector('#producto-precio-editar').value = (datos.precio !== undefined && datos.precio !== null) ? parseInt(datos.precio) : '';
       form.querySelector('#producto-stock-actual-editar').value = datos.stock_actual || '';
       form.querySelector('#producto-stock-minimo-editar').value = datos.stock_minimo || '';
       form.querySelector('#producto-compra-editar').value = datos.compra_id || '';
@@ -1363,11 +1363,12 @@ function obtenerDatosFila(tipo, id) {
   switch (tipo) {
     case 'producto':
       if (cells.length >= 8) {
+        let precioLimpio = cells[2].textContent.replace(/[^\d]/g, '');
         datos = {
           id: id,
           nombre: cells[0].textContent,
           descripcion: cells[1].textContent,
-          precio: cells[2].textContent,
+          precio: precioLimpio,
           stock_actual: cells[3].textContent,
           stock_minimo: cells[4].textContent,
           compra_id: row.getAttribute('data-compra-id') || '',

@@ -2877,7 +2877,6 @@ def estadisticas_view(request):
         .annotate(total=Count('id'))
         .order_by('dia')
     )
-    
     membresias_semanales = (
         ClienteMembresia.objects
         .filter(fecha_inicio__gte=now.date() - timedelta(days=28))
@@ -2886,7 +2885,6 @@ def estadisticas_view(request):
         .annotate(total=Count('id'))
         .order_by('semana')
     )
-    
     membresias_mensuales = (
         ClienteMembresia.objects
         .filter(fecha_inicio__gte=six_months_ago.date())
@@ -2895,7 +2893,13 @@ def estadisticas_view(request):
         .annotate(total=Count('id'))
         .order_by('mes')
     )
-    
+    membresias_anuales = (
+        ClienteMembresia.objects
+        .annotate(anio=TruncYear('fecha_inicio'))
+        .values('anio')
+        .annotate(total=Count('id'))
+        .order_by('anio')
+    )
     # Si no hay membresías recientes, mostrar todas las membresías disponibles
     if not membresias_mensuales.exists():
         membresias_mensuales = (
@@ -2905,7 +2909,6 @@ def estadisticas_view(request):
             .annotate(total=Count('id'))
             .order_by('mes')
         )
-    
     if not membresias_semanales.exists():
         membresias_semanales = (
             ClienteMembresia.objects
@@ -2914,7 +2917,6 @@ def estadisticas_view(request):
             .annotate(total=Count('id'))
             .order_by('semana')
         )
-    
     if not membresias_diarias.exists():
         membresias_diarias = (
             ClienteMembresia.objects
@@ -2922,6 +2924,14 @@ def estadisticas_view(request):
             .values('dia')
             .annotate(total=Count('id'))
             .order_by('dia')
+        )
+    if not membresias_anuales.exists():
+        membresias_anuales = (
+            ClienteMembresia.objects
+            .annotate(anio=TruncYear('fecha_inicio'))
+            .values('anio')
+            .annotate(total=Count('id'))
+            .order_by('anio')
         )
     
     # Preparar datos para el contexto
@@ -2977,6 +2987,9 @@ def estadisticas_view(request):
             elif 'mes' in membresia:
                 labels.append(membresia['mes'].strftime(date_format))
                 data.append(membresia['total'])
+            elif 'anio' in membresia:
+                labels.append(membresia['anio'].strftime(date_format))
+                data.append(membresia['total'])
         return labels, data
     
     # Datos de ventas monetarias
@@ -3009,6 +3022,7 @@ def estadisticas_view(request):
     membresias_semanales_labels, membresias_semanales_data = format_membresias_data(membresias_semanales, '%d/%m')
     membresias_mensuales_labels, membresias_mensuales_data = format_membresias_data(membresias_mensuales, '%B %Y')
     membresias_mensuales_labels = [label.capitalize() for label in membresias_mensuales_labels]
+    membresias_anuales_labels, membresias_anuales_data = format_membresias_data(membresias_anuales, '%Y')
     locale.setlocale(locale.LC_TIME, '')
     
     # Productos más vendidos
@@ -3073,6 +3087,8 @@ def estadisticas_view(request):
         'membresias_semanales_data': json.dumps(membresias_semanales_data),
         'membresias_mensuales_labels': json.dumps(membresias_mensuales_labels),
         'membresias_mensuales_data': json.dumps(membresias_mensuales_data),
+        'membresias_anuales_labels': json.dumps(membresias_anuales_labels),
+        'membresias_anuales_data': json.dumps(membresias_anuales_data),
         
         # Datos legacy para compatibilidad
         'etiquetas': json.dumps(ventas_mensuales_labels),
