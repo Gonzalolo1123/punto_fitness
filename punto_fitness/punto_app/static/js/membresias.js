@@ -117,6 +117,13 @@ function abrirModalEdicion(tipo, id, datos = null) {
     if (modalFondo) {
         modalFondo.style.display = 'flex';
         // Si se pasan datos, llenar el formulario
+        if (tipo === 'membresia') {
+            const form = modalFondo.querySelector('form');
+            if (form && datos) {
+                if (form.querySelector(`#membresia-precio-editar-${id}`))
+                    form.querySelector(`#membresia-precio-editar-${id}`).value = (datos.precio !== undefined && datos.precio !== null) ? parseInt(datos.precio) : '';
+            }
+        }
         if (datos && tipo === 'cliente-membresia') {
             const form = modalFondo.querySelector('form');
             if (form) {

@@ -1157,7 +1157,7 @@ function llenarFormularioEdicion(tipo, datos) {
       
     case 'compra':
       form.querySelector('#compra-fecha-editar').value = datos.fecha || '';
-      form.querySelector('#compra-total-editar').value = datos.total || '';
+      form.querySelector('#compra-total-editar').value = (datos.total !== undefined && datos.total !== null) ? parseInt(datos.total) : '';
       form.querySelector('#compra-iva-editar').value = datos.iva || '';
       form.querySelector('#compra-estado-editar').value = datos.estado ? 'True' : 'False';
       form.querySelector('#compra-establecimiento-editar').value = datos.establecimiento_id || '';
@@ -1391,10 +1391,11 @@ function obtenerDatosFila(tipo, id) {
       
     case 'compra':
       if (cells.length >= 6) {
+        let totalLimpio = cells[1].textContent.replace(/[^\d]/g, '');
         datos = {
           id: id,
           fecha: cells[0].textContent,
-          total: cells[1].textContent,
+          total: totalLimpio,
           iva: cells[2].textContent,
           estado: cells[3].textContent === 'Hecho',
           establecimiento_id: row.getAttribute('data-establecimiento-id') || '',
